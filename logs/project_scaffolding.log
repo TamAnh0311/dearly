@@ -1,0 +1,9 @@
+[2026-10-13 12:02:00]
+CONTEXT: Scaffold the Dearly wedding platform Next.js 14 project with TypeScript, Tailwind CSS 3, App Router, Supabase, Framer Motion, Zustand, Zod, React Hook Form, and Lucide React at D:/pet/dearly.
+RESULT: Project scaffolded and built successfully. Removed vitest/testing-library dependencies and setup files per task spec. Created postcss.config.js, corrected globals.css and tailwind.config.ts with Dearly design tokens. Build passes (`npm run build` → .next/ generated). Committed as root commit c2436ed on master.
+---
+
+[2026-10-13 00:00:00]
+CONTEXT: Create all Supabase migration files and seed data for the Dearly wedding platform, covering templates, weddings, events, gallery, guestbook, RLS policies, and updated_at trigger.
+RESULT: Created supabase/ via `npx supabase init`, wrote 7 migration files (00001–00007) and supabase/seed.sql with 10 template rows. Committed as "feat: add Supabase schema with templates, weddings, gallery, guestbook, and RLS" (ae169fb).
+---

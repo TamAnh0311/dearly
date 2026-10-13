@@ -1,0 +1,4 @@
+[2026-10-13 00:00:00]
+CONTEXT: Implement Task 9 API Routes for the Dearly wedding platform — photo upload endpoint and guestbook submission endpoint with in-memory rate limiting.
+RESULT: Created src/app/api/photos/upload/route.ts (POST handler with file type/size validation, Supabase storage upload, gallery_photos DB insert, guest vs couple status logic) and src/app/api/guestbook/route.ts (POST handler with 1-per-IP/5-min rate limiting, field validation, guestbook_entries DB insert).
+---

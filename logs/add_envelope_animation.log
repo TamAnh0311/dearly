@@ -1,0 +1,4 @@
+[2026-10-13 00:00:00]
+CONTEXT: Add an animated envelope opening feature to the Dearly wedding platform that first-time guests see before the invitation page is rendered.
+RESULT: Created src/components/ui/EnvelopeAnimation.tsx (CSS-drawn envelope with Framer Motion wax-seal break, flap rotation, card slide-up, and fade-out) and src/components/ui/EnvelopeWrapper.tsx (localStorage gate). Updated src/app/[slug]/page.tsx to wrap all invitation content in EnvelopeWrapper.
+---

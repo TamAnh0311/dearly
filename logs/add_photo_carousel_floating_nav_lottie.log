@@ -1,0 +1,4 @@
+[2026-10-13 00:00:00]
+CONTEXT: Add three UI features to the Dearly wedding platform: an auto-playing photo carousel with Ken Burns effect, a frosted-glass floating navigation bar for guest pages, and Framer Motion-based decorative animations mimicking Lottie illustrations (hearts, rings, flowers, sparkles, confetti).
+RESULT: Created src/components/ui/PhotoCarousel.tsx, src/components/ui/FloatingNav.tsx, and src/components/ui/LottieDecoration.tsx; integrated FloatingNav into src/app/[slug]/page.tsx, src/app/[slug]/gallery/page.tsx, and src/app/[slug]/guestbook/page.tsx; committed in three separate commits (cbd0715, cdd5c67, d445bc9).
+---

@@ -1,0 +1,4 @@
+[2026-10-13 00:00:00]
+CONTEXT: User requested building a wedding platform (Dearly) based on the wtd-app tech stack, with 10 customizable templates, photo galleries, event timelines, and guest books.
+RESULT: Full platform implemented across 18 commits. Stack: Next.js 14, Tailwind CSS, Supabase, Framer Motion, Zustand. 10 templates (Eternal, Bloom, Minimal, Rustic, Deco, Sunset, Noir, Garden, Polaroid, Glass), hybrid editor with live preview, guest-facing routes at /[slug], photo gallery with 3 layouts + guest uploads, guestbook with spam prevention, API routes with rate limiting. Build passes cleanly.
+---

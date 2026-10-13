@@ -1,0 +1,4 @@
+[2026-10-13 00:00:00]
+CONTEXT: Add a floating ambient music player widget to guest-facing wedding pages, with dashboard controls to set the audio URL and a DB migration for the new column.
+RESULT: Created src/components/ui/MusicPlayer.tsx (client component with HTML5 Audio, fade in/out, animated bars, pulse ring, Framer Motion); created supabase/migrations/00008_add_music_url.sql; added music_url field to WeddingRow in src/types/database.ts; integrated MusicPlayer into src/app/[slug]/page.tsx; added music URL input to src/app/(dashboard)/dashboard/settings/page.tsx.
+---

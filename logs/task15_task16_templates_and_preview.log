@@ -1,0 +1,4 @@
+[2026-10-13 00:00:00]
+CONTEXT: Implement Task 15 (9 remaining wedding templates: bloom, minimal, rustic, deco, sunset, noir, garden, polaroid, glass) and Task 16 (preview route at /preview for editor iframe live preview).
+RESULT: Created 54 files across 9 template directories (each with theme.ts, InvitationPage.tsx, GalleryLayout.tsx, TimelineSection.tsx, GuestbookSection.tsx, index.ts) and src/app/preview/page.tsx. Each template has distinct Framer Motion animations and committed individually per spec. Preview page listens for postMessage "preview-update" events, validates payload, lazy-loads the correct template, and renders InvitationPage + TimelineSection.
+---

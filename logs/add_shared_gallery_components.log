@@ -1,0 +1,4 @@
+[2026-10-13 00:00:00]
+CONTEXT: Create 5 shared gallery components for the Dearly wedding platform under src/components/gallery/: Lightbox, MasonryGrid, AlbumView, TimelineGallery, and GuestUploadForm.
+RESULT: All 5 files created at D:/pet/dearly/src/components/gallery/ — Lightbox.tsx (fullscreen viewer with keyboard nav), MasonryGrid.tsx (Pinterest-style columns), AlbumView.tsx (album tabs + square grid), TimelineGallery.tsx (alternating chronological layout), GuestUploadForm.tsx (drag-and-drop upload with success state).
+---

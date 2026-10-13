@@ -1,0 +1,4 @@
+[2026-10-13 00:00:00]
+CONTEXT: Implement Task 4 (Auth Pages) for the Dearly wedding platform — create login, signup, and OAuth callback pages with social login buttons.
+RESULT: Created 6 files: src/components/auth/SocialLoginButtons.tsx, src/components/auth/LoginForm.tsx, src/components/auth/SignupForm.tsx, src/app/(auth)/login/page.tsx, src/app/(auth)/signup/page.tsx, src/app/auth/callback/route.ts. All files match the plan spec exactly.
+---

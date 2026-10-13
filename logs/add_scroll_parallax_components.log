@@ -1,0 +1,4 @@
+[2026-10-13 00:00:00]
+CONTEXT: Add a scroll progress indicator (thin top bar) and four reusable scroll-linked parallax/reveal components to the Dearly wedding platform.
+RESULT: Created five new client components — ScrollProgress.tsx, ParallaxSection.tsx, RevealOnScroll.tsx, TextReveal.tsx, HorizontalScroll.tsx — under src/components/ui/. Integrated ScrollProgress (driven by theme primary color) into src/app/[slug]/page.tsx, src/app/[slug]/gallery/page.tsx, and src/app/[slug]/guestbook/page.tsx.
+---

@@ -1,0 +1,4 @@
+[2026-10-13 00:00:00]
+CONTEXT: Task 8 — Create GuestbookForm component for the Dearly wedding platform with honeypot spam prevention, success/error/loading states, and theme-driven styling.
+RESULT: Created src/components/guestbook/GuestbookForm.tsx as a "use client" component; committed under feat: add guestbook form with honeypot spam prevention (commit 15567d5).
+---

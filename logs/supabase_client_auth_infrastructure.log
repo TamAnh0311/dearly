@@ -1,0 +1,4 @@
+[2026-10-13 00:00:00]
+CONTEXT: Create Supabase client libraries, auth context, middleware, storage helpers, and TypeScript types for the Dearly wedding platform (Next.js 14 App Router).
+RESULT: Created 8 files — src/types/database.ts, src/types/wedding.ts, src/lib/supabase/client.ts, src/lib/supabase/server.ts, src/lib/supabase/middleware.ts, src/lib/supabase/storage.ts, src/middleware.ts, src/context/AuthContext.tsx — and committed as "feat: add Supabase clients, auth context, middleware, and database types".
+---

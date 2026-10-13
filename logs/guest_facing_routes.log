@@ -1,0 +1,4 @@
+[2026-10-13 00:00:00]
+CONTEXT: Implement Task 13 — create three guest-facing Next.js 14 App Router server components for the Dearly wedding platform: invitation page, gallery page, and guestbook page under src/app/[slug]/.
+RESULT: Created src/app/[slug]/page.tsx (invitation + conditional timeline), src/app/[slug]/gallery/page.tsx (approved photos + conditional GuestUploadForm), and src/app/[slug]/guestbook/page.tsx (guestbook entries). All routes fetch published weddings, resolve templates via registry, merge themes, and guard disabled sections with notFound().
+---

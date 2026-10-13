@@ -57,7 +57,6 @@ export default function PhotoCarousel({
 
   if (images.length === 0) return null;
 
-  const prevImageSrc = images[(current - 1 + images.length) % images.length];
   const nextImageSrc = images[nextIndex(current, images.length)];
 
   return (

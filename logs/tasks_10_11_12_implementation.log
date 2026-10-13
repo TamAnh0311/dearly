@@ -1,0 +1,4 @@
+[2026-10-13 00:00:00]
+CONTEXT: Implement Tasks 10, 11, and 12 of the Dearly wedding platform — editor Zustand store, data hooks (wedding/gallery/guestbook/timeline), dashboard layout (Sidebar + TopBar + shell + home page), and root layout + marketing landing page.
+RESULT: Created 11 files across src/store/, src/hooks/, src/components/dashboard/, src/app/(dashboard)/, and replaced src/app/layout.tsx and src/app/page.tsx. All 3 commits made: editor store/hooks, dashboard layout, root layout/landing page.
+---

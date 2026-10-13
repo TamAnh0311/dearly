@@ -31,6 +31,7 @@ export interface WeddingRow {
   venue_address: string | null;
   story_text: string | null;
   customization: WeddingCustomization;
+  music_url: string | null;
   is_published: boolean;
   guest_uploads_enabled: boolean;
   created_at: string;

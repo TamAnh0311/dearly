@@ -1,0 +1,4 @@
+[2026-10-13 00:00:00]
+CONTEXT: Replace the boring "Welcome to Dearly" dashboard page with a beautiful template picker onboarding flow (for new users) and a card-based overview with stats and quick links (for returning users with a wedding).
+RESULT: Rewrote src/app/(dashboard)/dashboard/page.tsx as a "use client" component using useMyWedding(), Framer Motion animations, and Lucide icons. Onboarding shows a 10-template staggered grid with real color-scheme mini-mockups, animated selection rings, and an inline Step 2 form (partner names, date, auto-generated slug). Dashboard overview shows a couple card, photo/guestbook/event stat row, 4 quick-link cards, and a View Site CTA. Zero TypeScript errors introduced.
+---

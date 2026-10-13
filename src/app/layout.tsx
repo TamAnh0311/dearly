@@ -22,8 +22,8 @@ const lato = Lato({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Dearly — Wedding Invitations & Galleries", template: "%s | Dearly" },
-  description: "Create beautiful, animated wedding invitations and photo galleries. Pick a template, customize everything, share with your guests.",
+  title: { default: "Dearly — Beautiful Wedding Invitations & Photo Galleries", template: "%s | Dearly" },
+  description: "Create stunning animated wedding invitations, photo galleries, and guest books. 10 beautiful templates, full customization, share with your guests in minutes.",
   metadataBase: new URL("https://dearly.app"),
 };
 

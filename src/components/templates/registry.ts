@@ -15,6 +15,8 @@ const templates: TemplateDefinition[] = [
   { slug: "garden", name: "Garden", load: () => import("./garden").then((m) => m.default) },
   { slug: "polaroid", name: "Polaroid", load: () => import("./polaroid").then((m) => m.default) },
   { slug: "glass", name: "Glass", load: () => import("./glass").then((m) => m.default) },
+  { slug: "luxe", name: "Luxe", load: () => import("./luxe").then((m) => m.default) },
+  { slug: "boho", name: "Boho", load: () => import("./boho").then((m) => m.default) },
 ];
 
 /**

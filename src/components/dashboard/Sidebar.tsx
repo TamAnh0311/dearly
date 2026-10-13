@@ -6,7 +6,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Palette, Image, MessageSquare, Clock, Settings } from "lucide-react";
+import { Palette, Image, MessageSquare, Clock, Settings, User } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/dashboard/editor", label: "Editor", icon: Palette },
@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { href: "/dashboard/guestbook", label: "Guest Book", icon: MessageSquare },
   { href: "/dashboard/timeline", label: "Timeline", icon: Clock },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
+  { href: "/dashboard/account", label: "Account", icon: User },
 ];
 
 export default function Sidebar() {

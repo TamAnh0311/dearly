@@ -22,6 +22,11 @@ import {
   Link as LinkIcon,
   ChevronRight,
   Sparkles,
+  Eye,
+  X,
+  MapPin,
+  Calendar,
+  Music,
 } from "lucide-react";
 import { useMyWedding } from "@/hooks/useWedding";
 import { createClient } from "@/lib/supabase/client";
@@ -130,6 +135,177 @@ function TemplateCardSkeleton() {
 }
 
 // ---------------------------------------------------------------------------
+// Template Preview Modal
+// ---------------------------------------------------------------------------
+
+/**
+ * Full-screen modal showing a detailed template preview with a simulated
+ * invitation page mockup using the template's actual colors and fonts.
+ */
+function TemplatePreviewModal({
+  template,
+  onClose,
+  onSelect,
+}: {
+  template: TemplateRow;
+  onClose: () => void;
+  onSelect: () => void;
+}) {
+  const colors = template.default_config?.colors ?? { primary: "#B8860B", secondary: "#FFFFF0", accent: "#D4A574" };
+  const fonts = template.default_config?.fonts ?? { display: "Georgia", body: "sans-serif" };
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+    >
+      <motion.div
+        className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl"
+        initial={{ scale: 0.9, y: 30 }}
+        animate={{ scale: 1, y: 0 }}
+        exit={{ scale: 0.9, y: 30 }}
+        transition={{ type: "spring", damping: 25, stiffness: 300 }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute right-3 top-3 z-10 rounded-full bg-white/80 p-1.5 text-gray-500 backdrop-blur-sm transition hover:bg-white hover:text-gray-800"
+        >
+          <X size={18} />
+        </button>
+
+        {/* Simulated invitation page */}
+        <div className="min-h-[500px]" style={{ backgroundColor: colors.secondary }}>
+          {/* Hero section */}
+          <div className="flex flex-col items-center justify-center px-8 py-16 text-center">
+            <div className="mb-6 h-px w-16" style={{ backgroundColor: colors.primary }} />
+            <p className="mb-3 text-xs uppercase tracking-[0.25em]" style={{ color: colors.primary, fontFamily: fonts.body }}>
+              Together with their families
+            </p>
+            <h2
+              className="mb-1 text-4xl font-light md:text-5xl"
+              style={{ color: colors.primary, fontFamily: fonts.display }}
+            >
+              Emma
+            </h2>
+            <p className="mb-1 text-xl italic" style={{ color: colors.accent, fontFamily: fonts.display }}>
+              &amp;
+            </p>
+            <h2
+              className="mb-6 text-4xl font-light md:text-5xl"
+              style={{ color: colors.primary, fontFamily: fonts.display }}
+            >
+              James
+            </h2>
+            <div className="mb-4 h-px w-16" style={{ backgroundColor: colors.primary }} />
+            <p className="text-xs uppercase tracking-[0.2em]" style={{ color: colors.accent }}>
+              Request the pleasure of your company
+            </p>
+
+            <div className="mt-8 flex items-center gap-2" style={{ color: colors.primary }}>
+              <Calendar size={16} />
+              <span style={{ fontFamily: fonts.display }}>Saturday, June 15, 2027</span>
+            </div>
+
+            <div className="mt-3 flex items-center gap-2" style={{ color: colors.accent }}>
+              <MapPin size={16} />
+              <span>The Grand Estate, Garden Hall</span>
+            </div>
+
+            {/* Countdown mockup */}
+            <div className="mt-10 flex gap-6">
+              {[
+                { label: "Days", value: "142" },
+                { label: "Hours", value: "08" },
+                { label: "Minutes", value: "24" },
+                { label: "Seconds", value: "36" },
+              ].map(({ label, value }) => (
+                <div key={label} className="flex flex-col items-center">
+                  <span className="text-2xl font-bold tabular-nums" style={{ color: colors.primary }}>{value}</span>
+                  <span className="mt-1 text-[10px] uppercase tracking-wider" style={{ color: colors.accent }}>{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Story section */}
+          <div className="mx-auto max-w-lg px-8 py-12 text-center">
+            <h3 className="mb-4 text-2xl" style={{ color: colors.primary, fontFamily: fonts.display }}>
+              Our Story
+            </h3>
+            <p className="text-sm leading-relaxed" style={{ color: colors.accent }}>
+              We met on a rainy afternoon in a small coffee shop downtown. What started as a conversation over lattes became the greatest adventure of our lives. Three years later, surrounded by the people we love most, we&apos;re ready to begin our forever.
+            </p>
+          </div>
+
+          {/* Timeline mockup */}
+          <div className="mx-auto max-w-md px-8 py-8">
+            <h3 className="mb-6 text-center text-2xl" style={{ color: colors.primary, fontFamily: fonts.display }}>
+              Schedule
+            </h3>
+            <div className="relative space-y-6 pl-8">
+              <div className="absolute left-3 top-0 h-full w-px" style={{ backgroundColor: colors.primary, opacity: 0.3 }} />
+              {[
+                { time: "3:00 PM", title: "Ceremony" },
+                { time: "4:30 PM", title: "Cocktail Hour" },
+                { time: "6:00 PM", title: "Reception & Dinner" },
+              ].map(({ time, title }) => (
+                <div key={title} className="flex items-start gap-4">
+                  <div className="relative -ml-5 mt-1 h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: colors.primary }} />
+                  <div>
+                    <p className="text-sm font-semibold" style={{ color: colors.primary, fontFamily: fonts.display }}>{title}</p>
+                    <p className="text-xs" style={{ color: colors.accent }}>{time}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Features row */}
+          <div className="flex justify-center gap-6 px-8 py-8 text-center">
+            {[
+              { icon: Image, label: "Photo Gallery" },
+              { icon: MessageSquare, label: "Guest Book" },
+              { icon: Music, label: "Background Music" },
+            ].map(({ icon: Icon, label }) => (
+              <div key={label} className="flex flex-col items-center gap-1.5">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full" style={{ backgroundColor: `${colors.primary}15` }}>
+                  <Icon size={18} style={{ color: colors.primary }} />
+                </div>
+                <span className="text-[11px]" style={{ color: colors.accent }}>{label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Footer bar */}
+        <div className="sticky bottom-0 flex items-center justify-between border-t bg-white px-6 py-4">
+          <div>
+            <p className="text-lg font-bold text-dearly-text">{template.name}</p>
+            <p className="text-xs text-dearly-text-secondary">{template.description}</p>
+          </div>
+          <button
+            onClick={onSelect}
+            className="rounded-lg bg-dearly-accent px-5 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+          >
+            Use This Template
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main Page Component
 // ---------------------------------------------------------------------------
 
@@ -141,6 +317,8 @@ export default function DashboardPage() {
   const [templates, setTemplates] = useState<TemplateRow[]>([]);
   const [templatesLoading, setTemplatesLoading] = useState(true);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+
+  const [previewTemplate, setPreviewTemplate] = useState<TemplateRow | null>(null);
 
   // Onboarding form state
   const [partner1, setPartner1] = useState("");
@@ -523,9 +701,22 @@ export default function DashboardPage() {
                       {template.description}
                     </p>
                   )}
-                  <span className={`mt-1 self-start rounded-full px-2 py-0.5 text-[10px] font-semibold ${badge.className}`}>
-                    {badge.label}
-                  </span>
+                  <div className="mt-1 flex items-center gap-2">
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${badge.className}`}>
+                      {badge.label}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPreviewTemplate(template);
+                      }}
+                      className="flex items-center gap-1 rounded-full bg-dearly-accent-soft px-2 py-0.5 text-[10px] font-semibold text-dearly-accent transition hover:bg-dearly-accent hover:text-white"
+                    >
+                      <Eye size={10} />
+                      Preview
+                    </button>
+                  </div>
                 </div>
               </motion.button>
             );
@@ -669,6 +860,20 @@ export default function DashboardPage() {
               </motion.button>
             </form>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Template Preview Modal */}
+      <AnimatePresence>
+        {previewTemplate && (
+          <TemplatePreviewModal
+            template={previewTemplate}
+            onClose={() => setPreviewTemplate(null)}
+            onSelect={() => {
+              setSelectedTemplateId(previewTemplate.id);
+              setPreviewTemplate(null);
+            }}
+          />
         )}
       </AnimatePresence>
     </div>

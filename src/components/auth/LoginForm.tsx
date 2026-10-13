@@ -17,6 +17,7 @@ export default function LoginForm() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -28,6 +29,11 @@ export default function LoginForm() {
 
     try {
       await signIn(email, password);
+      if (!rememberMe) {
+        sessionStorage.setItem("dearly-session-only", "true");
+      } else {
+        sessionStorage.removeItem("dearly-session-only");
+      }
       router.push("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign-in failed. Please try again.");
@@ -79,6 +85,19 @@ export default function LoginForm() {
             className="w-full rounded-lg border border-dearly-border bg-white px-3 py-2 text-sm focus:border-dearly-accent focus:outline-none focus:ring-1 focus:ring-dearly-accent"
             placeholder="••••••••"
           />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <input
+            id="rememberMe"
+            type="checkbox"
+            checked={rememberMe}
+            onChange={(e) => setRememberMe(e.target.checked)}
+            className="h-4 w-4 rounded border-dearly-border text-dearly-accent focus:ring-dearly-accent"
+          />
+          <label htmlFor="rememberMe" className="text-sm text-dearly-text-secondary">
+            Remember me
+          </label>
         </div>
 
         {error && (

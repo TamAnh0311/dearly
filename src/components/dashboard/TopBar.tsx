@@ -4,6 +4,7 @@
  * Dashboard top bar — shows couple names, preview link, and publish toggle.
  */
 
+import { useRouter } from "next/navigation";
 import { ExternalLink, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useMyWedding } from "@/hooks/useWedding";
@@ -11,6 +12,7 @@ import { useMyWedding } from "@/hooks/useWedding";
 export default function TopBar() {
   const { signOut } = useAuth();
   const { wedding, saveWedding } = useMyWedding();
+  const router = useRouter();
 
   /** Toggles the published state of the wedding. */
   async function togglePublish() {
@@ -57,7 +59,10 @@ export default function TopBar() {
         )}
 
         <button
-          onClick={signOut}
+          onClick={async () => {
+            await signOut();
+            router.push("/login");
+          }}
           className="rounded-lg p-1.5 text-dearly-text-muted transition hover:bg-dearly-accent-soft hover:text-dearly-text"
           aria-label="Sign out"
         >

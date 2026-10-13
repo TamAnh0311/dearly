@@ -3,6 +3,11 @@
  * Fetches the published wedding by slug, loads the assigned template dynamically,
  * and renders the invitation and (optionally) the timeline section.
  * First-time visitors see the EnvelopeAnimation before the content is revealed.
+ *
+ * Music resolution order:
+ *  1. music_track_id — fetches the URL from the music_tracks table.
+ *  2. music_url — uses the custom URL directly.
+ *  3. Neither set — no music player rendered.
  */
 
 import { notFound } from "next/navigation";
@@ -11,7 +16,7 @@ import { getTemplate } from "@/components/templates/registry";
 import { resolveTheme } from "@/components/templates/types";
 import ScrollProgress from "@/components/ui/ScrollProgress";
 import EnvelopeWrapper from "@/components/ui/EnvelopeWrapper";
-import type { WeddingRow, TemplateRow, WeddingEventRow } from "@/types/database";
+import type { WeddingRow, TemplateRow, WeddingEventRow, MusicTrackRow } from "@/types/database";
 import MusicPlayer from "@/components/ui/MusicPlayer";
 import FloatingNav from "@/components/ui/FloatingNav";
 
@@ -41,6 +46,24 @@ export default async function WeddingPage({ params }: PageProps) {
     .eq("wedding_id", weddingData.id)
     .order("sort_order", { ascending: true });
 
+  /**
+   * Resolve the music URL to pass to MusicPlayer.
+   * music_track_id takes priority over music_url (custom).
+   */
+  let resolvedMusicUrl: string | undefined;
+
+  if (weddingData.music_track_id) {
+    const { data: track } = await supabase
+      .from("music_tracks")
+      .select("url")
+      .eq("id", weddingData.music_track_id)
+      .single();
+
+    resolvedMusicUrl = (track as Pick<MusicTrackRow, "url"> | null)?.url ?? undefined;
+  } else if (weddingData.music_url) {
+    resolvedMusicUrl = weddingData.music_url;
+  }
+
   const components = await templateDef.load();
   const theme = resolveTheme(weddingData.template.default_config, weddingData.customization);
   const { InvitationPage, TimelineSection } = components;
@@ -64,7 +87,7 @@ export default async function WeddingPage({ params }: PageProps) {
             theme={theme}
           />
         )}
-        <MusicPlayer musicUrl={weddingData.music_url ?? undefined} theme={theme} />
+        <MusicPlayer musicUrl={resolvedMusicUrl} theme={theme} />
         <FloatingNav
           weddingSlug={params.slug}
           theme={theme}

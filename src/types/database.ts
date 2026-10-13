@@ -32,10 +32,23 @@ export interface WeddingRow {
   story_text: string | null;
   customization: WeddingCustomization;
   music_url: string | null;
+  music_track_id: string | null;
   is_published: boolean;
   guest_uploads_enabled: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface MusicTrackRow {
+  id: string;
+  name: string;
+  artist: string;
+  genre: "piano" | "acoustic" | "orchestral" | "ambient" | "romantic";
+  duration_seconds: number;
+  url: string;
+  preview_url: string | null;
+  is_featured: boolean;
+  created_at: string;
 }
 
 export interface WeddingCustomization {

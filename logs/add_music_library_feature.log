@@ -1,0 +1,4 @@
+[2026-10-13 00:00:00]
+CONTEXT: Add a built-in royalty-free music library to the Dearly wedding platform, including database migrations, a MusicPicker component with genre filtering and inline preview, and integration into the settings page and guest-facing wedding page.
+RESULT: Created migrations 00009–00011 (music_tracks table, 20 seed tracks, storage buckets), added MusicTrackRow type and music_track_id field to database.ts, built MusicPicker.tsx with Library/Custom URL tabs, updated settings/page.tsx to use MusicPicker, and updated [slug]/page.tsx to resolve music_track_id before passing URL to MusicPlayer.
+---

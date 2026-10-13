@@ -1,12 +1,14 @@
 "use client";
 
 /**
- * Settings page — manage wedding slug, publish state, and guest upload toggle.
+ * Settings page — manage wedding slug, publish state, guest upload toggle,
+ * and background music (library track or custom URL).
  * Uses useMyWedding for data fetching and saving.
  */
 
 import { useEffect, useState } from "react";
 import { useMyWedding } from "@/hooks/useWedding";
+import MusicPicker from "@/components/dashboard/editor/MusicPicker";
 
 /**
  * Validates a slug: lowercase alphanumeric with hyphens, 3-60 chars.
@@ -24,6 +26,7 @@ export default function SettingsPage() {
   const [slug, setSlug] = useState("");
   const [isPublished, setIsPublished] = useState(false);
   const [guestUploadsEnabled, setGuestUploadsEnabled] = useState(false);
+  const [musicTrackId, setMusicTrackId] = useState<string | null>(null);
   const [musicUrl, setMusicUrl] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -35,6 +38,7 @@ export default function SettingsPage() {
     setSlug(wedding.slug ?? "");
     setIsPublished(wedding.is_published ?? false);
     setGuestUploadsEnabled(wedding.guest_uploads_enabled ?? false);
+    setMusicTrackId(wedding.music_track_id ?? null);
     setMusicUrl(wedding.music_url ?? "");
   }, [wedding]);
 
@@ -58,6 +62,7 @@ export default function SettingsPage() {
 
   /**
    * Saves settings to Supabase.
+   * music_track_id takes priority; if a track is selected the custom URL is cleared.
    */
   async function handleSave() {
     if (!slugValid) return;
@@ -69,7 +74,8 @@ export default function SettingsPage() {
         slug,
         is_published: isPublished,
         guest_uploads_enabled: guestUploadsEnabled,
-        music_url: musicUrl.trim() || null,
+        music_track_id: musicTrackId,
+        music_url: musicTrackId ? null : (musicUrl.trim() || null),
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
@@ -165,21 +171,25 @@ export default function SettingsPage() {
           </button>
         </div>
 
-        {/* Background Music URL */}
+        {/* Background Music */}
         <div className="space-y-1.5">
           <label className="text-sm font-medium text-dearly-text">
-            Background Music URL
+            Background Music
           </label>
-          <input
-            type="url"
-            value={musicUrl}
-            onChange={(e) => setMusicUrl(e.target.value)}
-            placeholder="https://example.com/music.mp3"
-            className="w-full rounded-lg border border-dearly-border bg-dearly-cream px-3 py-2 text-sm text-dearly-text focus:outline-none focus:ring-2 focus:ring-dearly-accent/40"
+          <MusicPicker
+            selectedTrackId={musicTrackId}
+            customUrl={musicUrl}
+            onSelectTrack={(id) => {
+              setMusicTrackId(id);
+              // Clear custom URL when a library track is chosen.
+              if (id) setMusicUrl("");
+            }}
+            onCustomUrl={(url) => {
+              setMusicUrl(url);
+              // Clear track selection when a custom URL is entered.
+              if (url) setMusicTrackId(null);
+            }}
           />
-          <p className="text-xs text-dearly-text-secondary">
-            Paste a link to an MP3 file. Leave blank to disable ambient music.
-          </p>
         </div>
 
         {/* Error */}

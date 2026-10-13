@@ -1,0 +1,4 @@
+[2026-10-13 00:00:00]
+CONTEXT: Redesign the Dearly marketing landing page (src/app/page.tsx) with Framer Motion animations, 8 full sections, template showcase, and interactive feature tabs. Also update metadata in src/app/layout.tsx.
+RESULT: Rewrote page.tsx with hero (word-stagger + floating card), stats bar (animated counters), 10-template horizontal carousel, interactive feature tabs with AnimatePresence mockups, how-it-works with SVG path animation, testimonials with rotation, final CTA with glow button, and footer. Updated layout.tsx metadata title/description.
+---

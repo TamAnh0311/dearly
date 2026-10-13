@@ -28,9 +28,9 @@ export function useMyWedding() {
         .from("weddings")
         .select("*, template:templates(*)")
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
 
-      if (queryError && queryError.code !== "PGRST116") {
+      if (queryError) {
         setError(queryError.message);
       }
       setWedding(data as WeddingWithTemplate | null);

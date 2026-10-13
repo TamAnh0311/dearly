@@ -1,0 +1,69 @@
+/**
+ * Global stylesheet.
+ * Imports Tailwind layers and defines design-system variables
+ * for the Dearly wedding platform aesthetic.
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --dearly-cream: 252 250 247;
+    --dearly-card: 255 255 255;
+    --dearly-text: 38 35 30;
+    --dearly-text-secondary: 107 99 90;
+    --dearly-text-muted: 160 152 144;
+    --dearly-accent: 180 130 100;
+    --dearly-accent-soft: 252 245 240;
+    --dearly-gold: 190 160 90;
+    --dearly-gold-soft: 253 248 235;
+    --dearly-rose: 195 130 140;
+    --dearly-rose-soft: 252 240 242;
+    --dearly-border: 235 230 222;
+  }
+
+  html {
+    @apply h-full;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply h-full;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--dearly-border));
+    border-radius: 999px;
+  }
+}
+
+@layer utilities {
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      rgb(var(--dearly-border) / 0.3) 0%,
+      rgb(var(--dearly-border) / 0.6) 50%,
+      rgb(var(--dearly-border) / 0.3) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+}

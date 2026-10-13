@@ -20,7 +20,7 @@ const orbs = [
 ];
 
 /** Frosted glass card with 3D tilt on mouse move. */
-function GlassCard({ children, theme }: { children: React.ReactNode; theme: { colors: { primary: string; accent: string } } }) {
+function GlassCard({ children }: { children: React.ReactNode; theme: { colors: { primary: string; accent: string } } }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -64,7 +64,7 @@ function GlassCard({ children, theme }: { children: React.ReactNode; theme: { co
   );
 }
 
-export default function GlassInvitationPage({ wedding, events, theme }: InvitationPageProps) {
+export default function GlassInvitationPage({ wedding, events: _events, theme }: InvitationPageProps) {
   const weddingDate = wedding.wedding_date
     ? new Date(wedding.wedding_date).toLocaleDateString("en-US", {
         weekday: "long",

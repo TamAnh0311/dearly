@@ -47,7 +47,7 @@ function AnimatedName({ name, theme }: { name: string; theme: { fonts: { display
   );
 }
 
-export default function MinimalInvitationPage({ wedding, events, theme }: InvitationPageProps) {
+export default function MinimalInvitationPage({ wedding, events: _events, theme }: InvitationPageProps) {
   const weddingDate = wedding.wedding_date
     ? new Date(wedding.wedding_date).toLocaleDateString("en-US", {
         weekday: "long",

@@ -1,0 +1,4 @@
+[2026-10-13 00:00:00]
+CONTEXT: Run final build verification for the Dearly wedding platform, fix any build errors, and confirm all expected route and template files exist.
+RESULT: Build failed due to @typescript-eslint/no-unused-vars errors across 11 files (preview/page.tsx, and InvitationPage.tsx in all 10 templates). Fixed by prefixing unused destructured params with _ (events→_events, err→catch block, gradientPos removed, Calendar import removed from polaroid, theme removed from GlassCard params) and updating .eslintrc.json with argsIgnorePattern/varsIgnorePattern to honour _ prefix convention. Build now passes (exit 0) producing 17 static/dynamic routes.
+---

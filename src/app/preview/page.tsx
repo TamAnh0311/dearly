@@ -33,7 +33,7 @@ function isPreviewUpdate(data: unknown): data is PreviewUpdateMessage {
 }
 
 /** Builds a ResolvedTheme from wedding customization and template defaults. */
-function buildTheme(wedding: WeddingRow, templateSlug: string): ResolvedTheme {
+function buildTheme(wedding: WeddingRow, _templateSlug: string): ResolvedTheme {
   const customization = wedding.customization ?? {};
   return {
     colors: {
@@ -66,7 +66,7 @@ export default function PreviewPage() {
     try {
       const loaded = await definition.load();
       return loaded;
-    } catch (err) {
+    } catch {
       setLoadError(`Failed to load template "${slug}".`);
       return null;
     }

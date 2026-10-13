@@ -45,7 +45,7 @@ function CinematicTitle({
   );
 }
 
-export default function NoirInvitationPage({ wedding, events, theme }: InvitationPageProps) {
+export default function NoirInvitationPage({ wedding, events: _events, theme }: InvitationPageProps) {
   const weddingDate = wedding.wedding_date
     ? new Date(wedding.wedding_date).toLocaleDateString("en-US", {
         weekday: "long",

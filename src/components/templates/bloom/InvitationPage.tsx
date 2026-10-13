@@ -30,7 +30,7 @@ const bloomVariants = {
   }),
 };
 
-export default function BloomInvitationPage({ wedding, events, theme }: InvitationPageProps) {
+export default function BloomInvitationPage({ wedding, events: _events, theme }: InvitationPageProps) {
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 80]);

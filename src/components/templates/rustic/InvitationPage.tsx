@@ -26,7 +26,7 @@ const pathVariants = {
   visible: { pathLength: 1, opacity: 1, transition: { duration: 2, ease: "easeInOut", delay: 0.3 } },
 };
 
-export default function RusticInvitationPage({ wedding, events, theme }: InvitationPageProps) {
+export default function RusticInvitationPage({ wedding, events: _events, theme }: InvitationPageProps) {
   const weddingDate = wedding.wedding_date
     ? new Date(wedding.wedding_date).toLocaleDateString("en-US", {
         weekday: "long",

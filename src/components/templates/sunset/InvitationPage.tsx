@@ -26,10 +26,10 @@ const waveItem = {
   },
 };
 
-export default function SunsetInvitationPage({ wedding, events, theme }: InvitationPageProps) {
+export default function SunsetInvitationPage({ wedding, events: _events, theme }: InvitationPageProps) {
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const gradientPos = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+  useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
   const weddingDate = wedding.wedding_date
     ? new Date(wedding.wedding_date).toLocaleDateString("en-US", {

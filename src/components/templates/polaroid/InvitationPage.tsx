@@ -7,7 +7,7 @@
  */
 
 import { motion } from "framer-motion";
-import { MapPin, Calendar } from "lucide-react";
+import { MapPin } from "lucide-react";
 import CountdownTimer from "@/components/ui/CountdownTimer";
 import type { InvitationPageProps } from "../types";
 
@@ -40,7 +40,7 @@ const tapePeel = {
   }),
 };
 
-export default function PolaroidInvitationPage({ wedding, events, theme }: InvitationPageProps) {
+export default function PolaroidInvitationPage({ wedding, events: _events, theme }: InvitationPageProps) {
   const weddingDate = wedding.wedding_date
     ? new Date(wedding.wedding_date).toLocaleDateString("en-US", {
         weekday: "long",

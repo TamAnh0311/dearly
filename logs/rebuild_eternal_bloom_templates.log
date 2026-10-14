@@ -1,0 +1,4 @@
+[2026-10-13 00:00:00]
+CONTEXT: Rebuild Eternal and Bloom wedding invitation templates from basic text-on-background to premium, production-quality landing pages with SVG ornaments, parallax scrolling, particle effects, and rich section design.
+RESULT: Replaced src/components/templates/eternal/InvitationPage.tsx (309 lines) and src/components/templates/bloom/InvitationPage.tsx (573 lines). Committed as a9e6daa. Zero new type errors introduced.
+---

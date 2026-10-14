@@ -1,0 +1,4 @@
+[2026-10-13 00:00:00]
+CONTEXT: Fix ESLint lint errors (unused variables/imports and a React Hooks violation) across six template files under src/components/templates/.
+RESULT: Removed/prefixed unused vars and imports in deco, garden, minimal, noir, seaside, and sunset InvitationPage/TimelineSection files; also fixed an additional unused var in celestial/TimelineSection.tsx. The React Hooks violation in garden/InvitationPage.tsx (useTransform inside a map callback) was resolved by extracting a VineLeaf sub-component. Build passes cleanly. Committed as "fix: resolve lint errors across rebuilt templates".
+---

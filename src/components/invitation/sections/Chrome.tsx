@@ -78,7 +78,7 @@ export function TopNav({
           {showRsvp ? (
           <a
             href="#rsvp"
-            className="rounded-full px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.25em]"
+            className="rounded-full px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.25em]"
             style={{ backgroundColor: palette.primary, color: palette.background }}
           >
             RSVP

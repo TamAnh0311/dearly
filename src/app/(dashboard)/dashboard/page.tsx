@@ -480,7 +480,7 @@ export default function DashboardPage() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.16 }}
-          className="grid grid-cols-3 gap-4"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-3"
         >
           {[
             { label: "Photos", value: statsLoading ? "—" : stats.photos, Icon: Image },
@@ -735,7 +735,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Partner names */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs font-semibold text-dearly-text" htmlFor="partner1">
                     Partner 1 Name <span className="text-dearly-rose">*</span>

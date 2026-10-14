@@ -116,7 +116,7 @@ export default function FloatingNav({ weddingSlug, theme, sections }: FloatingNa
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="relative flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 sm:text-sm"
+                  className="relative flex items-center gap-1.5 rounded-full px-4 py-3 text-sm font-medium transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1"
                   style={{
                     color: isActive ? theme.colors.primary : "#6b7280",
                     backgroundColor: isActive
@@ -141,10 +141,7 @@ export default function FloatingNav({ weddingSlug, theme, sections }: FloatingNa
                     >
                       {item.icon}
                     </span>
-                    {/* Hide labels on very small screens, show on sm+ */}
-                    <span className="hidden xs:inline sm:inline">{item.label}</span>
-                    {/* Fallback: always show label so nav is always usable */}
-                    <span className="xs:hidden sm:hidden">{item.label}</span>
+                    <span className="hidden sm:inline">{item.label}</span>
                   </span>
                 </Link>
               );

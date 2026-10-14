@@ -220,10 +220,10 @@ function BlessingMarquee({ blessings, palette }: { blessings: GuestbookEntryRow[
                 <span className="text-[clamp(1.5rem,3.4vw,3rem)] italic" style={{ fontFamily: palette.displayFont }}>
                   &ldquo;{excerpt(b.message, 70)}&rdquo;
                 </span>
-                <span className="text-[clamp(1.6rem,3.6vw,3.2rem)]" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>
+                <span className="text-[clamp(1.6rem,3.6vw,3.2rem)]" style={{ fontFamily: palette.scriptFont, color: alpha(palette.primary, palette.isDark ? 0.32 : 0.24) }}>
                   {b.guest_name}
                 </span>
-                <span style={{ color: palette.primary }}>✦</span>
+                <span style={{ color: alpha(palette.primary, 0.25) }}>✦</span>
               </span>
             ))}
           </div>

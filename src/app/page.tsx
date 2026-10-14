@@ -123,7 +123,7 @@ function LivePhone() {
     <div className="flex flex-col items-center">
       <div className="relative">
         <div aria-hidden className="absolute -inset-10 rounded-[4rem] bg-gradient-to-br from-dearly-rose/30 via-dearly-gold/20 to-dearly-accent/30 blur-3xl" />
-        <div className="relative h-[620px] w-[300px] overflow-hidden rounded-[3rem] border-[10px] border-[#1b1714] bg-[#1b1714] shadow-2xl md:h-[680px] md:w-[330px]">
+        <div className="relative h-[620px] w-[min(300px,88vw)] overflow-hidden rounded-[3rem] border-[10px] border-[#1b1714] bg-[#1b1714] shadow-2xl md:h-[680px] md:w-[330px]">
           <div aria-hidden className="absolute left-1/2 top-2 z-20 h-6 w-28 -translate-x-1/2 rounded-full bg-[#1b1714]" />
           <iframe
             key={`${slug}-${nonce}`}
@@ -214,7 +214,7 @@ export default function LandingPage() {
               Start free
             </Link>
           </div>
-          <button type="button" className="rounded-lg p-2 md:hidden" aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen} onClick={() => setMenuOpen((v) => !v)}>
+          <button type="button" className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg md:hidden" aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen} onClick={() => setMenuOpen((v) => !v)}>
             {menuOpen ? <X size={20} /> : <LayoutList size={20} />}
           </button>
         </div>
@@ -223,7 +223,7 @@ export default function LandingPage() {
             <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden border-t border-dearly-border md:hidden">
               <div className="flex flex-col gap-1 px-6 py-3 text-sm font-medium">
                 {[["#openings", "Openings"], ["#features", "Features"], ["#memories", "Memories"], ["#compare", "Why Dearly"], ["/templates", "Templates"], ["/login", "Sign in"], ["/signup", "Start free"]].map(([href, label]) => (
-                  <a key={href} href={href} onClick={() => setMenuOpen(false)} className="rounded-lg px-2 py-2 hover:bg-dearly-accent-soft">
+                  <a key={href} href={href} onClick={() => setMenuOpen(false)} className="rounded-lg px-2 py-3 hover:bg-dearly-accent-soft">
                     {label}
                   </a>
                 ))}
@@ -398,7 +398,7 @@ export default function LandingPage() {
               ))}
             </ul>
           </Reveal>
-          <Reveal delay={0.1} className="relative h-[420px]">
+          <Reveal delay={0.1} className="relative h-[420px] overflow-hidden">
             {PLACEHOLDER_IMAGES.wedding.slice(0, 5).map((src, i) => (
               <motion.div
                 key={src}
@@ -434,6 +434,7 @@ export default function LandingPage() {
             </p>
           </Reveal>
           <Reveal delay={0.1} className="mt-12 overflow-hidden rounded-2xl border border-dearly-border bg-dearly-card shadow-card">
+            <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-dearly-border bg-dearly-cream/60">
@@ -461,6 +462,7 @@ export default function LandingPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           </Reveal>
         </div>
       </section>

@@ -16,7 +16,7 @@ Guidance for AI agents and contributors working on **Dearly**, a wedding invitat
 
 ## 1. Purpose
 
-A couple shares one link; guests open it on their phone. The page must feel like a **cinematic, celebrity-grade landing page**, not a card. Every template shares the same content and features (RSVP, blessings, countdown, schedule, venue, gallery). Each template has its **own design language**: layout, motion, ornaments, shapes and texture. Colour schemes are interchangeable on top of that.
+Dearly is both an **invitation** and a **wedding memory book**. A couple shares one link; guests open it on their phone. The page must feel like a **cinematic, celebrity-grade landing page**, not a card. Every template shares the same content and features (RSVP, blessings, countdown, schedule, venue, gallery). Each template has its **own design language**: layout, motion, ornaments, shapes and texture. Colour schemes are interchangeable on top of that.
 
 The benchmark is hand-made studios such as The Digital Yes (envelope intros, curtain reveals, scratch-to-reveal, RSVP inside the invitation). We aim to beat them on **interactivity** (live blessings, reactions, drag-able photos) and **instant customisation** (any colour scheme, live preview).
 
@@ -74,10 +74,26 @@ A section is skipped when it has no data **or** when the couple hid it. Visibili
 | `rsvp` | RSVP section and the nav RSVP button |
 | `blessings` | Blessing wall |
 | `reactions` | Reaction bar |
-| `blessingShower` | Floating blessings when the page loads |
+| `blessingShower` | Blessings shown when the page loads (style set by `customization.blessingStyle`) |
+| `music` | Background music |
 | `guestbook` | Footer guest-book link |
 
-Guests can also pause the floating blessings themselves. That choice is remembered in `localStorage` under `dearly-blessing-shower`.
+**Blessing style** (`customization.blessingStyle`):
+- `"marquee"` (default): blessings run as large, faint lines of text behind the **hero only**. They are rendered into the hero's `#hero-blessings` layer, which sits under the names and the curtains.
+- `"float"`: each blessing floats up the whole screen, carried by the template's motif.
+
+Guests can hide blessings themselves. That choice is remembered in `localStorage` under `dearly-blessing-shower`.
+
+**Background music** (`src/lib/ambient-music.ts` + `components/ui/MusicPlayer.tsx`):
+- The app ships no audio files, so music is generated in the browser with Web Audio. Presets: `piano`, `acoustic`, `orchestral`, `ambient`, `romantic`, `musicbox`.
+- Every template has a default preset (`style.music`).
+- A library track plays as the preset that matches its genre. A custom `music_url` plays as a file and falls back to the preset if it fails to load.
+- Browsers block autoplay, so music starts on the guest's first tap or key press, prompted by a "Tap anywhere for music" hint.
+- If a guest pauses, that is remembered in `localStorage` under `dearly-music`.
+
+**Memories:** the Moments section doubles as a memory album.
+- When `weddings.guest_uploads_enabled` is on, it shows **Share your photos**, which links to `/[slug]/gallery#share`.
+- Uploaded photos are moderated in the dashboard ("Memories & Photos").
 
 **Preview URL modes for `/templates/[slug]`:**
 - `?embed=1`: shown inside the dashboard modal. Links are hidden, and scheme/section changes are posted to the parent window.
@@ -160,7 +176,7 @@ Every word in the query must match. Plurals are folded, so "butterflies" finds "
 - **Blessings:**
   - **Wall:** a masonry wall of cards.
   - **Reactions:** batched (1 request/s, ≤ 20 per kind) with optimistic counts.
-  - **`BlessingShower`:** floats blessings up the screen when the page loads, carried by the template's motif (butterfly, flower, star, heart, confetti). It must stay pointer-transparent and offer an on/off toggle.
+  - **`BlessingShower`:** shows blessings when the page loads, either as running text behind the hero (default) or floating up the screen, carried by the template's motif (butterfly, flower, star, heart, confetti). It must stay pointer-transparent and offer an on/off toggle.
 - **Scratch reveal:** must always offer the "tap here to reveal" fallback.
 - **Demo mode** (`demo` prop): never call APIs. Simulate success locally.
 

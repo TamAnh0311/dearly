@@ -10,8 +10,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { Heart, Eye } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Heart, Eye, Menu, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { getTemplateImage } from "@/lib/placeholder-images";
 import LayoutThumbnail, { LAYOUT_LABEL } from "@/components/invitation/LayoutThumbnail";
@@ -75,6 +75,7 @@ export default function TemplatesPage() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<DesignFilter>("All");
   const [query, setQuery] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
 
   /** Fetches all templates from Supabase on mount. */
   useEffect(() => {
@@ -100,32 +101,50 @@ export default function TemplatesPage() {
   return (
     <div className="min-h-screen bg-dearly-cream overflow-x-hidden">
       {/* ── Navigation ── */}
-      <nav className="fixed top-0 inset-x-0 z-50 flex items-center justify-between px-6 py-4 md:px-12 bg-dearly-cream/80 backdrop-blur-md border-b border-dearly-border/50">
-        <Link
-          href="/"
-          className="font-display text-2xl font-bold text-dearly-accent"
-        >
-          Dearly
-        </Link>
-        <div className="flex items-center gap-6">
-          <span className="text-sm font-semibold text-dearly-accent border-b-2 border-dearly-accent pb-0.5">
-            Templates
-          </span>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="text-sm font-medium text-dearly-text-secondary transition hover:text-dearly-text"
-            >
-              Sign in
-            </Link>
-            <Link
-              href="/signup"
-              className="rounded-lg bg-dearly-accent px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 shadow-soft"
-            >
-              Get Started
-            </Link>
+      <nav className="fixed top-0 inset-x-0 z-50 bg-dearly-cream/80 backdrop-blur-md border-b border-dearly-border/50">
+        <div className="flex items-center justify-between px-6 py-4 md:px-12">
+          <Link
+            href="/"
+            className="font-display text-2xl font-bold text-dearly-accent"
+          >
+            Dearly
+          </Link>
+          <div className="hidden items-center gap-6 md:flex">
+            <span className="text-sm font-semibold text-dearly-accent border-b-2 border-dearly-accent pb-0.5">
+              Templates
+            </span>
+            <div className="flex items-center gap-3">
+              <Link
+                href="/login"
+                className="text-sm font-medium text-dearly-text-secondary transition hover:text-dearly-text"
+              >
+                Sign in
+              </Link>
+              <Link
+                href="/signup"
+                className="rounded-lg bg-dearly-accent px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 shadow-soft"
+              >
+                Get Started
+              </Link>
+            </div>
           </div>
+          <button type="button" className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg md:hidden" aria-label={menuOpen ? "Close menu" : "Open menu"} onClick={() => setMenuOpen((v) => !v)}>
+            {menuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
         </div>
+        <AnimatePresence>
+          {menuOpen && (
+            <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden border-t border-dearly-border md:hidden">
+              <div className="flex flex-col gap-1 px-6 py-3 text-sm font-medium">
+                {[["/templates", "Templates"], ["/login", "Sign in"], ["/signup", "Get Started"]].map(([href, label]) => (
+                  <Link key={href} href={href} onClick={() => setMenuOpen(false)} className="rounded-lg px-2 py-3 hover:bg-dearly-accent-soft">
+                    {label}
+                  </Link>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
 
       {/* ── Hero ── */}
@@ -171,7 +190,7 @@ export default function TemplatesPage() {
               key={style}
               onClick={() => setActiveFilter(style)}
               aria-pressed={activeFilter === style}
-              className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${
+              className={`shrink-0 rounded-full px-4 py-2.5 text-xs font-semibold transition-all ${
                 activeFilter === style
                   ? "bg-dearly-accent text-white shadow-soft"
                   : "bg-dearly-card border border-dearly-border text-dearly-text-secondary hover:border-dearly-accent/40 hover:text-dearly-accent"

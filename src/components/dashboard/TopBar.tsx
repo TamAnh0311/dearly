@@ -5,14 +5,16 @@
  */
 
 import { useRouter } from "next/navigation";
-import { ExternalLink, LogOut } from "lucide-react";
+import { ExternalLink, LogOut, Menu } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useMyWedding } from "@/hooks/useWedding";
+import { useSidebarDrawer } from "./Sidebar";
 
 export default function TopBar() {
   const { signOut } = useAuth();
   const { wedding, saveWedding } = useMyWedding();
   const router = useRouter();
+  const { toggle } = useSidebarDrawer();
 
   /** Toggles the published state of the wedding. */
   async function togglePublish() {
@@ -21,8 +23,11 @@ export default function TopBar() {
   }
 
   return (
-    <header className="flex h-14 items-center justify-between border-b border-dearly-border bg-dearly-card px-6">
-      <div className="text-sm text-dearly-text-secondary">
+    <header className="flex h-14 items-center justify-between border-b border-dearly-border bg-dearly-card px-4 md:px-6">
+      <div className="flex items-center gap-3 text-sm text-dearly-text-secondary">
+        <button type="button" onClick={toggle} className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-dearly-accent-soft md:hidden" aria-label="Open menu">
+          <Menu size={20} />
+        </button>
         {wedding ? (
           <span>
             {wedding.partner1_name || "Partner 1"} &amp; {wedding.partner2_name || "Partner 2"}

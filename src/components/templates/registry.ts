@@ -25,6 +25,13 @@ const templates: TemplateDefinition[] = [
   { slug: "terracotta", name: "Terracotta", load: () => import("./terracotta").then((m) => m.default) },
   { slug: "vintage", name: "Vintage", load: () => import("./vintage").then((m) => m.default) },
   { slug: "whimsical", name: "Whimsical", load: () => import("./whimsical").then((m) => m.default) },
+  // Signature collection — the invitation page is fully driven by styles.ts; gallery/guestbook
+  // views reuse the closest existing template bundle.
+  { slug: "velvet", name: "Velvet Curtain", load: () => import("./noir").then((m) => m.default) },
+  { slug: "secret-garden", name: "Secret Garden", load: () => import("./garden").then((m) => m.default) },
+  { slug: "wax-seal", name: "Wax Seal", load: () => import("./eternal").then((m) => m.default) },
+  { slug: "dusk", name: "Dusk till Dawn", load: () => import("./celestial").then((m) => m.default) },
+  { slug: "rosewindow", name: "Rose Window", load: () => import("./luxe").then((m) => m.default) },
 ];
 
 /**

@@ -1,9 +1,10 @@
 /**
  * Template component interfaces — every template must export components
- * matching these props to be registered.
+ * matching these props to be registered. The main invitation page is the
+ * shared CinematicInvitation; templates provide gallery + guestbook views.
  */
 
-import type { WeddingRow, WeddingEventRow, GalleryPhotoRow, GuestbookEntryRow, TemplateConfig } from "@/types/database";
+import type { WeddingRow, GalleryPhotoRow, GuestbookEntryRow, TemplateConfig } from "@/types/database";
 
 export interface ResolvedTheme {
   colors: { primary: string; secondary: string; accent: string };
@@ -11,21 +12,10 @@ export interface ResolvedTheme {
   animations: Record<string, string>;
 }
 
-export interface InvitationPageProps {
-  wedding: WeddingRow;
-  events: WeddingEventRow[];
-  theme: ResolvedTheme;
-}
-
 export interface GalleryLayoutProps {
   wedding: WeddingRow;
   photos: GalleryPhotoRow[];
   layout: "masonry" | "albums" | "timeline";
-  theme: ResolvedTheme;
-}
-
-export interface TimelineSectionProps {
-  events: WeddingEventRow[];
   theme: ResolvedTheme;
 }
 
@@ -36,9 +26,7 @@ export interface GuestbookSectionProps {
 }
 
 export interface TemplateComponents {
-  InvitationPage: React.ComponentType<InvitationPageProps>;
   GalleryLayout: React.ComponentType<GalleryLayoutProps>;
-  TimelineSection: React.ComponentType<TimelineSectionProps>;
   GuestbookSection: React.ComponentType<GuestbookSectionProps>;
 }
 

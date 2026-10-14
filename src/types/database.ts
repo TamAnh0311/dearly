@@ -54,8 +54,23 @@ export interface MusicTrackRow {
 export interface WeddingCustomization {
   colors: { primary?: string; secondary?: string; accent?: string };
   fonts: { display?: string; body?: string };
-  sections: { timeline: boolean; gallery: boolean; guestbook: boolean };
+  /** Section visibility (see src/components/invitation/sections-config.ts). Unset keys = visible. */
+  sections: {
+    timeline: boolean;
+    gallery: boolean;
+    guestbook: boolean;
+    countdown?: boolean;
+    story?: boolean;
+    venue?: boolean;
+    rsvp?: boolean;
+    blessings?: boolean;
+    reactions?: boolean;
+    blessingShower?: boolean;
+    music?: boolean;
+  };
   galleryLayout: "masonry" | "albums" | "timeline";
+  /** How blessings appear on page load: background running text (default) or floating carriers. */
+  blessingStyle?: "marquee" | "float";
 }
 
 export interface WeddingEventRow {
@@ -90,7 +105,29 @@ export interface GuestbookEntryRow {
   wedding_id: string;
   guest_name: string;
   message: string;
+  /** RSVP choice of the guest who left this blessing (null for plain guestbook messages). */
+  rsvp_status?: "attending" | "declined" | null;
   created_at: string;
+}
+
+export interface RsvpRow {
+  id: string;
+  wedding_id: string;
+  guest_name: string;
+  attending: boolean;
+  party_size: number;
+  message: string | null;
+  created_at: string;
+}
+
+/** Blessing reaction kinds — must match the CHECK constraint on wedding_reactions.kind. */
+export const REACTION_KINDS = ["love", "bloom", "cheers", "sparkle", "rings"] as const;
+export type ReactionKind = (typeof REACTION_KINDS)[number];
+
+export interface WeddingReactionRow {
+  wedding_id: string;
+  kind: ReactionKind;
+  count: number;
 }
 
 export interface CuteQuestionRow {

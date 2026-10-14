@@ -1,208 +1,210 @@
 "use client";
 
 /**
- * Floating ambient music player widget for guest-facing wedding pages.
- * Renders a fixed circular button in the bottom-right corner that toggles
- * audio playback with animated visual feedback.
+ * MusicPlayer — background music for invitation pages.
+ *
+ * - Plays an audio file (`musicUrl`) or, when there is no file / it fails to
+ *   load, a generative ambient piece (`preset`) rendered with Web Audio.
+ * - Browsers block autoplay, so music starts on the guest's first tap, click
+ *   or key press anywhere on the page. A "Tap anywhere for music" pill makes
+ *   that obvious for the first few seconds.
+ * - A floating button toggles play/pause; a guest who pauses is remembered
+ *   (localStorage `dearly-music`) and won't be auto-started again.
  */
 
-import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Music2 } from "lucide-react";
+import { createAmbientMusic, type AmbientMusic, type MusicPreset } from "@/lib/ambient-music";
 
 interface MusicPlayerProps {
-  /** URL to the audio file. If omitted the component renders nothing. */
-  musicUrl?: string;
-  theme: {
-    colors: {
-      primary: string;
-      secondary: string;
-      accent: string;
-    };
+  /** Audio file URL. Optional — falls back to `preset`. */
+  musicUrl?: string | null;
+  /** Generative preset used when there is no file or it fails to load. */
+  preset?: MusicPreset | null;
+  theme: { colors: { primary: string; secondary: string; accent: string } };
+}
+
+const PREF_KEY = "dearly-music";
+
+/** True unless the guest previously paused the music. */
+function wantsMusic(): boolean {
+  try {
+    return window.localStorage.getItem(PREF_KEY) !== "off";
+  } catch {
+    return true;
+  }
+}
+
+/** Remembers the guest's play/pause choice (non-fatal if storage is blocked). */
+function rememberMusic(on: boolean) {
+  try {
+    window.localStorage.setItem(PREF_KEY, on ? "on" : "off");
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Common interface over an <audio> element and the generative engine. */
+interface Engine {
+  start(): Promise<void>;
+  stop(): void;
+}
+
+/** Wraps an HTMLAudioElement with fade in/out. Rejects if the file can't play. */
+function fileEngine(url: string): Engine {
+  const audio = new Audio(url);
+  audio.loop = true;
+  audio.volume = 0;
+  let fade: ReturnType<typeof setInterval> | null = null;
+  const ramp = (to: number, done?: () => void) => {
+    if (fade) clearInterval(fade);
+    fade = setInterval(() => {
+      const next = audio.volume + (to > audio.volume ? 0.05 : -0.05);
+      audio.volume = Math.min(1, Math.max(0, next));
+      if ((to > 0 && audio.volume >= to) || (to === 0 && audio.volume <= 0)) {
+        if (fade) clearInterval(fade);
+        done?.();
+      }
+    }, 40);
+  };
+  return {
+    async start() {
+      await audio.play();
+      ramp(0.8);
+    },
+    stop() {
+      ramp(0, () => audio.pause());
+    },
   };
 }
 
-/** Duration in ms over which volume ramps up or down on play/pause. */
-const FADE_DURATION_MS = 500;
-/** Volume step applied per tick during fade (50 ticks over FADE_DURATION_MS). */
-const FADE_STEPS = 50;
-const FADE_INTERVAL_MS = FADE_DURATION_MS / FADE_STEPS;
-
-/**
- * Ramps audio volume from its current value toward `target` over FADE_DURATION_MS.
- * Resolves once the ramp completes. Clears any pending ramp via the returned cleanup fn.
- */
-function fadeVolume(
-  audio: HTMLAudioElement,
-  target: number,
-  onComplete?: () => void
-): () => void {
-  const start = audio.volume;
-  const delta = (target - start) / FADE_STEPS;
-  let step = 0;
-  const id = setInterval(() => {
-    step += 1;
-    const next = start + delta * step;
-    audio.volume = Math.min(1, Math.max(0, next));
-    if (step >= FADE_STEPS) {
-      audio.volume = target;
-      clearInterval(id);
-      onComplete?.();
-    }
-  }, FADE_INTERVAL_MS);
-  return () => clearInterval(id);
+/** Adapts the generative engine to the Engine interface. */
+function generativeEngine(preset: MusicPreset): Engine {
+  const m: AmbientMusic = createAmbientMusic(preset);
+  return { start: () => m.start(), stop: () => m.stop() };
 }
 
-/**
- * Floating music player — shows only when `musicUrl` is provided.
- */
-export default function MusicPlayer({ musicUrl, theme }: MusicPlayerProps) {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const fadeCleanupRef = useRef<(() => void) | null>(null);
+export default function MusicPlayer({ musicUrl, preset, theme }: MusicPlayerProps) {
+  const engineRef = useRef<Engine | null>(null);
+  const [playing, setPlaying] = useState(false);
+  const [hint, setHint] = useState(false);
+  const available = Boolean(musicUrl || preset);
 
-  const [isPlaying, setIsPlaying] = useState(false);
-  /** True until the user first interacts with the button. */
-  const [hasInteracted, setHasInteracted] = useState(false);
+  /** Starts playback, falling back from file to generative music on failure. */
+  const play = useCallback(async () => {
+    try {
+      if (!engineRef.current) engineRef.current = musicUrl ? fileEngine(musicUrl) : generativeEngine(preset ?? "piano");
+      await engineRef.current.start();
+      setPlaying(true);
+    } catch {
+      if (musicUrl && preset !== null) {
+        // File missing or blocked — switch to the generative piece.
+        engineRef.current = generativeEngine(preset ?? "piano");
+        try {
+          await engineRef.current.start();
+          setPlaying(true);
+        } catch {
+          console.warn("[WARNING] background music could not start");
+        }
+      }
+    }
+    setHint(false);
+  }, [musicUrl, preset]);
 
-  /** Initialise the Audio element once the URL is known. */
-  useEffect(() => {
-    if (!musicUrl) return;
-
-    const audio = new Audio(musicUrl);
-    audio.loop = true;
-    audio.volume = 0;
-    audioRef.current = audio;
-
-    return () => {
-      audio.pause();
-      audio.src = "";
-      audioRef.current = null;
-    };
-  }, [musicUrl]);
-
-  /** Clean up any pending fade timers on unmount. */
-  useEffect(() => {
-    return () => {
-      fadeCleanupRef.current?.();
-    };
+  /** Pauses playback. */
+  const pause = useCallback(() => {
+    engineRef.current?.stop();
+    setPlaying(false);
   }, []);
 
-  if (!musicUrl) return null;
+  // Start on the first user gesture anywhere (autoplay policy), unless the guest opted out.
+  useEffect(() => {
+    if (!available || !wantsMusic()) return;
+    setHint(true);
+    const hideHint = setTimeout(() => setHint(false), 9000);
+    const onGesture = (e: Event) => {
+      // The music button handles its own clicks (avoids a double start).
+      if ((e.target as Element | null)?.closest?.("[data-music-button]")) return;
+      remove();
+      void play();
+    };
+    const remove = () => {
+      window.removeEventListener("pointerdown", onGesture);
+      window.removeEventListener("keydown", onGesture);
+    };
+    window.addEventListener("pointerdown", onGesture);
+    window.addEventListener("keydown", onGesture);
+    return () => {
+      clearTimeout(hideHint);
+      remove();
+    };
+  }, [available, play]);
 
-  /**
-   * Toggles playback with a smooth volume fade.
-   * First interaction removes the attention pulse ring.
-   */
-  function handleToggle() {
-    const audio = audioRef.current;
-    if (!audio) return;
+  // Stop music when leaving the page.
+  useEffect(() => () => engineRef.current?.stop(), []);
 
-    if (!hasInteracted) setHasInteracted(true);
-
-    // Cancel any in-progress fade before starting a new one.
-    fadeCleanupRef.current?.();
-
-    if (isPlaying) {
-      const cleanup = fadeVolume(audio, 0, () => audio.pause());
-      fadeCleanupRef.current = cleanup;
-      setIsPlaying(false);
-    } else {
-      audio.play().catch(() => {
-        // Autoplay may still be blocked; silently ignore.
-      });
-      const cleanup = fadeVolume(audio, 1);
-      fadeCleanupRef.current = cleanup;
-      setIsPlaying(true);
-    }
-  }
+  if (!available) return null;
 
   return (
-    <>
-      {/* Scoped keyframe animations */}
-      <style>{`
-        @keyframes dearly-wave {
-          0%, 100% { height: 8px; }
-          50% { height: 16px; }
-        }
-        @keyframes dearly-pulse-ring {
-          0% { transform: scale(1); opacity: 0.6; }
-          100% { transform: scale(1.7); opacity: 0; }
-        }
-        .dearly-bar {
-          width: 3px;
-          background: white;
-          border-radius: 2px;
-          display: inline-block;
-        }
-        .dearly-bar:nth-child(1) { height: 8px; }
-        .dearly-bar:nth-child(2) { height: 14px; }
-        .dearly-bar:nth-child(3) { height: 10px; }
-        .dearly-bar-playing:nth-child(1) {
-          animation: dearly-wave 0.8s ease-in-out infinite;
-        }
-        .dearly-bar-playing:nth-child(2) {
-          animation: dearly-wave 0.8s ease-in-out 0.2s infinite;
-        }
-        .dearly-bar-playing:nth-child(3) {
-          animation: dearly-wave 0.8s ease-in-out 0.4s infinite;
-        }
-        .dearly-pulse-ring {
-          animation: dearly-pulse-ring 1.8s ease-out infinite;
-        }
-      `}</style>
+    <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2">
+      <AnimatePresence>
+        {hint && !playing && (
+          <motion.span
+            initial={{ opacity: 0, x: 12 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 12 }}
+            className="rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] shadow-lg backdrop-blur-md"
+            style={{ background: `${theme.colors.secondary}e6`, color: theme.colors.primary, border: `1px solid ${theme.colors.primary}40` }}
+          >
+            Tap anywhere for music ♪
+          </motion.span>
+        )}
+      </AnimatePresence>
 
-      <div className="fixed bottom-6 right-6 z-50 flex items-center justify-center">
-        {/* Attention pulse ring — visible until first interaction */}
-        {!hasInteracted && (
-          <span
-            className="dearly-pulse-ring absolute inset-0 rounded-full"
-            style={{ backgroundColor: theme.colors.primary, opacity: 0.4 }}
-            aria-hidden="true"
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          if (playing) {
+            pause();
+            rememberMusic(false);
+          } else {
+            rememberMusic(true);
+            void play();
+          }
+        }}
+        data-music-button
+        aria-label={playing ? "Pause background music" : "Play background music"}
+        aria-pressed={playing}
+        className="relative flex h-12 w-12 items-center justify-center rounded-full shadow-xl transition hover:scale-105"
+        style={{ backgroundColor: theme.colors.primary, color: theme.colors.secondary }}
+      >
+        {!playing && (
+          <motion.span
+            aria-hidden
+            className="absolute inset-0 rounded-full"
+            style={{ backgroundColor: theme.colors.primary }}
+            animate={{ scale: [1, 1.6], opacity: [0.5, 0] }}
+            transition={{ duration: 1.8, repeat: Infinity }}
           />
         )}
-
-        <motion.button
-          onClick={handleToggle}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.92 }}
-          aria-label={isPlaying ? "Pause background music" : "Play background music"}
-          style={{
-            width: 48,
-            height: 48,
-            borderRadius: "50%",
-            backgroundColor: theme.colors.primary,
-            border: "none",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
-            position: "relative",
-          }}
-        >
-          {isPlaying ? (
-            /* Sound wave bars when playing */
-            <span
-              style={{
-                display: "flex",
-                alignItems: "flex-end",
-                gap: 3,
-                height: 20,
-              }}
-              aria-hidden="true"
-            >
-              <span className={`dearly-bar dearly-bar-playing`} />
-              <span className={`dearly-bar dearly-bar-playing`} />
-              <span className={`dearly-bar dearly-bar-playing`} />
-            </span>
-          ) : (
-            <Music2 size={20} color="white" aria-hidden="true" />
-          )}
-
-          {/* Accessible state label for screen readers */}
-          <span className="sr-only">{isPlaying ? "Pause music" : "Play music"}</span>
-        </motion.button>
-      </div>
-    </>
+        {playing ? (
+          <span className="relative flex h-4 items-end gap-[3px]" aria-hidden>
+            {[0, 0.2, 0.4].map((d) => (
+              <motion.span
+                key={d}
+                className="block w-[3px] rounded-full"
+                style={{ backgroundColor: theme.colors.secondary }}
+                animate={{ height: [6, 16, 6] }}
+                transition={{ duration: 0.9, delay: d, repeat: Infinity }}
+              />
+            ))}
+          </span>
+        ) : (
+          <Music2 size={18} className="relative" />
+        )}
+     </button>
+    </div>
   );
 }

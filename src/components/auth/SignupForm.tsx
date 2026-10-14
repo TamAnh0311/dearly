@@ -5,11 +5,12 @@
  * On success, shows a confirmation message or redirects.
  */
 
-import { useState, FormEvent } from "react";
+import { useEffect, useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import SocialLoginButtons from "./SocialLoginButtons";
+import { capturePendingDesign } from "@/lib/pending-design";
 
 export default function SignupForm() {
   const { signUp } = useAuth();
@@ -20,6 +21,12 @@ export default function SignupForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Remember a template/scheme picked on the public gallery (?template=&scheme=)
+  // so onboarding can pre-select it — survives email confirmation & OAuth.
+  useEffect(() => {
+    capturePendingDesign(window.location.search);
+  }, []);
 
   /** Handles form submission — creates account and redirects on success. */
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {

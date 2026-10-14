@@ -1,0 +1,12 @@
+[2026-10-14 14:13:45]
+CONTEXT: Replace card-like wedding templates with a cinematic animated landing page (growing flowers, butterflies, RSVP attend/decline, blessing reactions + wall), then give each template a distinct design and add a colour-scheme picker on preview.
+RESULT: Added src/components/invitation/* (CinematicInvitation, 6 hero layouts, ambient FX, per-template styles.ts, TemplatePreview with 10 schemes), /api/rsvp, /api/reactions, migration 00015, dashboard /rsvps; wired /[slug], /templates/[slug], /preview. tsc (new files), lint and next build pass; visual screenshot pass of all hero layouts not completed.
+---
+[2026-10-14 15:35:12]
+CONTEXT: Follow-up: fix template card preview button, editor live preview, signup design carry-over, remove legacy templates, apply migration, add tests, visual QA.
+RESULT: Gallery + onboarding cards now show real layout thumbnails with working Preview (live demo/iframe modal w/ scheme picker); fixed nested-button bug, stale createWedding/saveWedding bug, editor postMessage protocol; removed 40 legacy files; migration 00015 applied + verified (RLS/rpc guards); vitest suite 30/30; project tsc 0 errors (ignoreBuildErrors removed); build passes; screenshots of 6 hero layouts + sections reviewed, fixed celestial glow boxes and script-font clipping.
+---
+[2026-10-14 16:27:30]
+CONTEXT: Add competitor-beating templates, write design guideline in AGENTS.md, and float blessings on page load as flowers/butterflies/confetti.
+RESULT: 4 new signature hero layouts (curtain velvet/ivy, wax-seal letter, day-to-night, stained-glass) + 5 templates (velvet, secret-garden, wax-seal, dusk, rosewindow; migration 00016 applied, 25 templates live); ScratchReveal date card; BlessingShower; AGENTS.md design guideline; scripts/screenshot.mjs QA tool. Fixed curtain initial={false} bug (no opening played), seal letter showing early, ivy pattern, dusk glow boxes, note contrast. Tests 36/36, tsc 0, lint clean, build passes.
+---

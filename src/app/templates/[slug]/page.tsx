@@ -12,10 +12,13 @@ import { createCookieClient } from "@/lib/supabase/server";
 import { getTemplate } from "@/components/templates/registry";
 import { resolveTheme } from "@/components/templates/types";
 import ScrollProgress from "@/components/ui/ScrollProgress";
-import type { TemplateRow, WeddingRow, WeddingEventRow } from "@/types/database";
+import TemplatePreview from "@/components/invitation/TemplatePreview";
+import { PLACEHOLDER_IMAGES } from "@/lib/placeholder-images";
+import type { TemplateRow, WeddingRow, WeddingEventRow, GuestbookEntryRow } from "@/types/database";
 
 interface PageProps {
   params: { slug: string };
+  searchParams?: { embed?: string; scheme?: string; bare?: string };
 }
 
 /** Placeholder wedding data used for the template preview. */
@@ -87,7 +90,18 @@ const MOCK_EVENTS: WeddingEventRow[] = [
   },
 ];
 
-export default async function TemplatePreviewPage({ params }: PageProps) {
+/** DEMO ONLY — sample blessings so visitors can see the blessing wall. Never persisted. */
+const DEMO_BLESSINGS: GuestbookEntryRow[] = [
+  { id: "demo-b1", wedding_id: "preview", guest_name: "Grandma Rose", message: "My darlings, may your home always be full of laughter and your hearts full of each other. I love you both more than words.", rsvp_status: "attending", created_at: "2027-05-01T10:00:00Z" },
+  { id: "demo-b2", wedding_id: "preview", guest_name: "Sophie & Liam", message: "So sad we can't be there — sending all our love from Lisbon! Dance the night away for us.", rsvp_status: "declined", created_at: "2027-04-28T18:30:00Z" },
+  { id: "demo-b3", wedding_id: "preview", guest_name: "Daniel", message: "Best friends since kindergarten, and now I get to watch you marry the love of your life. Cheers to forever!", rsvp_status: "attending", created_at: "2027-04-20T09:15:00Z" },
+  { id: "demo-b4", wedding_id: "preview", guest_name: "Aunt Clara", message: "Wishing you a lifetime of adventures together.", rsvp_status: "attending", created_at: "2027-04-12T12:00:00Z" },
+];
+
+export default async function TemplatePreviewPage({ params, searchParams }: PageProps) {
+  const embedded = searchParams?.embed === "1";
+  const bare = embedded && searchParams?.bare === "1";
+  const initialScheme = typeof searchParams?.scheme === "string" ? searchParams.scheme.slice(0, 40) : "original";
   const supabase = createCookieClient();
 
   const { data: templateData } = await supabase
@@ -103,64 +117,37 @@ export default async function TemplatePreviewPage({ params }: PageProps) {
   if (!templateDef) notFound();
 
   const mockWedding = buildMockWedding(template);
-  const components = await templateDef.load();
   const theme = resolveTheme(template.default_config, mockWedding.customization);
-  const { InvitationPage, TimelineSection } = components;
 
   return (
     <>
-      {/* ── Preview Banner ── */}
-      <div
-        className="fixed top-0 inset-x-0 z-50 flex items-center justify-between gap-4 px-4 py-3 text-sm shadow-md"
-        style={{ backgroundColor: theme.colors.primary }}
-      >
-        <p className="font-medium text-white/90 truncate">
-          <span className="font-bold text-white">Preview:</span>{" "}
-          {template.name} — This is a demo with placeholder content.
-        </p>
-        <div className="flex items-center gap-2 shrink-0">
-          <Link
-            href="/templates"
-            className="rounded-lg border border-white/30 px-3 py-1.5 text-xs font-semibold text-white/90 transition hover:bg-white/10"
-          >
-            All Templates
-          </Link>
-          <Link
-            href="/signup"
-            className="rounded-lg bg-white px-3 py-1.5 text-xs font-semibold transition hover:opacity-90"
-            style={{ color: theme.colors.primary }}
-          >
-            Create Your Own Site
-          </Link>
-        </div>
-      </div>
+      {!bare && <ScrollProgress color={theme.colors.primary} />}
 
-      {/* Spacer so the banner doesn't overlap content */}
-      <div className="h-14" />
-
-      <ScrollProgress color={theme.colors.primary} />
-
-      <InvitationPage
+      <TemplatePreview
+        templateName={template.name}
+        templateSlug={template.slug}
+        baseTheme={theme}
         wedding={mockWedding}
         events={MOCK_EVENTS}
-        theme={theme}
+        blessings={DEMO_BLESSINGS}
+        reactions={{ love: 128, bloom: 64, cheers: 42, sparkle: 37, rings: 21 }}
+        photos={[...PLACEHOLDER_IMAGES.couple, ...PLACEHOLDER_IMAGES.wedding.slice(0, 3)]}
+        initialScheme={initialScheme}
+        embedded={embedded}
+        bare={bare}
       />
 
-      <TimelineSection events={MOCK_EVENTS} theme={theme} />
-
-      {/* ── Bottom CTA ── */}
-      <div className="relative z-10 flex flex-col items-center gap-4 py-16 px-6 text-center border-t bg-white">
-        <p className="text-lg font-bold text-gray-900">
-          Love what you see?
+      {/* ── Bottom CTA (hidden when embedded in the dashboard) ── */}
+      {!embedded && (
+      <div className="relative z-10 flex flex-col items-center gap-4 border-t bg-white px-6 py-16 text-center">
+        <p className="text-lg font-bold text-gray-900">Love what you see?</p>
+        <p className="max-w-md text-sm text-gray-500">
+          Create your free account and use the <strong>{template.name}</strong> design for your own wedding site.
+          Pick any colour scheme — your colours, your story, your day.
         </p>
-        <p className="text-sm text-gray-500 max-w-md">
-          Create your free account and use the{" "}
-          <strong>{template.name}</strong> template for your own wedding site.
-          Fully customizable — your colors, your story, your day.
-        </p>
-        <div className="flex flex-col sm:flex-row items-center gap-3">
+        <div className="flex flex-col items-center gap-3 sm:flex-row">
           <Link
-            href="/signup"
+            href={`/signup?template=${template.slug}`}
             className="rounded-xl px-8 py-3 text-sm font-semibold text-white shadow-md transition hover:opacity-90"
             style={{ backgroundColor: theme.colors.primary }}
           >
@@ -174,6 +161,7 @@ export default async function TemplatePreviewPage({ params }: PageProps) {
           </Link>
         </div>
       </div>
+      )}
     </>
   );
 }

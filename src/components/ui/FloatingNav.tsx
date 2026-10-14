@@ -122,7 +122,6 @@ export default function FloatingNav({ weddingSlug, theme, sections }: FloatingNa
                     backgroundColor: isActive
                       ? `${theme.colors.primary}18`
                       : "transparent",
-                    focusVisibleRingColor: theme.colors.primary,
                   }}
                   aria-current={isActive ? "page" : undefined}
                 >

@@ -2,126 +2,98 @@
 
 /**
  * Preview route — live preview iframe target for the wedding editor.
- * Listens for postMessage events from the parent editor window,
- * extracts wedding + events data, loads the matching template, and
- * renders InvitationPage + TimelineSection side-by-side.
  *
- * Shows a waiting state until the first message is received.
+ * Protocol (same-origin postMessage):
+ *  1. On mount this page posts `{ type: "preview-ready" }` to its parent.
+ *  2. The editor (LivePreview) replies — and re-sends on every change — with
+ *     `{ type: "preview-update", wedding, events, template }`.
+ *
+ * Renders the shared CinematicInvitation in demo mode (RSVPs and reactions
+ * are simulated, never sent), using the template's design language and the
+ * couple's colour/font customisation on top of the template defaults.
  */
 
-import { useEffect, useState, useCallback } from "react";
-import type { WeddingRow, WeddingEventRow } from "@/types/database";
-import type { TemplateComponents, ResolvedTheme } from "@/components/templates/types";
-import { getTemplate } from "@/components/templates/registry";
+import { useEffect, useState } from "react";
+import type { TemplateRow, WeddingEventRow, WeddingRow } from "@/types/database";
+import { resolveTheme, type ResolvedTheme } from "@/components/templates/types";
+import CinematicInvitation from "@/components/invitation/CinematicInvitation";
 
 /** Payload structure sent by the editor via postMessage. */
-interface PreviewUpdateMessage {
+export interface PreviewUpdateMessage {
   type: "preview-update";
   wedding: WeddingRow;
   events: WeddingEventRow[];
+  template: TemplateRow | null;
 }
 
 /** Validates that an incoming message matches the expected shape. */
 function isPreviewUpdate(data: unknown): data is PreviewUpdateMessage {
+  const d = data as PreviewUpdateMessage;
   return (
     typeof data === "object" &&
     data !== null &&
-    (data as PreviewUpdateMessage).type === "preview-update" &&
-    typeof (data as PreviewUpdateMessage).wedding === "object" &&
-    Array.isArray((data as PreviewUpdateMessage).events)
+    d.type === "preview-update" &&
+    typeof d.wedding === "object" &&
+    d.wedding !== null &&
+    Array.isArray(d.events)
   );
 }
 
-/** Builds a ResolvedTheme from wedding customization and template defaults. */
-function buildTheme(wedding: WeddingRow, _templateSlug: string): ResolvedTheme {
-  const customization = wedding.customization ?? {};
-  return {
-    colors: {
-      primary: customization.colors?.primary ?? "#B8860B",
-      secondary: customization.colors?.secondary ?? "#FFFFF0",
-      accent: customization.colors?.accent ?? "#D4A574",
-    },
-    fonts: {
-      display: customization.fonts?.display ?? "Playfair Display",
-      body: customization.fonts?.body ?? "Lato",
-    },
-    animations: {},
-  };
+const FALLBACK_CONFIG: TemplateRow["default_config"] = {
+  colors: { primary: "#B8860B", secondary: "#FFFFF0", accent: "#D4A574" },
+  fonts: { display: "Playfair Display", body: "Lato" },
+  animations: {},
+};
+
+/** Merges template defaults with the couple's customisation. */
+function buildTheme(wedding: WeddingRow, template: TemplateRow | null): ResolvedTheme {
+  const customization = wedding.customization ?? { colors: {}, fonts: {}, sections: { timeline: true, gallery: true, guestbook: true }, galleryLayout: "masonry" };
+  return resolveTheme(template?.default_config ?? FALLBACK_CONFIG, {
+    ...customization,
+    colors: customization.colors ?? {},
+    fonts: customization.fonts ?? {},
+  });
 }
 
 export default function PreviewPage() {
-  const [wedding, setWedding] = useState<WeddingRow | null>(null);
-  const [events, setEvents] = useState<WeddingEventRow[]>([]);
-  const [components, setComponents] = useState<TemplateComponents | null>(null);
-  const [theme, setTheme] = useState<ResolvedTheme | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
-
-  /** Loads template components for the given slug and caches them. */
-  const loadTemplateComponents = useCallback(async (slug: string) => {
-    const definition = getTemplate(slug);
-    if (!definition) {
-      setLoadError(`Template "${slug}" not found in registry.`);
-      return null;
-    }
-    try {
-      const loaded = await definition.load();
-      return loaded;
-    } catch {
-      setLoadError(`Failed to load template "${slug}".`);
-      return null;
-    }
-  }, []);
+  const [state, setState] = useState<{ wedding: WeddingRow; events: WeddingEventRow[]; template: TemplateRow | null } | null>(null);
 
   useEffect(() => {
-    /**
-     * Handles postMessage from the parent editor window.
-     * Only processes messages of type "preview-update".
-     */
-    async function handleMessage(event: MessageEvent) {
+    /** Accepts same-origin "preview-update" messages only. */
+    function handleMessage(event: MessageEvent) {
+      if (event.origin !== window.location.origin) return;
       if (!isPreviewUpdate(event.data)) return;
-
-      const { wedding: newWedding, events: newEvents } = event.data;
-      const slug = newWedding.template_id ?? "eternal";
-
-      setWedding(newWedding);
-      setEvents(newEvents);
-      setTheme(buildTheme(newWedding, slug));
-      setLoadError(null);
-
-      const loaded = await loadTemplateComponents(slug);
-      if (loaded) setComponents(loaded);
+      setState({ wedding: event.data.wedding, events: event.data.events, template: event.data.template ?? null });
     }
 
     window.addEventListener("message", handleMessage);
+    // Tell the editor we're listening (avoids racing the iframe load event).
+    window.parent?.postMessage({ type: "preview-ready" }, window.location.origin);
     return () => window.removeEventListener("message", handleMessage);
-  }, [loadTemplateComponents]);
+  }, []);
 
   /* ── Waiting state ──────────────────────────────────────────────── */
-  if (!wedding || !components || !theme) {
+  if (!state) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 text-center">
-        {loadError ? (
-          <div className="max-w-sm rounded-lg border border-red-200 bg-red-50 p-6">
-            <p className="text-sm font-medium text-red-700">Preview Error</p>
-            <p className="mt-1 text-sm text-red-600">{loadError}</p>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center gap-4">
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-gray-600" />
-            <p className="text-sm text-gray-500">Waiting for editor data&hellip;</p>
-          </div>
-        )}
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-gray-600" />
+          <p className="text-sm text-gray-500">Waiting for editor data&hellip;</p>
+          <p className="max-w-xs text-xs text-gray-400">If this doesn&apos;t go away, reload the editor page.</p>
+        </div>
       </div>
     );
   }
 
-  const { InvitationPage, TimelineSection } = components;
-
   /* ── Live preview render ─────────────────────────────────────────── */
   return (
-    <div className="min-h-screen">
-      <InvitationPage wedding={wedding} events={events} theme={theme} />
-      {events.length > 0 && <TimelineSection events={events} theme={theme} />}
-    </div>
+    <CinematicInvitation
+      key={state.template?.slug ?? "default"}
+      wedding={state.wedding}
+      events={state.events}
+      theme={buildTheme(state.wedding, state.template)}
+      templateSlug={state.template?.slug}
+      demo
+    />
   );
 }

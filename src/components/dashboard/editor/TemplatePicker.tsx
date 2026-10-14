@@ -8,12 +8,14 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { TemplateRow } from "@/types/database";
+import TemplateSearchInput from "@/components/invitation/TemplateSearchInput";
+import { searchTemplates } from "@/lib/template-search";
 
 interface TemplatePickerProps {
   /** The currently selected template ID. */
   activeTemplateId: string | null;
-  /** Called with the selected template ID when a card is clicked. */
-  onSelect: (templateId: string) => void;
+  /** Called with the selected template when a card is clicked. */
+  onSelect: (template: TemplateRow) => void;
 }
 
 /** Badge colour per animation style. */
@@ -29,6 +31,7 @@ const BADGE_COLOURS: Record<TemplateRow["animation_style"], string> = {
 export default function TemplatePicker({ activeTemplateId, onSelect }: TemplatePickerProps) {
   const [templates, setTemplates] = useState<TemplateRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     async function fetchTemplates() {
@@ -65,14 +68,19 @@ export default function TemplatePicker({ activeTemplateId, onSelect }: TemplateP
     );
   }
 
+  const shown = searchTemplates(templates, query);
+
   return (
+    <div className="space-y-3">
+    <TemplateSearchInput value={query} onChange={setQuery} placeholder="Search templates" />
+    {shown.length === 0 && <p className="text-xs text-dearly-text-secondary">No templates match &ldquo;{query}&rdquo;.</p>}
     <div className="grid grid-cols-2 gap-3">
-      {templates.map((template) => {
+      {shown.map((template) => {
         const isActive = template.id === activeTemplateId;
         return (
           <button
             key={template.id}
-            onClick={() => onSelect(template.id)}
+            onClick={() => onSelect(template)}
             className={`rounded-lg border-2 p-3 text-left transition ${
               isActive
                 ? "border-dearly-accent bg-dearly-accent-soft"
@@ -95,6 +103,7 @@ export default function TemplatePicker({ activeTemplateId, onSelect }: TemplateP
           </button>
         );
       })}
+    </div>
     </div>
   );
 }

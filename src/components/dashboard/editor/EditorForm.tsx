@@ -11,6 +11,7 @@ import { useEffect, useRef } from "react";
 import { useEditorStore } from "@/store/editorStore";
 import { useMyWedding } from "@/hooks/useWedding";
 import TemplatePicker from "./TemplatePicker";
+import SectionToggles from "@/components/invitation/SectionToggles";
 import ColorPicker from "./ColorPicker";
 import FontPicker from "./FontPicker";
 import type { WeddingCustomization } from "@/types/database";
@@ -52,12 +53,6 @@ function Field({
   );
 }
 
-const SECTION_KEYS: (keyof WeddingCustomization["sections"])[] = [
-  "timeline",
-  "gallery",
-  "guestbook",
-];
-
 const GALLERY_LAYOUTS: WeddingCustomization["galleryLayout"][] = [
   "masonry",
   "albums",
@@ -68,7 +63,7 @@ const GALLERY_LAYOUTS: WeddingCustomization["galleryLayout"][] = [
  * Left-panel editor form.
  */
 export default function EditorForm() {
-  const { wedding, updateField, updateCustomization } = useEditorStore();
+  const { wedding, updateField, updateCustomization, setTemplate } = useEditorStore();
   const { saveWedding } = useMyWedding();
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -180,7 +175,7 @@ export default function EditorForm() {
           <SectionHeading>Template</SectionHeading>
           <TemplatePicker
             activeTemplateId={wedding.template_id}
-            onSelect={(id) => updateField("template_id", id)}
+            onSelect={setTemplate}
           />
         </section>
 
@@ -202,28 +197,17 @@ export default function EditorForm() {
           />
         </section>
 
-        {/* ── Sections ── */}
+        {/* Sections — choose what guests see */}
         <section>
           <SectionHeading>Sections</SectionHeading>
-          <div className="space-y-2">
-            {SECTION_KEYS.map((key) => (
-              <label key={key} className="flex cursor-pointer items-center gap-3">
-                <input
-                  type="checkbox"
-                  checked={customization.sections[key] ?? true}
-                  onChange={(e) =>
-                    updateCustomization({
-                      sections: { ...customization.sections, [key]: e.target.checked },
-                    })
-                  }
-                  className="h-4 w-4 accent-dearly-accent"
-                />
-                <span className="text-sm capitalize text-dearly-text">{key}</span>
-              </label>
-            ))}
-          </div>
+          <p className="mb-2 text-xs text-dearly-text-secondary">Choose which parts of your invitation guests see.</p>
+          <SectionToggles
+            sections={customization.sections}
+            onChange={(sections) => updateCustomization({ sections })}
+            blessingStyle={customization.blessingStyle}
+            onBlessingStyle={(blessingStyle) => updateCustomization({ blessingStyle })}
+          />
         </section>
-
         {/* ── Gallery Layout ── */}
         <section>
           <SectionHeading>Gallery Layout</SectionHeading>

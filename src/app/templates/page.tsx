@@ -2,95 +2,50 @@
 
 /**
  * Public template gallery — browseable by anyone without authentication.
- * Fetches all templates from Supabase, shows a filterable grid with
- * color-scheme mockups and Unsplash wedding imagery.
- * "Use This Template" redirects unauthenticated visitors to /signup.
+ * Each card shows a miniature of the template's real hero layout in its own
+ * colours. "Live preview" opens the full animated demo (/templates/[slug])
+ * where visitors can also try colour schemes; "Use this template" carries the
+ * choice through signup.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Eye, X, MapPin, Calendar, Image as ImageIcon, MessageSquare, Music } from "lucide-react";
+import { motion } from "framer-motion";
+import { Heart, Eye } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { getTemplateImage } from "@/lib/placeholder-images";
+import LayoutThumbnail, { LAYOUT_LABEL } from "@/components/invitation/LayoutThumbnail";
+import { getInvitationStyle } from "@/components/invitation/styles";
+import TemplateSearchInput from "@/components/invitation/TemplateSearchInput";
+import { searchTemplates } from "@/lib/template-search";
 import type { TemplateRow } from "@/types/database";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const ANIMATION_STYLES = ["All", "Subtle", "Cinematic", "Interactive"] as const;
-type AnimationFilter = (typeof ANIMATION_STYLES)[number];
-
-const ANIMATION_BADGE: Record<
-  TemplateRow["animation_style"],
-  { label: string; className: string }
-> = {
-  subtle: {
-    label: "Subtle",
-    className: "bg-blue-50 text-blue-700 ring-1 ring-blue-200",
-  },
-  cinematic: {
-    label: "Cinematic",
-    className: "bg-purple-50 text-purple-700 ring-1 ring-purple-200",
-  },
-  interactive: {
-    label: "Interactive",
-    className: "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
-  },
-};
+const FILTERS = ["All", ...Object.values(LAYOUT_LABEL)] as const;
+type DesignFilter = (typeof FILTERS)[number];
 
 const SPRING = { type: "spring", damping: 25, stiffness: 120 } as const;
+const DEFAULT_COLORS = { primary: "#B8860B", secondary: "#FFFFF0", accent: "#D4A574" };
+const DEFAULT_FONTS = { display: "Playfair Display", body: "Lato" };
+
+/** Label for a template's design family (Floral, Classic, Modern…). */
+function designLabel(slug: string): string {
+  return LAYOUT_LABEL[getInvitationStyle(slug).hero];
+}
+
+/** One Google Fonts stylesheet covering every template's display font + the script accent. */
+function galleryFontsUrl(templates: TemplateRow[]): string {
+  const families = new Set<string>(["Great Vibes"]);
+  templates.forEach((t) => t.default_config?.fonts?.display && families.add(t.default_config.fonts.display));
+  const query = Array.from(families)
+    .filter((f) => /^[\w\s-]{1,60}$/.test(f))
+    .map((f) => `family=${encodeURIComponent(f).replace(/%20/g, "+")}`)
+    .join("&");
+  return `https://fonts.googleapis.com/css2?${query}&display=swap`;
+}
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
-
-/**
- * Renders a richer mini color-scheme mockup using template brand colors.
- */
-function TemplateColorMockup({
-  colors,
-  fonts,
-}: {
-  colors: { primary: string; secondary: string; accent: string };
-  fonts: { display: string; body: string };
-}) {
-  return (
-    <div
-      className="relative flex flex-col items-center justify-center p-6 gap-1.5"
-      style={{ background: colors.secondary, minHeight: "140px" }}
-    >
-      {/* Top decorative line */}
-      <div className="w-12 h-px mb-1" style={{ background: colors.primary }} />
-      {/* Couple names */}
-      <p
-        className="text-sm font-semibold tracking-wide text-center leading-tight"
-        style={{ color: colors.primary, fontFamily: fonts.display }}
-      >
-        Emma &amp; James
-      </p>
-      {/* Heart */}
-      <div
-        className="w-5 h-5 rounded-full flex items-center justify-center my-0.5"
-        style={{ background: `${colors.primary}18` }}
-      >
-        <Heart size={9} style={{ color: colors.primary, fill: colors.primary }} />
-      </div>
-      {/* Date */}
-      <p
-        className="text-[10px] tracking-wider uppercase"
-        style={{ color: colors.accent }}
-      >
-        June 15, 2027
-      </p>
-      {/* Accent button mockup */}
-      <div
-        className="mt-2 h-4 w-16 rounded-full"
-        style={{ background: colors.primary, opacity: 0.85 }}
-      />
-      {/* Bottom line */}
-      <div className="w-8 h-px mt-1" style={{ background: colors.accent }} />
-    </div>
-  );
-}
 
 /**
  * Skeleton loader shown while templates are being fetched.
@@ -104,241 +59,11 @@ function TemplateCardSkeleton() {
         <div className="h-2.5 w-full rounded-full bg-dearly-border" />
         <div className="h-2.5 w-4/5 rounded-full bg-dearly-border" />
         <div className="flex gap-2 pt-1">
-          <div className="h-5 w-16 rounded-full bg-dearly-border" />
-          <div className="h-5 w-14 rounded-full bg-dearly-border" />
-        </div>
-        <div className="flex gap-2 pt-1">
-          <div className="h-8 flex-1 rounded-lg bg-dearly-border" />
-          <div className="h-8 flex-1 rounded-lg bg-dearly-border" />
+          <div className="h-9 flex-1 rounded-lg bg-dearly-border" />
+          <div className="h-9 flex-1 rounded-lg bg-dearly-border" />
         </div>
       </div>
     </div>
-  );
-}
-
-// ─── Preview Modal ────────────────────────────────────────────────────────────
-
-/**
- * Full-screen modal with a detailed mockup of the template invitation page.
- */
-function PreviewModal({
-  template,
-  onClose,
-}: {
-  template: TemplateRow;
-  onClose: () => void;
-}) {
-  const colors = template.default_config?.colors ?? {
-    primary: "#B8860B",
-    secondary: "#FFFFF0",
-    accent: "#D4A574",
-  };
-  const fonts = template.default_config?.fonts ?? {
-    display: "Georgia",
-    body: "sans-serif",
-  };
-  const badge = ANIMATION_BADGE[template.animation_style];
-
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, []);
-
-  return (
-    <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      onClick={onClose}
-    >
-      <motion.div
-        className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl"
-        initial={{ scale: 0.9, y: 30 }}
-        animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 0.9, y: 30 }}
-        transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Close */}
-        <button
-          onClick={onClose}
-          className="absolute right-3 top-3 z-10 rounded-full bg-white/80 p-1.5 text-gray-500 backdrop-blur-sm transition hover:bg-white hover:text-gray-800"
-        >
-          <X size={18} />
-        </button>
-
-        {/* Simulated invitation page */}
-        <div className="min-h-[500px]" style={{ backgroundColor: colors.secondary }}>
-          {/* Hero */}
-          <div className="flex flex-col items-center justify-center px-8 py-16 text-center">
-            <div className="mb-6 h-px w-16" style={{ backgroundColor: colors.primary }} />
-            <p
-              className="mb-3 text-xs uppercase tracking-[0.25em]"
-              style={{ color: colors.primary, fontFamily: fonts.body }}
-            >
-              Together with their families
-            </p>
-            <h2
-              className="mb-1 text-4xl font-light md:text-5xl"
-              style={{ color: colors.primary, fontFamily: fonts.display }}
-            >
-              Emma
-            </h2>
-            <p
-              className="mb-1 text-xl italic"
-              style={{ color: colors.accent, fontFamily: fonts.display }}
-            >
-              &amp;
-            </p>
-            <h2
-              className="mb-6 text-4xl font-light md:text-5xl"
-              style={{ color: colors.primary, fontFamily: fonts.display }}
-            >
-              James
-            </h2>
-            <div className="mb-4 h-px w-16" style={{ backgroundColor: colors.primary }} />
-            <p
-              className="text-xs uppercase tracking-[0.2em]"
-              style={{ color: colors.accent }}
-            >
-              Request the pleasure of your company
-            </p>
-
-            <div className="mt-8 flex items-center gap-2" style={{ color: colors.primary }}>
-              <Calendar size={16} />
-              <span style={{ fontFamily: fonts.display }}>Saturday, June 15, 2027</span>
-            </div>
-
-            <div className="mt-3 flex items-center gap-2" style={{ color: colors.accent }}>
-              <MapPin size={16} />
-              <span>The Grand Estate, 123 Garden Lane</span>
-            </div>
-
-            {/* Countdown mockup */}
-            <div className="mt-10 flex gap-6">
-              {[
-                { label: "Days", value: "142" },
-                { label: "Hours", value: "08" },
-                { label: "Minutes", value: "24" },
-                { label: "Seconds", value: "36" },
-              ].map(({ label, value }) => (
-                <div key={label} className="flex flex-col items-center">
-                  <span
-                    className="text-2xl font-bold tabular-nums"
-                    style={{ color: colors.primary }}
-                  >
-                    {value}
-                  </span>
-                  <span
-                    className="mt-1 text-[10px] uppercase tracking-wider"
-                    style={{ color: colors.accent }}
-                  >
-                    {label}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Story */}
-          <div className="mx-auto max-w-lg px-8 py-12 text-center">
-            <h3
-              className="mb-4 text-2xl"
-              style={{ color: colors.primary, fontFamily: fonts.display }}
-            >
-              Our Story
-            </h3>
-            <p className="text-sm leading-relaxed" style={{ color: colors.accent }}>
-              We met on a rainy afternoon in a small coffee shop downtown. What started as a
-              conversation over lattes became the greatest adventure of our lives. Three years
-              later, surrounded by the people we love most, we&apos;re ready to begin our forever.
-            </p>
-          </div>
-
-          {/* Schedule */}
-          <div className="mx-auto max-w-md px-8 py-8">
-            <h3
-              className="mb-6 text-center text-2xl"
-              style={{ color: colors.primary, fontFamily: fonts.display }}
-            >
-              Schedule
-            </h3>
-            <div className="relative space-y-6 pl-8">
-              <div
-                className="absolute left-3 top-0 h-full w-px"
-                style={{ backgroundColor: colors.primary, opacity: 0.3 }}
-              />
-              {[
-                { time: "3:00 PM", title: "Ceremony" },
-                { time: "4:30 PM", title: "Cocktail Hour" },
-                { time: "6:00 PM", title: "Reception & Dinner" },
-              ].map(({ time, title }) => (
-                <div key={title} className="flex items-start gap-4">
-                  <div
-                    className="relative -ml-5 mt-1 h-3 w-3 shrink-0 rounded-full"
-                    style={{ backgroundColor: colors.primary }}
-                  />
-                  <div>
-                    <p
-                      className="text-sm font-semibold"
-                      style={{ color: colors.primary, fontFamily: fonts.display }}
-                    >
-                      {title}
-                    </p>
-                    <p className="text-xs" style={{ color: colors.accent }}>
-                      {time}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Features row */}
-          <div className="flex justify-center gap-6 px-8 py-8 text-center">
-            {[
-              { icon: ImageIcon, label: "Photo Gallery" },
-              { icon: MessageSquare, label: "Guest Book" },
-              { icon: Music, label: "Background Music" },
-            ].map(({ icon: Icon, label }) => (
-              <div key={label} className="flex flex-col items-center gap-1.5">
-                <div
-                  className="flex h-10 w-10 items-center justify-center rounded-full"
-                  style={{ backgroundColor: `${colors.primary}15` }}
-                >
-                  <Icon size={18} style={{ color: colors.primary }} />
-                </div>
-                <span className="text-[11px]" style={{ color: colors.accent }}>
-                  {label}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Footer bar */}
-        <div className="sticky bottom-0 flex items-center justify-between border-t bg-white px-6 py-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <p className="text-lg font-bold text-dearly-text">{template.name}</p>
-              <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${badge.className}`}>
-                {badge.label}
-              </span>
-            </div>
-            <p className="text-xs text-dearly-text-secondary">{template.description}</p>
-          </div>
-          <Link
-            href="/signup"
-            className="rounded-lg bg-dearly-accent px-5 py-2 text-sm font-semibold text-white transition hover:opacity-90"
-          >
-            Use This Template
-          </Link>
-        </div>
-      </motion.div>
-    </motion.div>
   );
 }
 
@@ -347,31 +72,31 @@ function PreviewModal({
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState<TemplateRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeFilter, setActiveFilter] = useState<AnimationFilter>("All");
-  const [previewTemplate, setPreviewTemplate] = useState<TemplateRow | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [activeFilter, setActiveFilter] = useState<DesignFilter>("All");
+  const [query, setQuery] = useState("");
 
   /** Fetches all templates from Supabase on mount. */
   useEffect(() => {
     async function fetchTemplates() {
       const supabase = createClient();
-      const { data, error } = await supabase
-        .from("templates")
-        .select("*")
-        .order("name", { ascending: true });
-      if (!error && data) setTemplates(data as TemplateRow[]);
+      const { data, error } = await supabase.from("templates").select("*").order("name", { ascending: true });
+      if (error) setLoadError("We couldn't load templates right now. Please refresh the page.");
+      else if (data) setTemplates(data as TemplateRow[]);
       setLoading(false);
     }
     fetchTemplates();
   }, []);
 
-  const filtered =
-    activeFilter === "All"
-      ? templates
-      : templates.filter(
-          (t) =>
-            t.animation_style === activeFilter.toLowerCase()
-        );
-
+  const filtered = useMemo(
+    () =>
+      searchTemplates(
+        activeFilter === "All" ? templates : templates.filter((t) => designLabel(t.slug) === activeFilter),
+        query
+      ),
+    [templates, activeFilter, query]
+  );
+  const fontsHref = useMemo(() => (templates.length ? galleryFontsUrl(templates) : null), [templates]);
   return (
     <div className="min-h-screen bg-dearly-cream overflow-x-hidden">
       {/* ── Navigation ── */}
@@ -419,7 +144,7 @@ export default function TemplatesPage() {
         >
           <div className="inline-flex items-center gap-2 rounded-full bg-dearly-accent-soft px-3 py-1 text-xs font-medium text-dearly-accent mb-6">
             <Heart size={12} className="fill-current" />
-            20 Beautiful Templates
+            {templates.length || 25} Templates · {FILTERS.length - 1} Design Styles
           </div>
           <h1 className="font-display text-5xl md:text-6xl font-bold text-dearly-text mb-5">
             Beautiful Templates for{" "}
@@ -427,7 +152,7 @@ export default function TemplatesPage() {
           </h1>
           <p className="text-lg text-dearly-text-secondary leading-relaxed">
             From timeless elegance to modern minimalism — browse our curated collection
-            of 20 wedding templates and find the perfect one for your love story.
+            of {templates.length || 25} wedding templates and find the perfect one for your love story.
             No signup required to browse.
           </p>
         </motion.div>
@@ -435,14 +160,17 @@ export default function TemplatesPage() {
 
       {/* ── Filter Bar ── */}
       <section className="sticky top-16 z-40 bg-dearly-cream/90 backdrop-blur-md border-b border-dearly-border/40 px-6 py-3">
-        <div className="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto scrollbar-hide">
+        <div className="max-w-7xl mx-auto flex flex-col gap-3 md:flex-row md:items-center">
+        <TemplateSearchInput value={query} onChange={setQuery} className="w-full md:w-80 md:shrink-0" />
+        <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto scrollbar-hide">
           <span className="text-xs font-semibold text-dearly-text-muted shrink-0 mr-1">
             Filter:
           </span>
-          {ANIMATION_STYLES.map((style) => (
+          {FILTERS.map((style) => (
             <button
               key={style}
               onClick={() => setActiveFilter(style)}
+              aria-pressed={activeFilter === style}
               className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${
                 activeFilter === style
                   ? "bg-dearly-accent text-white shadow-soft"
@@ -458,12 +186,15 @@ export default function TemplatesPage() {
             </span>
           )}
         </div>
+        </div>
       </section>
 
       {/* ── Template Grid ── */}
       <section className="py-12 px-6">
         <div className="max-w-7xl mx-auto">
-          {loading ? (
+          {loadError ? (
+            <p className="py-24 text-center text-dearly-text-secondary">{loadError}</p>
+          ) : loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {Array.from({ length: 8 }).map((_, i) => (
                 <TemplateCardSkeleton key={i} />
@@ -472,121 +203,97 @@ export default function TemplatesPage() {
           ) : filtered.length === 0 ? (
             <div className="text-center py-24">
               <p className="text-dearly-text-secondary">
-                No templates match this filter.
+                No templates match{query ? <> &ldquo;{query}&rdquo;</> : " this filter"}.
               </p>
               <button
-                onClick={() => setActiveFilter("All")}
+                onClick={() => {
+                  setActiveFilter("All");
+                  setQuery("");
+                }}
                 className="mt-3 text-sm text-dearly-accent underline hover:no-underline"
               >
-                Clear filter
+                Clear search &amp; filters
               </button>
             </div>
           ) : (
             <motion.div
+              key={`${activeFilter}-${query}`}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
               initial="hidden"
               animate="visible"
-              variants={{
-                hidden: {},
-                visible: { transition: { staggerChildren: 0.05 } },
-              }}
+              variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.05 } } }}
             >
               {filtered.map((template, index) => {
-                const colors = template.default_config?.colors ?? {
-                  primary: "#B8860B",
-                  secondary: "#FFFFF0",
-                  accent: "#D4A574",
-                };
-                const fonts = template.default_config?.fonts ?? {
-                  display: "Georgia",
-                  body: "sans-serif",
-                };
-                const badge = ANIMATION_BADGE[template.animation_style];
-                const bgImage = getTemplateImage(index);
+                const colors = template.default_config?.colors ?? DEFAULT_COLORS;
+                const fonts = template.default_config?.fonts ?? DEFAULT_FONTS;
+                const previewHref = `/templates/${template.slug}`;
 
                 return (
-                  <motion.div
+                  <motion.article
                     key={template.id}
-                    variants={{
-                      hidden: { opacity: 0, y: 20 },
-                      visible: {
-                        opacity: 1,
-                        y: 0,
-                        transition: { duration: 0.35 },
-                      },
-                    }}
+                    variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.35 } } }}
                     whileHover={{ y: -4 }}
                     transition={SPRING}
-                    className="group rounded-2xl border border-dearly-border bg-dearly-card overflow-hidden shadow-card hover:shadow-card-hover transition-shadow"
+                    className="group flex flex-col rounded-2xl border border-dearly-border bg-dearly-card overflow-hidden shadow-card hover:shadow-card-hover transition-shadow"
                   >
-                    {/* Card image area */}
-                    <div className="relative overflow-hidden" style={{ height: "220px" }}>
-                      {/* Unsplash background image */}
-                      <Image
-                        src={bgImage}
-                        alt={`${template.name} template preview`}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                      />
-                      {/* Overlay */}
-                      <div className="absolute inset-0 bg-black/30" />
-                      {/* Floating color mockup */}
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div
-                          className="rounded-xl shadow-lg border overflow-hidden w-36"
-                          style={{ borderColor: `${colors.primary}40` }}
-                        >
-                          <TemplateColorMockup colors={colors} fonts={fonts} />
-                        </div>
+                    {/* Miniature of the real hero layout — click to open the live demo */}
+                    <Link href={previewHref} className="relative block h-56 overflow-hidden" aria-label={`Live preview of ${template.name}`}>
+                      <div className="h-full w-full transition-transform duration-500 group-hover:scale-[1.04]">
+                        <LayoutThumbnail slug={template.slug} colors={colors} fonts={fonts} photo={getTemplateImage(index)} />
                       </div>
-                    </div>
+                      <span className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition group-hover:bg-black/25 group-hover:opacity-100">
+                        <span className="flex items-center gap-1.5 rounded-full bg-white/95 px-4 py-2 text-xs font-semibold text-dearly-text shadow-lg">
+                          <Eye size={14} /> Live preview
+                        </span>
+                      </span>
+                    </Link>
 
                     {/* Card content */}
-                    <div className="p-4 space-y-2">
+                    <div className="flex flex-1 flex-col gap-2 p-4">
                       <div className="flex items-start justify-between gap-2">
-                        <h3 className="font-display text-base font-bold text-dearly-text leading-tight">
-                          {template.name}
-                        </h3>
-                        <span
-                          className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${badge.className}`}
-                        >
-                          {badge.label}
+                        <h3 className="font-display text-base font-bold leading-tight text-dearly-text">{template.name}</h3>
+                        <span className="shrink-0 rounded-full bg-dearly-accent-soft px-2 py-0.5 text-[10px] font-semibold text-dearly-accent ring-1 ring-dearly-accent/20">
+                          {designLabel(template.slug)}
                         </span>
                       </div>
 
                       {template.description && (
-                        <p className="text-xs text-dearly-text-secondary leading-relaxed line-clamp-2">
-                          {template.description}
-                        </p>
+                        <p className="line-clamp-2 text-xs leading-relaxed text-dearly-text-secondary">{template.description}</p>
                       )}
 
-                      {/* Actions */}
-                      <div className="flex gap-2 pt-1">
-                        <button
-                          onClick={() => setPreviewTemplate(template)}
-                          className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-dearly-border bg-dearly-cream px-3 py-2 text-xs font-semibold text-dearly-text-secondary transition hover:border-dearly-accent/50 hover:text-dearly-accent"
-                        >
-                          <Eye size={12} />
-                          Preview
-                        </button>
+                      {/* Colour dots */}
+                      <div className="flex items-center gap-1.5" aria-hidden>
+                        {[colors.primary, colors.accent, colors.secondary].map((c) => (
+                          <span key={c} className="h-3.5 w-3.5 rounded-full ring-1 ring-black/10" style={{ background: c }} />
+                        ))}
+                        <span className="ml-1 text-[10px] text-dearly-text-muted">+ 9 schemes</span>
+                      </div>
+
+                      {/* Actions — equal width, pinned to the bottom so rows align */}
+                      <div className="mt-auto grid grid-cols-2 gap-2 pt-2">
                         <Link
-                          href="/signup"
-                          className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-dearly-accent px-3 py-2 text-xs font-semibold text-white transition hover:opacity-90"
+                          href={previewHref}
+                          className="flex h-9 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-dearly-border bg-dearly-cream px-2 text-xs font-semibold text-dearly-text-secondary transition hover:border-dearly-accent/50 hover:text-dearly-accent"
                         >
-                          <Heart size={12} className="fill-white" />
-                          Use This Template
+                          <Eye size={13} />
+                          Preview
+                        </Link>
+                        <Link
+                          href={`/signup?template=${encodeURIComponent(template.slug)}`}
+                          className="flex h-9 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-dearly-accent px-2 text-xs font-semibold text-white transition hover:opacity-90"
+                        >
+                          <Heart size={13} className="fill-white" />
+                          Use template
                         </Link>
                       </div>
                     </div>
-                  </motion.div>
+                  </motion.article>
                 );
               })}
             </motion.div>
           )}
         </div>
       </section>
-
       {/* ── CTA Banner ── */}
       <section className="py-20 px-6 bg-dearly-card/40 border-t border-dearly-border">
         <motion.div
@@ -642,15 +349,10 @@ export default function TemplatesPage() {
         </div>
       </footer>
 
-      {/* ── Preview Modal ── */}
-      <AnimatePresence>
-        {previewTemplate && (
-          <PreviewModal
-            template={previewTemplate}
-            onClose={() => setPreviewTemplate(null)}
-          />
-        )}
-      </AnimatePresence>
+      {fontsHref && (
+        // eslint-disable-next-line @next/next/no-page-custom-font
+        <link rel="stylesheet" href={fontsHref} />
+      )}
     </div>
   );
 }

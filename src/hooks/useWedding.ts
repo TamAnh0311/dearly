@@ -51,15 +51,23 @@ export function useMyWedding() {
     setWedding({ ...wedding, ...updates });
   }
 
-  /** Creates a new wedding for the current user. */
-  async function createWedding(templateId: string, slug: string): Promise<WeddingRow> {
+  /**
+   * Creates a new wedding for the current user in a single insert.
+   * `extra` lets onboarding set names, date and customisation atomically
+   * (calling saveWedding right after would see stale state and no-op).
+   */
+  async function createWedding(
+    templateId: string,
+    slug: string,
+    extra: Partial<Pick<WeddingRow, "partner1_name" | "partner2_name" | "wedding_date" | "customization">> = {}
+  ): Promise<WeddingRow> {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error("Not authenticated");
+    if (!user) throw new Error("Please sign in again to create your wedding site.");
 
     const { data, error: insertError } = await supabase
       .from("weddings")
-      .insert({ user_id: user.id, template_id: templateId, slug })
+      .insert({ user_id: user.id, template_id: templateId, slug, ...extra })
       .select("*, template:templates(*)")
       .single();
 

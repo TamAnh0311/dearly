@@ -1,18 +1,16 @@
 /**
  * Noir template barrel export.
- * Exports all components conforming to the TemplateComponents interface.
+ * The guest invitation page itself is the shared CinematicInvitation
+ * (src/components/invitation); this bundle supplies the gallery and
+ * guestbook sub-pages styled for the template.
  */
 
 import type { TemplateComponents } from "../types";
-import InvitationPage from "./InvitationPage";
 import GalleryLayout from "./GalleryLayout";
-import TimelineSection from "./TimelineSection";
 import GuestbookSection from "./GuestbookSection";
 
 const components: TemplateComponents = {
-  InvitationPage,
   GalleryLayout,
-  TimelineSection,
   GuestbookSection,
 };
 

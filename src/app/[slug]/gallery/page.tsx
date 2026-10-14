@@ -57,7 +57,7 @@ export default async function GalleryPage({ params }: PageProps) {
         theme={theme}
       />
       {weddingData.guest_uploads_enabled && (
-        <div className="mx-auto max-w-xl px-6 py-12">
+        <div id="share" className="mx-auto max-w-xl scroll-mt-24 px-6 py-12">
           <GuestUploadForm weddingId={weddingData.id} theme={theme} />
         </div>
       )}

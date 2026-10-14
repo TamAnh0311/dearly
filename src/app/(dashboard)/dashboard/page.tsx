@@ -4,9 +4,13 @@
  * Dashboard home — landing page after login.
  * Shows a template-picker onboarding flow if no wedding exists yet,
  * or a rich overview with stats and quick links if one does.
+ *
+ * Onboarding: each template card shows a miniature of its real hero layout;
+ * "Preview" opens the full animated demo (with colour-scheme picker) in a
+ * modal; the chosen template + scheme are saved in one insert.
  */
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -24,24 +28,21 @@ import {
   Sparkles,
   Eye,
   X,
-  MapPin,
-  Calendar,
-  Music,
 } from "lucide-react";
 import { useMyWedding } from "@/hooks/useWedding";
 import { createClient } from "@/lib/supabase/client";
-import type { TemplateRow } from "@/types/database";
+import { getTemplateImage } from "@/lib/placeholder-images";
+import { clearPendingDesign, readPendingDesign, schemeColors } from "@/lib/pending-design";
+import LayoutThumbnail, { LAYOUT_LABEL } from "@/components/invitation/LayoutThumbnail";
+import { COLOR_SCHEMES, getInvitationStyle } from "@/components/invitation/styles";
+import { resolveBlessingStyle, sanitizeSections, type BlessingStyle } from "@/components/invitation/sections-config";
+import TemplateSearchInput from "@/components/invitation/TemplateSearchInput";
+import { searchTemplates } from "@/lib/template-search";
+import type { TemplateRow, WeddingCustomization } from "@/types/database";
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
-
-const ANIMATION_BADGE: Record<TemplateRow["animation_style"], { label: string; className: string }> = {
-  subtle: { label: "Subtle", className: "bg-blue-50 text-blue-700 ring-1 ring-blue-200" },
-  cinematic: { label: "Cinematic", className: "bg-purple-50 text-purple-700 ring-1 ring-purple-200" },
-  interactive: { label: "Interactive", className: "bg-amber-50 text-amber-700 ring-1 ring-amber-200" },
-};
-
 const QUICK_LINKS = [
   {
     href: "/dashboard/editor",
@@ -77,59 +78,31 @@ const QUICK_LINKS = [
   },
 ];
 
+const DEFAULT_COLORS = { primary: "#B8860B", secondary: "#FFFFF0", accent: "#D4A574" };
+const DEFAULT_FONTS = { display: "Playfair Display", body: "Lato" };
+
+/** Display name for a scheme id ("original" → template name). */
+function schemeName(id: string, templateName: string): string {
+  return id === "original" ? `${templateName} Original` : COLOR_SCHEMES.find((s) => s.id === id)?.name ?? id;
+}
+
 // ---------------------------------------------------------------------------
 // Sub-components
 // ---------------------------------------------------------------------------
-
-/**
- * Renders a mini color-scheme mockup for a template using its actual brand colors.
- */
-function TemplateColorPreview({ colors }: { colors: { primary: string; secondary: string; accent: string } }) {
-  return (
-    <div
-      className="relative h-28 w-full overflow-hidden rounded-xl"
-      style={{ background: colors.primary }}
-    >
-      {/* Decorative background blob */}
-      <div
-        className="absolute -right-4 -top-4 h-20 w-20 rounded-full opacity-40"
-        style={{ background: colors.secondary }}
-      />
-      {/* Simulated header bar */}
-      <div className="absolute inset-x-0 top-0 flex items-center gap-1.5 px-3 py-2">
-        <div className="h-1.5 w-1.5 rounded-full" style={{ background: colors.accent }} />
-        <div className="h-1 w-10 rounded-full opacity-60" style={{ background: colors.accent }} />
-      </div>
-      {/* Simulated hero text lines */}
-      <div className="absolute inset-x-0 top-8 flex flex-col items-center gap-1.5 px-4">
-        <div className="h-2 w-24 rounded-full opacity-80" style={{ background: colors.accent }} />
-        <div className="h-1.5 w-16 rounded-full opacity-50" style={{ background: colors.accent }} />
-      </div>
-      {/* Simulated accent button */}
-      <div
-        className="absolute bottom-3 left-1/2 -translate-x-1/2 h-4 w-14 rounded-full"
-        style={{ background: colors.accent }}
-      />
-      {/* Secondary color swatch strip at bottom */}
-      <div
-        className="absolute inset-x-0 bottom-0 h-1.5 opacity-70"
-        style={{ background: colors.secondary }}
-      />
-    </div>
-  );
-}
 
 /**
  * Skeleton loader for template cards during the Supabase fetch.
  */
 function TemplateCardSkeleton() {
   return (
-    <div className="rounded-2xl border border-dearly-border bg-dearly-card p-4 space-y-3 animate-pulse">
-      <div className="h-28 w-full rounded-xl bg-dearly-border" />
+    <div className="rounded-2xl border border-dearly-border bg-dearly-card p-3 space-y-3 animate-pulse">
+      <div className="h-36 w-full rounded-xl bg-dearly-border" />
       <div className="h-3 w-2/3 rounded-full bg-dearly-border" />
       <div className="h-2.5 w-full rounded-full bg-dearly-border" />
-      <div className="h-2.5 w-4/5 rounded-full bg-dearly-border" />
-      <div className="h-5 w-16 rounded-full bg-dearly-border" />
+      <div className="flex gap-2">
+        <div className="h-8 flex-1 rounded-lg bg-dearly-border" />
+        <div className="h-8 flex-1 rounded-lg bg-dearly-border" />
+      </div>
     </div>
   );
 }
@@ -139,186 +112,142 @@ function TemplateCardSkeleton() {
 // ---------------------------------------------------------------------------
 
 /**
- * Full-screen modal showing a detailed template preview with a simulated
- * invitation page mockup using the template's actual colors and fonts.
+ * Full-screen modal embedding the real animated template demo
+ * (/templates/[slug]?embed=1). The embedded page reports colour-scheme
+ * changes via postMessage so "Use this design" can keep the choice.
  */
 function TemplatePreviewModal({
   template,
+  initialScheme,
   onClose,
   onSelect,
 }: {
   template: TemplateRow;
+  initialScheme: string;
   onClose: () => void;
-  onSelect: () => void;
+  onSelect: (schemeId: string, sections: WeddingCustomization["sections"] | null, blessingStyle: BlessingStyle | null) => void;
 }) {
-  const colors = template.default_config?.colors ?? { primary: "#B8860B", secondary: "#FFFFF0", accent: "#D4A574" };
-  const fonts = template.default_config?.fonts ?? { display: "Georgia", body: "sans-serif" };
+  const [schemeId, setSchemeId] = useState(initialScheme);
+  const [sections, setSections] = useState<WeddingCustomization["sections"] | null>(null);
+  const [blessingStyle, setBlessingStyle] = useState<BlessingStyle | null>(null);
+  const [loaded, setLoaded] = useState(false);
+  const src = useRef(`/templates/${encodeURIComponent(template.slug)}?embed=1&scheme=${encodeURIComponent(initialScheme)}`);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = ""; };
-  }, []);
+    /** Picks up scheme changes from the embedded preview (same origin only). */
+    function onMessage(e: MessageEvent) {
+      if (e.origin !== window.location.origin) return;
+      if (e.data?.type === "scheme-change" && typeof e.data.id === "string") setSchemeId(e.data.id);
+      if (e.data?.type === "sections-change") {
+        const clean = sanitizeSections(e.data.sections);
+        if (clean) setSections(clean);
+        if (e.data.blessingStyle) setBlessingStyle(resolveBlessingStyle(e.data.blessingStyle));
+      }
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    window.addEventListener("message", onMessage);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("message", onMessage);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [onClose]);
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-2 backdrop-blur-sm md:p-6"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${template.name} preview`}
     >
       <motion.div
-        className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl"
-        initial={{ scale: 0.9, y: 30 }}
+        className="relative flex h-full w-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
+        initial={{ scale: 0.94, y: 30 }}
         animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 0.9, y: 30 }}
+        exit={{ scale: 0.94, y: 30 }}
         transition={{ type: "spring", damping: 25, stiffness: 300 }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close button */}
+        <div className="relative flex-1 bg-dearly-cream">
+          {!loaded && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-dearly-accent border-t-transparent" />
+            </div>
+          )}
+          <iframe
+            src={src.current}
+            title={`${template.name} live preview`}
+            className="h-full w-full border-0"
+            onLoad={() => setLoaded(true)}
+          />
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t bg-white px-5 py-3">
+          <div className="min-w-0">
+            <p className="truncate text-base font-bold text-dearly-text">{template.name}</p>
+            <p className="text-xs text-dearly-text-secondary">
+              Colours: <span className="font-semibold">{schemeName(schemeId, template.name)}</span> · change colours and sections in the bar above
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-lg border border-dearly-border px-4 py-2 text-sm font-semibold text-dearly-text-secondary transition hover:bg-dearly-cream"
+            >
+              Close
+            </button>
+            <button
+              type="button"
+              onClick={() => onSelect(schemeId, sections, blessingStyle)}
+              className="rounded-lg bg-dearly-accent px-5 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+            >
+              Use this design
+            </button>
+          </div>
+        </div>
+
         <button
+          type="button"
           onClick={onClose}
-          className="absolute right-3 top-3 z-10 rounded-full bg-white/80 p-1.5 text-gray-500 backdrop-blur-sm transition hover:bg-white hover:text-gray-800"
+          aria-label="Close preview"
+          className="absolute right-3 top-3 z-10 rounded-full bg-white/90 p-1.5 text-gray-600 shadow backdrop-blur-sm transition hover:bg-white hover:text-gray-900"
         >
           <X size={18} />
         </button>
-
-        {/* Simulated invitation page */}
-        <div className="min-h-[500px]" style={{ backgroundColor: colors.secondary }}>
-          {/* Hero section */}
-          <div className="flex flex-col items-center justify-center px-8 py-16 text-center">
-            <div className="mb-6 h-px w-16" style={{ backgroundColor: colors.primary }} />
-            <p className="mb-3 text-xs uppercase tracking-[0.25em]" style={{ color: colors.primary, fontFamily: fonts.body }}>
-              Together with their families
-            </p>
-            <h2
-              className="mb-1 text-4xl font-light md:text-5xl"
-              style={{ color: colors.primary, fontFamily: fonts.display }}
-            >
-              Emma
-            </h2>
-            <p className="mb-1 text-xl italic" style={{ color: colors.accent, fontFamily: fonts.display }}>
-              &amp;
-            </p>
-            <h2
-              className="mb-6 text-4xl font-light md:text-5xl"
-              style={{ color: colors.primary, fontFamily: fonts.display }}
-            >
-              James
-            </h2>
-            <div className="mb-4 h-px w-16" style={{ backgroundColor: colors.primary }} />
-            <p className="text-xs uppercase tracking-[0.2em]" style={{ color: colors.accent }}>
-              Request the pleasure of your company
-            </p>
-
-            <div className="mt-8 flex items-center gap-2" style={{ color: colors.primary }}>
-              <Calendar size={16} />
-              <span style={{ fontFamily: fonts.display }}>Saturday, June 15, 2027</span>
-            </div>
-
-            <div className="mt-3 flex items-center gap-2" style={{ color: colors.accent }}>
-              <MapPin size={16} />
-              <span>The Grand Estate, Garden Hall</span>
-            </div>
-
-            {/* Countdown mockup */}
-            <div className="mt-10 flex gap-6">
-              {[
-                { label: "Days", value: "142" },
-                { label: "Hours", value: "08" },
-                { label: "Minutes", value: "24" },
-                { label: "Seconds", value: "36" },
-              ].map(({ label, value }) => (
-                <div key={label} className="flex flex-col items-center">
-                  <span className="text-2xl font-bold tabular-nums" style={{ color: colors.primary }}>{value}</span>
-                  <span className="mt-1 text-[10px] uppercase tracking-wider" style={{ color: colors.accent }}>{label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Story section */}
-          <div className="mx-auto max-w-lg px-8 py-12 text-center">
-            <h3 className="mb-4 text-2xl" style={{ color: colors.primary, fontFamily: fonts.display }}>
-              Our Story
-            </h3>
-            <p className="text-sm leading-relaxed" style={{ color: colors.accent }}>
-              We met on a rainy afternoon in a small coffee shop downtown. What started as a conversation over lattes became the greatest adventure of our lives. Three years later, surrounded by the people we love most, we&apos;re ready to begin our forever.
-            </p>
-          </div>
-
-          {/* Timeline mockup */}
-          <div className="mx-auto max-w-md px-8 py-8">
-            <h3 className="mb-6 text-center text-2xl" style={{ color: colors.primary, fontFamily: fonts.display }}>
-              Schedule
-            </h3>
-            <div className="relative space-y-6 pl-8">
-              <div className="absolute left-3 top-0 h-full w-px" style={{ backgroundColor: colors.primary, opacity: 0.3 }} />
-              {[
-                { time: "3:00 PM", title: "Ceremony" },
-                { time: "4:30 PM", title: "Cocktail Hour" },
-                { time: "6:00 PM", title: "Reception & Dinner" },
-              ].map(({ time, title }) => (
-                <div key={title} className="flex items-start gap-4">
-                  <div className="relative -ml-5 mt-1 h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: colors.primary }} />
-                  <div>
-                    <p className="text-sm font-semibold" style={{ color: colors.primary, fontFamily: fonts.display }}>{title}</p>
-                    <p className="text-xs" style={{ color: colors.accent }}>{time}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Features row */}
-          <div className="flex justify-center gap-6 px-8 py-8 text-center">
-            {[
-              { icon: Image, label: "Photo Gallery" },
-              { icon: MessageSquare, label: "Guest Book" },
-              { icon: Music, label: "Background Music" },
-            ].map(({ icon: Icon, label }) => (
-              <div key={label} className="flex flex-col items-center gap-1.5">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full" style={{ backgroundColor: `${colors.primary}15` }}>
-                  <Icon size={18} style={{ color: colors.primary }} />
-                </div>
-                <span className="text-[11px]" style={{ color: colors.accent }}>{label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Footer bar */}
-        <div className="sticky bottom-0 flex items-center justify-between border-t bg-white px-6 py-4">
-          <div>
-            <p className="text-lg font-bold text-dearly-text">{template.name}</p>
-            <p className="text-xs text-dearly-text-secondary">{template.description}</p>
-          </div>
-          <button
-            onClick={onSelect}
-            className="rounded-lg bg-dearly-accent px-5 py-2 text-sm font-semibold text-white transition hover:opacity-90"
-          >
-            Use This Template
-          </button>
-        </div>
       </motion.div>
     </motion.div>
   );
 }
 
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // Main Page Component
 // ---------------------------------------------------------------------------
 
 export default function DashboardPage() {
-  const { wedding, loading: weddingLoading, createWedding, saveWedding } = useMyWedding();
+  const { wedding, loading: weddingLoading, createWedding } = useMyWedding();
   const router = useRouter();
 
   // Template picker state
   const [templates, setTemplates] = useState<TemplateRow[]>([]);
   const [templatesLoading, setTemplatesLoading] = useState(true);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+  const [templateQuery, setTemplateQuery] = useState("");
+  const [selectedScheme, setSelectedScheme] = useState("original");
+  const [selectedSections, setSelectedSections] = useState<WeddingCustomization["sections"] | null>(null);
+  const [selectedBlessingStyle, setSelectedBlessingStyle] = useState<BlessingStyle | null>(null);
 
   const [previewTemplate, setPreviewTemplate] = useState<TemplateRow | null>(null);
+  const closePreview = useCallback(() => setPreviewTemplate(null), []);
 
   // Onboarding form state
   const [partner1, setPartner1] = useState("");
@@ -341,7 +270,17 @@ export default function DashboardPage() {
         .from("templates")
         .select("*")
         .order("name", { ascending: true });
-      if (!error && data) setTemplates(data as TemplateRow[]);
+      if (!error && data) {
+        const list = data as TemplateRow[];
+        setTemplates(list);
+        // Pre-select a design chosen on the public gallery before signup.
+        const pending = readPendingDesign();
+        const match = pending && list.find((t) => t.slug === pending.template);
+        if (match) {
+          setSelectedTemplateId(match.id);
+          setSelectedScheme(pending.scheme ?? "original");
+        }
+      }
       setTemplatesLoading(false);
     }
     fetchTemplates();
@@ -402,12 +341,24 @@ export default function DashboardPage() {
 
     setSubmitting(true);
     try {
-      await createWedding(selectedTemplateId, slug.trim());
-      await saveWedding({
+      const colors = schemeColors(selectedScheme);
+      const customization: WeddingCustomization | undefined =
+        colors || selectedSections || selectedBlessingStyle
+          ? {
+              colors: colors ?? {},
+              fonts: {},
+              sections: selectedSections ?? { timeline: true, gallery: true, guestbook: true },
+              galleryLayout: "masonry",
+              ...(selectedBlessingStyle ? { blessingStyle: selectedBlessingStyle } : {}),
+            }
+          : undefined;
+      await createWedding(selectedTemplateId, slug.trim(), {
         partner1_name: partner1.trim(),
         partner2_name: partner2.trim(),
         wedding_date: weddingDate || null,
+        ...(customization ? { customization } : {}),
       });
+      clearPendingDesign();
       router.push("/dashboard/editor");
     } catch (err: unknown) {
       setSubmitError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
@@ -628,11 +579,12 @@ export default function DashboardPage() {
         <p className="mt-2 text-dearly-text-secondary">
           Pick a design that matches your style — you can customise everything later.
         </p>
+        <TemplateSearchInput value={templateQuery} onChange={setTemplateQuery} className="mx-auto mt-6 max-w-md" />
       </motion.div>
 
       {/* Template Grid */}
       {templatesLoading ? (
-        <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 10 }).map((_, i) => <TemplateCardSkeleton key={i} />)}
         </div>
       ) : templates.length === 0 ? (
@@ -641,7 +593,7 @@ export default function DashboardPage() {
         </p>
       ) : (
         <motion.div
-          className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+          className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
           initial="hidden"
           animate="visible"
           variants={{
@@ -649,30 +601,23 @@ export default function DashboardPage() {
             visible: { transition: { staggerChildren: 0.06 } },
           }}
         >
-          {templates.map((template) => {
+          {searchTemplates(templates, templateQuery).map((template, index) => {
             const isSelected = template.id === selectedTemplateId;
-            const colors = template.default_config?.colors ?? {
-              primary: "#f5f0eb",
-              secondary: "#e8d8c4",
-              accent: "#b08060",
-            };
-            const badge = ANIMATION_BADGE[template.animation_style];
+            const colors = template.default_config?.colors ?? DEFAULT_COLORS;
+            const fonts = template.default_config?.fonts ?? DEFAULT_FONTS;
+            const label = LAYOUT_LABEL[getInvitationStyle(template.slug).hero];
 
             return (
-              <motion.button
+              <motion.div
                 key={template.id}
-                onClick={() => setSelectedTemplateId(template.id)}
                 variants={{
                   hidden: { opacity: 0, y: 16 },
                   visible: { opacity: 1, y: 0, transition: { duration: 0.35 } },
                 }}
-                whileHover={{ scale: 1.03, y: -3 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ y: -3 }}
                 transition={{ type: "spring", stiffness: 380, damping: 28 }}
-                className={`relative flex flex-col overflow-hidden rounded-2xl border-2 bg-dearly-card p-4 text-left shadow-card transition focus:outline-none ${
-                  isSelected
-                    ? "border-dearly-accent shadow-card-hover"
-                    : "border-dearly-border hover:border-dearly-accent/40 hover:shadow-card-hover"
+                className={`relative flex flex-col overflow-hidden rounded-2xl border-2 bg-dearly-card shadow-card transition ${
+                  isSelected ? "border-dearly-accent shadow-card-hover" : "border-dearly-border hover:border-dearly-accent/40 hover:shadow-card-hover"
                 }`}
               >
                 {/* Selected checkmark badge */}
@@ -683,45 +628,71 @@ export default function DashboardPage() {
                       animate={{ scale: 1, opacity: 1 }}
                       exit={{ scale: 0, opacity: 0 }}
                       transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                      className="absolute right-2 top-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-dearly-accent"
+                      className="pointer-events-none absolute right-2 top-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-dearly-accent"
                     >
                       <CheckCircle2 size={14} className="text-white" strokeWidth={2.5} />
                     </motion.div>
                   )}
                 </AnimatePresence>
 
-                {/* Color preview mockup */}
-                <TemplateColorPreview colors={colors} />
+                {/* Thumbnail — click to select */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedTemplateId(template.id);
+                    setSelectedScheme("original");
+                  }}
+                  aria-pressed={isSelected}
+                  aria-label={`Select ${template.name}`}
+                  className="block h-36 w-full overflow-hidden text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-dearly-accent"
+                >
+                  <LayoutThumbnail slug={template.slug} colors={colors} fonts={fonts} photo={getTemplateImage(index)} />
+                </button>
 
-                {/* Template info */}
-                <div className="mt-3 flex flex-col gap-1">
-                  <p className="text-sm font-bold text-dearly-text leading-tight">{template.name}</p>
-                  {template.description && (
-                    <p className="line-clamp-2 text-xs text-dearly-text-secondary leading-relaxed">
-                      {template.description}
-                    </p>
-                  )}
-                  <div className="mt-1 flex items-center gap-2">
-                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${badge.className}`}>
-                      {badge.label}
+                <div className="flex flex-1 flex-col gap-1 p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="truncate text-sm font-bold leading-tight text-dearly-text">{template.name}</p>
+                    <span className="shrink-0 rounded-full bg-dearly-accent-soft px-2 py-0.5 text-[10px] font-semibold text-dearly-accent">
+                      {label}
                     </span>
+                  </div>
+                  {template.description && (
+                    <p className="line-clamp-2 text-xs leading-relaxed text-dearly-text-secondary">{template.description}</p>
+                  )}
+
+                  {/* Actions — siblings, not nested buttons */}
+                  <div className="mt-auto grid grid-cols-2 gap-2 pt-2">
                     <button
                       type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setPreviewTemplate(template);
-                      }}
-                      className="flex items-center gap-1 rounded-full bg-dearly-accent-soft px-2 py-0.5 text-[10px] font-semibold text-dearly-accent transition hover:bg-dearly-accent hover:text-white"
+                      onClick={() => setPreviewTemplate(template)}
+                      className="flex h-8 items-center justify-center gap-1 rounded-lg border border-dearly-border text-xs font-semibold text-dearly-text-secondary transition hover:border-dearly-accent/50 hover:text-dearly-accent"
                     >
-                      <Eye size={10} />
+                      <Eye size={12} />
                       Preview
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedTemplateId(template.id);
+                        setSelectedScheme("original");
+                      }}
+                      className={`flex h-8 items-center justify-center rounded-lg text-xs font-semibold transition ${
+                        isSelected ? "bg-dearly-accent text-white" : "bg-dearly-accent-soft text-dearly-accent hover:bg-dearly-accent hover:text-white"
+                      }`}
+                    >
+                      {isSelected ? "Selected" : "Select"}
                     </button>
                   </div>
                 </div>
-              </motion.button>
+              </motion.div>
             );
-          })}
-        </motion.div>
+          })}        </motion.div>
+      )}
+
+      {!templatesLoading && templates.length > 0 && searchTemplates(templates, templateQuery).length === 0 && (
+        <p className="mt-6 text-center text-sm text-dearly-text-secondary">
+          No templates match &ldquo;{templateQuery}&rdquo;. Try &ldquo;garden&rdquo;, &ldquo;gold&rdquo; or &ldquo;stars&rdquo;.
+        </p>
       )}
 
       {/* Step 2: Basic Info Form — slides in when a template is selected */}
@@ -745,7 +716,7 @@ export default function DashboardPage() {
                       className="inline-block h-2 w-2 rounded-full"
                       style={{ background: selectedTemplate.default_config?.colors?.accent ?? "#b08060" }}
                     />
-                    {selectedTemplate.name} selected
+                    {selectedTemplate.name} · {schemeName(selectedScheme, selectedTemplate.name)}
                   </>
                 )}
               </div>
@@ -868,9 +839,13 @@ export default function DashboardPage() {
         {previewTemplate && (
           <TemplatePreviewModal
             template={previewTemplate}
-            onClose={() => setPreviewTemplate(null)}
-            onSelect={() => {
+            initialScheme={previewTemplate.id === selectedTemplateId ? selectedScheme : "original"}
+            onClose={closePreview}
+            onSelect={(schemeId, sections, blessingStyle) => {
+              setSelectedBlessingStyle(blessingStyle);
               setSelectedTemplateId(previewTemplate.id);
+              setSelectedScheme(schemeId);
+              setSelectedSections(sections);
               setPreviewTemplate(null);
             }}
           />

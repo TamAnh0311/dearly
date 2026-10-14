@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { MusicTrackRow } from "@/types/database";
 import { Music2, Play, Square, Star } from "lucide-react";
+import { createAmbientMusic, toMusicPreset } from "@/lib/ambient-music";
 
 type Genre = MusicTrackRow["genre"] | "all";
 
@@ -45,40 +46,46 @@ function formatDuration(seconds: number): string {
 }
 
 /**
- * Inline audio preview player for a single track.
- * Creates / destroys an Audio element on mount/unmount.
+ * Inline preview for a library track. Bundled `/music/*` tracks have no audio
+ * file, so they preview as the generative piece for their genre (the same
+ * music guests will hear); external URLs play as files.
  */
-function TrackPreview({ url }: { url: string }) {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+function TrackPreview({ url, genre }: { url: string; genre: string }) {
+  const engineRef = useRef<{ start: () => Promise<void>; stop: () => void } | null>(null);
   const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
-    const audio = new Audio(url);
-    audio.loop = false;
-    audioRef.current = audio;
-    audio.addEventListener("ended", () => setPlaying(false));
+    if (url.startsWith("/music/")) {
+      engineRef.current = createAmbientMusic(toMusicPreset(genre), 0.45);
+    } else {
+      const audio = new Audio(url);
+      audio.addEventListener("ended", () => setPlaying(false));
+      engineRef.current = {
+        start: () => audio.play(),
+        stop: () => {
+          audio.pause();
+          audio.currentTime = 0;
+        },
+      };
+    }
     return () => {
-      audio.pause();
-      audio.src = "";
-      audioRef.current = null;
+      engineRef.current?.stop();
+      engineRef.current = null;
     };
-  }, [url]);
+  }, [url, genre]);
 
-  /**
-   * Toggles preview playback.
-   */
+  /** Toggles preview playback. */
   function handleToggle() {
-    const audio = audioRef.current;
-    if (!audio) return;
+    const engine = engineRef.current;
+    if (!engine) return;
     if (playing) {
-      audio.pause();
-      audio.currentTime = 0;
+      engine.stop();
       setPlaying(false);
     } else {
-      audio.play().catch(() => {
-        // Ignore autoplay policy errors silently.
-      });
-      setPlaying(true);
+      engine.start().then(
+        () => setPlaying(true),
+        () => setPlaying(false)
+      );
     }
   }
 
@@ -95,7 +102,6 @@ function TrackPreview({ url }: { url: string }) {
     </button>
   );
 }
-
 /**
  * Genre badge pill.
  */
@@ -217,7 +223,7 @@ export default function MusicPicker({
                   }`}
                 >
                   {/* Play preview */}
-                  <TrackPreview url={track.url} />
+                  <TrackPreview url={track.url} genre={track.genre} />
 
                   {/* Track info */}
                   <div className="min-w-0 flex-1">

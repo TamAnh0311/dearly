@@ -1,1190 +1,543 @@
 "use client";
 
 /**
- * Marketing landing page — animated hero, template showcase, feature tabs,
- * how-it-works steps, testimonials, and CTA sections.
+ * Marketing landing page.
  *
- * Uses Framer Motion throughout for scroll reveals, stagger animations,
- * and interactive UI elements.
+ * Sections: nav → hero with a live, playable phone demo → signature openings
+ * (one card per hero layout) → "everything guests need" bento → memories
+ * (after the wedding) → comparison with hand-made studios → how it works →
+ * testimonials → final CTA → footer.
+ *
+ * The phone demo embeds the real template preview (/templates/[slug]?embed=1)
+ * so visitors experience the actual animation, not a mock.
  */
 
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
-  motion,
-  useScroll,
-  useTransform,
-  AnimatePresence,
-  useInView,
-  useMotionValue,
-  useSpring,
-} from "framer-motion";
-import {
+  Check,
+  Eye,
+  Gem,
   Heart,
-  Images,
-  Clock,
-  BookOpen,
+  LayoutList,
+  MapPin,
   Music,
-  Mail,
   Palette,
-  Sliders,
-  Share2,
+  PartyPopper,
+  Search,
+  Sparkles,
+  Wand2,
+  X,
 } from "lucide-react";
+import LayoutThumbnail from "@/components/invitation/LayoutThumbnail";
+import { COLOR_SCHEMES, LAYOUT_LABEL, getInvitationStyle } from "@/components/invitation/styles";
+import { PLACEHOLDER_IMAGES } from "@/lib/placeholder-images";
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// ─── Data ─────────────────────────────────────────────────────────────────────
 
-const SPRING = { type: "spring", damping: 25, stiffness: 120 } as const;
+const EASE = [0.22, 1, 0.36, 1] as const;
 
-const TEMPLATES = [
-  {
-    name: "Eternal",
-    slug: "eternal",
-    description: "Classic elegant — serif fonts, gold accents, ivory tones",
-    primary: "#B8860B",
-    secondary: "#FFFFF0",
-    accent: "#D4A574",
-    bg: "from-amber-50 to-yellow-100",
-  },
-  {
-    name: "Bloom",
-    slug: "bloom",
-    description: "Romantic floral — watercolor flowers, soft pinks, greens",
-    primary: "#D4A0A0",
-    secondary: "#FFF5F5",
-    accent: "#7BA07B",
-    bg: "from-pink-50 to-rose-100",
-  },
-  {
-    name: "Minimal",
-    slug: "minimal",
-    description: "Modern clean — sans-serif, whitespace, monochrome",
-    primary: "#1A1A1A",
-    secondary: "#FFFFFF",
-    accent: "#666666",
-    bg: "from-gray-50 to-slate-100",
-  },
-  {
-    name: "Rustic",
-    slug: "rustic",
-    description: "Botanical earthy — kraft textures, hand-drawn illustrations",
-    primary: "#5C4033",
-    secondary: "#F5F0E8",
-    accent: "#8B7355",
-    bg: "from-orange-50 to-amber-100",
-  },
-  {
-    name: "Deco",
-    slug: "deco",
-    description: "Art Deco — geometric patterns, gold/black, gatsby vibes",
-    primary: "#C5A55A",
-    secondary: "#1A1A2E",
-    accent: "#E8D5A3",
-    bg: "from-yellow-900 to-indigo-950",
-  },
-  {
-    name: "Sunset",
-    slug: "sunset",
-    description: "Warm tropical — coral, terracotta, palm motifs",
-    primary: "#E07A5F",
-    secondary: "#FFF8F0",
-    accent: "#F2CC8F",
-    bg: "from-orange-100 to-red-100",
-  },
-  {
-    name: "Noir",
-    slug: "noir",
-    description: "Dark moody — dramatic typography, dark backgrounds",
-    primary: "#E0D6C8",
-    secondary: "#0D0D0D",
-    accent: "#8B7D6B",
-    bg: "from-gray-900 to-stone-900",
-  },
-  {
-    name: "Garden",
-    slug: "garden",
-    description: "English garden — muted pastels, delicate borders",
-    primary: "#7BA07B",
-    secondary: "#F8FAF5",
-    accent: "#C4A882",
-    bg: "from-green-50 to-emerald-100",
-  },
-  {
-    name: "Polaroid",
-    slug: "polaroid",
-    description: "Retro playful — polaroid frames, handwritten fonts",
-    primary: "#2C3E50",
-    secondary: "#FDFCF8",
-    accent: "#E74C3C",
-    bg: "from-blue-50 to-sky-100",
-  },
-  {
-    name: "Glass",
-    slug: "glass",
-    description: "Glassmorphism — frosted panels, gradients, depth layers",
-    primary: "#667EEA",
-    secondary: "#F0F4FF",
-    accent: "#764BA2",
-    bg: "from-violet-100 to-purple-100",
-  },
+interface Showcase {
+  slug: string;
+  name: string;
+  tagline: string;
+  colors: { primary: string; secondary: string; accent: string };
+  fonts: { display: string; body: string };
+}
+
+/** One template per opening style (colours/fonts mirror the templates table). */
+const SHOWCASE: Showcase[] = [
+  { slug: "velvet", name: "Velvet Curtain", tagline: "Curtains part under a golden spotlight", colors: { primary: "#D9B56C", secondary: "#1E0B10", accent: "#8C1C2C" }, fonts: { display: "Cinzel", body: "Cormorant Garamond" } },
+  { slug: "secret-garden", name: "Secret Garden", tagline: "Ivy gates unlock onto a garden in bloom", colors: { primary: "#6B8F5E", secondary: "#F4F1E8", accent: "#C9A27E" }, fonts: { display: "Cormorant Garamond", body: "Nunito" } },
+  { slug: "wax-seal", name: "Wax Seal", tagline: "The seal cracks, the letter rises", colors: { primary: "#8E2F3A", secondary: "#FBF7F0", accent: "#C8A97E" }, fonts: { display: "Playfair Display", body: "Lato" } },
+  { slug: "dusk", name: "Dusk till Dawn", tagline: "Golden hour melts into a starry night", colors: { primary: "#F2B880", secondary: "#FFF7EE", accent: "#6C5B9E" }, fonts: { display: "Bodoni Moda", body: "Outfit" } },
+  { slug: "rosewindow", name: "Rose Window", tagline: "Stained glass lights up in jewel tones", colors: { primary: "#2E5E8C", secondary: "#F7F4EE", accent: "#B4483C" }, fonts: { display: "EB Garamond", body: "Raleway" } },
+  { slug: "bloom", name: "Bloom", tagline: "Flowers grow, butterflies drift by", colors: { primary: "#D4A0A0", secondary: "#FFF5F5", accent: "#7BA07B" }, fonts: { display: "Cormorant Garamond", body: "Quicksand" } },
+  { slug: "eternal", name: "Eternal", tagline: "A golden arch draws itself around you", colors: { primary: "#B8860B", secondary: "#FFFFF0", accent: "#D4A574" }, fonts: { display: "Playfair Display", body: "Lato" } },
+  { slug: "celestial", name: "Celestial", tagline: "Constellations and a crescent moon", colors: { primary: "#C9B06B", secondary: "#0F1729", accent: "#E8E0D0" }, fonts: { display: "Cormorant Garamond", body: "Raleway" } },
+  { slug: "minimal", name: "Minimal", tagline: "Magazine-grade typography", colors: { primary: "#1A1A1A", secondary: "#FFFFFF", accent: "#666666" }, fonts: { display: "Inter", body: "Inter" } },
+  { slug: "polaroid", name: "Polaroid", tagline: "Drag-able photos tumble onto the page", colors: { primary: "#2C3E50", secondary: "#FDFCF8", accent: "#E74C3C" }, fonts: { display: "Caveat", body: "Poppins" } },
 ];
 
+const DEMO_SLUGS = ["velvet", "secret-garden", "wax-seal", "dusk"] as const;
+
 const FEATURES = [
-  {
-    id: "invitations",
-    label: "Animated Invitations",
-    icon: Mail,
-    description:
-      "Your guests open an envelope that peels back to reveal your stunning invitation — fully animated and unforgettable.",
-    mockupBg: "from-dearly-accent-soft to-dearly-rose-soft",
-    mockupAccent: "bg-dearly-accent",
-  },
-  {
-    id: "gallery",
-    label: "Photo Gallery",
-    icon: Images,
-    description:
-      "Three gorgeous layout styles — masonry, albums, and timeline. Guests can upload their own photos too.",
-    mockupBg: "from-dearly-rose-soft to-dearly-gold-soft",
-    mockupAccent: "bg-dearly-rose",
-  },
-  {
-    id: "timeline",
-    label: "Event Timeline",
-    icon: Clock,
-    description:
-      "Share your wedding day schedule in a beautifully designed, animated timeline that matches your theme.",
-    mockupBg: "from-dearly-gold-soft to-dearly-accent-soft",
-    mockupAccent: "bg-dearly-gold",
-  },
-  {
-    id: "guestbook",
-    label: "Guest Book",
-    icon: BookOpen,
-    description:
-      "Collect heartfelt messages from all your guests in a beautifully styled digital guest book you'll treasure forever.",
-    mockupBg: "from-dearly-accent-soft to-dearly-cream",
-    mockupAccent: "bg-dearly-accent",
-  },
-  {
-    id: "music",
-    label: "Music Player",
-    icon: Music,
-    description:
-      "Set the mood with a built-in music player. Your song, your vibe — playing softly as guests browse your site.",
-    mockupBg: "from-dearly-rose-soft to-dearly-accent-soft",
-    mockupAccent: "bg-dearly-rose",
-  },
-  {
-    id: "envelope",
-    label: "Envelope Animation",
-    icon: Mail,
-    description:
-      "Make a grand entrance. The iconic envelope opening animation sets the tone before guests even see a word.",
-    mockupBg: "from-dearly-gold-soft to-dearly-rose-soft",
-    mockupAccent: "bg-dearly-gold",
-  },
+  { icon: PartyPopper, title: "RSVP inside the invitation", body: "Two big buttons — “I'll be there” or “Can't make it” — then name, party size and a blessing. Replies land in your dashboard instantly." },
+  { icon: Heart, title: "Blessings that float in", body: "Every wish appears on a blessing wall and floats up the screen as flowers, butterflies or stars when guests open your page." },
+  { icon: Sparkles, title: "Tap-to-react", body: "Guests shower you with hearts, blooms and cheers. Live counts, no account needed." },
+  { icon: Wand2, title: "Scratch to reveal", body: "Hide your date under gold foil. Guests scratch it off with a finger — confetti follows." },
+  { icon: Palette, title: "Any colour, instantly", body: "Ten curated schemes per design, or your own colours and fonts. See it change live." },
+  { icon: LayoutList, title: "Show only what you want", body: "Toggle countdown, story, schedule, venue, RSVP, blessings — even the floating wishes." },
+  { icon: MapPin, title: "Venue, map & calendar", body: "One tap for directions and add-to-calendar. A live countdown to the big day." },
+  { icon: Music, title: "Background music", body: "A soft score matched to your design starts with the guest's first tap — or use your own song." },
+];
+
+const COMPARISON: { label: string; dearly: string | boolean; studio: string | boolean }[] = [
+  { label: "See your invitation", dearly: "Instantly, free", studio: "After a 7–14 day design round" },
+  { label: "Edit names, date, story", dearly: "Any time, live", studio: "Request a revision" },
+  { label: "Try every colour scheme yourself", dearly: true, studio: "Usually one proof" },
+  { label: "RSVP inside the invitation", dearly: true, studio: true },
+  { label: "Live blessing wall + floating wishes", dearly: true, studio: "Rarely" },
+  { label: "Guest reactions", dearly: true, studio: "Rarely" },
+  { label: "Scratch-to-reveal & signature openings", dearly: true, studio: true },
+  { label: "Choose which sections show", dearly: true, studio: "Via your designer" },
+  { label: "Photo album guests add to after the wedding", dearly: true, studio: "Rarely" },
 ];
 
 const TESTIMONIALS = [
-  {
-    quote:
-      "We showed our wedding site to family and they genuinely thought we had hired a professional designer. Dearly made us look incredible.",
-    couple: "Sophie & James",
-    rotation: "-2deg",
-  },
-  {
-    quote:
-      "The envelope animation had our guests screaming with delight. Everyone wanted to know how we did it. Absolute perfection.",
-    couple: "Mia & Carlos",
-    rotation: "0deg",
-  },
-  {
-    quote:
-      "I changed our template three times and it was seamless every time. The customization is just so good — hours of fun, not stress.",
-    couple: "Priya & Liam",
-    rotation: "2deg",
-  },
+  { quote: "Our guests watched the curtain open three times before they even scrolled. Then they RSVP'd in seconds.", couple: "Sophie & James" },
+  { quote: "The blessings floating up as butterflies made my grandma cry. Everyone wanted to know who designed it.", couple: "Mia & Carlos" },
+  { quote: "I tried every colour scheme in five minutes and turned off the sections we didn't need. Zero stress.", couple: "Priya & Liam" },
 ];
 
-const STATS = [
-  { value: 10, label: "Stunning Templates", suffix: "" },
-  { value: 3, label: "Gallery Layouts", suffix: "" },
-  { value: 100, label: "Customization", suffix: "%" },
-];
+/** Google Fonts stylesheet for the showcase thumbnails. */
+const FONTS_HREF = `https://fonts.googleapis.com/css2?${Array.from(new Set(["Great Vibes", ...SHOWCASE.map((s) => s.fonts.display)]))
+  .map((f) => `family=${encodeURIComponent(f).replace(/%20/g, "+")}`)
+  .join("&")}&display=swap`;
 
-// ─── Animated Counter ─────────────────────────────────────────────────────────
+// ─── Pieces ───────────────────────────────────────────────────────────────────
 
-function AnimatedCounter({
-  target,
-  suffix = "",
-}: {
-  target: number;
-  suffix?: string;
-}) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-100px" });
-  const motionValue = useMotionValue(0);
-  const spring = useSpring(motionValue, { damping: 30, stiffness: 60 });
-  const [display, setDisplay] = useState(0);
-
-  useEffect(() => {
-    if (inView) motionValue.set(target);
-  }, [inView, motionValue, target]);
-
-  useEffect(() => {
-    const unsubscribe = spring.on("change", (v) => setDisplay(Math.round(v)));
-    return unsubscribe;
-  }, [spring]);
-
+/** Fades/lifts content in on scroll. */
+function Reveal({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
   return (
-    <span ref={ref}>
-      {display}
-      {suffix}
-    </span>
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.9, delay, ease: EASE }}
+    >
+      {children}
+    </motion.div>
   );
 }
 
-// ─── Feature Mockup ───────────────────────────────────────────────────────────
-
-function FeatureMockup({ feature }: { feature: (typeof FEATURES)[number] }) {
-  const Icon = feature.icon;
-
-  const mockups: Record<string, React.ReactNode> = {
-    invitations: (
-      <div className="flex flex-col items-center gap-4">
-        <motion.div
-          initial={{ rotateX: -30, y: 20, opacity: 0 }}
-          animate={{ rotateX: 0, y: 0, opacity: 1 }}
-          transition={{ ...SPRING, delay: 0.1 }}
-          className="relative w-48 h-64 bg-dearly-card rounded-xl shadow-card-hover border border-dearly-border flex flex-col items-center justify-center gap-3 p-6"
-          style={{ transformStyle: "preserve-3d" }}
-        >
-          <div className="w-8 h-px bg-dearly-gold mb-1" />
-          <div className="font-display text-base text-dearly-text text-center leading-snug">
-            Sophie &amp; James
-          </div>
-          <div className="text-xs text-dearly-text-muted text-center">
-            invite you to celebrate
-          </div>
-          <div className="w-12 h-px bg-dearly-border my-1" />
-          <div className="text-xs text-dearly-text-secondary text-center">
-            June 14, 2026
-          </div>
-          <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-dearly-accent flex items-center justify-center">
-            <Heart size={12} className="text-white fill-white" />
-          </div>
-        </motion.div>
-        <motion.div
-          initial={{ scaleX: 0.6, opacity: 0 }}
-          animate={{ scaleX: 1, opacity: 0.6 }}
-          transition={{ ...SPRING, delay: 0.3 }}
-          className="w-48 h-8 bg-dearly-border rounded-b-xl -mt-2"
-          style={{ clipPath: "polygon(0 0, 50% 100%, 100% 0)" }}
-        />
-      </div>
-    ),
-    gallery: (
-      <div className="grid grid-cols-3 gap-2 w-56">
-        {[
-          "h-24",
-          "h-16",
-          "h-20",
-          "h-16",
-          "h-24",
-          "h-16",
-          "h-20",
-          "h-16",
-          "h-24",
-        ].map((h, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ ...SPRING, delay: i * 0.05 }}
-            className={`${h} rounded-lg bg-gradient-to-br`}
-            style={{
-              background: `hsl(${(i * 37 + 10) % 360}, 60%, ${
-                70 + (i % 3) * 5
-              }%)`,
-            }}
-          />
-        ))}
-      </div>
-    ),
-    timeline: (
-      <div className="flex flex-col gap-0 w-52">
-        {[
-          { time: "2:00 PM", event: "Ceremony", color: "bg-dearly-accent" },
-          { time: "3:30 PM", event: "Cocktails", color: "bg-dearly-gold" },
-          { time: "6:00 PM", event: "Reception", color: "bg-dearly-rose" },
-          { time: "11:00 PM", event: "Send-off", color: "bg-dearly-accent" },
-        ].map((item, i) => (
-          <motion.div
-            key={i}
-            initial={{ x: -20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ ...SPRING, delay: i * 0.1 }}
-            className="flex items-center gap-3"
-          >
-            <div className="flex flex-col items-center">
-              <div className={`w-3 h-3 rounded-full ${item.color}`} />
-              {i < 3 && <div className="w-px h-8 bg-dearly-border" />}
-            </div>
-            <div className="pb-4">
-              <div className="text-xs text-dearly-text-muted">{item.time}</div>
-              <div className="text-sm font-medium text-dearly-text">
-                {item.event}
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    ),
-    guestbook: (
-      <div className="flex flex-col gap-3 w-56">
-        {[
-          { name: "Emma & Tom", msg: "Wishing you a lifetime of love!" },
-          { name: "Aunt Sarah", msg: "So beautiful, brought tears to my eyes" },
-        ].map((entry, i) => (
-          <motion.div
-            key={i}
-            initial={{ y: 10, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ ...SPRING, delay: i * 0.15 }}
-            className="bg-dearly-card rounded-xl p-3 border border-dearly-border shadow-soft"
-          >
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-5 h-5 rounded-full bg-dearly-accent-soft flex items-center justify-center">
-                <Heart size={8} className="text-dearly-accent fill-dearly-accent" />
-              </div>
-              <span className="text-xs font-semibold text-dearly-text">
-                {entry.name}
-              </span>
-            </div>
-            <p className="text-xs text-dearly-text-secondary leading-relaxed">
-              {entry.msg}
-            </p>
-          </motion.div>
-        ))}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="h-8 rounded-lg border border-dashed border-dearly-border flex items-center px-3"
-        >
-          <span className="text-xs text-dearly-text-muted">
-            Leave a message…
-          </span>
-        </motion.div>
-      </div>
-    ),
-    music: (
-      <div className="w-52 bg-dearly-card rounded-2xl p-4 border border-dearly-border shadow-card">
-        <div className="flex items-center gap-3 mb-4">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-            className="w-10 h-10 rounded-full bg-dearly-accent flex items-center justify-center flex-shrink-0"
-          >
-            <Music size={14} className="text-white" />
-          </motion.div>
-          <div>
-            <div className="text-sm font-medium text-dearly-text">
-              Can&apos;t Help Falling
-            </div>
-            <div className="text-xs text-dearly-text-muted">Elvis Presley</div>
-          </div>
-        </div>
-        <div className="h-1 bg-dearly-border rounded-full overflow-hidden">
-          <motion.div
-            initial={{ width: "0%" }}
-            animate={{ width: "62%" }}
-            transition={{ duration: 1.5, delay: 0.2 }}
-            className="h-full bg-dearly-accent rounded-full"
-          />
-        </div>
-        <div className="flex justify-between mt-1">
-          <span className="text-xs text-dearly-text-muted">1:24</span>
-          <span className="text-xs text-dearly-text-muted">2:17</span>
-        </div>
-      </div>
-    ),
-    envelope: (
-      <div className="relative w-52 h-36">
-        <motion.div
-          className="absolute inset-0 bg-dearly-gold-soft border border-dearly-border rounded-xl"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={SPRING}
-        />
-        <motion.div
-          className="absolute inset-x-0 top-0 h-16 bg-dearly-accent/20 border-b border-dearly-border rounded-t-xl"
-          style={{ clipPath: "polygon(0 0, 50% 100%, 100% 0)" }}
-          initial={{ rotateX: 0 }}
-          animate={{ rotateX: -90 }}
-          transition={{ delay: 0.5, duration: 0.6, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute inset-0 flex items-center justify-center"
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.8, ...SPRING }}
-        >
-          <div className="text-center">
-            <Heart
-              size={24}
-              className="text-dearly-accent fill-dearly-accent mx-auto mb-1"
-            />
-            <div className="font-display text-sm text-dearly-text">
-              You&apos;re Invited
-            </div>
-          </div>
-        </motion.div>
-      </div>
-    ),
-  };
+/** A phone frame playing the real template preview in an iframe. */
+function LivePhone() {
+  const [slug, setSlug] = useState<(typeof DEMO_SLUGS)[number]>("velvet");
+  const [nonce, setNonce] = useState(0);
+  const current = SHOWCASE.find((s) => s.slug === slug)!;
 
   return (
-    <div className="flex items-center justify-center min-h-[280px]">
-      {mockups[feature.id] ?? (
-        <Icon size={48} className="text-dearly-accent opacity-30" />
-      )}
+    <div className="flex flex-col items-center">
+      <div className="relative">
+        <div aria-hidden className="absolute -inset-10 rounded-[4rem] bg-gradient-to-br from-dearly-rose/30 via-dearly-gold/20 to-dearly-accent/30 blur-3xl" />
+        <div className="relative h-[620px] w-[300px] overflow-hidden rounded-[3rem] border-[10px] border-[#1b1714] bg-[#1b1714] shadow-2xl md:h-[680px] md:w-[330px]">
+          <div aria-hidden className="absolute left-1/2 top-2 z-20 h-6 w-28 -translate-x-1/2 rounded-full bg-[#1b1714]" />
+          <iframe
+            key={`${slug}-${nonce}`}
+            src={`/templates/${slug}?embed=1&bare=1`}
+            title={`${current.name} live demo`}
+            className="h-full w-full rounded-[2.3rem] border-0 bg-white"
+            loading="lazy"
+          />
+        </div>
+      </div>
+      <div className="mt-6 flex flex-wrap justify-center gap-2" role="group" aria-label="Choose a demo">
+        {DEMO_SLUGS.map((s) => {
+          const t = SHOWCASE.find((x) => x.slug === s)!;
+          const active = s === slug;
+          return (
+            <button
+              key={s}
+              type="button"
+              aria-pressed={active}
+              onClick={() => {
+                setSlug(s);
+                setNonce((n) => n + 1);
+              }}
+              className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition ${
+                active ? "border-dearly-accent bg-dearly-accent text-white" : "border-dearly-border bg-dearly-card text-dearly-text-secondary hover:border-dearly-accent/50"
+              }`}
+            >
+              {t.name}
+            </button>
+          );
+        })}
+        <button
+          type="button"
+          onClick={() => setNonce((n) => n + 1)}
+          className="rounded-full border border-dearly-border bg-dearly-card px-3.5 py-1.5 text-xs font-semibold text-dearly-text-secondary hover:border-dearly-accent/50"
+        >
+          ↻ Replay
+        </button>
+      </div>
     </div>
   );
 }
 
-// ─── Floating Decoration ──────────────────────────────────────────────────────
-
-function FloatingHeart({
-  x,
-  y,
-  size,
-  delay,
-  duration,
-}: {
-  x: string;
-  y: string;
-  size: number;
-  delay: number;
-  duration: number;
-}) {
+/** Animated row of colour scheme swatches for the hero. */
+function SchemeStrip() {
   return (
-    <motion.div
-      className="absolute pointer-events-none"
-      style={{ left: x, top: y }}
-      animate={{
-        y: [-12, 12, -12],
-        x: [-4, 4, -4],
-        rotate: [-8, 8, -8],
-        opacity: [0.15, 0.3, 0.15],
-      }}
-      transition={{
-        duration,
-        delay,
-        repeat: Infinity,
-        ease: "easeInOut",
-      }}
-    >
-      <Heart
-        size={size}
-        className="text-dearly-rose fill-dearly-rose"
-        style={{ opacity: 0.4 }}
-      />
-    </motion.div>
+    <div className="flex items-center gap-2" aria-hidden>
+      {COLOR_SCHEMES.slice(0, 7).map((s, i) => (
+        <motion.span
+          key={s.id}
+          className="h-6 w-6 rounded-full ring-2 ring-white shadow"
+          style={{ background: `conic-gradient(${s.colors.primary} 0 50%, ${s.colors.accent} 50% 75%, ${s.colors.secondary} 75%)` }}
+          initial={{ scale: 0, y: 10 }}
+          animate={{ scale: 1, y: 0 }}
+          transition={{ delay: 0.9 + i * 0.07, type: "spring", stiffness: 260, damping: 16 }}
+        />
+      ))}
+    </div>
   );
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function LandingPage() {
-  const [activeFeature, setActiveFeature] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
-
-  // Auto-cycle features
-  useEffect(() => {
-    if (isPaused) return;
-    const timer = setInterval(() => {
-      setActiveFeature((prev) => (prev + 1) % FEATURES.length);
-    }, 4000);
-    return () => clearInterval(timer);
-  }, [isPaused]);
-
-  const heroWords = ["Your", "Love", "Story,", "Beautifully", "Told"];
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-dearly-cream overflow-x-hidden">
-      {/* ── Navigation ── */}
-      <motion.nav
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="fixed top-0 inset-x-0 z-50 flex items-center justify-between px-6 py-4 md:px-12 bg-dearly-cream/80 backdrop-blur-md border-b border-dearly-border/50"
-      >
-        <span className="font-display text-2xl font-bold text-dearly-accent">
-          Dearly
-        </span>
-        <div className="flex items-center gap-4">
-          <Link
-            href="/login"
-            className="text-sm font-medium text-dearly-text-secondary transition hover:text-dearly-text"
-          >
-            Sign in
+    <div className="min-h-screen overflow-x-hidden bg-dearly-cream text-dearly-text">
+      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+      <link rel="stylesheet" href={FONTS_HREF} />
+
+      {/* ── Nav ── */}
+      <nav className="fixed inset-x-0 top-0 z-50 border-b border-dearly-border/50 bg-dearly-cream/80 backdrop-blur-md">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+          <Link href="/" className="font-display text-2xl font-bold text-dearly-accent">
+            Dearly
           </Link>
-          <Link
-            href="/signup"
-            className="rounded-lg bg-dearly-accent px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 shadow-soft"
-          >
-            Get started
-          </Link>
-        </div>
-      </motion.nav>
-
-      {/* ── 1. Hero ── */}
-      <section
-        ref={heroRef}
-        className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden pt-16"
-        style={{
-          background:
-            "linear-gradient(135deg, rgb(252 250 247) 0%, rgb(252 240 242) 40%, rgb(253 248 235) 70%, rgb(252 250 247) 100%)",
-        }}
-      >
-        {/* Parallax background blob */}
-        <motion.div
-          style={{ y: heroY, opacity: heroOpacity }}
-          className="absolute inset-0 pointer-events-none"
-        >
-          <div
-            className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full opacity-20"
-            style={{
-              background:
-                "radial-gradient(circle, rgb(var(--dearly-rose)) 0%, transparent 70%)",
-              filter: "blur(60px)",
-            }}
-          />
-          <div
-            className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full opacity-15"
-            style={{
-              background:
-                "radial-gradient(circle, rgb(var(--dearly-gold)) 0%, transparent 70%)",
-              filter: "blur(50px)",
-            }}
-          />
-          <div
-            className="absolute top-1/3 right-1/3 w-64 h-64 rounded-full opacity-10"
-            style={{
-              background:
-                "radial-gradient(circle, rgb(var(--dearly-accent)) 0%, transparent 70%)",
-              filter: "blur(40px)",
-            }}
-          />
-        </motion.div>
-
-        {/* Floating hearts */}
-        <FloatingHeart x="8%" y="20%" size={18} delay={0} duration={6} />
-        <FloatingHeart x="88%" y="15%" size={14} delay={1.2} duration={7} />
-        <FloatingHeart x="5%" y="65%" size={22} delay={0.5} duration={8} />
-        <FloatingHeart x="92%" y="55%" size={16} delay={2} duration={5.5} />
-        <FloatingHeart x="15%" y="80%" size={12} delay={1.8} duration={6.5} />
-        <FloatingHeart x="80%" y="75%" size={20} delay={0.8} duration={7.5} />
-
-        {/* Hero content */}
-        <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-          {/* Word-by-word reveal */}
-          <h1 className="font-display text-5xl md:text-7xl font-bold leading-tight text-dearly-text mb-6">
-            {heroWords.map((word, i) => (
-              <motion.span
-                key={word}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ ...SPRING, delay: 0.2 + i * 0.12 }}
-                className={`inline-block mr-[0.25em] ${
-                  i >= 3 ? "text-dearly-accent" : ""
-                }`}
-              >
-                {word}
-              </motion.span>
-            ))}
-          </h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...SPRING, delay: 0.9 }}
-            className="text-lg md:text-xl text-dearly-text-secondary max-w-xl mx-auto leading-relaxed"
-          >
-            Create stunning animated wedding invitations, photo galleries, and
-            guest books. Ten beautiful templates. Full customization. Share with
-            your guests in minutes.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...SPRING, delay: 1.1 }}
-            className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
-          >
-            <Link
-              href="/signup"
-              className="group relative rounded-xl bg-dearly-accent px-8 py-4 text-base font-semibold text-white shadow-card transition-all hover:opacity-95 hover:shadow-card-hover hover:-translate-y-0.5"
-            >
-              <span className="relative z-10">Create Your Wedding Site</span>
+          <div className="hidden items-center gap-8 text-sm font-medium text-dearly-text-secondary md:flex">
+            <a href="#openings" className="hover:text-dearly-text">Openings</a>
+            <a href="#features" className="hover:text-dearly-text">Features</a>
+            <a href="#memories" className="hover:text-dearly-text">Memories</a>
+            <a href="#compare" className="hover:text-dearly-text">Why Dearly</a>
+            <Link href="/templates" className="hover:text-dearly-text">Templates</Link>
+          </div>
+          <div className="hidden items-center gap-3 md:flex">
+            <Link href="/login" className="text-sm font-medium text-dearly-text-secondary hover:text-dearly-text">Sign in</Link>
+            <Link href="/signup" className="rounded-lg bg-dearly-accent px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:opacity-90">
+              Start free
             </Link>
-            <a
-              href="#templates"
-              className="rounded-xl border border-dearly-border bg-dearly-card/60 backdrop-blur-sm px-8 py-4 text-base font-semibold text-dearly-text transition-all hover:bg-dearly-card hover:shadow-soft hover:-translate-y-0.5"
-            >
-              See Templates
-            </a>
-          </motion.div>
+          </div>
+          <button type="button" className="rounded-lg p-2 md:hidden" aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen} onClick={() => setMenuOpen((v) => !v)}>
+            {menuOpen ? <X size={20} /> : <LayoutList size={20} />}
+          </button>
         </div>
-
-        {/* Floating invitation mockup */}
-        <motion.div
-          initial={{ opacity: 0, y: 40, rotateY: -15, rotateX: 5 }}
-          animate={{ opacity: 1, y: 0, rotateY: -5, rotateX: 3 }}
-          transition={{ ...SPRING, delay: 1.3 }}
-          style={{ perspective: "1000px" }}
-          className="relative z-10 mt-16"
-        >
-          <motion.div
-            animate={{ y: [-8, 8, -8] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="w-72 md:w-80 bg-dearly-card rounded-2xl shadow-card-hover border border-dearly-border p-8 text-center"
-            style={{ transformStyle: "preserve-3d" }}
-          >
-            <div className="flex justify-center mb-3">
-              <div className="w-16 h-px bg-dearly-gold" />
-            </div>
-            <p className="text-xs tracking-[0.3em] text-dearly-text-muted uppercase mb-3">
-              Together with their families
-            </p>
-            <h2 className="font-display text-2xl text-dearly-text mb-1">
-              Sophie &amp; James
-            </h2>
-            <p className="text-xs text-dearly-text-secondary mb-4">
-              invite you to celebrate their wedding
-            </p>
-            <div className="flex justify-center mb-3">
-              <div className="w-8 h-px bg-dearly-border" />
-              <Heart
-                size={10}
-                className="text-dearly-accent fill-dearly-accent mx-2"
-              />
-              <div className="w-8 h-px bg-dearly-border" />
-            </div>
-            <p className="text-sm font-medium text-dearly-text">
-              June 14, 2026
-            </p>
-            <p className="text-xs text-dearly-text-muted mt-1">
-              The Grand Pavilion, Florence
-            </p>
-            <div className="flex justify-center mt-4">
-              <div className="w-16 h-px bg-dearly-gold" />
-            </div>
-          </motion.div>
-
-          {/* Card shadow blur */}
-          <div className="absolute inset-x-6 -bottom-4 h-8 bg-dearly-text/10 rounded-full blur-xl" />
-        </motion.div>
-
-        {/* Scroll indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
-        >
-          <motion.div
-            animate={{ y: [0, 8, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-            className="w-5 h-8 rounded-full border-2 border-dearly-border flex items-start justify-center pt-1.5"
-          >
-            <div className="w-1 h-1.5 rounded-full bg-dearly-accent" />
-          </motion.div>
-        </motion.div>
-      </section>
-
-      {/* ── 2. Stats Bar ── */}
-      <section className="relative border-y border-dearly-border bg-dearly-card/60 backdrop-blur-sm">
-        <div className="max-w-4xl mx-auto px-6 py-10 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
-          {STATS.map((stat, i) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ ...SPRING, delay: i * 0.15 }}
-            >
-              <div className="font-display text-4xl md:text-5xl font-bold text-dearly-accent">
-                <AnimatedCounter target={stat.value} suffix={stat.suffix} />
-              </div>
-              <div className="mt-2 text-sm text-dearly-text-secondary font-medium tracking-wide">
-                {stat.label}
+        <AnimatePresence>
+          {menuOpen && (
+            <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden border-t border-dearly-border md:hidden">
+              <div className="flex flex-col gap-1 px-6 py-3 text-sm font-medium">
+                {[["#openings", "Openings"], ["#features", "Features"], ["#memories", "Memories"], ["#compare", "Why Dearly"], ["/templates", "Templates"], ["/login", "Sign in"], ["/signup", "Start free"]].map(([href, label]) => (
+                  <a key={href} href={href} onClick={() => setMenuOpen(false)} className="rounded-lg px-2 py-2 hover:bg-dearly-accent-soft">
+                    {label}
+                  </a>
+                ))}
               </div>
             </motion.div>
+          )}
+        </AnimatePresence>
+      </nav>
+
+      {/* ── Hero ── */}
+      <section className="relative px-6 pb-24 pt-32 md:pt-40">
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_20%_20%,rgb(var(--dearly-rose-soft))_0%,transparent_70%),radial-gradient(ellipse_50%_50%_at_90%_10%,rgb(var(--dearly-gold-soft))_0%,transparent_70%)]" />
+        <div className="relative mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-[1.1fr_1fr]">
+          <div>
+            <motion.p
+              className="inline-flex items-center gap-2 rounded-full bg-dearly-accent-soft px-3 py-1 text-xs font-semibold text-dearly-accent"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <Sparkles size={13} /> Invitations · RSVPs · Blessings · Wedding memories
+            </motion.p>
+            <motion.h1
+              className="mt-6 font-display text-5xl font-bold leading-[1.05] md:text-7xl"
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.1, ease: EASE }}
+            >
+              Wedding invitations that{" "}
+              <span className="relative inline-block text-dearly-accent">
+                open like a film
+                <motion.svg viewBox="0 0 300 20" preserveAspectRatio="none" className="absolute -bottom-3 left-0 h-3 w-full md:h-4" aria-hidden>
+                  <motion.path d="M4 14 C 80 2, 200 2, 296 12" stroke="currentColor" strokeWidth="4" fill="none" strokeLinecap="round" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.9, duration: 1.2 }} />
+                </motion.svg>
+              </span>
+              .
+            </motion.h1>
+            <motion.p
+              className="mt-8 max-w-xl text-lg leading-relaxed text-dearly-text-secondary"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5, duration: 1 }}
+            >
+              Curtains part, wax seals crack, flowers bloom. Send one link — guests RSVP inside the invitation, leave blessings and
+              reactions, and after the big day share their photos into your memory album. Designed in minutes, not weeks.
+            </motion.p>
+            <motion.div className="mt-10 flex flex-wrap items-center gap-4" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}>
+              <Link href="/signup" className="rounded-xl bg-dearly-accent px-7 py-4 text-base font-semibold text-white shadow-card transition hover:-translate-y-0.5 hover:shadow-card-hover">
+                Create your invitation — free
+              </Link>
+              <Link href="/templates" className="flex items-center gap-2 rounded-xl border border-dearly-border bg-dearly-card/70 px-6 py-4 text-base font-semibold transition hover:-translate-y-0.5">
+                <Search size={16} /> Browse 25 designs
+              </Link>
+            </motion.div>
+            <div className="mt-10 flex items-center gap-4 text-sm text-dearly-text-secondary">
+              <SchemeStrip />
+              <span>Every design × any colour scheme</span>
+            </div>
+          </div>
+          <LivePhone />
+        </div>
+      </section>
+
+      {/* ── Signature openings ── */}
+      <section id="openings" className="bg-dearly-card/50 px-6 py-24">
+        <div className="mx-auto max-w-7xl">
+          <Reveal className="mx-auto max-w-2xl text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-dearly-accent">Signature openings</p>
+            <h2 className="mt-3 font-display text-4xl font-bold md:text-5xl">The first three seconds, choreographed</h2>
+            <p className="mt-4 text-dearly-text-secondary">Each design has its own entrance, ornaments and motion — not just a different colour.</p>
+          </Reveal>
+          <div className="mt-14 grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-5">
+            {SHOWCASE.map((s, i) => (
+              <Reveal key={s.slug} delay={(i % 5) * 0.06}>
+                <Link href={`/templates/${s.slug}`} className="group block overflow-hidden rounded-2xl border border-dearly-border bg-dearly-card shadow-card transition hover:-translate-y-1 hover:shadow-card-hover">
+                  <div className="relative h-44 overflow-hidden">
+                    <div className="h-full w-full transition-transform duration-500 group-hover:scale-105">
+                      <LayoutThumbnail slug={s.slug} colors={s.colors} fonts={s.fonts} photo={PLACEHOLDER_IMAGES.couple[i % PLACEHOLDER_IMAGES.couple.length]} />
+                    </div>
+                    <span className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition group-hover:bg-black/25 group-hover:opacity-100">
+                      <span className="flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-dearly-text shadow">
+                        <Eye size={13} /> Watch it open
+                      </span>
+                    </span>
+                  </div>
+                  <div className="p-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="truncate text-sm font-bold">{s.name}</p>
+                      <span className="shrink-0 rounded-full bg-dearly-accent-soft px-2 py-0.5 text-[10px] font-semibold text-dearly-accent">
+                        {LAYOUT_LABEL[getInvitationStyle(s.slug).hero]}
+                      </span>
+                    </div>
+                    <p className="mt-1 line-clamp-2 text-xs text-dearly-text-secondary">{s.tagline}</p>
+                  </div>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+          <div className="mt-10 text-center">
+            <Link href="/templates" className="text-sm font-semibold text-dearly-accent hover:underline">
+              See all 25 designs →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Features bento ── */}
+      <section id="features" className="px-6 py-24">
+        <div className="mx-auto max-w-7xl">
+          <Reveal className="mx-auto max-w-2xl text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-dearly-accent">Inside every invitation</p>
+            <h2 className="mt-3 font-display text-4xl font-bold md:text-5xl">Everything guests need. Nothing they don&apos;t.</h2>
+          </Reveal>
+          <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {FEATURES.map((f, i) => (
+              <Reveal key={f.title} delay={(i % 4) * 0.06} className={i === 0 || i === 1 ? "lg:col-span-2" : ""}>
+                <div className="h-full rounded-2xl border border-dearly-border bg-dearly-card p-6 shadow-card">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-dearly-accent-soft text-dearly-accent">
+                    <f.icon size={20} />
+                  </span>
+                  <h3 className="mt-5 text-lg font-bold">{f.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-dearly-text-secondary">{f.body}</p>
+                  {i === 1 && (
+                    <div className="relative mt-6 h-24 overflow-hidden rounded-xl bg-dearly-rose-soft/60" aria-hidden>
+                      {["Grandma Rose", "Sophie & Liam", "Daniel"].map((n, k) => (
+                        <motion.span
+                          key={n}
+                          className="absolute flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs shadow"
+                          style={{ left: `${10 + k * 30}%`, fontFamily: "'Great Vibes', cursive", fontSize: 16, color: "rgb(var(--dearly-accent))" }}
+                          animate={{ y: [90, -40] , opacity: [0, 1, 1, 0] }}
+                          transition={{ duration: 5, delay: k * 1.4, repeat: Infinity, ease: "linear" }}
+                        >
+                          <Heart size={11} fill="currentColor" /> {n}
+                        </motion.span>
+                      ))}
+                    </div>
+                  )}
+                  {i === 0 && (
+                    <div className="mt-6 grid grid-cols-2 gap-3" aria-hidden>
+                      <span className="rounded-xl bg-dearly-accent px-3 py-3 text-center text-sm font-semibold text-white">I&apos;ll be there</span>
+                      <span className="rounded-xl border border-dearly-border px-3 py-3 text-center text-sm font-semibold">Can&apos;t make it</span>
+                    </div>
+                  )}
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Memories ── */}
+      <section id="memories" className="relative overflow-hidden px-6 py-24">
+        <div className="mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-2">
+          <Reveal>
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-dearly-accent">After &ldquo;I do&rdquo;</p>
+            <h2 className="mt-3 font-display text-4xl font-bold md:text-5xl">Your invitation becomes your memory book</h2>
+            <p className="mt-5 leading-relaxed text-dearly-text-secondary">
+              The same link keeps working after the wedding. Guests add their photos straight from their phones, every blessing and
+              RSVP is kept, and your album fills itself — pre-wedding, ceremony and reception, all in one place.
+            </p>
+            <ul className="mt-8 space-y-3 text-sm">
+              {[
+                "Guests upload photos from the invitation — no app, no account",
+                "You approve each photo before it appears",
+                "Albums for pre-wedding, ceremony and reception",
+                "Every blessing saved on your wall and in your guest book",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3">
+                  <Check size={18} className="mt-0.5 shrink-0 text-emerald-600" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </Reveal>
+          <Reveal delay={0.1} className="relative h-[420px]">
+            {PLACEHOLDER_IMAGES.wedding.slice(0, 5).map((src, i) => (
+              <motion.div
+                key={src}
+                className="absolute w-44 rounded-lg bg-white p-2 pb-8 shadow-xl md:w-52"
+                style={{ left: `${[4, 38, 62, 14, 48][i]}%`, top: `${[6, 0, 18, 46, 52][i]}%`, rotate: [-8, 4, 9, -3, -10][i] }}
+                whileHover={{ scale: 1.06, rotate: 0, zIndex: 10 }}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.12, type: "spring", stiffness: 90, damping: 14 }}
+              >
+                <div className="relative aspect-square overflow-hidden rounded">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={src} alt="" className="h-full w-full object-cover" loading="lazy" />
+                </div>
+                <span className="absolute bottom-1.5 left-0 right-0 text-center text-lg text-dearly-text-secondary" style={{ fontFamily: "'Great Vibes', cursive" }}>
+                  {["the proposal", "first dance", "golden hour", "the toast", "forever"][i]}
+                </span>
+              </motion.div>
+            ))}
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ── Comparison ── */}
+      <section id="compare" className="bg-dearly-card/50 px-6 py-24">
+        <div className="mx-auto max-w-4xl">
+          <Reveal className="text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-dearly-accent">Why Dearly</p>
+            <h2 className="mt-3 font-display text-4xl font-bold md:text-5xl">Studio-quality, without the wait</h2>
+            <p className="mx-auto mt-4 max-w-xl text-dearly-text-secondary">
+              Hand-made invitation studios are beautiful — and slow. Dearly gives you the same cinematic feel with live editing and features they don&apos;t offer.
+            </p>
+          </Reveal>
+          <Reveal delay={0.1} className="mt-12 overflow-hidden rounded-2xl border border-dearly-border bg-dearly-card shadow-card">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-dearly-border bg-dearly-cream/60">
+                  <th className="px-5 py-4 font-semibold text-dearly-text-secondary" scope="col">&nbsp;</th>
+                  <th className="px-5 py-4 font-bold text-dearly-accent" scope="col">Dearly</th>
+                  <th className="px-5 py-4 font-semibold text-dearly-text-secondary" scope="col">Typical design studio</th>
+                </tr>
+              </thead>
+              <tbody>
+                {COMPARISON.map((row) => (
+                  <tr key={row.label} className="border-b border-dearly-border/60 last:border-0">
+                    <th scope="row" className="px-5 py-4 font-medium">{row.label}</th>
+                    {[row.dearly, row.studio].map((v, i) => (
+                      <td key={i} className={`px-5 py-4 ${i === 0 ? "font-semibold" : "text-dearly-text-secondary"}`}>
+                        {v === true ? (
+                          <Check size={18} className="text-emerald-600" aria-label="Yes" />
+                        ) : v === false ? (
+                          <X size={18} className="text-dearly-text-muted" aria-label="No" />
+                        ) : (
+                          v
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ── How it works ── */}
+      <section className="px-6 py-24">
+        <div className="mx-auto max-w-6xl">
+          <Reveal className="text-center">
+            <h2 className="font-display text-4xl font-bold md:text-5xl">Ready before your coffee cools</h2>
+          </Reveal>
+          <div className="mt-14 grid gap-6 md:grid-cols-3">
+            {[
+              { icon: Search, title: "Pick a design", body: "Search 25 designs by mood — garden, gold, stars, curtain — and preview each opening live." },
+              { icon: Palette, title: "Make it yours", body: "Names, date, story and venue. Choose colours, fonts and which sections to show." },
+              { icon: Gem, title: "Share one link", body: "Send by WhatsApp or email. RSVPs and blessings arrive in your dashboard in real time." },
+            ].map((s, i) => (
+              <Reveal key={s.title} delay={i * 0.1}>
+                <div className="relative h-full rounded-2xl border border-dearly-border bg-dearly-card p-7 shadow-card">
+                  <span className="absolute right-6 top-5 font-display text-5xl font-bold text-dearly-accent/15">0{i + 1}</span>
+                  <s.icon size={22} className="text-dearly-accent" />
+                  <h3 className="mt-5 text-xl font-bold">{s.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-dearly-text-secondary">{s.body}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Testimonials ── */}
+      <section className="bg-dearly-card/50 px-6 py-24">
+        <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-3">
+          {TESTIMONIALS.map((t, i) => (
+            <Reveal key={t.couple} delay={i * 0.1}>
+              <figure className="h-full rounded-2xl border border-dearly-border bg-dearly-card p-7 shadow-card">
+                <div className="flex gap-0.5 text-dearly-gold" aria-label="5 stars">
+                  {Array.from({ length: 5 }, (_, k) => (
+                    <Heart key={k} size={14} fill="currentColor" />
+                  ))}
+                </div>
+                <blockquote className="mt-4 leading-relaxed">&ldquo;{t.quote}&rdquo;</blockquote>
+                <figcaption className="mt-5 text-2xl text-dearly-accent" style={{ fontFamily: "'Great Vibes', cursive" }}>
+                  {t.couple}
+                </figcaption>
+              </figure>
+            </Reveal>
           ))}
         </div>
       </section>
 
-      {/* ── 3. Template Showcase ── */}
-      <section id="templates" className="py-24 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={SPRING}
-            className="text-center mb-16"
-          >
-            <p className="text-xs tracking-[0.3em] text-dearly-text-muted uppercase mb-3">
-              Templates
-            </p>
-            <h2 className="font-display text-4xl md:text-5xl font-bold text-dearly-text">
-              Templates That Take Your{" "}
-              <span className="text-dearly-accent">Breath Away</span>
-            </h2>
-            <p className="mt-4 text-dearly-text-secondary max-w-lg mx-auto">
-              Ten distinct aesthetics — from timeless elegance to modern
-              glassmorphism. Every template fully animated and customizable.
-            </p>
-          </motion.div>
-
-          {/* Horizontal scroll carousel */}
-          <div className="flex gap-5 overflow-x-auto pb-6 snap-x snap-mandatory scrollbar-hide -mx-6 px-6">
-            {TEMPLATES.map((template, i) => (
-              <motion.div
-                key={template.slug}
-                initial={{ opacity: 0, x: 40 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ ...SPRING, delay: Math.min(i * 0.08, 0.5) }}
-                whileHover={{ scale: 1.03, y: -4 }}
-                className="flex-shrink-0 w-56 snap-start group cursor-pointer"
-              >
-                <div
-                  className={`h-72 rounded-2xl bg-gradient-to-br ${template.bg} border border-dearly-border shadow-card group-hover:shadow-card-hover transition-shadow duration-300 overflow-hidden relative flex flex-col items-center justify-center p-6`}
-                >
-                  {/* Mini invitation mockup using template colors */}
-                  <div
-                    className="w-32 h-44 rounded-xl border shadow-sm flex flex-col items-center justify-center gap-2 p-4 text-center"
-                    style={{
-                      background: template.secondary,
-                      borderColor: template.primary + "40",
-                    }}
-                  >
-                    <div
-                      className="w-10 h-px"
-                      style={{ background: template.primary }}
-                    />
-                    <div
-                      className="text-xs font-semibold leading-tight"
-                      style={{ color: template.primary, fontFamily: "serif" }}
-                    >
-                      S &amp; J
-                    </div>
-                    <div
-                      className="text-[9px] leading-tight"
-                      style={{ color: template.accent }}
-                    >
-                      June 2026
-                    </div>
-                    <div
-                      className="w-10 h-px mt-1"
-                      style={{ background: template.accent }}
-                    />
-                    <div
-                      className="w-3 h-3 rounded-full"
-                      style={{ background: template.primary }}
-                    />
-                  </div>
-                </div>
-                <div className="mt-3 px-1">
-                  <h3 className="font-display text-base font-semibold text-dearly-text">
-                    {template.name}
-                  </h3>
-                  <p className="text-xs text-dearly-text-muted mt-0.5 leading-snug">
-                    {template.description}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Browse all link */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ ...SPRING, delay: 0.2 }}
-            className="mt-10 text-center"
-          >
-            <Link
-              href="/templates"
-              className="inline-flex items-center gap-2 rounded-xl border border-dearly-border bg-dearly-card/60 backdrop-blur-sm px-7 py-3 text-sm font-semibold text-dearly-text transition-all hover:bg-dearly-card hover:shadow-soft hover:-translate-y-0.5"
-            >
-              Browse All 20 Templates
-              <span className="text-dearly-accent">→</span>
+      {/* ── Final CTA ── */}
+      <section className="relative overflow-hidden px-6 py-32 text-center">
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_50%_60%_at_50%_50%,rgb(var(--dearly-rose-soft))_0%,transparent_70%)]" />
+        <Reveal className="relative mx-auto max-w-2xl">
+          <h2 className="font-display text-4xl font-bold md:text-6xl">Your love story deserves an entrance.</h2>
+          <p className="mt-5 text-lg text-dearly-text-secondary">Free to create. Preview every design. Share when it feels perfect.</p>
+          <div className="mt-10 flex flex-wrap justify-center gap-4">
+            <Link href="/signup" className="rounded-xl bg-dearly-accent px-8 py-4 text-base font-semibold text-white shadow-card transition hover:-translate-y-0.5 hover:shadow-card-hover">
+              Start my invitation
             </Link>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ── 4. Feature Showcase ── */}
-      <section className="py-24 bg-dearly-card/40">
-        <div className="max-w-6xl mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={SPRING}
-            className="text-center mb-16"
-          >
-            <p className="text-xs tracking-[0.3em] text-dearly-text-muted uppercase mb-3">
-              Features
-            </p>
-            <h2 className="font-display text-4xl md:text-5xl font-bold text-dearly-text">
-              Everything Your Guests{" "}
-              <span className="text-dearly-accent">Will Love</span>
-            </h2>
-          </motion.div>
-
-          <div
-            className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
-          >
-            {/* Feature tabs */}
-            <div className="flex flex-col gap-2">
-              {FEATURES.map((feature, i) => {
-                const Icon = feature.icon;
-                const isActive = i === activeFeature;
-                return (
-                  <motion.button
-                    key={feature.id}
-                    onClick={() => setActiveFeature(i)}
-                    whileHover={{ x: 4 }}
-                    transition={SPRING}
-                    className={`flex items-center gap-4 p-4 rounded-xl text-left transition-all duration-200 ${
-                      isActive
-                        ? "bg-dearly-accent-soft border border-dearly-accent/30 shadow-soft"
-                        : "hover:bg-dearly-cream border border-transparent"
-                    }`}
-                  >
-                    <div
-                      className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
-                        isActive
-                          ? "bg-dearly-accent text-white"
-                          : "bg-dearly-cream text-dearly-text-muted"
-                      }`}
-                    >
-                      <Icon size={16} />
-                    </div>
-                    <div>
-                      <div
-                        className={`text-sm font-semibold transition-colors ${
-                          isActive
-                            ? "text-dearly-accent"
-                            : "text-dearly-text-secondary"
-                        }`}
-                      >
-                        {feature.label}
-                      </div>
-                      <AnimatePresence mode="wait">
-                        {isActive && (
-                          <motion.p
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className="text-xs text-dearly-text-muted mt-1 leading-relaxed overflow-hidden"
-                          >
-                            {feature.description}
-                          </motion.p>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                  </motion.button>
-                );
-              })}
-            </div>
-
-            {/* Animated mockup panel */}
-            <div className="relative bg-dearly-cream rounded-3xl border border-dearly-border shadow-card min-h-[340px] flex items-center justify-center overflow-hidden">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeFeature}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 1.02 }}
-                  transition={{ duration: 0.25 }}
-                  className="w-full h-full p-8"
-                >
-                  <FeatureMockup feature={FEATURES[activeFeature]} />
-                </motion.div>
-              </AnimatePresence>
-              {/* Progress bar */}
-              <div className="absolute bottom-0 inset-x-0 h-0.5 bg-dearly-border">
-                {!isPaused && (
-                  <motion.div
-                    key={activeFeature}
-                    initial={{ width: "0%" }}
-                    animate={{ width: "100%" }}
-                    transition={{ duration: 4, ease: "linear" }}
-                    className="h-full bg-dearly-accent"
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 5. How It Works ── */}
-      <section className="py-24">
-        <div className="max-w-5xl mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={SPRING}
-            className="text-center mb-20"
-          >
-            <p className="text-xs tracking-[0.3em] text-dearly-text-muted uppercase mb-3">
-              How it works
-            </p>
-            <h2 className="font-display text-4xl md:text-5xl font-bold text-dearly-text">
-              Up &amp; Running in{" "}
-              <span className="text-dearly-accent">Minutes</span>
-            </h2>
-          </motion.div>
-
-          <div className="relative grid grid-cols-1 md:grid-cols-3 gap-12">
-            {/* SVG connecting line (desktop only) */}
-            <svg
-              className="hidden md:block absolute top-10 left-0 right-0 w-full h-4 pointer-events-none"
-              style={{ top: "2.5rem" }}
-              viewBox="0 0 800 16"
-              preserveAspectRatio="none"
-            >
-              <motion.path
-                d="M 133 8 H 666"
-                stroke="rgb(var(--dearly-border))"
-                strokeWidth="2"
-                fill="none"
-                strokeDasharray="6 4"
-                initial={{ pathLength: 0, opacity: 0 }}
-                whileInView={{ pathLength: 1, opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 1.2, delay: 0.4, ease: "easeInOut" }}
-              />
-            </svg>
-
-            {[
-              {
-                step: "01",
-                icon: Palette,
-                title: "Pick a Template",
-                desc: "Browse 10 stunning themes and choose the one that captures your love story's aesthetic.",
-              },
-              {
-                step: "02",
-                icon: Sliders,
-                title: "Customize Everything",
-                desc: "Upload your photos, change colors, add your story, and personalize every detail.",
-              },
-              {
-                step: "03",
-                icon: Share2,
-                title: "Share with Guests",
-                desc: "Send your unique link — guests open a beautiful animated experience instantly.",
-              },
-            ].map(({ step, icon: Icon, title, desc }, i) => (
-              <motion.div
-                key={step}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ ...SPRING, delay: 0.2 + i * 0.2 }}
-                className="flex flex-col items-center text-center relative"
-              >
-                <div className="w-20 h-20 rounded-2xl bg-dearly-card border border-dearly-border shadow-card flex items-center justify-center mb-5 relative z-10">
-                  <Icon size={28} className="text-dearly-accent" />
-                </div>
-                <div className="text-xs font-bold tracking-widest text-dearly-text-muted mb-2">
-                  STEP {step}
-                </div>
-                <h3 className="font-display text-xl font-semibold text-dearly-text mb-3">
-                  {title}
-                </h3>
-                <p className="text-sm text-dearly-text-secondary leading-relaxed max-w-xs">
-                  {desc}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── 6. Testimonials ── */}
-      <section className="py-24 bg-dearly-card/40">
-        <div className="max-w-5xl mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={SPRING}
-            className="text-center mb-16"
-          >
-            <p className="text-xs tracking-[0.3em] text-dearly-text-muted uppercase mb-3">
-              Testimonials
-            </p>
-            <h2 className="font-display text-4xl md:text-5xl font-bold text-dearly-text">
-              Loved by <span className="text-dearly-rose">Couples</span>
-            </h2>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {TESTIMONIALS.map((t, i) => (
-              <motion.div
-                key={t.couple}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ ...SPRING, delay: i * 0.15 }}
-                style={{ rotate: t.rotation }}
-                className="bg-dearly-card border border-dearly-border rounded-2xl p-6 shadow-card hover:shadow-card-hover transition-shadow"
-              >
-                <div className="flex items-center gap-1 mb-4">
-                  {[...Array(5)].map((_, j) => (
-                    <Heart
-                      key={j}
-                      size={12}
-                      className="text-dearly-rose fill-dearly-rose"
-                    />
-                  ))}
-                </div>
-                <p className="text-sm text-dearly-text-secondary leading-relaxed mb-5">
-                  &ldquo;{t.quote}&rdquo;
-                </p>
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-dearly-accent-soft flex items-center justify-center">
-                    <Heart
-                      size={12}
-                      className="text-dearly-accent fill-dearly-accent"
-                    />
-                  </div>
-                  <span className="text-sm font-semibold text-dearly-text">
-                    {t.couple}
-                  </span>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── 7. Final CTA ── */}
-      <section className="py-32 relative overflow-hidden">
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(135deg, rgb(var(--dearly-accent) / 0.12) 0%, rgb(var(--dearly-rose) / 0.12) 50%, rgb(var(--dearly-gold) / 0.08) 100%)",
-          }}
-        />
-        {/* Decorative rings */}
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-          className="absolute -top-20 -right-20 w-80 h-80 rounded-full border border-dearly-accent/10 pointer-events-none"
-        />
-        <motion.div
-          animate={{ rotate: -360 }}
-          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-          className="absolute -bottom-16 -left-16 w-64 h-64 rounded-full border border-dearly-rose/10 pointer-events-none"
-        />
-
-        <FloatingHeart x="10%" y="20%" size={20} delay={0} duration={6} />
-        <FloatingHeart x="85%" y="30%" size={16} delay={1.5} duration={7} />
-        <FloatingHeart x="20%" y="70%" size={14} delay={0.8} duration={5.5} />
-        <FloatingHeart x="75%" y="65%" size={22} delay={2.2} duration={8} />
-
-        <div className="relative z-10 max-w-2xl mx-auto px-6 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={SPRING}
-          >
-            <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 rounded-2xl bg-dearly-accent-soft border border-dearly-accent/30 flex items-center justify-center">
-                <Heart
-                  size={28}
-                  className="text-dearly-accent fill-dearly-accent"
-                />
-              </div>
-            </div>
-            <h2 className="font-display text-5xl md:text-6xl font-bold text-dearly-text mb-4">
-              Ready to Begin Your{" "}
-              <span className="text-dearly-accent">Forever?</span>
-            </h2>
-            <p className="text-lg text-dearly-text-secondary mb-10 leading-relaxed">
-              Create your free wedding site in minutes. No design skills needed.
-              Just pure, beautiful love.
-            </p>
-            <Link
-              href="/signup"
-              className="group inline-flex items-center gap-2 rounded-2xl bg-dearly-accent px-10 py-5 text-lg font-semibold text-white shadow-card transition-all hover:opacity-95 hover:shadow-[0_0_40px_rgb(var(--dearly-accent)/0.4)] hover:-translate-y-1"
-            >
-              Create Your Wedding Site — Free
-              <Heart
-                size={18}
-                className="fill-white text-white group-hover:scale-125 transition-transform"
-              />
+            <Link href="/templates/velvet" className="rounded-xl border border-dearly-border bg-dearly-card/70 px-8 py-4 text-base font-semibold transition hover:-translate-y-0.5">
+              Watch a demo
             </Link>
-            <p className="mt-4 text-sm text-dearly-text-muted">
-              No credit card required. Free forever for the basics.
-            </p>
-          </motion.div>
-        </div>
+          </div>
+        </Reveal>
       </section>
 
-      {/* ── 8. Footer ── */}
+      {/* ── Footer ── */}
       <footer className="border-t border-dearly-border bg-dearly-card/40 px-6 py-10">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <span className="font-display text-xl font-bold text-dearly-accent">
-            Dearly
-          </span>
-          <div className="flex items-center gap-6 text-sm text-dearly-text-muted">
-            <Link
-              href="/privacy"
-              className="hover:text-dearly-text-secondary transition-colors"
-            >
-              Privacy
-            </Link>
-            <Link
-              href="/terms"
-              className="hover:text-dearly-text-secondary transition-colors"
-            >
-              Terms
-            </Link>
-            <Link
-              href="/contact"
-              className="hover:text-dearly-text-secondary transition-colors"
-            >
-              Contact
-            </Link>
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 md:flex-row">
+          <span className="font-display text-xl font-bold text-dearly-accent">Dearly</span>
+          <div className="flex gap-6 text-sm text-dearly-text-muted">
+            <Link href="/templates" className="hover:text-dearly-text-secondary">Templates</Link>
+            <Link href="/cards" className="hover:text-dearly-text-secondary">Cards</Link>
+            <Link href="/login" className="hover:text-dearly-text-secondary">Sign in</Link>
           </div>
-          <p className="text-sm text-dearly-text-muted">
-            &copy; {new Date().getFullYear()} Dearly. Made with love.
-          </p>
+          <p className="text-sm text-dearly-text-muted">&copy; {new Date().getFullYear()} Dearly. Made with love.</p>
         </div>
       </footer>
     </div>

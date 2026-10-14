@@ -6,11 +6,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Palette, Image, MessageSquare, Clock, Settings, User, Send, Heart } from "lucide-react";
+import { Palette, Image, MessageSquare, Clock, Settings, User, Send, Heart, MailCheck } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/dashboard/editor", label: "Editor", icon: Palette },
-  { href: "/dashboard/gallery", label: "Gallery", icon: Image },
+  { href: "/dashboard/rsvps", label: "RSVPs", icon: MailCheck },
+  { href: "/dashboard/gallery", label: "Memories & Photos", icon: Image },
   { href: "/dashboard/guestbook", label: "Guest Book", icon: MessageSquare },
   { href: "/dashboard/timeline", label: "Timeline", icon: Clock },
   { href: "/dashboard/cards", label: "Cards", icon: Send },

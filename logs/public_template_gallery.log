@@ -1,0 +1,4 @@
+[2026-10-13 00:00:00]
+CONTEXT: Add a public /templates gallery page (no auth required), a /templates/[slug] full preview page, curated Unsplash placeholder images, and a "Browse All Templates" link on the landing page.
+RESULT: Created src/app/templates/page.tsx (client component with filter pills, template grid with Unsplash imagery + color mockups, preview modal, CTA), src/app/templates/[slug]/page.tsx (server component rendering each template with mock wedding data and a floating preview banner), and src/lib/placeholder-images.ts (Unsplash image sets + getTemplateImage helper). Updated src/app/page.tsx to add a "Browse All 20 Templates" link below the template carousel.
+---

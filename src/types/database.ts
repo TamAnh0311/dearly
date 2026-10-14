@@ -92,3 +92,48 @@ export interface GuestbookEntryRow {
   message: string;
   created_at: string;
 }
+
+export interface CuteQuestionRow {
+  id: string;
+  user_id: string | null;
+  slug: string;
+  question: string;
+  sender_name: string;
+  recipient_name: string | null;
+  theme: "hearts" | "roses" | "stars" | "kawaii" | "classic";
+  yes_message: string;
+  background_color: string;
+  accent_color: string;
+  answered: boolean;
+  answered_at: string | null;
+  created_at: string;
+}
+
+export interface CardTemplateRow {
+  id: string;
+  name: string;
+  slug: string;
+  category: "postcard" | "birthday" | "event" | "thank-you" | "holiday";
+  description: string;
+  preview_image: string | null;
+  default_config: { colors: { primary: string; secondary: string; accent: string }; fonts: { display: string; body: string } };
+  created_at: string;
+}
+
+export interface CardRow {
+  id: string;
+  user_id: string | null;
+  template_id: string;
+  slug: string;
+  title: string;
+  message: string;
+  sender_name: string;
+  recipient_name: string | null;
+  event_date: string | null;
+  event_location: string | null;
+  customization: Record<string, unknown>;
+  image_url: string | null;
+  is_published: boolean;
+  created_at: string;
+  updated_at: string;
+}

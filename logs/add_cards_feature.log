@@ -1,0 +1,4 @@
+[2026-10-13 00:00:00]
+CONTEXT: Build postcards and event invitations feature for the Dearly platform, including database schema, public gallery, card view, dashboard creator, and sidebar nav update.
+RESULT: Created 9 files: migration (00014_create_cards.sql), types (CardTemplateRow, CardRow in database.ts), public gallery (src/app/cards/page.tsx + CardGallery.tsx), card view (src/app/c/[slug]/page.tsx + CardView.tsx), dashboard creator (src/app/(dashboard)/dashboard/cards/page.tsx), sidebar update, and placeholder-images.ts with new categories.
+---

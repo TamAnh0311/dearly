@@ -816,6 +816,23 @@ export default function LandingPage() {
               </motion.div>
             ))}
           </div>
+
+          {/* Browse all link */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ ...SPRING, delay: 0.2 }}
+            className="mt-10 text-center"
+          >
+            <Link
+              href="/templates"
+              className="inline-flex items-center gap-2 rounded-xl border border-dearly-border bg-dearly-card/60 backdrop-blur-sm px-7 py-3 text-sm font-semibold text-dearly-text transition-all hover:bg-dearly-card hover:shadow-soft hover:-translate-y-0.5"
+            >
+              Browse All 20 Templates
+              <span className="text-dearly-accent">→</span>
+            </Link>
+          </motion.div>
         </div>
       </section>
 

@@ -17,6 +17,14 @@ const templates: TemplateDefinition[] = [
   { slug: "glass", name: "Glass", load: () => import("./glass").then((m) => m.default) },
   { slug: "luxe", name: "Luxe", load: () => import("./luxe").then((m) => m.default) },
   { slug: "boho", name: "Boho", load: () => import("./boho").then((m) => m.default) },
+  { slug: "seaside", name: "Seaside", load: () => import("./seaside").then((m) => m.default) },
+  { slug: "cherry", name: "Cherry Blossom", load: () => import("./cherry").then((m) => m.default) },
+  { slug: "vineyard", name: "Vineyard", load: () => import("./vineyard").then((m) => m.default) },
+  { slug: "nordic", name: "Nordic", load: () => import("./nordic").then((m) => m.default) },
+  { slug: "celestial", name: "Celestial", load: () => import("./celestial").then((m) => m.default) },
+  { slug: "terracotta", name: "Terracotta", load: () => import("./terracotta").then((m) => m.default) },
+  { slug: "vintage", name: "Vintage", load: () => import("./vintage").then((m) => m.default) },
+  { slug: "whimsical", name: "Whimsical", load: () => import("./whimsical").then((m) => m.default) },
 ];
 
 /**

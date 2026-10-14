@@ -13,11 +13,8 @@ import {
   useTransform,
   useInView,
   AnimatePresence,
-  useMotionValue,
-  useSpring,
 } from "framer-motion";
 import Link from "next/link";
-import CountdownTimer from "@/components/ui/CountdownTimer";
 import type { InvitationPageProps } from "../types";
 
 /* ── Cinematic letter-by-letter reveal ─────────────────────────────── */
@@ -249,7 +246,7 @@ export default function NoirInvitationPage({
     offset: ["start start", "end start"],
   });
   const spotlightY = useTransform(heroScroll, [0, 1], ["35%", "60%"]);
-  const spotlightX = useTransform(heroScroll, [0, 0.5, 1], ["50%", "48%", "52%"]);
+  const _spotlightX = useTransform(heroScroll, [0, 0.5, 1], ["50%", "48%", "52%"]);
 
   /* -- Story / nav in-view detection -- */
   const storyInView = useInView(storyRef, { once: true, margin: "-80px" });

@@ -12,9 +12,6 @@ import {
   useScroll,
   useTransform,
   useInView,
-  AnimatePresence,
-  useMotionValue,
-  useSpring,
 } from "framer-motion";
 import Link from "next/link";
 import CountdownTimer from "@/components/ui/CountdownTimer";
@@ -46,7 +43,7 @@ const clipWipe = {
 };
 
 /** Diamond countdown box rotate-in. */
-const diamondIn = {
+const _diamondIn = {
   hidden: { opacity: 0, rotate: 45, scale: 0.5 },
   visible: (i: number) => ({
     opacity: 1,
@@ -63,7 +60,7 @@ const diamondIn = {
 };
 
 /** Angular section reveal — slides up with slight skew. */
-const angularReveal = {
+const _angularReveal = {
   hidden: { opacity: 0, y: 60, skewY: 2 },
   visible: {
     opacity: 1,
@@ -74,13 +71,13 @@ const angularReveal = {
 };
 
 /** Stagger container for child items. */
-const staggerContainer = {
+const _staggerContainer = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.12, delayChildren: 0.4 } },
 };
 
 /** Item used in stagger containers. */
-const staggerItem = {
+const _staggerItem = {
   hidden: { opacity: 0, y: 30 },
   visible: {
     opacity: 1,

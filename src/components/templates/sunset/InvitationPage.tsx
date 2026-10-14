@@ -12,9 +12,6 @@ import {
   useScroll,
   useTransform,
   useInView,
-  AnimatePresence,
-  useMotionValue,
-  useSpring,
 } from "framer-motion";
 import Link from "next/link";
 import CountdownTimer from "@/components/ui/CountdownTimer";
@@ -38,21 +35,6 @@ const riseItem = {
   },
 };
 
-/** Section reveal from below. */
-const sectionReveal = {
-  hidden: { opacity: 0, y: 60 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.85, ease: [0.34, 1.56, 0.64, 1] },
-  },
-};
-
-/** Stagger container for navigation. */
-const navStagger = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.1, delayChildren: 0.15 } },
-};
 
 /* ── SVG wave morph paths ──────────────────────────────────────────── */
 
@@ -192,7 +174,6 @@ export default function SunsetInvitationPage({
 
   /* Parallax transforms */
   const sunY = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
-  const palmScale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
   const contentY = useTransform(scrollYProgress, [0, 1], [0, 60]);
 
   const primary = theme.colors.primary;

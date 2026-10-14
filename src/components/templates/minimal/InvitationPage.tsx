@@ -11,7 +11,6 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import Link from "next/link";
-import CountdownTimer from "@/components/ui/CountdownTimer";
 import type { InvitationPageProps } from "../types";
 
 /* ------------------------------------------------------------------ */
@@ -177,37 +176,6 @@ function MinimalCountdown({
         </span>
       ))}
     </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  Scroll-reveal section with simple fade+slide                       */
-/* ------------------------------------------------------------------ */
-
-/** Section that fades and slides in when scrolled into view. */
-function RevealSection({
-  children,
-  className,
-  style,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  style?: React.CSSProperties;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
-
-  return (
-    <motion.section
-      ref={ref}
-      className={className}
-      style={style}
-      initial={{ opacity: 0, y: 40 }}
-      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-      transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-    >
-      {children}
-    </motion.section>
   );
 }
 

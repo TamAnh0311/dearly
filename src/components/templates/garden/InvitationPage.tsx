@@ -12,8 +12,6 @@ import {
   useScroll,
   useTransform,
   useInView,
-  AnimatePresence,
-  useMotionValue,
   useSpring,
 } from "framer-motion";
 import Link from "next/link";
@@ -50,16 +48,6 @@ const gentleRise = {
       damping: 16,
     },
   }),
-};
-
-/** Section reveal for scroll-triggered content. */
-const sectionReveal = {
-  hidden: { opacity: 0, y: 40 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.85, ease: [0.22, 1, 0.36, 1] },
-  },
 };
 
 /* ── CSS keyframes ─────────────────────────────────────────────────── */
@@ -157,7 +145,7 @@ function Butterfly({
 /* ── Leaf Divider ──────────────────────────────────────────────────── */
 
 /** Botanical leaf divider between sections. */
-function LeafDivider({ color, accentColor }: { color: string; accentColor: string }) {
+function LeafDivider({ color, accentColor: _accentColor }: { color: string; accentColor: string }) {
   return (
     <div className="flex items-center justify-center gap-3 py-6">
       <div className="h-px w-12 md:w-20" style={{ backgroundColor: color, opacity: 0.25 }} />
@@ -200,22 +188,6 @@ function BotanicalSprig({ color }: { color: string }) {
         <path d="M25,10 Q30,6 33,9 Q30,7 25,10" fill={color} opacity="0.2" />
       </svg>
     </div>
-  );
-}
-
-/* ── Countdown Leaf Icons ──────────────────────────────────────────── */
-
-/** Small leaf icon used as separator between countdown units. */
-function CountdownLeaf({ color }: { color: string }) {
-  return (
-    <svg viewBox="0 0 12 16" width="10" height="14" className="mx-1 mt-2" style={{ animation: "gardenSway 3s ease-in-out infinite" }}>
-      <path
-        d="M6,14 Q3,8 1,10 Q3,4 6,2 Q9,4 11,10 Q9,8 6,14 Z"
-        fill={color}
-        opacity="0.35"
-      />
-      <path d="M6,13 L6,3" stroke={color} strokeWidth="0.4" opacity="0.3" fill="none" />
-    </svg>
   );
 }
 
@@ -330,9 +302,39 @@ function VineBorder({ color, accentColor }: { color: string; accentColor: string
 
 /* ── Scroll-linked vine ────────────────────────────────────────────── */
 
+/** Single leaf accent on the scroll vine — calls useTransform at top level. */
+function VineLeaf({
+  color,
+  scrollProgress,
+  y,
+  index,
+}: {
+  color: string;
+  scrollProgress: ReturnType<typeof useTransform<number>>;
+  y: number;
+  index: number;
+}) {
+  const opacity = useTransform(
+    scrollProgress,
+    [Math.max(0, y / 1000 - 0.05), y / 1000],
+    [0, 0.2]
+  );
+  const cx = index % 2 === 0 ? 12 : 18;
+  const qx = index % 2 === 0 ? 4 : 26;
+  const ex = index % 2 === 0 ? 8 : 22;
+  return (
+    <motion.path
+      d={`M${cx},${y} Q${qx},${y - 8} ${ex},${y + 5} Z`}
+      fill={color}
+      style={{ opacity }}
+    />
+  );
+}
+
 /** Vine that grows along the left margin as user scrolls. */
 function ScrollVine({ color, scrollProgress }: { color: string; scrollProgress: ReturnType<typeof useTransform<number>> }) {
   const pathLength = useSpring(scrollProgress, { stiffness: 60, damping: 20 });
+  const vineYPositions = [100, 250, 400, 550, 700, 850];
 
   return (
     <div className="pointer-events-none fixed left-2 top-0 z-10 hidden h-full w-8 md:block lg:left-4">
@@ -351,18 +353,13 @@ function ScrollVine({ color, scrollProgress }: { color: string; scrollProgress: 
           style={{ pathLength }}
         />
         {/* Leaf accents along the scroll vine */}
-        {[100, 250, 400, 550, 700, 850].map((y, i) => (
-          <motion.path
+        {vineYPositions.map((y, i) => (
+          <VineLeaf
             key={i}
-            d={`M${i % 2 === 0 ? 12 : 18},${y} Q${i % 2 === 0 ? 4 : 26},${y - 8} ${i % 2 === 0 ? 8 : 22},${y + 5} Z`}
-            fill={color}
-            style={{
-              opacity: useTransform(
-                scrollProgress,
-                [Math.max(0, y / 1000 - 0.05), y / 1000],
-                [0, 0.2]
-              ),
-            }}
+            color={color}
+            scrollProgress={scrollProgress}
+            y={y}
+            index={i}
           />
         ))}
       </svg>

@@ -49,7 +49,7 @@ export function templateHaystack(t: SearchableTemplate): string {
   ];
   return parts
     .join(" ")
-    .split(/[^\p{L}\p{N}]+/u)
+    .split(/[^a-z0-9\u00c0-\u024f\u3000-\u9fff\uac00-\ud7af\u3040-\u309f\u30a0-\u30ff]+/i)
     .filter(Boolean)
     .map(fold)
     .join(" ");
@@ -57,7 +57,7 @@ export function templateHaystack(t: SearchableTemplate): string {
 
 /** Filters templates by query; an empty/whitespace query returns all templates. */
 export function searchTemplates<T extends SearchableTemplate>(templates: T[], query: string): T[] {
-  const words = query.split(/[^\p{L}\p{N}]+/u).filter(Boolean).map(fold);
+  const words = query.split(/[^a-z0-9\u00c0-\u024f\u3000-\u9fff\uac00-\ud7af\u3040-\u309f\u30a0-\u30ff]+/i).filter(Boolean).map(fold);
   if (words.length === 0) return templates;
   return templates.filter((t) => {
     const hay = templateHaystack(t);

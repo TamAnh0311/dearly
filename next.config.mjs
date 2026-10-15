@@ -7,6 +7,7 @@ const nextConfig = {
     ],
   },
   compress: true,
+  staticPageGenerationTimeout: 180,
   modularizeImports: {
     "lucide-react": {
       transform: "lucide-react/dist/esm/icons/{{ kebabCase member }}",

@@ -99,7 +99,7 @@ export function buildPalette(theme: ResolvedTheme, templateSlug?: string | null)
 /** Builds a Google Fonts stylesheet URL for the theme fonts + script font. */
 export function googleFontsUrl(fonts: ResolvedTheme["fonts"]): string {
   const families = Array.from(new Set([fonts.display, fonts.body, SCRIPT_FONT]))
-    .filter((f) => /^[\p{L}\p{N}\s_-]{1,60}$/u.test(f))
+    .filter((f) => f.length > 0 && f.length <= 60 && !/[<>{}()\[\]"';]/.test(f))
     .map((f) => `family=${encodeURIComponent(f).replace(/%20/g, "+")}`);
   return `https://fonts.googleapis.com/css2?${families.join("&")}&display=swap`;
 }

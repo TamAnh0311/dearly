@@ -53,7 +53,7 @@ function galleryFontsUrl(templates: TemplateRow[]): string {
   const families = new Set<string>(["Great Vibes"]);
   templates.forEach((t) => t.default_config?.fonts?.display && families.add(t.default_config.fonts.display));
   const query = Array.from(families)
-    .filter((f) => /^[\p{L}\p{N}\s_-]{1,60}$/u.test(f))
+    .filter((f) => f.length > 0 && f.length <= 60 && !/[<>{}()\[\]"';]/.test(f))
     .map((f) => `family=${encodeURIComponent(f).replace(/%20/g, "+")}`)
     .join("&");
   return `https://fonts.googleapis.com/css2?${query}&display=swap`;

@@ -17,7 +17,9 @@ export type SectionKey =
   | "reactions"
   | "blessingShower"
   | "music"
-  | "guestbook";
+  | "guestbook"
+  | "families"
+  | "gift";
 
 export interface SectionToggle {
   key: SectionKey;
@@ -27,11 +29,13 @@ export interface SectionToggle {
 
 /** Toggles shown to couples, in page order. */
 export const SECTION_TOGGLES: SectionToggle[] = [
+  { key: "families", label: "Families", description: "Parents' names under the opening" },
   { key: "countdown", label: "Countdown", description: "Live days-to-go timer & add-to-calendar" },
   { key: "story", label: "Our story", description: "How you met, in your words" },
   { key: "timeline", label: "Schedule", description: "Order of the day" },
   { key: "venue", label: "Venue & map", description: "Address with directions" },
   { key: "gallery", label: "Photo moments", description: "Photo ribbon + gallery page" },
+  { key: "gift", label: "Gift details", description: "Bank account / QR for gifts (red envelope)" },
   { key: "rsvp", label: "RSVP", description: "\u201cI'll be there\u201d / \u201cCan't make it\u201d" },
   { key: "blessings", label: "Blessing wall", description: "All guest wishes on the page" },
   { key: "reactions", label: "Reactions", description: "Tap-to-send hearts, blooms, cheers" },
@@ -48,11 +52,12 @@ export type BlessingStyle = NonNullable<WeddingCustomization["blessingStyle"]>;
 export const BLESSING_STYLES: { value: BlessingStyle; label: string; description: string }[] = [
   { value: "marquee", label: "Running text", description: "Wishes drift across the background" },
   { value: "float", label: "Floating", description: "Carried up by flowers, butterflies or stars" },
+  { value: "feed", label: "Live chat", description: "Wishes pop up like a livestream chat" },
 ];
 
 /** Resolves the stored blessing style; anything unknown falls back to running text. */
 export function resolveBlessingStyle(value: unknown): BlessingStyle {
-  return value === "float" ? "float" : "marquee";
+  return value === "float" || value === "feed" ? value : "marquee";
 }
 
 /** Resolves stored (possibly partial) section flags; anything unset is visible. */

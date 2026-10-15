@@ -35,16 +35,14 @@ export default function PhotoUploader({ weddingId, onUploaded }: PhotoUploaderPr
     setError(null);
 
     try {
-      for (const file of fileList) {
-        const form = new FormData();
-        form.append("file", file);
-        form.append("weddingId", weddingId);
+      const form = new FormData();
+      fileList.forEach((file) => form.append("photos", file));
+      form.append("weddingId", weddingId);
 
-        const res = await fetch("/api/photos/upload", { method: "POST", body: form });
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({}));
-          throw new Error(body.error ?? `Upload failed (${res.status})`);
-        }
+      const res = await fetch("/api/photos/upload", { method: "POST", body: form });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? `Upload failed (${res.status})`);
       }
       onUploaded();
     } catch (err) {

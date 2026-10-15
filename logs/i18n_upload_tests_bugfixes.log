@@ -1,0 +1,4 @@
+[2026-10-15 11:47:00]
+CONTEXT: User requested three fixes: i18n support for Vietnamese/CJK characters, broken image upload, and integration tests for all features before go-live.
+RESULT: Fixed font subsets (latin-ext/vietnamese), slug generation (NFD diacritic stripping + CJK fallback), template search tokenizer (Unicode-aware), font name filter (Unicode regex). Fixed photo upload FormData field name mismatch ("file" → "photos") and batched uploads. Fixed null-safety in resolveTheme, gallery/guestbook pages, slug validation (min length + trailing hyphens), stale template in useWedding, and usePublicWedding error handling. Wrote 24 new integration tests covering guestbook, photo upload, questions/answer, and billing/checkout routes. All 96 tests pass.
+---

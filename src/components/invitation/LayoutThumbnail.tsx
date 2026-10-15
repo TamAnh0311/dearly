@@ -230,6 +230,96 @@ export default function LayoutThumbnail({ slug, colors, fonts, photo, names = ["
       );
     }
 
+    case "doors": {
+      const lacquer = dark ? mix(secondary, "#a3161c", 0.45) : mix(accent, "#9b1b1f", 0.7);
+      return (
+        <div className="relative flex h-full items-center justify-center overflow-hidden" style={{ background: `radial-gradient(ellipse at 50% 45%, ${alpha(primary, 0.3)}, ${secondary} 70%)` }}>
+          {["left-[6%]", "right-[6%]"].map((pos) => (
+            <span key={pos} className={`absolute top-0 ${pos} h-8 w-5 rounded-full`} style={{ background: lacquer, boxShadow: `0 0 12px ${alpha(lacquer, 0.7)}`, marginTop: 10 }} />
+          ))}
+          <div className="absolute inset-y-[8%] left-[4%] w-[22%]" style={{ background: lacquer, boxShadow: `inset 0 0 0 2px ${primary}` }} />
+          <div className="absolute inset-y-[8%] right-[4%] w-[22%]" style={{ background: lacquer, boxShadow: `inset 0 0 0 2px ${primary}` }} />
+          <div className="relative text-center">
+            <p className="text-2xl leading-none" style={{ color: primary, fontFamily: "'Ma Shan Zheng', serif" }}>
+              囍
+            </p>
+            {nameBlock("text-xl")}
+          </div>
+        </div>
+      );
+    }
+
+    case "poster":
+      return (
+        <div className="relative h-full p-1.5" style={{ background: secondary }}>
+          <div className="relative h-full overflow-hidden rounded-sm">
+            <Image src={photo} alt="" fill sizes="240px" className="object-cover" />
+            <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.35), transparent 35%, transparent 55%, rgba(0,0,0,0.65))" }} />
+            <p className="absolute inset-x-0 top-2 text-center text-lg text-white" style={{ fontFamily: script }}>
+              Save the date
+            </p>
+            <p className="absolute inset-x-0 bottom-2 text-center text-xl leading-none text-white" style={{ fontFamily: display }}>
+              {names[0]} &amp; {names[1]}
+            </p>
+          </div>
+        </div>
+      );
+
+    case "enso": {
+      const sumi = dark ? mix(primary, "#ffffff", 0.2) : mix(ink, "#000000", 0.2);
+      return (
+        <div className="relative flex h-full items-center justify-center" style={{ background: secondary }}>
+          <svg viewBox="0 0 290 290" className="absolute h-[88%]" aria-hidden>
+            <path d="M 236 92 C 268 150, 250 236, 176 262 C 100 288, 30 238, 26 162 C 22 86, 84 30, 158 30 C 196 30, 222 44, 238 62" fill="none" stroke={sumi} strokeWidth={14} strokeLinecap="round" />
+          </svg>
+          {nameBlock("text-lg")}
+          <span className="absolute bottom-[16%] right-[24%] h-5 w-5 rounded-sm" style={{ background: dark ? mix(accent, "#c0392b", 0.5) : primary }} />
+          {style.ornament === "wave" && (
+            <div className="absolute inset-x-0 bottom-0 h-6" style={{ background: `repeating-radial-gradient(circle at 10px 24px, transparent 0 4px, ${alpha(primary, 0.4)} 4px 5px)`, backgroundSize: "20px 12px" }} />
+          )}
+        </div>
+      );
+    }
+
+    case "shoji": {
+      const paper = dark ? mix(secondary, "#f4ede0", 0.82) : mix(secondary, "#ffffff", 0.75);
+      const wood = dark ? mix(secondary, "#000000", 0.2) : mix(ink, primary, 0.25);
+      const kumiko = `repeating-linear-gradient(0deg, transparent 0 14px, ${wood} 14px 15px), repeating-linear-gradient(90deg, transparent 0 11px, ${wood} 11px 12px), ${paper}`;
+      return (
+        <div className="relative flex h-full items-center justify-center overflow-hidden" style={{ background: secondary }}>
+          <span className="absolute left-[30%] top-[14%] h-9 w-9 rounded-full" style={{ background: alpha(primary, 0.3) }} />
+          {[[70, 20], [80, 34], [62, 30], [88, 18]].map(([x, y], i) => (
+            <span key={i} className="absolute h-2.5 w-2.5 rounded-full" style={{ left: `${x}%`, top: `${y}%`, background: mix(primary, "#ffffff", 0.35) }} />
+          ))}
+          <div className="absolute inset-y-0 left-0 w-[16%]" style={{ background: kumiko, boxShadow: `inset 0 0 0 3px ${wood}` }} />
+          <div className="absolute inset-y-0 right-0 w-[16%]" style={{ background: kumiko, boxShadow: `inset 0 0 0 3px ${wood}` }} />
+          {nameBlock("text-2xl")}
+        </div>
+      );
+    }
+
+    case "bojagi": {
+      const patch = [primary, accent, mix(primary, "#f2c94c", 0.55), mix(accent, "#ffffff", 0.45)];
+      return (
+        <div className="relative flex h-full items-center justify-center" style={{ background: secondary }}>
+          <div className="relative aspect-square h-[46%]">
+            {/* Unfolded flaps around the card */}
+            {[
+              { cls: "bottom-full left-0 h-1/2 w-full", clip: "polygon(0 100%, 100% 100%, 50% 0)" },
+              { cls: "left-full top-0 h-full w-1/2", clip: "polygon(0 0, 0 100%, 100% 50%)" },
+              { cls: "left-0 top-full h-1/2 w-full", clip: "polygon(0 0, 100% 0, 50% 100%)" },
+              { cls: "right-full top-0 h-full w-1/2", clip: "polygon(100% 0, 100% 100%, 0 50%)" },
+            ].map((f, i) => (
+              <div key={i} className={`absolute ${f.cls}`} style={{ clipPath: f.clip, background: patch[i] }} />
+            ))}
+            <div className="absolute inset-0 flex items-center justify-center rounded-sm" style={{ background: mix(secondary, "#ffffff", dark ? 0.08 : 0.6), border: `1px solid ${alpha(primary, 0.3)}` }}>
+              {nameBlock("text-base")}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     default: {
       // garden
       const petals = [mix(primary, "#ffffff", 0.35), mix(accent, "#ffffff", 0.45), mix(primary, "#f6c6cf", 0.5)];

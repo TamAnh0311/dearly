@@ -41,7 +41,8 @@ describe("resolveBlessingStyle", () => {
     expect(resolveBlessingStyle(undefined)).toBe("marquee");
     expect(resolveBlessingStyle("weird")).toBe("marquee");
   });
-  it("keeps the floating style when chosen", () => {
+  it("keeps the floating and live-chat styles when chosen", () => {
     expect(resolveBlessingStyle("float")).toBe("float");
+    expect(resolveBlessingStyle("feed")).toBe("feed");
   });
 });

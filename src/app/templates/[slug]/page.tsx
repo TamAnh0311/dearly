@@ -18,24 +18,38 @@ import ScrollProgress from "@/components/ui/ScrollProgress";
 import TemplatePreview from "@/components/invitation/TemplatePreview";
 import { PLACEHOLDER_IMAGES } from "@/lib/placeholder-images";
 import type { TemplateRow, WeddingRow, WeddingEventRow, GuestbookEntryRow } from "@/types/database";
+import type { Culture } from "@/components/invitation/styles";
 
 interface PageProps {
   params: { slug: string };
   searchParams?: { embed?: string; scheme?: string; bare?: string };
 }
 
+/**
+ * DEMO ONLY: culture-matched sample hosts and families for the East Asian
+ * collection, shown on public previews. Never persisted.
+ */
+const CULTURE_DEMO: Record<Culture, { names: [string, string]; families: { side1: string; side2: string } }> = {
+  chinese: { names: ["Wei", "Lin"], families: { side1: "Mr. Zhang Hao & Mrs. Li Mei", side2: "Mr. Chen Jun & Mrs. Wang Fang" } },
+  japanese: { names: ["Haruto", "Yui"], families: { side1: "Mr. & Mrs. Sato", side2: "Mr. & Mrs. Tanaka" } },
+  korean: { names: ["Minjun", "Seoyeon"], families: { side1: "Kim Daeho · Park Mira", side2: "Lee Sungmin · Choi Jiwon" } },
+  vietnamese: { names: ["Huy", "Thúy"], families: { side1: "Ông Nguyễn Viết Minh · Bà Trịnh Thị Lan", side2: "Ông Trịnh Văn Huy · Bà Ngô Mai Hoàn" } },
+};
+
 /** Placeholder wedding data used for the template preview. */
 function buildMockWedding(template: TemplateRow): WeddingRow {
   // Celebration templates demo as a birthday/party so visitors see the right copy.
   const type = template.event_types?.[0] ?? "wedding";
   const single = type === "birthday" || type === "party" || type === "social" || type === "baby-shower";
+  const culture = getInvitationStyle(template.slug).culture;
+  const demo = culture && !single ? CULTURE_DEMO[culture] : null;
   return {
     id: "preview",
     user_id: "preview",
     template_id: template.id,
     slug: "preview",
-    partner1_name: "Emma",
-    partner2_name: single ? "" : "James",
+    partner1_name: demo?.names[0] ?? "Emma",
+    partner2_name: single ? "" : demo?.names[1] ?? "James",
     event_type: type,
     event_title: type === "birthday" ? "Emma's 30th Birthday" : type === "party" ? "Summer Rooftop Party" : type === "social" ? "An Evening at the Grand Estate" : null,
     wedding_date: "2027-06-15",
@@ -48,6 +62,18 @@ function buildMockWedding(template: TemplateRow): WeddingRow {
       fonts: {},
       sections: { timeline: true, gallery: true, guestbook: true },
       galleryLayout: "masonry",
+      // DEMO ONLY: sample families + clearly fake gift accounts (shown on previews only).
+      ...(demo
+        ? {
+            families: demo.families,
+            gift: {
+              accounts: [
+                { label: `${demo.names[0]}'s family`, bank: "Demo Bank", holder: demo.names[0], number: "0000 1234 5678" },
+                { label: `${demo.names[1]}'s family`, bank: "Demo Bank", holder: demo.names[1], number: "0000 8765 4321" },
+              ],
+            },
+          }
+        : {}),
     },
     is_published: true,
     guest_uploads_enabled: false,
@@ -157,7 +183,12 @@ export default async function TemplatePreviewPage({ params, searchParams }: Page
         events={MOCK_EVENTS}
         blessings={DEMO_BLESSINGS}
         reactions={{ love: 128, bloom: 64, cheers: 42, sparkle: 37, rings: 21 }}
-        photos={[...PLACEHOLDER_IMAGES.couple, ...PLACEHOLDER_IMAGES.wedding.slice(0, 3)]}
+        // Poster heroes lead with a portrait of the couple (demo images only).
+        photos={
+          getInvitationStyle(template.slug).hero === "poster"
+            ? [PLACEHOLDER_IMAGES.wedding[0], ...PLACEHOLDER_IMAGES.couple, ...PLACEHOLDER_IMAGES.wedding.slice(1, 3)]
+            : [...PLACEHOLDER_IMAGES.couple, ...PLACEHOLDER_IMAGES.wedding.slice(0, 3)]
+        }
         initialScheme={initialScheme}
         embedded={embedded}
         bare={bare}

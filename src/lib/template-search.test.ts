@@ -40,4 +40,17 @@ describe("searchTemplates", () => {
   it("builds a haystack that includes the slug words", () => {
     expect(templateHaystack(T[1])).toContain("secret");
   });
+
+  it("finds East Asian designs by culture words", () => {
+    const asian = [
+      ...T,
+      { name: "Double Happiness", slug: "double-happiness", description: "Lacquer doors" },
+      { name: "Sakura", slug: "sakura", description: "Shoji screens" },
+      { name: "Hanbok", slug: "hanbok", description: "Bojagi cloth" },
+    ];
+    expect(searchTemplates(asian, "chinese").map((t) => t.slug)).toEqual(["double-happiness"]);
+    expect(searchTemplates(asian, "japan").map((t) => t.slug)).toEqual(["sakura"]);
+    expect(searchTemplates(asian, "korean").map((t) => t.slug)).toEqual(["hanbok"]);
+    expect(searchTemplates(asian, "asian")).toHaveLength(3);
+  });
 });

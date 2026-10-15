@@ -37,6 +37,15 @@ const templates: TemplateDefinition[] = [
   { slug: "balloon-bash", name: "Balloon Bash", load: () => import("./whimsical").then((m) => m.default) },
   { slug: "neon-night", name: "Neon Night", load: () => import("./noir").then((m) => m.default) },
   { slug: "soiree", name: "Soirée", load: () => import("./luxe").then((m) => m.default) },
+  // East Asian collection (Chinese / Japanese / Korean / Vietnamese)
+  { slug: "double-happiness", name: "Double Happiness", load: () => import("./luxe").then((m) => m.default) },
+  { slug: "crimson-keepsake", name: "Crimson Keepsake", load: () => import("./eternal").then((m) => m.default) },
+  { slug: "lantern-night", name: "Lantern Night", load: () => import("./celestial").then((m) => m.default) },
+  { slug: "sakura", name: "Sakura", load: () => import("./cherry").then((m) => m.default) },
+  { slug: "enso", name: "Ensō", load: () => import("./minimal").then((m) => m.default) },
+  { slug: "seigaiha", name: "Seigaiha", load: () => import("./noir").then((m) => m.default) },
+  { slug: "seoul-studio", name: "Seoul Studio", load: () => import("./minimal").then((m) => m.default) },
+  { slug: "hanbok", name: "Hanbok", load: () => import("./rustic").then((m) => m.default) },
 ];
 
 /**

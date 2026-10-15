@@ -11,6 +11,7 @@ import { Reveal, SectionHeading } from "./Primitives";
 import { alpha, calendarUrl, formatLongDate, parseWeddingDate, type InvitationPalette } from "../utils";
 import { CalendarPlus } from "lucide-react";
 import ScratchReveal from "./ScratchReveal";
+import CalendarCard from "./CalendarCard";
 
 interface Parts {
   days: number;
@@ -104,6 +105,11 @@ export default function Countdown({
               {formatLongDate(date)}
             </p>
           </ScratchReveal>
+        </Reveal>
+      )}
+      {palette.style.calendar && !palette.style.scratchReveal && (
+        <Reveal className="mb-14">
+          <CalendarCard date={date} palette={palette} daysLeft={parts && !isPast ? parts.days + (parts.hours + parts.minutes + parts.seconds > 0 ? 1 : 0) : null} />
         </Reveal>
       )}
       <Reveal className="flex justify-center gap-3 md:gap-6">

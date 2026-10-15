@@ -30,7 +30,7 @@ export default async function GuestbookPage({ params }: PageProps) {
 
   const weddingData = wedding as WeddingRow & { template: TemplateRow };
 
-  if (!weddingData.customization.sections.guestbook) notFound();
+  if (!weddingData.customization?.sections?.guestbook) notFound();
 
   const templateDef = getTemplate(weddingData.template.slug);
   if (!templateDef) notFound();
@@ -56,7 +56,7 @@ export default async function GuestbookPage({ params }: PageProps) {
       <FloatingNav
         weddingSlug={params.slug}
         theme={theme}
-        sections={weddingData.customization.sections}
+        sections={weddingData.customization?.sections}
       />
     </>
   );

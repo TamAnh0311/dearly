@@ -269,6 +269,54 @@ export function Balloons({ colors, count = 9 }: { colors: string[]; count?: numb
   );
 }
 
+/* ─── Sky lanterns ────────────────────────────────────────────────────────── */
+
+/**
+ * Warm paper lanterns (Chinese kongming / Mid-Autumn) rising slowly with a
+ * flickering glow. Few and slow so they never compete with text.
+ */
+export function Lanterns({ color, glow, count = 8 }: { color: string; glow: string; count?: number }) {
+  const reduce = useReducedMotion();
+  if (reduce) return null;
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+      {Array.from({ length: Math.min(count, 14) }, (_, i) => {
+        const size = 22 + seeded(i + 900) * 26;
+        return (
+          <motion.div
+            key={i}
+            className="absolute"
+            style={{ left: `${3 + seeded(i + 910) * 92}%`, bottom: -90, filter: `drop-shadow(0 0 ${size * 0.5}px ${glow})` }}
+            animate={{ y: ["0vh", "-120vh"], x: [0, (seeded(i + 920) - 0.5) * 50, 0], opacity: [0, 0.95, 0.95, 0] }}
+            transition={{ duration: 22 + seeded(i + 930) * 14, delay: seeded(i + 940) * 14, repeat: Infinity, ease: "linear", times: [0, 0.1, 0.85, 1] }}
+          >
+            <svg width={size} height={size * 1.35} viewBox="0 0 40 54">
+              <defs>
+                <radialGradient id={`lantern-${i}`} cx="50%" cy="60%" r="60%">
+                  <stop offset="0" stopColor="#fff3c4" />
+                  <stop offset="0.45" stopColor={glow} />
+                  <stop offset="1" stopColor={color} />
+                </radialGradient>
+              </defs>
+              <path d="M8 4 H32 L38 44 Q20 52 2 44 Z" fill={`url(#lantern-${i})`} />
+              <path d="M14 4 L11 44 M26 4 L29 44 M20 4 V47" stroke={color} strokeOpacity="0.35" strokeWidth="0.8" />
+              <motion.ellipse
+                cx="20"
+                cy="44"
+                rx="6"
+                ry="2.4"
+                fill="#fff6d0"
+                animate={{ opacity: [0.6, 1, 0.7, 1] }}
+                transition={{ duration: 1.6 + seeded(i + 950), repeat: Infinity }}
+              />
+            </svg>
+          </motion.div>
+        );
+      })}
+    </div>
+  );
+}
+
 /* ─── Bokeh lights ────────────────────────────────────────────────────────── */
 
 /** Large, blurred light orbs that slowly breathe — adds cinematic depth. */

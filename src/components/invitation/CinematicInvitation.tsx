@@ -7,7 +7,7 @@
  * ambient effects, ornaments, corners, texture — see ./styles.ts). This
  * component supplies the shared content, RSVP flow and blessing wall.
  *
- * Section order: Hero → Countdown → Story → Schedule → Venue → Moments → RSVP → Blessings → Footer.
+ * Section order: Hero → Families → Countdown → Story → Schedule → Venue → Moments → Gift → RSVP → Blessings → Footer.
  * Sections without data are skipped, and couples can hide any section via
  * customization.sections (see ./sections-config.ts).
  */
@@ -26,6 +26,8 @@ import { Footer, TopNav, type NavLink } from "./sections/Chrome";
 import { buildPalette, googleFontsUrl } from "./utils";
 import { resolveBlessingStyle, resolveSections } from "./sections-config";
 import { EventContext } from "./sections/HeroParts";
+import { Families, GiftSection } from "./sections/Extras";
+import { resolveFamilies, resolveGift } from "@/lib/invitation-extras";
 import { EVENT_COPY, eventTypeOf, hostNames, isPastEvent } from "@/lib/event-types";
 import BlessingShower from "./effects/BlessingShower";
 import MusicPlayer from "@/components/ui/MusicPlayer";
@@ -98,12 +100,15 @@ export default function CinematicInvitation({
   const showVenue = !!wedding.venue_name && show.venue;
   const showWall = show.blessings || show.reactions;
   const showRsvp = show.rsvp && !past;
+  const families = show.families ? resolveFamilies(wedding.customization?.families) : null;
+  const gift = show.gift ? resolveGift(wedding.customization?.gift) : null;
 
   const links: NavLink[] = [
     ...(showStory ? [{ href: "#story", label: copy.storyTitle }] : []),
     ...(showSchedule ? [{ href: "#schedule", label: "Schedule" }] : []),
     ...(showVenue ? [{ href: "#venue", label: "Venue" }] : []),
     ...(showMoments ? [{ href: "#moments", label: "Memories" }] : []),
+    ...(gift ? [{ href: "#gift", label: "Gift" }] : []),
     ...(showWall ? [{ href: "#blessings", label: copy.blessingsTitle }] : []),
   ];
 
@@ -127,6 +132,7 @@ export default function CinematicInvitation({
         {palette.style.texture !== "none" && <TextureOverlay kind={palette.style.texture} />}
         <TopNav names={names} links={links} palette={palette} topOffset={topOffset} showRsvp={showRsvp} />
         <Hero wedding={wedding} palette={palette} photos={photos} />
+        {families && <Families families={families} names={names} palette={palette} />}
         {wedding.wedding_date && show.countdown && (
           <Countdown
             date={wedding.wedding_date}
@@ -146,6 +152,7 @@ export default function CinematicInvitation({
             palette={palette}
           />
         )}
+        {gift && <GiftSection gift={gift} palette={palette} />}
         {showRsvp && (
           <RsvpSection
             weddingId={wedding.id}

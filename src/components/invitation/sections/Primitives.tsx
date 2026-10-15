@@ -157,6 +157,23 @@ export function Divider({ palette }: { palette: InvitationPalette }) {
         </>
       )}
 
+      {o === "cloud" && (
+        <>
+          <Rules palette={palette} gap={26} />
+          {/* Auspicious cloud (xiangyun / gureum) scroll */}
+          <motion.path
+            d="M96 16 C 96 10, 104 8, 108 12 C 108 5, 120 3, 122 10 C 126 4, 138 6, 136 13 C 142 12, 146 18, 140 20 L 100 20 C 94 20, 92 16, 96 16 Z M112 15 C 114 12, 118 13, 117 16 M126 14 C 128 11, 132 12, 131 15"
+            stroke={palette.primary}
+            strokeWidth={1}
+            strokeLinecap="round"
+            initial={{ pathLength: 0 }}
+            whileInView={{ pathLength: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1.6, ease: "easeInOut", delay: 0.2 }}
+          />
+        </>
+      )}
+
       {o === "wave" && (
         <motion.path
           d="M20 12 Q 35 2 50 12 T 80 12 T 110 12 T 140 12 T 170 12 T 200 12 T 230 12"

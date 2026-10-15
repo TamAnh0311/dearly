@@ -12,7 +12,8 @@
  * finish (names appear blank). This waits in real time (5.5s per page), can
  * scroll to a section, and hard-kills Chrome after a timeout.
  *
- * Env: CHROME_PATH overrides the browser binary; SHOT_WAIT_MS sets the wait after
+ * Env: CHROME_PATH overrides the browser binary; SHOT_SIZE sets the window, e.g.
+ * "390x844" for a phone (default "1440x900"); SHOT_WAIT_MS sets the wait after
  * navigation (default 5500 — use ~1200 to capture an opening mid-animation).
  */
 
@@ -42,7 +43,8 @@ if (!chromePath) {
 mkdirSync(outDir, { recursive: true });
 const PORT = 9333;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const chrome = spawn(chromePath, ["--headless=new", "--disable-gpu", "--hide-scrollbars", `--remote-debugging-port=${PORT}`, "--window-size=1440,900", "about:blank"], { stdio: "ignore" });
+const size = /^\d{3,4}x\d{3,4}$/.test(process.env.SHOT_SIZE ?? "") ? process.env.SHOT_SIZE.replace("x", ",") : "1440,900";
+const chrome = spawn(chromePath, ["--headless=new", "--disable-gpu", "--hide-scrollbars", `--remote-debugging-port=${PORT}`, `--window-size=${size}`, "about:blank"], { stdio: "ignore" });
 const watchdog = setTimeout(() => {
   console.error("Timed out — killing Chrome.");
   chrome.kill();

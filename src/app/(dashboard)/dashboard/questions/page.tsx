@@ -60,6 +60,8 @@ const THEMES: ThemeOption[] = [
 function generateSlug(question: string): string {
   const base = question
     .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9\s-]/g, "")
     .trim()
     .replace(/\s+/g, "-")

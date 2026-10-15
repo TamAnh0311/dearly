@@ -4,7 +4,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { carriersFor, marqueeItems, noteAccent } from "./BlessingShower";
+import { carriersFor, feedWindow, marqueeItems, noteAccent } from "./BlessingShower";
 import { buildPalette, luminance } from "../utils";
 
 const palette = (slug: string, secondary = "#FFF7EE", primary = "#F2B880") =>
@@ -55,5 +55,17 @@ describe("marqueeItems", () => {
 
   it("returns nothing without blessings", () => {
     expect(marqueeItems([], 0)).toEqual([]);
+  });
+});
+
+describe("feedWindow", () => {
+  const list = ["a", "b", "c"].map((id) => ({ id, wedding_id: "w", guest_name: id, message: id, rsvp_status: null, created_at: "" }));
+  it("is empty before the first tick or without blessings", () => {
+    expect(feedWindow(list, 0)).toEqual([]);
+    expect(feedWindow([], 5)).toEqual([]);
+  });
+  it("shows the most recent items, newest last, cycling through", () => {
+    expect(feedWindow(list, 2).map((b) => b.id)).toEqual(["a", "b"]);
+    expect(feedWindow(list, 5, 4).map((b) => b.id)).toEqual(["b", "c", "a", "b"]);
   });
 });

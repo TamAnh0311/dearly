@@ -39,7 +39,7 @@ export function useMyWedding() {
     fetch();
   }, []);
 
-  /** Saves wedding data to Supabase. */
+  /** Saves wedding data to Supabase and refreshes template if it changed. */
   async function saveWedding(updates: Partial<WeddingRow>): Promise<void> {
     if (!wedding) return;
     const supabase = createClient();
@@ -48,6 +48,15 @@ export function useMyWedding() {
       .update(updates)
       .eq("id", wedding.id);
     if (updateError) throw new Error(updateError.message);
+
+    if (updates.template_id && updates.template_id !== wedding.template_id) {
+      const { data } = await supabase
+        .from("weddings")
+        .select("*, template:templates(*)")
+        .eq("id", wedding.id)
+        .single();
+      if (data) { setWedding(data as WeddingWithTemplate); return; }
+    }
     setWedding({ ...wedding, ...updates });
   }
 
@@ -85,21 +94,25 @@ export function useMyWedding() {
 export function usePublicWedding(slug: string) {
   const [wedding, setWedding] = useState<WeddingWithTemplate | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetch() {
       const supabase = createClient();
-      const { data } = await supabase
+      const { data, error: queryError } = await supabase
         .from("weddings")
         .select("*, template:templates(*)")
         .eq("slug", slug)
         .eq("is_published", true)
         .single();
+      if (queryError && queryError.code !== "PGRST116") {
+        setError(queryError.message);
+      }
       setWedding(data as WeddingWithTemplate | null);
       setLoading(false);
     }
     fetch();
   }, [slug]);
 
-  return { wedding, loading };
+  return { wedding, loading, error };
 }

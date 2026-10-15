@@ -299,10 +299,11 @@ export default function DashboardPage() {
   useEffect(() => {
     if (slugEdited) return;
     if (!partner1 && !partner2) { setSlug(""); return; }
-    const p1 = partner1.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-    const p2 = partner2.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const p1 = partner1.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const p2 = partner2.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
     if (p1 && p2) setSlug(`${p1}-and-${p2}`);
-    else setSlug(p1 || p2);
+    else if (p1 || p2) setSlug(p1 || p2);
+    else setSlug(`wedding-${Math.random().toString(36).slice(2, 8)}`);
   }, [partner1, partner2, slugEdited]);
 
   /** Fetches photo, guestbook, and timeline counts when a wedding exists. */
@@ -347,6 +348,8 @@ export default function DashboardPage() {
     if (!partner1.trim()) { setSubmitError("Partner 1 name is required."); return; }
     if (copy.hostLabel[1] && twoHostsRequired && !partner2.trim()) { setSubmitError(`${copy.hostLabel[1]} is required.`); return; }
     if (!slug.trim()) { setSubmitError("A URL slug is required."); return; }
+    if (slug.trim().length < 3) { setSubmitError("URL slug must be at least 3 characters."); return; }
+    if (!/^[a-z0-9][a-z0-9-]*[a-z0-9]$/.test(slug.trim())) { setSubmitError("Slug must start and end with a letter or number."); return; }
     if (isReservedSlug(slug)) { setSubmitError(`"${slug.trim()}" is used by a Dearly page — try adding your names or a date.`); return; }
 
     setSubmitting(true);
@@ -870,7 +873,7 @@ export default function DashboardPage() {
                     value={slug}
                     onChange={(e) => {
                       setSlugEdited(true);
-                      setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""));
+                      setSlug(e.target.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9-]/g, ""));
                     }}
                     placeholder="emma-and-james"
                     className="flex-1 bg-transparent px-3 py-2.5 text-sm text-dearly-text placeholder:text-dearly-text-muted outline-none"

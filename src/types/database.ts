@@ -97,10 +97,27 @@ export interface WeddingCustomization {
     reactions?: boolean;
     blessingShower?: boolean;
     music?: boolean;
+    families?: boolean;
+    gift?: boolean;
   };
   galleryLayout: "masonry" | "albums" | "timeline";
-  /** How blessings appear on page load: background running text (default) or floating carriers. */
-  blessingStyle?: "marquee" | "float";
+  /** How blessings appear on page load: background running text (default), floating carriers or a live chat feed. */
+  blessingStyle?: "marquee" | "float" | "feed";
+  /** Parents / families of each host, shown under the hero ("Nhà trai · Nhà gái", "혼주"). */
+  families?: { side1?: string; side2?: string };
+  /** Monetary-gift details (red envelope / 축의금 / mừng cưới): up to 2 accounts with optional QR. */
+  gift?: { note?: string; accounts?: GiftAccount[] };
+}
+
+/** One account guests can send a gift to. */
+export interface GiftAccount {
+  /** Whose account, e.g. "Groom's family" or "Emma". */
+  label: string;
+  bank?: string;
+  holder?: string;
+  number?: string;
+  /** https URL of a payment QR image. */
+  qrUrl?: string;
 }
 
 export interface WeddingEventRow {

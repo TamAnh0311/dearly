@@ -83,6 +83,18 @@ describe("design styles", () => {
     expect(getInvitationStyle("bloom").scratchReveal).toBe(false);
   });
 
+  it("maps the East Asian collection to its heroes, culture and calendar", () => {
+    expect(getInvitationStyle("double-happiness")).toMatchObject({ hero: "doors", culture: "chinese", calendar: true });
+    expect(getInvitationStyle("crimson-keepsake")).toMatchObject({ hero: "poster", culture: "vietnamese" });
+    expect(getInvitationStyle("seoul-studio")).toMatchObject({ hero: "poster", culture: "korean" });
+    expect(getInvitationStyle("sakura")).toMatchObject({ hero: "shoji", culture: "japanese" });
+    expect(getInvitationStyle("enso").hero).toBe("enso");
+    expect(getInvitationStyle("seigaiha")).toMatchObject({ hero: "enso", ornament: "wave" });
+    expect(getInvitationStyle("hanbok")).toMatchObject({ hero: "bojagi", ornament: "cloud" });
+    expect(getInvitationStyle("lantern-night").ambient).toContain("lanterns");
+    expect(getInvitationStyle("bloom").calendar).toBe(false);
+  });
+
   it("falls back to the garden layout for unknown or missing slugs", () => {
     expect(getInvitationStyle("does-not-exist").hero).toBe("garden");
     expect(getInvitationStyle(null).hero).toBe("garden");

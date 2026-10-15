@@ -1,0 +1,8 @@
+[2026-10-15 11:28:30]
+CONTEXT: Create templates inspired by Vietnamese online wedding invitations (wedinviteonline.asia, cinelove.me) with more Chinese, Japanese and Korean styles.
+RESULT: 8 templates (migration 00018, applied) on 5 new heroes in src/components/invitation/sections/HeroAsian.tsx, plus lanterns ambient, cloud ornament, month calendar, Families + Gift sections (src/lib/invitation-extras.ts) and a live-chat blessing style; editor fields added. tsc, lint and 72 tests pass; desktop, mobile and light/dark screenshots checked.
+---
+[2026-10-15 11:46:59]
+CONTEXT: Document the design process so other agents can reach the same quality for templates and heroes.
+RESULT: Wrote docs/DESIGN_PLAYBOOK.md (process, layer anatomy, technique cookbook, traps, QA loop, checklist, worked example, hero skeleton), linked it from AGENTS.md, and added SHOT_SIZE phone viewport support to scripts/screenshot.mjs. Also fixed a compile error from the other agent's edit to src/app/layout.tsx (Lato has no vietnamese subset).
+---

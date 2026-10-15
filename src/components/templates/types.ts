@@ -43,15 +43,16 @@ export function resolveTheme(
   templateConfig: TemplateConfig,
   customization: WeddingRow["customization"]
 ): ResolvedTheme {
+  const c = customization ?? {} as Partial<NonNullable<typeof customization>>;
   return {
     colors: {
-      primary: customization.colors?.primary ?? templateConfig.colors.primary,
-      secondary: customization.colors?.secondary ?? templateConfig.colors.secondary,
-      accent: customization.colors?.accent ?? templateConfig.colors.accent,
+      primary: c.colors?.primary ?? templateConfig.colors.primary,
+      secondary: c.colors?.secondary ?? templateConfig.colors.secondary,
+      accent: c.colors?.accent ?? templateConfig.colors.accent,
     },
     fonts: {
-      display: customization.fonts?.display ?? templateConfig.fonts.display,
-      body: customization.fonts?.body ?? templateConfig.fonts.body,
+      display: c.fonts?.display ?? templateConfig.fonts.display,
+      body: c.fonts?.body ?? templateConfig.fonts.body,
     },
     animations: templateConfig.animations ?? {},
   };

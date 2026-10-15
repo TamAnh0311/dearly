@@ -11,13 +11,14 @@ import { AuthProvider } from "@/context/AuthContext";
 import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/seo";
 
 const playfair = Playfair_Display({
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext", "vietnamese"],
   variable: "--font-display",
   display: "swap",
 });
 
 const lato = Lato({
-  subsets: ["latin"],
+  // Lato ships no "vietnamese" subset (next/font rejects it); latin-ext covers most diacritics.
+  subsets: ["latin", "latin-ext"],
   weight: ["300", "400", "700"],
   variable: "--font-body",
   display: "swap",

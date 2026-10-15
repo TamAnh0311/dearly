@@ -62,6 +62,8 @@ const CATEGORY_BADGE: Record<Category, string> = {
 function slugify(text: string): string {
   return text
     .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 }
@@ -690,7 +692,7 @@ export default function DashboardCardsPage() {
                       value={slug}
                       onChange={(e) => {
                         setSlugEdited(true);
-                        setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""));
+                        setSlug(e.target.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9-]/g, ""));
                       }}
                       placeholder="my-card"
                       className="flex-1 bg-transparent px-3 py-2.5 text-sm text-dearly-text placeholder:text-dearly-text-muted outline-none"

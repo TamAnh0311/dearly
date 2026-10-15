@@ -7,76 +7,161 @@
   - Environments: .env.local
 
  ✓ Starting...
- ✓ Ready in 12.7s
+ ✓ Ready in 12.3s
  ○ Compiling /src/middleware ...
- ✓ Compiled /src/middleware in 7s (128 modules)
+ ✓ Compiled /src/middleware in 5.2s (128 modules)
  ○ Compiling /robots.txt ...
- ✓ Compiled /robots.txt in 1413ms (61 modules)
- GET /robots.txt 200 in 2897ms
+ ✓ Compiled /robots.txt in 1753ms (61 modules)
+ GET /robots.txt 200 in 2628ms
+ ○ Compiling /templates/[slug] ...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+ ✓ Compiled /templates/[slug] in 46.9s (1965 modules)
 <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (113kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
 <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (268kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
- ○ Compiling / ...
- ✓ Compiled / in 35.4s (1624 modules)
- GET / 200 in 39379ms
- ○ Compiling /pricing ...
- ✓ Compiled /pricing in 2s (1623 modules)
- GET /pricing 200 in 3876ms
- ○ Compiling /invitations/[type] ...
- ✓ Compiled /invitations/[type] in 2.2s (1680 modules)
- GET /invitations/wedding 200 in 9661ms
- GET /invitations/birthday 200 in 573ms
- GET /invitations/date-night 200 in 49ms
- ✓ Compiled /templates in 461ms (1699 modules)
- GET /templates 200 in 2064ms
- ○ Compiling /templates/[slug] ...
- ✓ Compiled /templates/[slug] in 2.1s (1989 modules)
- GET /templates/confetti-pop 200 in 8538ms
- GET /templates/neon-night 200 in 223ms
- ○ Compiling /sitemap.xml ...
- ✓ Compiled /sitemap.xml in 2.2s (1158 modules)
- GET /sitemap.xml 200 in 9082ms
- ✓ Compiled /robots.txt in 218ms (1161 modules)
- GET /robots.txt 200 in 684ms
- GET /invitations/nope 404 in 546ms
- GET / 200 in 305ms
- ✓ Compiled /favicon.ico in 344ms (1163 modules)
- GET /favicon.ico 200 in 881ms
- GET /templates/velvet?embed=1&bare=1 200 in 2189ms
- GET /templates/confetti-pop 200 in 387ms
- GET /favicon.ico 200 in 41ms
- GET /templates/neon-night 200 in 636ms
- GET /favicon.ico 200 in 342ms
- GET /invitations/birthday 200 in 171ms
- GET /favicon.ico 200 in 28ms
- ✓ Compiled in 481ms (1061 modules)
- ✓ Compiled in 637ms (890 modules)
- ✓ Compiled in 429ms (890 modules)
- ✓ Compiled in 453ms (890 modules)
- ✓ Compiled in 727ms (890 modules)
- ✓ Compiled in 389ms (890 modules)
- ✓ Compiled in 1235ms (1952 modules)
- ✓ Compiled in 1848ms (1952 modules)
- ✓ Compiled in 482ms (890 modules)
- ✓ Compiled in 643ms (890 modules)
- ✓ Compiled in 395ms (890 modules)
- ✓ Compiled in 992ms (1952 modules)
- ✓ Compiled in 552ms (890 modules)
- GET / 200 in 1070ms
- ○ Compiling /pricing ...
- ✓ Compiled /pricing in 691ms (1068 modules)
- GET /pricing 404 in 4786ms
- GET /invitations/wedding 200 in 1558ms
- GET /invitations/party 200 in 557ms
- ✓ Compiled /templates in 295ms (1077 modules)
- GET /templates 200 in 1374ms
- ○ Compiling /sitemap.xml ...
- ✓ Compiled /sitemap.xml in 537ms (1159 modules)
- GET /sitemap.xml 200 in 1776ms
- GET /sitemap.xml 200 in 33ms
- GET / 200 in 408ms
- GET /templates/velvet?embed=1&bare=1 200 in 1420ms
+ GET /templates/double-happiness 200 in 57491ms
+ GET /templates/crimson-keepsake 200 in 333ms
+ GET /templates/lantern-night 200 in 318ms
+ GET /templates/sakura 200 in 244ms
+ GET /templates/enso 200 in 270ms
+ GET /templates/seigaiha 200 in 319ms
+ GET /templates/seoul-studio 200 in 235ms
+ GET /templates/hanbok 200 in 243ms
+ GET /templates/double-happiness 200 in 718ms
+ ✓ Compiled /favicon.ico in 410ms (1063 modules)
+ GET /favicon.ico 200 in 1519ms
+ GET /templates/crimson-keepsake 200 in 732ms
+ GET /favicon.ico 200 in 42ms
+ GET /templates/lantern-night 200 in 492ms
+ GET /favicon.ico 200 in 38ms
+ GET /templates/sakura 200 in 491ms
+ GET /favicon.ico 200 in 47ms
+ ✓ Compiled in 1117ms (1910 modules)
+ ✓ Compiled in 862ms (1910 modules)
+ GET /templates/enso 200 in 1361ms
+ GET /templates/seigaiha 200 in 243ms
+ GET /templates/seoul-studio 200 in 514ms
+ GET /templates/hanbok 200 in 268ms
+ GET /templates/enso 200 in 304ms
  ○ Compiling /favicon.ico ...
- ✓ Compiled /favicon.ico in 604ms (1161 modules)
- GET /favicon.ico 200 in 1244ms
- GET /invitations/party 200 in 713ms
+ ✓ Compiled /favicon.ico in 672ms (1063 modules)
+ GET /favicon.ico 200 in 2207ms
+ GET /templates/seigaiha 200 in 870ms
+ GET /favicon.ico 200 in 32ms
+ GET /templates/seoul-studio 200 in 562ms
  GET /favicon.ico 200 in 41ms
+ GET /templates/hanbok 200 in 482ms
+ GET /favicon.ico 200 in 33ms
+ GET /templates/double-happiness 200 in 669ms
+ GET /favicon.ico 200 in 28ms
+ GET /templates/sakura 200 in 485ms
+ GET /favicon.ico 200 in 33ms
+ ✓ Compiled in 1769ms (1910 modules)
+ GET /templates/crimson-keepsake 200 in 3017ms
+ ✓ Compiled /favicon.ico in 213ms (1063 modules)
+ GET /favicon.ico 200 in 961ms
+ GET /templates/seoul-studio 200 in 1060ms
+ GET /favicon.ico 200 in 28ms
+ GET /templates/hanbok 200 in 415ms
+ GET /favicon.ico 200 in 40ms
+ GET /templates/seoul-studio 200 in 439ms
+ GET /favicon.ico 200 in 33ms
+ GET /templates/double-happiness?scheme=ivory-gold 200 in 536ms
+ GET /favicon.ico 200 in 36ms
+ GET /templates/sakura?scheme=midnight 200 in 412ms
+ GET /favicon.ico 200 in 37ms
+ GET /templates/hanbok?scheme=emerald 200 in 428ms
+ GET /favicon.ico 200 in 39ms
+ ○ Compiling /templates ...
+ ✓ Compiled /templates in 2.7s (1920 modules)
+ GET /templates?q=asian 200 in 4851ms
+ ✓ Compiled /favicon.ico in 375ms (1076 modules)
+ GET /favicon.ico 200 in 1103ms
+ GET /templates/hanbok?embed=1&bare=1 200 in 1754ms
+ GET /favicon.ico 200 in 65ms
+ GET /templates/double-happiness?embed=1&bare=1 200 in 543ms
+ GET /favicon.ico 200 in 29ms
+ GET /templates/crimson-keepsake?embed=1&bare=1 200 in 536ms
+ GET /favicon.ico 200 in 34ms
+ ✓ Compiled in 948ms (1934 modules)
+ ✓ Compiled in 360ms (890 modules)
+ GET /templates/seoul-studio?embed=1&bare=1 200 in 1565ms
+ ✓ Compiled /favicon.ico in 479ms (1076 modules)
+ GET /favicon.ico 200 in 1301ms
+ ✓ Compiled in 467ms (890 modules)
+ ⨯ src\app\layout.tsx
+`next/font` error:
+Unknown subset `vietnamese` for font `Lato`.
+Available subsets: `latin`, `latin-ext`
+ ⨯ src\app\layout.tsx
+`next/font` error:
+Unknown subset `vietnamese` for font `Lato`.
+Available subsets: `latin`, `latin-ext`
+ ⨯ src\app\layout.tsx
+`next/font` error:
+Unknown subset `vietnamese` for font `Lato`.
+Available subsets: `latin`, `latin-ext`
+ ⨯ src\app\layout.tsx
+`next/font` error:
+Unknown subset `vietnamese` for font `Lato`.
+Available subsets: `latin`, `latin-ext`
+ ⨯ src\app\layout.tsx
+`next/font` error:
+Unknown subset `vietnamese` for font `Lato`.
+Available subsets: `latin`, `latin-ext`
+ ⨯ src\app\layout.tsx
+`next/font` error:
+Unknown subset `vietnamese` for font `Lato`.
+Available subsets: `latin`, `latin-ext`
+ ⨯ src\app\layout.tsx
+`next/font` error:
+Unknown subset `vietnamese` for font `Lato`.
+Available subsets: `latin`, `latin-ext`
+ ⨯ src\app\layout.tsx
+`next/font` error:
+Unknown subset `vietnamese` for font `Lato`.
+Available subsets: `latin`, `latin-ext`
+ ⨯ src\app\layout.tsx
+`next/font` error:
+Unknown subset `vietnamese` for font `Lato`.
+Available subsets: `latin`, `latin-ext`
+ ⨯ src\app\layout.tsx
+`next/font` error:
+Unknown subset `vietnamese` for font `Lato`.
+Available subsets: `latin`, `latin-ext`
+ ○ Compiling /_error ...
+ ⨯ src\app\layout.tsx
+`next/font` error:
+Unknown subset `vietnamese` for font `Lato`.
+Available subsets: `latin`, `latin-ext`
+ GET /templates/enso?embed=1&bare=1 500 in 18053ms
+ ⨯ src\app\layout.tsx
+`next/font` error:
+Unknown subset `vietnamese` for font `Lato`.
+Available subsets: `latin`, `latin-ext`
+ GET /favicon.ico 500 in 1057ms
+ ✓ Compiled /favicon.ico in 2.6s (2169 modules)
+ GET /templates/enso 200 in 3982ms
+ GET /templates/enso?embed=1&bare=1 200 in 312ms
+ ✓ Compiled /favicon.ico in 422ms (1116 modules)
+ GET /favicon.ico 200 in 1465ms
+ ✓ Compiled in 976ms (1076 modules)
+ ✓ Compiled in 1636ms (2160 modules)
+ ✓ Compiled in 660ms (1076 modules)
+ ✓ Compiled in 713ms (1076 modules)
+ ✓ Compiled in 731ms (1076 modules)
+ ✓ Compiled in 661ms (1076 modules)
+ ✓ Compiled in 585ms (1076 modules)
+ ✓ Compiled in 571ms (1076 modules)
+ ✓ Compiled in 694ms (1076 modules)
+ ✓ Compiled in 562ms (1076 modules)

@@ -8,6 +8,8 @@
  *    the hero's `#hero-blessings` layer, beneath the names and curtains).
  *  - "float": each blessing floats up the screen carried by the template's
  *    motif (butterfly, flower, star, heart or a confetti pop) with a note.
+ *  - "feed": wishes pop up bottom-left like a livestream chat (popular on
+ *    Vietnamese / Korean mobile invitations), a few at a time.
  *
  * Behaviour
  *  - First wave ~3.5s after load: up to 6 carriers with names, staggered.
@@ -244,6 +246,55 @@ function BlessingMarquee({ blessings, palette }: { blessings: GuestbookEntryRow[
     </motion.div>
   );
 }
+/* ─── Live chat feed mode ────────────────────────────────────────────────── */
+
+const FEED_VISIBLE = 4;
+const FEED_MS = 2800;
+
+/** Pure: the slice of blessings visible after `tick` steps (newest last). */
+export function feedWindow(blessings: GuestbookEntryRow[], tick: number, visible = FEED_VISIBLE): GuestbookEntryRow[] {
+  if (blessings.length === 0 || tick <= 0) return [];
+  const out: GuestbookEntryRow[] = [];
+  for (let i = Math.max(0, tick - visible); i < tick; i++) out.push(blessings[i % blessings.length]);
+  return out;
+}
+
+/** Chat bubbles that appear one by one and scroll up, then rest after two rounds. */
+function BlessingFeed({ blessings, palette }: { blessings: GuestbookEntryRow[]; palette: InvitationPalette }) {
+  const [tick, setTick] = useState(0);
+  const max = blessings.length * MAX_ROUNDS;
+  useEffect(() => {
+    const start = setTimeout(() => setTick(1), FIRST_WAVE_DELAY);
+    const id = setInterval(() => setTick((n) => (n > 0 && n < max ? n + 1 : n)), FEED_MS);
+    return () => {
+      clearTimeout(start);
+      clearInterval(id);
+    };
+  }, [max]);
+  // Rested: clear the feed shortly after the final message.
+  const items = tick >= max ? [] : feedWindow(blessings, tick);
+  return (
+    <div className="pointer-events-none fixed bottom-20 left-3 z-30 flex w-[min(78vw,20rem)] flex-col items-start gap-1.5" aria-hidden>
+      <AnimatePresence initial={false}>
+        {items.map((b, i) => (
+          <motion.div
+            key={`${b.id}-${tick - items.length + i}`}
+            layout
+            initial={{ opacity: 0, y: 16, scale: 0.9 }}
+            animate={{ opacity: i === 0 && items.length === FEED_VISIBLE ? 0.55 : 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.4 }}
+            className="max-w-full px-3 py-1.5 text-xs leading-snug shadow-md backdrop-blur-md"
+            style={{ borderRadius: 14, background: alpha(mix(palette.primary, "#000000", 0.6), 0.8), color: "#ffffff" }}
+          >
+            <span className="font-semibold">{b.guest_name}:</span> {excerpt(b.message, 80)}
+          </motion.div>
+        ))}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export default function BlessingShower({
   blessings,
   palette,
@@ -253,8 +304,8 @@ export default function BlessingShower({
   blessings: GuestbookEntryRow[];
   palette: InvitationPalette;
   latestId?: string | null;
-  /** "marquee" = background running text (default); "float" = carried by motifs. */
-  mode?: "marquee" | "float";
+  /** "marquee" = background running text (default); "float" = carried by motifs; "feed" = live chat. */
+  mode?: "marquee" | "float" | "feed";
 }) {
   const reduce = useReducedMotion();
   const [enabled, setEnabled] = useState(true);
@@ -332,6 +383,7 @@ export default function BlessingShower({
           <AnimatePresence>{enabled && mode === "marquee" && <BlessingMarquee key="marquee" blessings={blessings} palette={palette} />}</AnimatePresence>,
           heroLayer
         )}
+      {enabled && mode === "feed" && <BlessingFeed blessings={blessings} palette={palette} />}
       <div className="pointer-events-none fixed inset-0 z-30 overflow-hidden" aria-hidden>
         <AnimatePresence>
           {enabled &&

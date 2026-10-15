@@ -11,6 +11,7 @@
  *  - celestial  night sky, drawing crescent moon and constellations
  *  - polaroid   instant photos tumble onto the page around the names
  *  - curtain / seal / daynight / stained — signature layouts (HeroSignature.tsx)
+ *  - doors / poster / enso / shoji / bojagi — East Asian collection (HeroAsian.tsx)
  *
  * Content parallaxes and fades on scroll in every layout.
  */
@@ -25,6 +26,7 @@ import { EASE_OUT, alpha, formatDotDate, formatLongDate, mix, type InvitationPal
 import { Ampersand, DateLine, Eyebrow, RisingText, ScrollCue, useEventCopy, useEyebrow } from "./HeroParts";
 import { DayNightHero, SealHero, StainedHero } from "./HeroSignature";
 import { CurtainHero } from "./HeroCurtain";
+import { BojagiHero, DoorsHero, EnsoHero, PosterHero, ShojiHero } from "./HeroAsian";
 
 export interface HeroProps {
   wedding: WeddingRow;
@@ -550,10 +552,11 @@ export default function Hero({ wedding, palette, photos }: HeroProps) {
   let layout = palette.style.hero;
   if (layout === "split" && photos.length < 1) layout = "arch";
   if (layout === "polaroid" && photos.length < 3) layout = "arch";
+  if (layout === "poster" && photos.length < 1) layout = "enso";
 
   const props: LayoutProps = { wedding, palette, photos, contentY, contentOpacity };
   const { inviteeName } = useEventCopy();
-  const cueColor = layout === "celestial" || layout === "daynight" ? "rgba(244,241,234,0.75)" : palette.inkMuted;
+  const cueColor = layout === "celestial" || layout === "daynight" || layout === "poster" ? "rgba(244,241,234,0.75)" : palette.inkMuted;
 
   return (
     <section
@@ -574,6 +577,11 @@ export default function Hero({ wedding, palette, photos }: HeroProps) {
       {layout === "seal" && <SealHero {...props} />}
       {layout === "daynight" && <DayNightHero {...props} />}
       {layout === "stained" && <StainedHero {...props} />}
+      {layout === "doors" && <DoorsHero {...props} />}
+      {layout === "poster" && <PosterHero {...props} />}
+      {layout === "enso" && <EnsoHero {...props} />}
+      {layout === "shoji" && <ShojiHero {...props} />}
+      {layout === "bojagi" && <BojagiHero {...props} />}
       {layout !== "editorial" && <ScrollCue color={cueColor} />}
       {/* Personal greeting for invitations sent from the guest list */}
       {inviteeName && (

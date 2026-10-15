@@ -31,7 +31,7 @@ export default async function GalleryPage({ params }: PageProps) {
 
   const weddingData = wedding as WeddingRow & { template: TemplateRow };
 
-  if (!weddingData.customization.sections.gallery) notFound();
+  if (!weddingData.customization?.sections?.gallery) notFound();
 
   const templateDef = getTemplate(weddingData.template.slug);
   if (!templateDef) notFound();
@@ -53,7 +53,7 @@ export default async function GalleryPage({ params }: PageProps) {
       <GalleryLayout
         wedding={weddingData}
         photos={(photos ?? []) as GalleryPhotoRow[]}
-        layout={weddingData.customization.galleryLayout}
+        layout={weddingData.customization?.galleryLayout ?? "masonry"}
         theme={theme}
       />
       {weddingData.guest_uploads_enabled && (
@@ -64,7 +64,7 @@ export default async function GalleryPage({ params }: PageProps) {
       <FloatingNav
         weddingSlug={params.slug}
         theme={theme}
-        sections={weddingData.customization.sections}
+        sections={weddingData.customization?.sections}
       />
     </>
   );

@@ -35,6 +35,8 @@ The benchmark is hand-made studios such as The Digital Yes (envelope intros, cur
 
 **Screenshot parameters:** `<outDir> <url>[|name][|#selector] ...`. A `#selector` scrolls to that section before capturing, e.g. `"http://localhost:3000/templates/bloom|bloom-rsvp|#rsvp"`. Do not use `chrome --screenshot` or browser tools that wait for "network idle": the infinite ambient animations keep the page busy, and entrances look blank when captured too early.
 
+**Screenshot environment variables:** `SHOT_SIZE=390x844` captures a phone viewport (default `1440x900`); `SHOT_WAIT_MS=8000` waits longer after load (default `5500`). Request the URL once before shooting, because the first dev compile can take minutes.
+
 ## 3. Architecture of an invitation
 
 ```
@@ -47,8 +49,9 @@ src/components/invitation/
   utils.ts                  ← buildPalette(theme, slug) → colour + design tokens; date/link helpers
   TemplatePreview.tsx       ← public demo: colour-scheme picker + Sections popover (embed / bare modes)
   LayoutThumbnail.tsx       ← static miniature of each hero layout for gallery cards
-  sections/                 ← Hero (+ HeroCurtain, HeroSignature, HeroParts), Countdown, ScratchReveal, Story,
-                              Schedule, VenueMoments, RsvpSection, Blessings, Chrome (nav/footer)
+  sections/                 ← Hero (+ HeroCurtain, HeroSignature, HeroAsian, HeroParts), Countdown (+ CalendarCard),
+                              ScratchReveal, Story, Schedule, VenueMoments, Extras (Families, Gift), RsvpSection,
+                              Blessings, Chrome (nav/footer)
   effects/                  ← Botanicals (growing flowers/vines), Particles, Ambient, BlessingShower
 src/components/templates/<slug>/  ← GalleryLayout + GuestbookSection only (sub-pages)
 src/components/templates/registry.ts ← slug → gallery/guestbook bundle
@@ -60,7 +63,7 @@ src/components/templates/registry.ts ← slug → gallery/guestbook bundle
 3. `buildPalette(theme, slug)` derives readable ink, petals and leaf colours, then attaches `style` (from `styles.ts`) and `radius`.
 4. Every section reads **only** `palette`. Never hard-code colours or fonts inside sections.
 
-**Section order:** Hero → Countdown (optional scratch reveal) → Story → Schedule → Venue → Moments → RSVP → Blessings → Footer. On top of the page sit a fixed `TopNav`, the `BlessingShower` and the music player.
+**Section order:** Hero → Families → Countdown (optional scratch reveal or month calendar) → Story → Schedule → Venue → Moments → Gift → RSVP → Blessings → Footer. On top of the page sit a fixed `TopNav`, the `BlessingShower` and the music player.
 
 A section is skipped when it has no data **or** when the couple hid it. Visibility lives in `customization.sections` and is read through `resolveSections()`; keys that are missing count as visible.
 
@@ -77,10 +80,15 @@ A section is skipped when it has no data **or** when the couple hid it. Visibili
 | `blessingShower` | Blessings shown when the page loads (style set by `customization.blessingStyle`) |
 | `music` | Background music |
 | `guestbook` | Footer guest-book link |
+| `families` | Parents of each host under the hero (`customization.families.side1/side2`) |
+| `gift` | Gift accounts / payment QR (`customization.gift`, max 2 accounts, QR must be `https`) |
+
+**Families and gifts** (`src/lib/invitation-extras.ts`): the data is couple-entered JSONB, so `resolveFamilies()` / `resolveGift()` trim and length-cap every field and drop QR links that are not `https` before rendering. Editor fields live under "Families & Gifts" in `EditorForm.tsx`.
 
 **Blessing style** (`customization.blessingStyle`):
 - `"marquee"` (default): blessings run as large, faint lines of text behind the **hero only**. They are rendered into the hero's `#hero-blessings` layer, which sits under the names and the curtains.
 - `"float"`: each blessing floats up the whole screen, carried by the template's motif.
+- `"feed"`: blessings pop up bottom-left like a livestream chat, four at a time (popular on Vietnamese / Korean invitations).
 
 Guests can hide blessings themselves. That choice is remembered in `localStorage` under `dearly-blessing-shower`.
 
@@ -131,6 +139,8 @@ Every word in the query must match. Plurals are folded, so "butterflies" finds "
 
 ## 4. Design guideline
 
+> **Designing a new hero or template?** Read [docs/DESIGN_PLAYBOOK.md](docs/DESIGN_PLAYBOOK.md) first. It covers the step-by-step process, technique cookbook (3D doors, sliding panels, shutter reveals, brush strokes, unfolding flaps), known traps with fixes, the screenshot QA loop and a copy-paste hero skeleton.
+
 ### 4.1 Principles
 
 1. **Open like a film, not a document.** The first 3 seconds are choreographed. Background and ornaments arrive first (0–1.5s), names rise next (1–2.5s), then details (2.5–3.5s). Guests should never see an empty screen for longer than ~1s.
@@ -143,9 +153,9 @@ Every word in the query must match. Plurals are folded, so "butterflies" finds "
 
 | Token | Values | Meaning |
 | --- | --- | --- |
-| `hero` | `garden` `arch` `editorial` `split` `celestial` `polaroid` `curtain` `seal` `daynight` `stained` | Opening layout |
-| `ambient` | `butterflies` `petals` `leaves` `confetti` `snow` `gold-dust` `stars` `bokeh` | Background effects. Also picks the BlessingShower carriers. |
-| `ornament` | `floral` `deco` `line` `leaf` `star` `wave` | Section dividers, Story side decoration |
+| `hero` | `garden` `arch` `editorial` `split` `celestial` `polaroid` `curtain` `seal` `daynight` `stained` `doors` `poster` `enso` `shoji` `bojagi` | Opening layout. The last five are the East Asian collection (`HeroAsian.tsx`): lacquer doors with a 囍 medallion, photo poster with a shutter reveal, brush ensō + hanko seal (seigaiha waves when `ornament` is `wave`), sliding shoji screens onto a sakura branch, and a bojagi cloth that unfolds. `poster` needs a photo (falls back to `enso`). |
+| `ambient` | `butterflies` `petals` `leaves` `confetti` `snow` `gold-dust` `stars` `bokeh` `balloons` `lanterns` | Background effects. Also picks the BlessingShower carriers. |
+| `ornament` | `floral` `deco` `line` `leaf` `star` `wave` `cloud` | Section dividers, Story side decoration (`cloud` = auspicious xiangyun / gureum scroll) |
 | `corners` | `rounded` `sharp` `pill` `arch` | Radius of every card and button, via `palette.radius` |
 | `texture` | `none` `paper` `grain` | Fixed tactile overlay |
 | `eyebrow` | `script` `caps` | Section kicker style |
@@ -153,6 +163,8 @@ Every word in the query must match. Plurals are folded, so "butterflies" finds "
 | `flowers` | boolean | Growing flowers in the hero / venue |
 | `curtain` | `velvet` `ivy` | Material for the `curtain` hero (`HeroCurtain.tsx`). `velvet` is a theatre with swags, fringe, tie-backs and footlights. `ivy` is a garden: a heart lock turns, light spills through, iron gates swing open, petals and butterflies burst out and a floral arch grows. |
 | `scratchReveal` | boolean | Date hidden under a scratch card |
+| `calendar` | boolean | Month calendar with the day marked by a heart, plus a D-day count (shown in the countdown section unless `scratchReveal` is on) |
+| `culture` | `chinese` `japanese` `korean` `vietnamese` | Tradition the design draws on: adds search keywords and culture-matched demo names/families on previews |
 
 ### 4.3 Colour
 

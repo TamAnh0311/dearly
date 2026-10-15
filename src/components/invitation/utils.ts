@@ -110,13 +110,10 @@ export function parseWeddingDate(value: string): Date {
 }
 
 /** "Saturday, June 15, 2027" */
-export function formatLongDate(value: string): string {
-  return parseWeddingDate(value).toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+export function formatLongDate(value: string, timeZone?: string | null): string {
+  const opts: Intl.DateTimeFormatOptions = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
+  if (timeZone) opts.timeZone = timeZone;
+  return parseWeddingDate(value).toLocaleDateString("en-US", opts);
 }
 
 /** "15 · 06 · 2027" */
@@ -126,9 +123,11 @@ export function formatDotDate(value: string): string {
   return `${pad(d.getDate())} · ${pad(d.getMonth() + 1)} · ${d.getFullYear()}`;
 }
 
-/** "3:00 PM" */
-export function formatTime(value: string): string {
-  return new Date(value).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+/** "3:00 PM" — displayed in the event's timezone so guests always see venue-local time. */
+export function formatTime(value: string, timeZone?: string | null): string {
+  const opts: Intl.DateTimeFormatOptions = { hour: "numeric", minute: "2-digit" };
+  if (timeZone) opts.timeZone = timeZone;
+  return new Date(value).toLocaleTimeString("en-US", opts);
 }
 
 /** Google Maps search link for a venue. */

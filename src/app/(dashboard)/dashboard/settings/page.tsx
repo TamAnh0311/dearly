@@ -27,6 +27,7 @@ export default function SettingsPage() {
   const [slug, setSlug] = useState("");
   const [isPublished, setIsPublished] = useState(false);
   const [guestUploadsEnabled, setGuestUploadsEnabled] = useState(false);
+  const [timezone, setTimezone] = useState("");
   const [musicTrackId, setMusicTrackId] = useState<string | null>(null);
   const [musicUrl, setMusicUrl] = useState("");
   const [saving, setSaving] = useState(false);
@@ -39,6 +40,7 @@ export default function SettingsPage() {
     setSlug(wedding.slug ?? "");
     setIsPublished(wedding.is_published ?? false);
     setGuestUploadsEnabled(wedding.guest_uploads_enabled ?? false);
+    setTimezone(wedding.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone);
     setMusicTrackId(wedding.music_track_id ?? null);
     setMusicUrl(wedding.music_url ?? "");
   }, [wedding]);
@@ -75,6 +77,7 @@ export default function SettingsPage() {
         slug,
         is_published: isPublished,
         guest_uploads_enabled: guestUploadsEnabled,
+        timezone: timezone || null,
         music_track_id: musicTrackId,
         music_url: musicTrackId ? null : (musicUrl.trim() || null),
       });
@@ -172,6 +175,20 @@ export default function SettingsPage() {
               }`}
             />
           </button>
+        </div>
+
+        {/* Event Timezone */}
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium text-dearly-text">Event Timezone</label>
+          <p className="text-xs text-dearly-text-secondary">
+            Schedule times on your invitation display in this timezone.
+          </p>
+          <input
+            value={timezone}
+            onChange={(e) => setTimezone(e.target.value)}
+            placeholder="Asia/Ho_Chi_Minh"
+            className="w-full rounded-lg border border-dearly-border bg-dearly-cream px-3 py-2 text-sm text-dearly-text focus:outline-none"
+          />
         </div>
 
         {/* Background Music */}

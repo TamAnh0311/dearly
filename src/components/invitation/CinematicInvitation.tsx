@@ -142,7 +142,7 @@ export default function CinematicInvitation({
           />
         )}
         {showStory && <Story text={wedding.story_text!} palette={palette} title={copy.storyTitle} />}
-        {showSchedule && <Schedule events={events} palette={palette} />}
+        {showSchedule && <Schedule events={events} palette={palette} timeZone={wedding.timezone} />}
         {showVenue && <Venue name={wedding.venue_name!} address={wedding.venue_address} palette={palette} />}
         {showMoments && (
           <Moments

@@ -49,6 +49,8 @@ export interface WeddingRow {
   event_type?: EventType;
   /** Optional headline, e.g. "Emma's 30th" or "Summer Rooftop Party". */
   event_title?: string | null;
+  /** IANA timezone of the event venue, e.g. "Asia/Ho_Chi_Minh". */
+  timezone?: string | null;
   plan?: PlanId;
   plan_expires_at?: string | null;
   created_at: string;

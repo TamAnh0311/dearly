@@ -165,3 +165,12 @@ Available subsets: `latin`, `latin-ext`
  ✓ Compiled in 571ms (1076 modules)
  ✓ Compiled in 694ms (1076 modules)
  ✓ Compiled in 562ms (1076 modules)
+ ✓ Compiled in 2.6s (2160 modules)
+ ✓ Compiled in 467ms (2146 modules)
+ ⚠ Found a change in next.config.mjs. Restarting the server to apply the changes...
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 15.9s

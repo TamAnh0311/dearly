@@ -76,7 +76,13 @@ export function useMyWedding() {
 
     const { data, error: insertError } = await supabase
       .from("weddings")
-      .insert({ user_id: user.id, template_id: templateId, slug, ...extra })
+      .insert({
+        user_id: user.id,
+        template_id: templateId,
+        slug,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        ...extra,
+      })
       .select("*, template:templates(*)")
       .single();
 

@@ -45,7 +45,7 @@ function iconFor(name: string): LucideIcon {
   return ICONS[name?.toLowerCase()] ?? Sparkles;
 }
 
-export default function Schedule({ events, palette }: { events: WeddingEventRow[]; palette: InvitationPalette }) {
+export default function Schedule({ events, palette, timeZone }: { events: WeddingEventRow[]; palette: InvitationPalette; timeZone?: string | null }) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start 75%", "end 60%"] });
   const lineScale = useTransform(scrollYProgress, [0, 1], [0, 1]);
@@ -88,8 +88,8 @@ export default function Schedule({ events, palette }: { events: WeddingEventRow[
                   transition={{ duration: 0.9, ease: EASE_OUT }}
                 >
                   <p className="text-2xl" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>
-                    {formatTime(ev.start_time)}
-                    {ev.end_time ? ` – ${formatTime(ev.end_time)}` : ""}
+                    {formatTime(ev.start_time, timeZone)}
+                    {ev.end_time ? ` – ${formatTime(ev.end_time, timeZone)}` : ""}
                   </p>
                   <h3
                     className="mt-1 text-2xl uppercase tracking-[0.12em] md:text-3xl"

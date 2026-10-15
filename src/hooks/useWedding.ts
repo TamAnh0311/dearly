@@ -59,7 +59,7 @@ export function useMyWedding() {
   async function createWedding(
     templateId: string,
     slug: string,
-    extra: Partial<Pick<WeddingRow, "partner1_name" | "partner2_name" | "wedding_date" | "customization">> = {}
+    extra: Partial<Pick<WeddingRow, "partner1_name" | "partner2_name" | "wedding_date" | "customization" | "event_type" | "event_title">> = {}
   ): Promise<WeddingRow> {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();

@@ -22,7 +22,7 @@ import AmbientLayer from "../effects/Ambient";
 import { ButterflyShape } from "../effects/Particles";
 import { GrowingFlower } from "../effects/Botanicals";
 import { EASE_OUT, alpha, mix, seeded, type InvitationPalette } from "../utils";
-import { CenterNames } from "./HeroParts";
+import { CenterNames, useEyebrow } from "./HeroParts";
 import type { LayoutProps } from "./Hero";
 
 /* ═══════════════════════════════ Velvet ═══════════════════════════════════ */
@@ -150,6 +150,7 @@ function VelvetCurtain({ wedding, palette, contentY, contentOpacity }: LayoutPro
   const v = velvetTones(palette);
   const stage = palette.isDark ? palette.background : mix(palette.background, "#1a0c0e", 0.85);
   const ink = "#fbf4e8";
+  const eyebrow = useEyebrow("Tonight, the curtain rises on");
 
   return (
     <>
@@ -217,7 +218,7 @@ function VelvetCurtain({ wedding, palette, contentY, contentOpacity }: LayoutPro
       <Valance palette={palette} />
 
       <motion.div className="relative z-10 px-6 pt-16" style={{ y: contentY, opacity: contentOpacity }}>
-        <CenterNames palette={palette} wedding={wedding} delay={2.2 * t} eyebrow="Tonight, the curtain rises on" ink={ink} muted={alpha(ink, 0.7)} />
+        <CenterNames palette={palette} wedding={wedding} delay={2.2 * t} eyebrow={eyebrow} ink={ink} muted={alpha(ink, 0.7)} />
       </motion.div>
     </>
   );
@@ -341,6 +342,7 @@ function FloralArch({ palette, t }: { palette: InvitationPalette; t: number }) {
 function GardenGate({ wedding, palette, contentY, contentOpacity }: LayoutProps) {
   const reduce = useReducedMotion();
   const t = reduce ? 0 : 1;
+  const eyebrow = useEyebrow("Welcome to our secret garden");
 
   return (
     <>
@@ -416,7 +418,7 @@ function GardenGate({ wedding, palette, contentY, contentOpacity }: LayoutProps)
       </div>
 
       <motion.div className="relative z-10 px-6 pt-10" style={{ y: contentY, opacity: contentOpacity }}>
-        <CenterNames palette={palette} wedding={wedding} delay={2.9 * t} eyebrow="Welcome to our secret garden" size="text-5xl md:text-7xl" />
+        <CenterNames palette={palette} wedding={wedding} delay={2.9 * t} eyebrow={eyebrow} size="text-5xl md:text-7xl" />
       </motion.div>
     </>
   );

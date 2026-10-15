@@ -5,10 +5,36 @@
  * date line, small-caps eyebrow, scroll cue and the centred names block.
  */
 
+import { createContext, useContext } from "react";
 import { motion } from "framer-motion";
+import { EVENT_COPY, type EventCopy } from "@/lib/event-types";
+import type { EventType } from "@/types/database";
 import { ChevronDown } from "lucide-react";
 import { EASE_OUT, formatDotDate, type InvitationPalette } from "../utils";
 import type { LayoutProps } from "./Hero";
+
+/** Event context for the hero: type-specific copy, one vs two hosts, personal invitee. */
+export interface EventContextValue {
+  eventType: EventType;
+  copy: EventCopy;
+  /** False for single-host events (birthday) — hides the ampersand. */
+  twoNames: boolean;
+  /** Name from a personal invitation link (?i=token), if any. */
+  inviteeName?: string | null;
+}
+
+export const EventContext = createContext<EventContextValue>({ eventType: "wedding", copy: EVENT_COPY.wedding, twoNames: true });
+
+/** Reads the current event context. */
+export function useEventCopy(): EventContextValue {
+  return useContext(EventContext);
+}
+
+/** Wedding layouts keep their bespoke kicker; other events use their own copy. */
+export function useEyebrow(weddingLine: string): string {
+  const { eventType, copy } = useEventCopy();
+  return eventType === "wedding" ? weddingLine : copy.eyebrow;
+}
 /* ─── Shared pieces ───────────────────────────────────────────────────────── */
 
 /** Splits text into letters that rise into place with a stagger. */
@@ -35,6 +61,8 @@ export function RisingText({ text, delay, stagger = 0.05 }: { text: string; dela
 
 /** Script ampersand that springs in. */
 export function Ampersand({ palette, delay, className = "" }: { palette: InvitationPalette; delay: number; className?: string }) {
+  const { twoNames } = useEventCopy();
+  if (!twoNames) return null;
   return (
     <motion.span
       className={`block ${className}`}

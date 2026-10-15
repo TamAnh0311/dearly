@@ -25,6 +25,11 @@ interface StoredRsvp {
 interface RsvpSectionProps {
   weddingId: string;
   coupleNames: [string, string];
+  /** Event-specific headings (defaults are wedding wording). */
+  eyebrow?: string;
+  title?: string;
+  /** Personal invitation from the guest list: prefilled name + seat limit. */
+  invitee?: { token: string; name: string; maxPartySize: number } | null;
   palette: InvitationPalette;
   /** When true, submissions are simulated locally (template previews). */
   demo?: boolean;
@@ -48,7 +53,7 @@ function readStored(weddingId: string): StoredRsvp | null {
 
 /** Sends the RSVP to the API (or simulates it in demo mode). */
 async function submitRsvp(
-  payload: { weddingId: string; guestName: string; attending: boolean; partySize?: number; message?: string },
+  payload: { weddingId: string; guestName: string; attending: boolean; partySize?: number; message?: string; inviteeToken?: string },
   demo: boolean
 ): Promise<GuestbookEntryRow | null> {
   if (demo) {
@@ -128,9 +133,19 @@ function ChoiceButton({
   );
 }
 
-export default function RsvpSection({ weddingId, coupleNames, palette, demo = false, onBlessing }: RsvpSectionProps) {
+export default function RsvpSection({
+  weddingId,
+  coupleNames,
+  palette,
+  demo = false,
+  onBlessing,
+  eyebrow = "Kindly reply",
+  title = "Will you join us?",
+  invitee = null,
+}: RsvpSectionProps) {
+  const maxParty = invitee?.maxPartySize ?? 10;
   const [choice, setChoice] = useState<Choice | null>(null);
-  const [name, setName] = useState("");
+  const [name, setName] = useState(invitee?.name ?? "");
   const [partySize, setPartySize] = useState(1);
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "done">("idle");
@@ -165,7 +180,8 @@ export default function RsvpSection({ weddingId, coupleNames, palette, demo = fa
           weddingId,
           guestName,
           attending: choice === "attending",
-          partySize: choice === "attending" ? partySize : undefined,
+          partySize: choice === "attending" ? Math.min(partySize, maxParty) : undefined,
+          inviteeToken: invitee?.token,
           message: message.trim() || undefined,
         },
         demo
@@ -207,10 +223,14 @@ export default function RsvpSection({ weddingId, coupleNames, palette, demo = fa
       {burstKey > 0 && <CelebrationBurst key={burstKey} colors={[palette.primary, ...palette.petals]} />}
 
       <SectionHeading
-        eyebrow="Kindly reply"
-        title="Will you join us?"
+        eyebrow={eyebrow}
+        title={title}
         palette={palette}
-        subtitle={`${coupleNames[0]} & ${coupleNames[1]} would be honoured by your presence — and cherish your blessing either way.`}
+        subtitle={
+          invitee
+            ? `Dear ${invitee.name}, ${coupleNames.filter(Boolean).join(" & ")} would love to have you there${invitee.maxPartySize > 1 ? ` — your invitation is for ${invitee.maxPartySize} guests` : ""}.`
+            : `${coupleNames.filter(Boolean).join(" & ")} would be honoured by your presence — and cherish your message either way.`
+        }
       />
 
       <div className="mx-auto max-w-2xl">
@@ -328,9 +348,9 @@ export default function RsvpSection({ weddingId, coupleNames, palette, demo = fa
                             <button
                               type="button"
                               aria-label="More guests"
-                              onClick={() => setPartySize((n) => Math.min(10, n + 1))}
+                              onClick={() => setPartySize((n) => Math.min(maxParty, n + 1))}
                               className="rounded-full p-2 transition hover:opacity-70 disabled:opacity-30"
-                              disabled={partySize >= 10}
+                              disabled={partySize >= maxParty}
                             >
                               <Plus size={16} />
                             </button>

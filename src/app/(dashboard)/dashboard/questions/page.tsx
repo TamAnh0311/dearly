@@ -27,11 +27,15 @@ import type { CuteQuestionRow } from "@/types/database";
 // ---------------------------------------------------------------------------
 
 const QUESTION_PRESETS = [
-  "Will you be my girlfriend?",
   "Will you go on a date with me?",
-  "Will you be my valentine?",
+  "Date night this Friday?",
   "Will you marry me?",
-  "Be mine?",
+  "Will you be my girlfriend?",
+  "Will you be my boyfriend?",
+  "Will you be my valentine?",
+  "Will you be my bridesmaid?",
+  "Will you be my best man?",
+  "Dinner and a movie?",
   "Prom?",
 ];
 

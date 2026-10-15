@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     .single();
 
   if (!data) {
-    return { title: "Question Not Found | Dearly" };
+    return { title: { absolute: "Question Not Found | Dearly" }, robots: { index: false } };
   }
 
   const title = data.sender_name
@@ -33,8 +33,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     : "Someone has a question for you!";
 
   return {
-    title: `${title} | Dearly`,
+    title: { absolute: `${title} | Dearly` },
     description: data.question,
+    robots: { index: false, follow: false },
     openGraph: {
       title,
       description: data.question,

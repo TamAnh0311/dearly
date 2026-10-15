@@ -15,7 +15,9 @@ const RsvpSchema = z.object({
   weddingId: z.string().uuid(),
   guestName: z.string().trim().min(1, "Please enter your name").max(100, "Name is too long (max 100 characters)"),
   attending: z.boolean(),
-  partySize: z.number().int().min(1).max(10).optional(),
+  partySize: z.number().int().min(1).max(20).optional(),
+  /** Personal invitation token from the guest list (?i=...). */
+  inviteeToken: z.string().regex(/^[a-f0-9]{8,40}$/i).optional(),
   message: z.string().trim().max(1000, "Message is too long (max 1000 characters)").optional(),
 });
 
@@ -34,7 +36,7 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
-  const { weddingId, guestName, attending, partySize, message } = parsed.data;
+  const { weddingId, guestName, attending, partySize, message, inviteeToken } = parsed.data;
 
   const wait = checkRateLimit(`rsvp:${clientIp(request)}:${weddingId}`, 3, 10 * 60 * 1000);
   if (wait > 0) {
@@ -59,16 +61,38 @@ export async function POST(request: NextRequest) {
 
   const blessingText = message && message.length > 0 ? message : null;
 
+  // Personal invitation: must belong to this event; party size is capped by the invite.
+  let invitee: { id: string; max_party_size: number } | null = null;
+  if (inviteeToken) {
+    const { data } = await supabase
+      .from("invitees")
+      .select("id, max_party_size")
+      .eq("wedding_id", weddingId)
+      .eq("token", inviteeToken)
+      .maybeSingle();
+    invitee = data;
+  }
+  const seats = attending ? Math.min(partySize ?? 1, invitee?.max_party_size ?? 10) : 0;
+
   const { error: rsvpError } = await supabase.from("rsvps").insert({
     wedding_id: weddingId,
     guest_name: guestName,
     attending,
-    party_size: attending ? partySize ?? 1 : 0,
+    party_size: seats,
     message: blessingText,
+    invitee_id: invitee?.id ?? null,
   });
   if (rsvpError) {
     console.error("[ERROR] rsvp insert failed", { weddingId, code: rsvpError.code });
     return NextResponse.json({ error: "We couldn't save your RSVP. Please try again." }, { status: 500 });
+  }
+
+  if (invitee) {
+    const { error: invErr } = await supabase
+      .from("invitees")
+      .update({ status: attending ? "attending" : "declined", party_size: seats, responded_at: new Date().toISOString() })
+      .eq("id", invitee.id);
+    if (invErr) console.warn("[WARNING] invitee status update failed", { weddingId, code: invErr.code });
   }
 
   let blessing = null;

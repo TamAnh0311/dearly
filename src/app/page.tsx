@@ -423,6 +423,28 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── Also for other occasions (secondary to weddings) ── */}
+      <section id="occasions" className="border-y border-dearly-border/60 px-6 py-12">
+        <Reveal className="mx-auto flex max-w-4xl flex-col items-center gap-4 text-center md:flex-row md:justify-between md:text-left">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-dearly-text-muted">Not a wedding?</p>
+            <p className="mt-1 font-display text-xl font-bold">The same invitations work for every celebration.</p>
+          </div>
+          <div className="flex flex-wrap justify-center gap-2 text-sm">
+            {[
+              ["/invitations/birthday", "Birthdays"],
+              ["/invitations/party", "Parties"],
+              ["/invitations/social-event", "Dinners & galas"],
+              ["/invitations/date-night", "Date night & proposals"],
+            ].map(([href, label]) => (
+              <Link key={href} href={href} className="rounded-full border border-dearly-border bg-dearly-card px-4 py-2 text-dearly-text-secondary transition hover:border-dearly-accent/50 hover:text-dearly-accent">
+                {label}
+              </Link>
+            ))}
+          </div>
+        </Reveal>
+      </section>
+
       {/* ── Comparison ── */}
       <section id="compare" className="bg-dearly-card/50 px-6 py-24">
         <div className="mx-auto max-w-4xl">
@@ -534,9 +556,13 @@ export default function LandingPage() {
       <footer className="border-t border-dearly-border bg-dearly-card/40 px-6 py-10">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 md:flex-row">
           <span className="font-display text-xl font-bold text-dearly-accent">Dearly</span>
-          <div className="flex gap-6 text-sm text-dearly-text-muted">
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-dearly-text-muted">
+            <Link href="/invitations/wedding" className="hover:text-dearly-text-secondary">Wedding invitations</Link>
+            <Link href="/invitations/birthday" className="hover:text-dearly-text-secondary">Birthday invitations</Link>
+            <Link href="/invitations/party" className="hover:text-dearly-text-secondary">Party invitations</Link>
+            <Link href="/invitations/social-event" className="hover:text-dearly-text-secondary">Event invitations</Link>
+            <Link href="/invitations/date-night" className="hover:text-dearly-text-secondary">Date night & proposals</Link>
             <Link href="/templates" className="hover:text-dearly-text-secondary">Templates</Link>
-            <Link href="/cards" className="hover:text-dearly-text-secondary">Cards</Link>
             <Link href="/login" className="hover:text-dearly-text-secondary">Sign in</Link>
           </div>
           <p className="text-sm text-dearly-text-muted">&copy; {new Date().getFullYear()} Dearly. Made with love.</p>

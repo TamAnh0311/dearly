@@ -237,6 +237,38 @@ export function TwinklingStars({ color, count = 70 }: { color: string; count?: n
     </div>
   );
 }
+/* ─── Balloons ──────────────────────────────────────────────────────────────── */
+
+/** Glossy balloons on wavy strings drifting up through the containing (relative) element. */
+export function Balloons({ colors, count = 9 }: { colors: string[]; count?: number }) {
+  const reduce = useReducedMotion();
+  if (reduce) return null;
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+      {Array.from({ length: count }, (_, i) => {
+        const size = 38 + seeded(i + 700) * 30;
+        const color = colors[i % colors.length];
+        return (
+          <motion.div
+            key={i}
+            className="absolute"
+            style={{ left: `${4 + seeded(i + 710) * 90}%`, bottom: -140 }}
+            animate={{ y: ["0vh", "-125vh"], x: [0, (seeded(i + 720) - 0.5) * 60, 0], rotate: [-4, 4, -4] }}
+            transition={{ duration: 14 + seeded(i + 730) * 10, delay: seeded(i + 740) * 10, repeat: Infinity, ease: "linear" }}
+          >
+            <svg width={size} height={size * 2.2} viewBox="0 0 40 88">
+              <ellipse cx="20" cy="22" rx="17" ry="21" fill={color} opacity="0.9" />
+              <ellipse cx="13" cy="14" rx="4" ry="7" fill="#ffffff" opacity="0.35" transform="rotate(-20 13 14)" />
+              <path d="M17 42 L23 42 L20 46 Z" fill={color} />
+              <path d="M20 46 C 14 56, 26 64, 18 74 C 14 80, 22 84, 20 88" stroke={color} strokeOpacity="0.6" strokeWidth="1" fill="none" />
+            </svg>
+          </motion.div>
+        );
+      })}
+    </div>
+  );
+}
+
 /* ─── Bokeh lights ────────────────────────────────────────────────────────── */
 
 /** Large, blurred light orbs that slowly breathe — adds cinematic depth. */

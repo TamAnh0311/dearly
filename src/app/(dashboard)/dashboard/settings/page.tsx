@@ -9,12 +9,13 @@
 import { useEffect, useState } from "react";
 import { useMyWedding } from "@/hooks/useWedding";
 import MusicPicker from "@/components/dashboard/editor/MusicPicker";
+import { isReservedSlug } from "@/lib/reserved-slugs";
 
 /**
- * Validates a slug: lowercase alphanumeric with hyphens, 3-60 chars.
+ * Validates a slug: lowercase alphanumeric with hyphens, 3-60 chars, not a reserved app route.
  */
 function isValidSlug(slug: string): boolean {
-  return /^[a-z0-9-]{3,60}$/.test(slug);
+  return /^[a-z0-9-]{3,60}$/.test(slug) && !isReservedSlug(slug);
 }
 
 /**
@@ -112,7 +113,9 @@ export default function SettingsPage() {
           </div>
           {slug.length > 0 && !slugValid && (
             <p className="text-xs text-red-500">
-              Slug must be 3-60 lowercase letters, numbers, or hyphens.
+              {isReservedSlug(slug)
+                ? "That address is used by a Dearly page. Try adding your names or a date."
+                : "Slug must be 3-60 lowercase letters, numbers, or hyphens."}
             </p>
           )}
           {slugValid && (

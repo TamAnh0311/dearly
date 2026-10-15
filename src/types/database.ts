@@ -10,8 +10,18 @@ export interface TemplateRow {
   preview_image: string | null;
   animation_style: "subtle" | "cinematic" | "interactive";
   default_config: TemplateConfig;
+  /** Event types this design suits (wedding, birthday, party, ...). */
+  event_types?: EventType[];
+  /** Requires a paid plan (scaffold — see src/lib/plans.ts). */
+  is_premium?: boolean;
   created_at: string;
 }
+
+/** Kinds of events a page can be for. Wedding is the flagship. */
+export type EventType = "wedding" | "engagement" | "birthday" | "party" | "social" | "anniversary" | "baby-shower";
+
+/** Billing plan (scaffold). */
+export type PlanId = "free" | "premium" | "forever";
 
 export interface TemplateConfig {
   colors: { primary: string; secondary: string; accent: string };
@@ -35,8 +45,28 @@ export interface WeddingRow {
   music_track_id: string | null;
   is_published: boolean;
   guest_uploads_enabled: boolean;
+  /** Kind of event (defaults to wedding for older rows). */
+  event_type?: EventType;
+  /** Optional headline, e.g. "Emma's 30th" or "Summer Rooftop Party". */
+  event_title?: string | null;
+  plan?: PlanId;
+  plan_expires_at?: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface InviteeRow {
+  id: string;
+  wedding_id: string;
+  name: string;
+  max_party_size: number;
+  token: string;
+  status: "pending" | "attending" | "declined";
+  party_size: number;
+  responded_at: string | null;
+  checked_in_at: string | null;
+  arrived_count: number;
+  created_at: string;
 }
 
 export interface MusicTrackRow {
@@ -117,6 +147,7 @@ export interface RsvpRow {
   attending: boolean;
   party_size: number;
   message: string | null;
+  invitee_id?: string | null;
   created_at: string;
 }
 

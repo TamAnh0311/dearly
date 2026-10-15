@@ -1,0 +1,4 @@
+[2026-10-14 00:00:00]
+CONTEXT: Fix all mobile responsiveness issues found in audit — 2 critical, 5 medium, 2 low severity items.
+RESULT: Fixed 9 issues across 11 files: dashboard sidebar drawer, editor mobile toggle, landing page overflows, templates mobile nav, FloatingNav breakpoints, SignupForm iOS zoom, dashboard grids, touch targets, viewport export. Committed c578f07, pushed, deployed to https://dearly-self.vercel.app.
+---

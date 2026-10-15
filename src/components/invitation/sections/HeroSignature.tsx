@@ -15,7 +15,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import AmbientLayer from "../effects/Ambient";
 import { TwinklingStars } from "../effects/Particles";
 import { EASE_OUT, alpha, formatDotDate, formatLongDate, mix, type InvitationPalette } from "../utils";
-import { Ampersand, CenterNames } from "./HeroParts";
+import { Ampersand, CenterNames, useEventCopy, useEyebrow } from "./HeroParts";
 import type { LayoutProps } from "./Hero";
 
 /* ─── Wax seal letter ─────────────────────────────────────────────────────── */
@@ -51,7 +51,9 @@ export function SealHero({ wedding, palette, contentY, contentOpacity }: LayoutP
   const reduce = useReducedMotion();
   const paper = palette.isDark ? mix(palette.background, "#ffffff", 0.08) : mix(palette.background, "#ffffff", 0.6);
   const envelope = palette.isDark ? mix(palette.background, "#ffffff", 0.14) : mix(palette.background, palette.accent, 0.35);
-  const initials = `${wedding.partner1_name.charAt(0)}&${wedding.partner2_name.charAt(0)}`;
+  const { twoNames, eventType } = useEventCopy();
+  const initials = twoNames ? `${wedding.partner1_name.charAt(0)}&${wedding.partner2_name.charAt(0)}` : wedding.partner1_name.charAt(0);
+  const invitedLine = eventType === "wedding" ? "You are invited" : "You're invited";
   const t = reduce ? 0 : 1;
 
   return (
@@ -82,14 +84,18 @@ export function SealHero({ wedding, palette, contentY, contentOpacity }: LayoutP
               ))}
             </svg>
             <p className="text-[10px] uppercase tracking-[0.45em]" style={{ color: palette.inkMuted }}>
-              You are invited
+              {invitedLine}
             </p>
             <h1 className="mt-4 text-4xl font-light leading-tight md:text-6xl" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
               {wedding.partner1_name}
-              <span className="mx-3 inline-block" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>
+              {twoNames && (
+                <>
+                  <span className="mx-3 inline-block" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>
                 &amp;
               </span>
               {wedding.partner2_name}
+                </>
+              )}
             </h1>
             {wedding.wedding_date && (
               <p className="mt-4 text-xs uppercase tracking-[0.3em]" style={{ color: palette.inkMuted }}>
@@ -141,6 +147,7 @@ export function SealHero({ wedding, palette, contentY, contentOpacity }: LayoutP
 
 export function DayNightHero({ wedding, palette, contentY, contentOpacity }: LayoutProps) {
   const reduce = useReducedMotion();
+  const duskEyebrow = useEyebrow("From golden hour to forever");
   const dur = reduce ? 0 : 5;
   const night = palette.isDark ? palette.background : mix(palette.accent, "#0b0e22", 0.82);
   const dusk = mix(palette.primary, "#c56a8d", 0.45);
@@ -217,7 +224,7 @@ export function DayNightHero({ wedding, palette, contentY, contentOpacity }: Lay
           palette={palette}
           wedding={wedding}
           delay={reduce ? 0 : 2.4}
-          eyebrow="From golden hour to forever"
+          eyebrow={duskEyebrow}
           ink={ink}
           muted={alpha(ink, 0.75)}
         />

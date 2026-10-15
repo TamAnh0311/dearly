@@ -20,7 +20,7 @@ export type HeroLayout =
   | "seal"
   | "daynight"
   | "stained";
-export type Ambient = "butterflies" | "petals" | "leaves" | "confetti" | "snow" | "gold-dust" | "stars" | "bokeh";
+export type Ambient = "butterflies" | "petals" | "leaves" | "confetti" | "snow" | "gold-dust" | "stars" | "bokeh" | "balloons";
 export type Ornament = "floral" | "deco" | "line" | "leaf" | "star" | "wave";
 export type Corners = "rounded" | "sharp" | "arch" | "pill";
 export type Texture = "none" | "paper" | "grain";
@@ -86,6 +86,11 @@ const STYLES: Record<string, Partial<InvitationStyle>> = {
   "secret-garden": { music: "acoustic", hero: "curtain", curtain: "ivy", ambient: ["butterflies", "leaves", "bokeh"], ornament: "leaf", corners: "arch", flowers: true },
   "wax-seal": { music: "romantic", hero: "seal", ambient: ["petals"], ornament: "floral", corners: "rounded", texture: "paper", flowers: false, scratchReveal: true },
   dusk: { music: "ambient", hero: "daynight", ambient: ["stars"], ornament: "star", corners: "pill", headingCase: "normal", flowers: false },
+  // ── Celebration collection (birthday / party / social) ──
+  "confetti-pop": { music: "musicbox", hero: "polaroid", ambient: ["confetti", "balloons"], ornament: "star", corners: "pill", headingCase: "normal", flowers: false, scratchReveal: true },
+  "balloon-bash": { music: "acoustic", hero: "garden", ambient: ["balloons", "confetti", "bokeh"], ornament: "star", corners: "pill", headingCase: "normal", flowers: true },
+  "neon-night": { music: "ambient", hero: "editorial", ambient: ["gold-dust", "confetti"], ornament: "line", corners: "sharp", eyebrow: "caps", flowers: false },
+  soiree: { music: "romantic", hero: "arch", ambient: ["bokeh", "gold-dust"], ornament: "deco", corners: "arch", flowers: false },
   rosewindow: { music: "orchestral", hero: "stained", ambient: ["bokeh"], ornament: "deco", corners: "arch", flowers: false, scratchReveal: true },
 };
 

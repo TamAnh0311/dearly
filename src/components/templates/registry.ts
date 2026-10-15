@@ -32,6 +32,11 @@ const templates: TemplateDefinition[] = [
   { slug: "wax-seal", name: "Wax Seal", load: () => import("./eternal").then((m) => m.default) },
   { slug: "dusk", name: "Dusk till Dawn", load: () => import("./celestial").then((m) => m.default) },
   { slug: "rosewindow", name: "Rose Window", load: () => import("./luxe").then((m) => m.default) },
+  // Celebration collection (birthday / party / social events)
+  { slug: "confetti-pop", name: "Confetti Pop", load: () => import("./whimsical").then((m) => m.default) },
+  { slug: "balloon-bash", name: "Balloon Bash", load: () => import("./whimsical").then((m) => m.default) },
+  { slug: "neon-night", name: "Neon Night", load: () => import("./noir").then((m) => m.default) },
+  { slug: "soiree", name: "Soirée", load: () => import("./luxe").then((m) => m.default) },
 ];
 
 /**

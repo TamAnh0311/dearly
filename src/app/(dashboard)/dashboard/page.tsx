@@ -38,7 +38,10 @@ import { COLOR_SCHEMES, getInvitationStyle } from "@/components/invitation/style
 import { resolveBlessingStyle, sanitizeSections, type BlessingStyle } from "@/components/invitation/sections-config";
 import TemplateSearchInput from "@/components/invitation/TemplateSearchInput";
 import { searchTemplates } from "@/lib/template-search";
-import type { TemplateRow, WeddingCustomization } from "@/types/database";
+import { EVENT_COPY, EVENT_TYPE_ORDER } from "@/lib/event-types";
+import { isReservedSlug } from "@/lib/reserved-slugs";
+import { PLANS_ENABLED } from "@/lib/plans";
+import type { EventType, TemplateRow, WeddingCustomization } from "@/types/database";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -242,6 +245,11 @@ export default function DashboardPage() {
   const [templatesLoading, setTemplatesLoading] = useState(true);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [templateQuery, setTemplateQuery] = useState("");
+  const [eventType, setEventType] = useState<EventType>("wedding");
+  const [eventTitle, setEventTitle] = useState("");
+  const copy = EVENT_COPY[eventType];
+  /** Couples need both names; birthdays/parties/social events can have a single host. */
+  const twoHostsRequired = eventType === "wedding" || eventType === "engagement" || eventType === "anniversary";
   const [selectedScheme, setSelectedScheme] = useState("original");
   const [selectedSections, setSelectedSections] = useState<WeddingCustomization["sections"] | null>(null);
   const [selectedBlessingStyle, setSelectedBlessingStyle] = useState<BlessingStyle | null>(null);
@@ -275,6 +283,7 @@ export default function DashboardPage() {
         setTemplates(list);
         // Pre-select a design chosen on the public gallery before signup.
         const pending = readPendingDesign();
+        if (pending?.event && pending.event in EVENT_COPY) setEventType(pending.event as EventType);
         const match = pending && list.find((t) => t.slug === pending.template);
         if (match) {
           setSelectedTemplateId(match.id);
@@ -336,8 +345,9 @@ export default function DashboardPage() {
 
     if (!selectedTemplateId) { setSubmitError("Please select a template first."); return; }
     if (!partner1.trim()) { setSubmitError("Partner 1 name is required."); return; }
-    if (!partner2.trim()) { setSubmitError("Partner 2 name is required."); return; }
+    if (copy.hostLabel[1] && twoHostsRequired && !partner2.trim()) { setSubmitError(`${copy.hostLabel[1]} is required.`); return; }
     if (!slug.trim()) { setSubmitError("A URL slug is required."); return; }
+    if (isReservedSlug(slug)) { setSubmitError(`"${slug.trim()}" is used by a Dearly page — try adding your names or a date.`); return; }
 
     setSubmitting(true);
     try {
@@ -356,6 +366,8 @@ export default function DashboardPage() {
         partner1_name: partner1.trim(),
         partner2_name: partner2.trim(),
         wedding_date: weddingDate || null,
+        event_type: eventType,
+        event_title: eventTitle.trim() || null,
         ...(customization ? { customization } : {}),
       });
       clearPendingDesign();
@@ -559,6 +571,8 @@ export default function DashboardPage() {
   // ---------------------------------------------------------------------------
 
   const selectedTemplate = templates.find((t) => t.id === selectedTemplateId) ?? null;
+  const forType = templates.filter((t) => (t.event_types ?? ["wedding", "engagement", "anniversary"]).includes(eventType));
+  const shownTemplates = searchTemplates(forType.length > 0 ? forType : templates, templateQuery);
 
   return (
     <div className="mx-auto max-w-5xl pb-12">
@@ -574,11 +588,51 @@ export default function DashboardPage() {
           Let&apos;s get started
         </div>
         <h1 className="font-display text-4xl font-bold text-dearly-text">
-          Choose Your Template
+          {eventType === "wedding" ? "Let\u2019s create your wedding invitation" : `Let\u2019s create your ${copy.label.toLowerCase()} invitation`}
         </h1>
         <p className="mt-2 text-dearly-text-secondary">
-          Pick a design that matches your style — you can customise everything later.
+          Pick a design — you can customise everything later.
         </p>
+        {/* Weddings are the flagship; other occasions are a quieter secondary row. */}
+        <div className="mx-auto mt-6 flex max-w-3xl flex-col items-center gap-3" role="radiogroup" aria-label="Event type">
+          <button
+            type="button"
+            role="radio"
+            aria-checked={eventType === "wedding"}
+            onClick={() => {
+              setEventType("wedding");
+              setSelectedTemplateId(null);
+            }}
+            className={`inline-flex items-center gap-2 rounded-full px-7 py-3 text-base font-semibold transition ${
+              eventType === "wedding" ? "bg-dearly-accent text-white shadow-soft" : "border-2 border-dearly-accent/40 bg-dearly-card text-dearly-accent hover:border-dearly-accent"
+            }`}
+          >
+            <Heart size={16} /> Wedding
+          </button>
+          <div className="flex flex-wrap items-center justify-center gap-1.5 text-xs">
+            <span className="mr-1 text-dearly-text-muted">Planning something else?</span>
+            {EVENT_TYPE_ORDER.filter((t) => t !== "wedding").map((t) => (
+              <button
+                key={t}
+                type="button"
+                role="radio"
+                aria-checked={eventType === t}
+                onClick={() => {
+                  setEventType(t);
+                  setSelectedTemplateId(null);
+                }}
+                className={`rounded-full px-3 py-1 font-medium transition ${
+                  eventType === t ? "bg-dearly-text text-white" : "text-dearly-text-secondary hover:bg-dearly-accent-soft hover:text-dearly-accent"
+                }`}
+              >
+                {EVENT_COPY[t].label}
+              </button>
+            ))}
+            <a href="/dashboard/questions" className="rounded-full px-3 py-1 font-medium text-dearly-rose hover:bg-dearly-rose-soft">
+              Ask card →
+            </a>
+          </div>
+        </div>
         <TemplateSearchInput value={templateQuery} onChange={setTemplateQuery} className="mx-auto mt-6 max-w-md" />
       </motion.div>
 
@@ -601,7 +655,7 @@ export default function DashboardPage() {
             visible: { transition: { staggerChildren: 0.06 } },
           }}
         >
-          {searchTemplates(templates, templateQuery).map((template, index) => {
+          {shownTemplates.map((template, index) => {
             const isSelected = template.id === selectedTemplateId;
             const colors = template.default_config?.colors ?? DEFAULT_COLORS;
             const fonts = template.default_config?.fonts ?? DEFAULT_FONTS;
@@ -652,8 +706,11 @@ export default function DashboardPage() {
                 <div className="flex flex-1 flex-col gap-1 p-3">
                   <div className="flex items-center justify-between gap-2">
                     <p className="truncate text-sm font-bold leading-tight text-dearly-text">{template.name}</p>
-                    <span className="shrink-0 rounded-full bg-dearly-accent-soft px-2 py-0.5 text-[10px] font-semibold text-dearly-accent">
-                      {label}
+                    <span className="flex shrink-0 items-center gap-1">
+                      {PLANS_ENABLED && template.is_premium && (
+                        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800" title="Premium design">Premium</span>
+                      )}
+                      <span className="rounded-full bg-dearly-accent-soft px-2 py-0.5 text-[10px] font-semibold text-dearly-accent">{label}</span>
                     </span>
                   </div>
                   {template.description && (
@@ -689,7 +746,7 @@ export default function DashboardPage() {
           })}        </motion.div>
       )}
 
-      {!templatesLoading && templates.length > 0 && searchTemplates(templates, templateQuery).length === 0 && (
+      {!templatesLoading && templates.length > 0 && shownTemplates.length === 0 && (
         <p className="mt-6 text-center text-sm text-dearly-text-secondary">
           No templates match &ldquo;{templateQuery}&rdquo;. Try &ldquo;garden&rdquo;, &ldquo;gold&rdquo; or &ldquo;stars&rdquo;.
         </p>
@@ -730,7 +787,7 @@ export default function DashboardPage() {
               <div>
                 <h2 className="font-display text-xl font-bold text-dearly-text">Tell us about you</h2>
                 <p className="mt-1 text-sm text-dearly-text-secondary">
-                  Just a few details to set up your wedding site.
+                  Just a few details to set up your {copy.label.toLowerCase()} page.
                 </p>
               </div>
 
@@ -738,7 +795,7 @@ export default function DashboardPage() {
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs font-semibold text-dearly-text" htmlFor="partner1">
-                    Partner 1 Name <span className="text-dearly-rose">*</span>
+                    {copy.hostLabel[0]} <span className="text-dearly-rose">*</span>
                   </label>
                   <input
                     id="partner1"
@@ -752,12 +809,12 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs font-semibold text-dearly-text" htmlFor="partner2">
-                    Partner 2 Name <span className="text-dearly-rose">*</span>
+                    {copy.hostLabel[1] ?? "Second name (optional)"} {twoHostsRequired && <span className="text-dearly-rose">*</span>}
                   </label>
                   <input
                     id="partner2"
                     type="text"
-                    required
+                    required={twoHostsRequired}
                     value={partner2}
                     onChange={(e) => setPartner2(e.target.value)}
                     placeholder="e.g. James"
@@ -766,10 +823,27 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Wedding date */}
-              <div className="flex flex-col gap-1.5">
+              {/* Event title (non-wedding events) */}
+              {eventType !== "wedding" && (
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-semibold text-dearly-text" htmlFor="event-title">
+                    Event title <span className="font-normal text-dearly-text-muted">(optional)</span>
+                  </label>
+                  <input
+                    id="event-title"
+                    type="text"
+                    maxLength={120}
+                    value={eventTitle}
+                    onChange={(e) => setEventTitle(e.target.value)}
+                    placeholder={eventType === "birthday" ? "e.g. Emma's 30th Birthday" : "e.g. Summer Rooftop Party"}
+                    className="rounded-xl border border-dearly-border bg-dearly-cream px-3 py-2.5 text-sm text-dearly-text placeholder:text-dearly-text-muted outline-none focus:border-dearly-accent focus:ring-2 focus:ring-dearly-accent/20 transition"
+                  />
+                </div>
+              )}
+
+              {/* Wedding date */}              <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-semibold text-dearly-text" htmlFor="wedding-date">
-                  Wedding Date <span className="text-dearly-text-muted font-normal">(optional)</span>
+                  {copy.label} date <span className="text-dearly-text-muted font-normal">(optional)</span>
                 </label>
                 <input
                   id="wedding-date"
@@ -827,7 +901,7 @@ export default function DashboardPage() {
                 whileTap={{ scale: submitting ? 1 : 0.98 }}
                 className="w-full rounded-xl bg-dearly-accent py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {submitting ? "Creating your site…" : "Create Wedding Site"}
+                {submitting ? "Creating your page…" : `Create ${copy.label} Page`}
               </motion.button>
             </form>
           </motion.div>

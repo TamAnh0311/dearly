@@ -26,6 +26,20 @@ const FILTERS = ["All", ...Object.values(LAYOUT_LABEL)] as const;
 type DesignFilter = (typeof FILTERS)[number];
 
 const SPRING = { type: "spring", damping: 25, stiffness: 120 } as const;
+
+/** Occasion filter: weddings first (the flagship), then other celebrations. */
+type Occasion = "all" | "wedding" | "birthday" | "party" | "social";
+const OCCASION_LABEL: Record<Occasion, string> = { all: "All occasions", wedding: "Wedding", birthday: "Birthday", party: "Party", social: "Social" };
+/** Wedding designs are the flagship, so they sort ahead of party/social ones. */
+function isWeddingTemplate(t: { event_types?: string[] | null }): boolean {
+  return (t.event_types ?? ["wedding"]).includes("wedding");
+}
+const OCCASION_TYPES: Record<Exclude<Occasion, "all">, string[]> = {
+  wedding: ["wedding", "engagement", "anniversary"],
+  birthday: ["birthday", "baby-shower"],
+  party: ["party"],
+  social: ["social"],
+};
 const DEFAULT_COLORS = { primary: "#B8860B", secondary: "#FFFFF0", accent: "#D4A574" };
 const DEFAULT_FONTS = { display: "Playfair Display", body: "Lato" };
 
@@ -74,6 +88,7 @@ export default function TemplatesPage() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<DesignFilter>("All");
+  const [occasion, setOccasion] = useState<Occasion>("all");
   const [query, setQuery] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -91,11 +106,13 @@ export default function TemplatesPage() {
 
   const filtered = useMemo(
     () =>
-      searchTemplates(
-        activeFilter === "All" ? templates : templates.filter((t) => designLabel(t.slug) === activeFilter),
+      [...searchTemplates(
+        (activeFilter === "All" ? templates : templates.filter((t) => designLabel(t.slug) === activeFilter)).filter(
+          (t) => occasion === "all" || (t.event_types ?? ["wedding"]).some((e) => OCCASION_TYPES[occasion].includes(e))
+        ),
         query
-      ),
-    [templates, activeFilter, query]
+      )].sort((a, b) => Number(!isWeddingTemplate(a)) - Number(!isWeddingTemplate(b))),
+    [templates, activeFilter, query, occasion]
   );
   const fontsHref = useMemo(() => (templates.length ? galleryFontsUrl(templates) : null), [templates]);
   return (
@@ -180,7 +197,23 @@ export default function TemplatesPage() {
       {/* ── Filter Bar ── */}
       <section className="sticky top-16 z-40 bg-dearly-cream/90 backdrop-blur-md border-b border-dearly-border/40 px-6 py-3">
         <div className="max-w-7xl mx-auto flex flex-col gap-3 md:flex-row md:items-center">
-        <TemplateSearchInput value={query} onChange={setQuery} className="w-full md:w-80 md:shrink-0" />
+        <div className="flex flex-col gap-2 md:w-80 md:shrink-0">
+        <TemplateSearchInput value={query} onChange={setQuery} className="w-full" />
+        <div className="flex gap-1.5 overflow-x-auto scrollbar-hide" role="radiogroup" aria-label="Occasion">
+          {(Object.keys(OCCASION_LABEL) as Occasion[]).map((o) => (
+            <button
+              key={o}
+              type="button"
+              role="radio"
+              aria-checked={occasion === o}
+              onClick={() => setOccasion(o)}
+              className={`shrink-0 rounded-full px-3 py-1 text-[11px] font-semibold ${occasion === o ? "bg-dearly-text text-white" : "text-dearly-text-secondary hover:text-dearly-text"}`}
+            >
+              {OCCASION_LABEL[o]}
+            </button>
+          ))}
+        </div>
+        </div>
         <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto scrollbar-hide">
           <span className="text-xs font-semibold text-dearly-text-muted shrink-0 mr-1">
             Filter:

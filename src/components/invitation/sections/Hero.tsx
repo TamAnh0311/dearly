@@ -22,7 +22,7 @@ import type { WeddingRow } from "@/types/database";
 import { GrowingBud, GrowingFlower } from "../effects/Botanicals";
 import AmbientLayer from "../effects/Ambient";
 import { EASE_OUT, alpha, formatDotDate, formatLongDate, mix, type InvitationPalette } from "../utils";
-import { Ampersand, DateLine, Eyebrow, RisingText, ScrollCue } from "./HeroParts";
+import { Ampersand, DateLine, Eyebrow, RisingText, ScrollCue, useEventCopy, useEyebrow } from "./HeroParts";
 import { DayNightHero, SealHero, StainedHero } from "./HeroSignature";
 import { CurtainHero } from "./HeroCurtain";
 
@@ -63,6 +63,8 @@ function FlowerCluster({ palette, side, scale = 1 }: { palette: InvitationPalett
 /* ─── Layout: Garden ──────────────────────────────────────────────────────── */
 
 function GardenHero({ wedding, palette, contentY, contentOpacity }: LayoutProps) {
+  const eyebrow = useEyebrow("Together with their families");
+  const { copy } = useEventCopy();
   return (
     <>
       <div
@@ -78,7 +80,7 @@ function GardenHero({ wedding, palette, contentY, contentOpacity }: LayoutProps)
         <FlowerCluster palette={palette} side="right" />
       </div>
       <motion.div className="relative z-10 flex flex-col items-center px-6 pb-24 text-center" style={{ y: contentY, opacity: contentOpacity }}>
-        <Eyebrow text="Together with their families" color={palette.inkMuted} />
+        <Eyebrow text={eyebrow} color={palette.inkMuted} />
         <h1 className="mt-8 flex flex-col items-center font-light leading-[0.95]" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
           <span className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl">
             <RisingText text={wedding.partner1_name} delay={0.5} />
@@ -95,7 +97,7 @@ function GardenHero({ wedding, palette, contentY, contentOpacity }: LayoutProps)
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 2.1, ease: EASE_OUT }}
         >
-          are getting married
+          {wedding.event_title || copy.tagline(wedding.partner1_name)}
         </motion.p>
         {wedding.wedding_date && (
           <div className="mt-6">
@@ -168,6 +170,7 @@ function ArchSprig({ palette }: { palette: InvitationPalette }) {
 
 function ArchHero({ wedding, palette, contentY, contentOpacity }: LayoutProps) {
   const deco = palette.style.ornament === "deco";
+  const archEyebrow = useEyebrow(deco ? "The wedding of" : "Together with their families");
   const archPath = "M 20 620 V 220 A 180 180 0 0 1 380 220 V 620";
   const innerPath = "M 34 620 V 224 A 166 166 0 0 1 366 224 V 620";
   return (
@@ -204,7 +207,7 @@ function ArchHero({ wedding, palette, contentY, contentOpacity }: LayoutProps) {
           {!deco && <ArchSprig palette={palette} />}
 
           <div className="absolute inset-0 flex flex-col items-center justify-center px-8 pt-16 text-center">
-            <Eyebrow text={deco ? "The wedding of" : "Together with their families"} color={palette.inkMuted} delay={1} />
+            <Eyebrow text={archEyebrow} color={palette.inkMuted} delay={1} />
             <h1 className="mt-6 font-light leading-[1]" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
               <span className={`block text-5xl md:text-6xl ${palette.style.headingCase === "upper" ? "uppercase tracking-[0.12em]" : ""}`}>
                 <RisingText text={wedding.partner1_name} delay={1.3} />
@@ -240,7 +243,8 @@ function ArchHero({ wedding, palette, contentY, contentOpacity }: LayoutProps) {
 /* ─── Layout: Editorial ───────────────────────────────────────────────────── */
 
 function EditorialHero({ wedding, palette, contentY, contentOpacity }: LayoutProps) {
-  const marquee = [wedding.partner1_name, "&", wedding.partner2_name, "·", wedding.wedding_date ? formatDotDate(wedding.wedding_date) : "Save the date", "·", "Save the date", "·"];
+  const { twoNames } = useEventCopy();
+  const marquee = [wedding.partner1_name, ...(twoNames ? ["&", wedding.partner2_name] : []), "·", wedding.wedding_date ? formatDotDate(wedding.wedding_date) : "Save the date", "·", "Save the date", "·"];
   return (
     <>
       <AmbientLayer palette={palette} intensity={0.6} />
@@ -298,6 +302,7 @@ function EditorialHero({ wedding, palette, contentY, contentOpacity }: LayoutPro
 /* ─── Layout: Split ───────────────────────────────────────────────────────── */
 
 function SplitHero({ wedding, palette, photos, contentY, contentOpacity }: LayoutProps) {
+  const eyebrow = useEyebrow("We're getting married");
   return (
     <div className="relative z-10 grid min-h-[100svh] w-full md:grid-cols-2">
       <div className="relative h-[55svh] overflow-hidden md:h-auto">
@@ -326,7 +331,7 @@ function SplitHero({ wedding, palette, photos, contentY, contentOpacity }: Layou
       <div className="relative flex items-center justify-center overflow-hidden px-8 py-20">
         <AmbientLayer palette={palette} intensity={0.7} />
         <motion.div className="relative z-10 text-center md:text-left" style={{ y: contentY, opacity: contentOpacity }}>
-          <Eyebrow text="We're getting married" color={palette.inkMuted} delay={1} />
+          <Eyebrow text={eyebrow} color={palette.inkMuted} delay={1} />
           <h1 className="mt-6 font-light leading-[0.95]" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
             <span className="block text-6xl md:text-7xl lg:text-8xl">
               <RisingText text={wedding.partner1_name} delay={1.2} />
@@ -370,6 +375,8 @@ function CelestialHero({ wedding, palette, contentY, contentOpacity }: LayoutPro
   const sky = palette.isDark ? palette.background : mix(palette.primary, "#0b1030", 0.88);
   const starInk = mix(palette.primary, "#ffffff", 0.55);
   const ink = "#f4f1ea";
+  const eyebrow = useEyebrow("Written in the stars");
+  const { twoNames } = useEventCopy();
   return (
     <>
       <div
@@ -415,7 +422,7 @@ function CelestialHero({ wedding, palette, contentY, contentOpacity }: LayoutPro
       </svg>
 
       <motion.div className="relative z-10 flex flex-col items-center px-6 text-center" style={{ y: contentY, opacity: contentOpacity }}>
-        <Eyebrow text="Written in the stars" color={alpha(ink, 0.7)} delay={0.8} />
+        <Eyebrow text={eyebrow} color={alpha(ink, 0.7)} delay={0.8} />
         <div
           aria-hidden
           className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[120%] w-[160%] -translate-x-1/2 -translate-y-1/2"
@@ -425,6 +432,7 @@ function CelestialHero({ wedding, palette, contentY, contentOpacity }: LayoutPro
           <span className="block text-6xl md:text-8xl">
             <RisingText text={wedding.partner1_name} delay={1.1} />
           </span>
+          {twoNames && (
           <motion.span
             className="my-2 block text-6xl md:text-8xl"
             style={{ fontFamily: palette.scriptFont, color: starInk }}
@@ -434,6 +442,7 @@ function CelestialHero({ wedding, palette, contentY, contentOpacity }: LayoutPro
           >
             &amp;
           </motion.span>
+          )}
           <span className="block text-6xl md:text-8xl">
             <RisingText text={wedding.partner2_name} delay={1.9} />
           </span>
@@ -464,6 +473,8 @@ const POLAROID_SPOTS = [
 ];
 
 function PolaroidHero({ wedding, palette, photos, contentY, contentOpacity }: LayoutProps) {
+  const headline = useEyebrow("We're getting married!");
+  const { twoNames } = useEventCopy();
   return (
     <>
       <AmbientLayer palette={palette} intensity={0.8} />
@@ -499,14 +510,18 @@ function PolaroidHero({ wedding, palette, photos, contentY, contentOpacity }: La
           transition={{ type: "spring", stiffness: 90, damping: 14, delay: 1.5 }}
         >
           <p className="text-3xl md:text-4xl" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>
-            We&apos;re getting married!
+            {headline}
           </p>
           <h1 className="mt-4 text-5xl font-light leading-none md:text-7xl" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
             <RisingText text={wedding.partner1_name} delay={1.9} />
-            <span className="mx-3 inline-block" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>
-              &amp;
-            </span>
-            <RisingText text={wedding.partner2_name} delay={2.2} />
+            {twoNames && (
+              <>
+                <span className="mx-3 inline-block" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>
+                  &amp;
+                </span>
+                <RisingText text={wedding.partner2_name} delay={2.2} />
+              </>
+            )}
           </h1>
           {wedding.wedding_date && (
             <p className="mt-5 text-xs uppercase tracking-[0.3em]" style={{ color: palette.inkMuted }}>
@@ -537,6 +552,7 @@ export default function Hero({ wedding, palette, photos }: HeroProps) {
   if (layout === "polaroid" && photos.length < 3) layout = "arch";
 
   const props: LayoutProps = { wedding, palette, photos, contentY, contentOpacity };
+  const { inviteeName } = useEventCopy();
   const cueColor = layout === "celestial" || layout === "daynight" ? "rgba(244,241,234,0.75)" : palette.inkMuted;
 
   return (
@@ -559,6 +575,18 @@ export default function Hero({ wedding, palette, photos }: HeroProps) {
       {layout === "daynight" && <DayNightHero {...props} />}
       {layout === "stained" && <StainedHero {...props} />}
       {layout !== "editorial" && <ScrollCue color={cueColor} />}
+      {/* Personal greeting for invitations sent from the guest list */}
+      {inviteeName && (
+        <motion.p
+          className="absolute left-1/2 top-20 z-[45] -translate-x-1/2 whitespace-nowrap rounded-full px-5 py-2 text-xl shadow-lg backdrop-blur-md md:top-24 md:text-2xl"
+          style={{ fontFamily: palette.scriptFont, color: palette.primary, background: alpha(palette.background, 0.82), border: `1px solid ${alpha(palette.primary, 0.25)}` }}
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 3.2, duration: 1 }}
+        >
+          Dear {inviteeName}
+        </motion.p>
+      )}
     </section>
   );
 }

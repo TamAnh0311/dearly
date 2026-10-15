@@ -18,7 +18,9 @@ export interface NavLink {
 
 /** Couple initials, e.g. "E & J". */
 function monogram(a: string, b: string): string {
-  return `${a.trim().charAt(0).toUpperCase()} & ${b.trim().charAt(0).toUpperCase()}`;
+  const x = a.trim().charAt(0).toUpperCase();
+  const y = b.trim().charAt(0).toUpperCase();
+  return x && y ? `${x} & ${y}` : x || y;
 }
 
 export function TopNav({
@@ -122,7 +124,7 @@ export function Footer({
         </span>
       </motion.div>
       <p className="mt-8 text-3xl md:text-4xl" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
-        {names[0]} &amp; {names[1]}
+        {names.filter(Boolean).join(" & ")}
       </p>
       {date && (
         <p className="mt-3 text-xs tracking-[0.35em]" style={{ color: palette.inkMuted }}>

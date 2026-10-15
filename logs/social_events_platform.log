@@ -1,0 +1,8 @@
+[2026-10-14 19:37:56]
+CONTEXT: Expand Dearly from weddings to birthdays, parties, social events and date-night/proposal ask cards, with new templates, guest-list personal invites + attendance results, SEO pages and a monetisation scaffold.
+RESULT: Migration 00017 applied; event-aware invitation, /dashboard/guests, /pricing, /invitations/<type>, sitemap/robots/OG, occasion filter, reserved-slug guard, landing 'More than weddings' section and AGENTS.md updated. tsc, lint and 58 tests pass; dev smoke test returns 200 on all new routes, but local 'next build' times out collecting page data (HEAD fails the same way, so the cause is this machine, not the code).
+---
+[2026-10-15 10:11:16]
+CONTEXT: Make weddings the main event with other occasions secondary, and disable paid plans to attract users first.
+RESULT: PLANS_ENABLED=false in src/lib/plans.ts (EARLY_ACCESS limits, /pricing 404, pricing UI and premium badges hidden); onboarding, landing, /templates and occasion nav now put weddings first. tsc, lint and 61 tests pass; dev smoke and screenshots OK.
+---

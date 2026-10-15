@@ -1,6 +1,6 @@
 # AGENTS.md — Dearly
 
-Guidance for AI agents and contributors working on **Dearly**, a wedding invitation platform (Next.js 14 App Router, TypeScript, Tailwind, Framer Motion, Supabase).
+Guidance for AI agents and contributors working on **Dearly**, an event invitation and memory platform (weddings first, plus birthdays, parties and social events) (Next.js 14 App Router, TypeScript, Tailwind, Framer Motion, Supabase).
 
 ## Contents
 
@@ -105,6 +105,29 @@ Guests can hide blessings themselves. That choice is remembered in `localStorage
 - its design language (layout label, hero, ambient effects, ornament).
 
 Every word in the query must match. Plurals are folded, so "butterflies" finds "butterfly".
+
+**Event types** (`src/lib/event-types.ts`):
+- The `weddings` table hosts every event. `event_type` is one of `wedding` `engagement` `birthday` `party` `social` `anniversary` `baby-shower`; `event_title` is an optional headline ("Mia turns 30").
+- Single-host events store `partner2_name = ''`. Use `hostNames()` and `EVENT_COPY[type]` for labels and eyebrows; never hard-code "wedding" or "&" in sections. The `Ampersand` hides itself for single hosts.
+- Sections read copy through `EventContext` (`useEventCopy`, `useEyebrow` in `HeroParts.tsx`).
+- After the event date (`isPastEvent`) the page becomes a memory book: RSVP is hidden; blessings and photos stay.
+- `templates.event_types[]` decides which occasions a template is offered for (onboarding and the `/templates` occasion filter).
+- Date-night / proposal "ask cards" live separately at `/q/<slug>` (`CuteQuestionView`, runaway "No" button).
+
+**Guest list and personal invites** (`invitees` table, `src/lib/guest-list.ts`, dashboard "Guest list"):
+- Hosts paste names (`Anna +1`, `Ben, 4`, `Chi (3)`); each row gets a random `token`.
+- Personal link: `/<slug>?i=<token>`. The token is resolved server-side; the hero greets "Dear {name}" and the RSVP is prefilled and capped at `max_party_size`.
+- `/api/rsvp` with `inviteeToken` updates the invitee's status. The dashboard shows results, check-in on the day and CSV export.
+
+**Plans** (`src/lib/plans.ts`): **currently off** (`PLANS_ENABLED = false`, early access to attract users).
+- While off, `planOf()` returns `EARLY_ACCESS`: every design unlocked, no retention limit, abuse caps only (2,000 photos → `413`, 1,000 named guests). `/pricing` returns 404 and is left out of the sitemap; pricing links, the "Plans" sidebar item and "Premium" badges are hidden.
+- To turn plans on: set `PLANS_ENABLED = true`, re-add the Pricing links on the landing page, and wire a payment provider into `/api/billing/checkout` (currently `501 BILLING_NOT_CONFIGURED`). Paid limits then apply (`402 PLAN_LIMIT`).
+
+**Weddings lead:** weddings are the flagship occasion. Onboarding shows a large Wedding choice with other occasions as small chips, `/templates` sorts wedding designs first, and other occasions appear as a secondary "Not a wedding?" strip on the landing page and an "Also for" group in occasion-page navigation.
+
+**Slugs:** event slugs live at the site root, so `isReservedSlug()` (`src/lib/reserved-slugs.ts`) rejects names of app routes. Add new top-level routes there.
+
+**SEO** (`src/lib/seo.ts`, `SITE_URL` from `NEXT_PUBLIC_SITE_URL`): indexable pages are `/`, `/templates`, `/templates/<slug>`, `/invitations/<occasion>` (`src/lib/occasions.ts`) and `/pricing` (only while plans are on); they are listed in `sitemap.ts`. Guest event pages, `/q/*` and `?embed=1` previews are `noindex`.
 
 ## 4. Design guideline
 

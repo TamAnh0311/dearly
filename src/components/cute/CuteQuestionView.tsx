@@ -473,7 +473,7 @@ export default function CuteQuestionView({ question }: Props) {
                 initial={{ opacity: 0, y: 40 }}
                 animate={{
                   opacity: 1,
-                  y: 0,
+                  y: noPosition.y,
                   x: noPosition.x,
                   scale: noScale,
                 }}
@@ -482,12 +482,15 @@ export default function CuteQuestionView({ question }: Props) {
                   stiffness: 400,
                   damping: 25,
                   opacity: { delay: 1 + (question.question.split(" ").length * 0.15) },
-                  y: {
-                    delay: 1 + (question.question.split(" ").length * 0.15),
-                  },
                 }}
                 // Mobile: escape on touch start
                 onTouchStart={(e) => {
+                  e.preventDefault();
+                  triggerEscape();
+                }}
+                // Mouse that sneaks in, keyboard Enter, or a lucky fast click: still runs away
+                onMouseEnter={triggerEscape}
+                onClick={(e) => {
                   e.preventDefault();
                   triggerEscape();
                 }}

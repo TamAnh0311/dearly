@@ -5,7 +5,7 @@
  * leaves, confetti, snow, gold dust, stars, bokeh) inside a relative parent.
  */
 
-import { BokehLights, Butterflies, FallingPetals, GoldDust, TwinklingStars } from "./Particles";
+import { Balloons, BokehLights, Butterflies, FallingPetals, GoldDust, TwinklingStars } from "./Particles";
 import { alpha, mix, type InvitationPalette } from "../utils";
 
 /** Draws each ambient effect listed in the palette's style, with density scaled by `intensity`. */
@@ -34,6 +34,8 @@ export default function AmbientLayer({ palette, intensity = 1 }: { palette: Invi
             return <FallingPetals key={fx} colors={confetti} count={n(22)} shape="confetti" />;
           case "snow":
             return <FallingPetals key={fx} colors={[palette.accent]} count={n(40)} shape="snow" />;
+          case "balloons":
+            return <Balloons key={fx} colors={[palette.primary, palette.accent, ...palette.petals]} count={n(9)} />;
           case "gold-dust":
             return <GoldDust key={fx} color={palette.primary} count={n(28)} />;
           case "stars":

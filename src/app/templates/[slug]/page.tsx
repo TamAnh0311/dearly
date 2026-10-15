@@ -6,7 +6,10 @@
  * A floating banner at the top prompts visitors to create their own site.
  */
 
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { absoluteUrl } from "@/lib/seo";
+import { LAYOUT_LABEL, getInvitationStyle } from "@/components/invitation/styles";
 import Link from "next/link";
 import { createCookieClient } from "@/lib/supabase/server";
 import { getTemplate } from "@/components/templates/registry";
@@ -23,13 +26,18 @@ interface PageProps {
 
 /** Placeholder wedding data used for the template preview. */
 function buildMockWedding(template: TemplateRow): WeddingRow {
+  // Celebration templates demo as a birthday/party so visitors see the right copy.
+  const type = template.event_types?.[0] ?? "wedding";
+  const single = type === "birthday" || type === "party" || type === "social" || type === "baby-shower";
   return {
     id: "preview",
     user_id: "preview",
     template_id: template.id,
     slug: "preview",
     partner1_name: "Emma",
-    partner2_name: "James",
+    partner2_name: single ? "" : "James",
+    event_type: type,
+    event_title: type === "birthday" ? "Emma's 30th Birthday" : type === "party" ? "Summer Rooftop Party" : type === "social" ? "An Evening at the Grand Estate" : null,
     wedding_date: "2027-06-15",
     venue_name: "The Grand Estate",
     venue_address: "123 Garden Lane, Countryside",
@@ -97,6 +105,24 @@ const DEMO_BLESSINGS: GuestbookEntryRow[] = [
   { id: "demo-b3", wedding_id: "preview", guest_name: "Daniel", message: "Best friends since kindergarten, and now I get to watch you marry the love of your life. Cheers to forever!", rsvp_status: "attending", created_at: "2027-04-20T09:15:00Z" },
   { id: "demo-b4", wedding_id: "preview", guest_name: "Aunt Clara", message: "Wishing you a lifetime of adventures together.", rsvp_status: "attending", created_at: "2027-04-12T12:00:00Z" },
 ];
+
+/** SEO: each template demo is an indexable landing page (embedded modes are not). */
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
+  const supabase = createCookieClient();
+  const { data } = await supabase.from("templates").select("name, description, slug").eq("slug", params.slug).maybeSingle();
+  if (!data) return { title: "Template not found", robots: { index: false } };
+  const label = LAYOUT_LABEL[getInvitationStyle(data.slug).hero];
+  const title = `${data.name} — ${label} invitation template`;
+  const description = `${data.description}. Live animated demo with RSVP, blessings and a photo album — try every colour scheme free.`;
+  const embedded = searchParams?.embed === "1";
+  return {
+    title,
+    description,
+    alternates: { canonical: absoluteUrl(`/templates/${data.slug}`) },
+    robots: embedded ? { index: false, follow: false } : { index: true, follow: true },
+    openGraph: { title, description, url: absoluteUrl(`/templates/${data.slug}`) },
+  };
+}
 
 export default async function TemplatePreviewPage({ params, searchParams }: PageProps) {
   const embedded = searchParams?.embed === "1";

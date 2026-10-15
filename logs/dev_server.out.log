@@ -7,167 +7,76 @@
   - Environments: .env.local
 
  ✓ Starting...
- ✓ Ready in 10.1s
- ✓ Compiled /src/middleware in 930ms (128 modules)
- ○ Compiling /templates/[slug] ...
- ✓ Compiled /templates/[slug] in 2s (1854 modules)
- GET /templates/velvet 200 in 10160ms
- GET /templates/secret-garden 200 in 741ms
- ○ Compiling /favicon.ico ...
- ✓ Compiled /favicon.ico in 559ms (1038 modules)
- GET /favicon.ico 200 in 1404ms
- GET /templates/secret-garden 200 in 676ms
- GET /favicon.ico 200 in 34ms
- ○ Compiling /templates ...
- ✓ Compiled /templates in 993ms (1900 modules)
+ ✓ Ready in 12.7s
+ ○ Compiling /src/middleware ...
+ ✓ Compiled /src/middleware in 7s (128 modules)
+ ○ Compiling /robots.txt ...
+ ✓ Compiled /robots.txt in 1413ms (61 modules)
+ GET /robots.txt 200 in 2897ms
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (113kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (268kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
  ○ Compiling / ...
- ✓ Compiled / in 1523ms (1886 modules)
- GET / 200 in 157ms
- ○ Compiling /signup ...
- ✓ Compiled /signup in 1140ms (1899 modules)
- ✓ Compiled in 28s (881 modules)
- ✓ Compiled in 886ms (881 modules)
- ✓ Compiled in 2.8s (1907 modules)
- ✓ Compiled in 1286ms (1907 modules)
- ✓ Compiled in 550ms (882 modules)
- ✓ Compiled in 476ms (882 modules)
- ✓ Compiled in 346ms (882 modules)
- ✓ Compiled in 2.8s (1911 modules)
- ✓ Compiled in 769ms (1911 modules)
- ✓ Compiled in 625ms (884 modules)
- ✓ Compiled in 1443ms (1911 modules)
- ✓ Compiled in 672ms (884 modules)
- ✓ Compiled in 586ms (884 modules)
- ✓ Compiled in 2.1s (1919 modules)
- ✓ Compiled in 551ms (888 modules)
- ⨯ ./src/components/invitation/sections/Hero.tsx:27:1
-Module not found: Can't resolve './HeroCurtain'
-[0m [90m 25 |[39m [36mimport[39m { [33mAmpersand[39m[33m,[39m [33mDateLine[39m[33m,[39m [33mEyebrow[39m[33m,[39m [33mRisingText[39m[33m,[39m [33mScrollCue[39m } [36mfrom[39m [32m"./HeroParts"[39m[33m;[39m[0m
-[0m [90m 26 |[39m [36mimport[39m { [33mDayNightHero[39m[33m,[39m [33mSealHero[39m[33m,[39m [33mStainedHero[39m } [36mfrom[39m [32m"./HeroSignature"[39m[33m;[39m[0m
-[0m[31m[1m>[22m[39m[90m 27 |[39m [36mimport[39m { [33mCurtainHero[39m } [36mfrom[39m [32m"./HeroCurtain"[39m[33m;[39m[0m
-[0m [90m    |[39m [31m[1m^[22m[39m[0m
-[0m [90m 28 |[39m[0m
-[0m [90m 29 |[39m [36mexport[39m [36minterface[39m [33mHeroProps[39m {[0m
-[0m [90m 30 |[39m   wedding[33m:[39m [33mWeddingRow[39m[33m;[39m[0m
-
-https://nextjs.org/docs/messages/module-not-found
-
-Import trace for requested module:
-./src/components/invitation/CinematicInvitation.tsx
-./src/components/invitation/TemplatePreview.tsx
- ✓ Compiled in 2.1s (1921 modules)
- ✓ Compiled in 1540ms (1921 modules)
- GET /templates/velvet 200 in 1266ms
- GET /templates/secret-garden 200 in 462ms
- GET /templates/velvet 200 in 435ms
- ○ Compiling /favicon.ico ...
- ✓ Compiled /favicon.ico in 1099ms (1064 modules)
- GET /favicon.ico 200 in 2218ms
- GET /templates/secret-garden 200 in 3002ms
- GET /favicon.ico 200 in 50ms
- GET /templates/velvet 200 in 257ms
- GET /favicon.ico 200 in 34ms
- GET /templates/secret-garden 200 in 478ms
+ ✓ Compiled / in 35.4s (1624 modules)
+ GET / 200 in 39379ms
+ ○ Compiling /pricing ...
+ ✓ Compiled /pricing in 2s (1623 modules)
+ GET /pricing 200 in 3876ms
+ ○ Compiling /invitations/[type] ...
+ ✓ Compiled /invitations/[type] in 2.2s (1680 modules)
+ GET /invitations/wedding 200 in 9661ms
+ GET /invitations/birthday 200 in 573ms
+ GET /invitations/date-night 200 in 49ms
+ ✓ Compiled /templates in 461ms (1699 modules)
+ GET /templates 200 in 2064ms
+ ○ Compiling /templates/[slug] ...
+ ✓ Compiled /templates/[slug] in 2.1s (1989 modules)
+ GET /templates/confetti-pop 200 in 8538ms
+ GET /templates/neon-night 200 in 223ms
+ ○ Compiling /sitemap.xml ...
+ ✓ Compiled /sitemap.xml in 2.2s (1158 modules)
+ GET /sitemap.xml 200 in 9082ms
+ ✓ Compiled /robots.txt in 218ms (1161 modules)
+ GET /robots.txt 200 in 684ms
+ GET /invitations/nope 404 in 546ms
+ GET / 200 in 305ms
+ ✓ Compiled /favicon.ico in 344ms (1163 modules)
+ GET /favicon.ico 200 in 881ms
+ GET /templates/velvet?embed=1&bare=1 200 in 2189ms
+ GET /templates/confetti-pop 200 in 387ms
  GET /favicon.ico 200 in 41ms
- GET /templates/velvet 200 in 295ms
- GET /favicon.ico 200 in 29ms
- GET /templates/secret-garden 200 in 549ms
- GET /favicon.ico 200 in 23ms
- ✓ Compiled in 1243ms (1921 modules)
- ✓ Compiled in 1805ms (1913 modules)
- GET /templates/velvet?embed=1 200 in 1162ms
- ✓ Compiled in 1128ms (1913 modules)
- GET /templates/velvet?embed=1&bare=1 200 in 965ms
- GET / 200 in 84ms
- GET /templates 200 in 181ms
- GET /templates/secret-garden 200 in 900ms
- GET / 200 in 104ms
- GET /templates/velvet?embed=1&bare=1 200 in 1771ms
+ GET /templates/neon-night 200 in 636ms
+ GET /favicon.ico 200 in 342ms
+ GET /invitations/birthday 200 in 171ms
+ GET /favicon.ico 200 in 28ms
+ ✓ Compiled in 481ms (1061 modules)
+ ✓ Compiled in 637ms (890 modules)
+ ✓ Compiled in 429ms (890 modules)
+ ✓ Compiled in 453ms (890 modules)
+ ✓ Compiled in 727ms (890 modules)
+ ✓ Compiled in 389ms (890 modules)
+ ✓ Compiled in 1235ms (1952 modules)
+ ✓ Compiled in 1848ms (1952 modules)
+ ✓ Compiled in 482ms (890 modules)
+ ✓ Compiled in 643ms (890 modules)
+ ✓ Compiled in 395ms (890 modules)
+ ✓ Compiled in 992ms (1952 modules)
+ ✓ Compiled in 552ms (890 modules)
+ GET / 200 in 1070ms
+ ○ Compiling /pricing ...
+ ✓ Compiled /pricing in 691ms (1068 modules)
+ GET /pricing 404 in 4786ms
+ GET /invitations/wedding 200 in 1558ms
+ GET /invitations/party 200 in 557ms
+ ✓ Compiled /templates in 295ms (1077 modules)
+ GET /templates 200 in 1374ms
+ ○ Compiling /sitemap.xml ...
+ ✓ Compiled /sitemap.xml in 537ms (1159 modules)
+ GET /sitemap.xml 200 in 1776ms
+ GET /sitemap.xml 200 in 33ms
+ GET / 200 in 408ms
+ GET /templates/velvet?embed=1&bare=1 200 in 1420ms
  ○ Compiling /favicon.ico ...
- ⨯ Failed to generate static paths for /templates/[slug]:
-TypeError: __webpack_require__.C is not a function
-    at D:\pet\dearly\.next\server\app\templates\[slug]\page.js:1054:21
-    at Object.<anonymous> (D:\pet\dearly\.next\server\app\templates\[slug]\page.js:1059:3)
-    at Module._compile (node:internal/modules/cjs/loader:1554:14)
-    at Object..js (node:internal/modules/cjs/loader:1706:10)
-    at Module.load (node:internal/modules/cjs/loader:1289:32)
-    at Function._load (node:internal/modules/cjs/loader:1108:12)
-    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
-    at wrapModuleLoad (node:internal/modules/cjs/loader:220:24)
-    at Module.<anonymous> (node:internal/modules/cjs/loader:1311:12)
-    at mod.require (D:\pet\dearly\node_modules\next\dist\server\require-hook.js:65:28) {
-  type: 'TypeError'
-}
- ⨯ Failed to generate static paths for /templates/[slug]:
-TypeError: __webpack_require__.C is not a function
-    at D:\pet\dearly\.next\server\app\templates\[slug]\page.js:1054:21
-    at Object.<anonymous> (D:\pet\dearly\.next\server\app\templates\[slug]\page.js:1059:3)
-    at Module._compile (node:internal/modules/cjs/loader:1554:14)
-    at Object..js (node:internal/modules/cjs/loader:1706:10)
-    at Module.load (node:internal/modules/cjs/loader:1289:32)
-    at Function._load (node:internal/modules/cjs/loader:1108:12)
-    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
-    at wrapModuleLoad (node:internal/modules/cjs/loader:220:24)
-    at Module.<anonymous> (node:internal/modules/cjs/loader:1311:12)
-    at mod.require (D:\pet\dearly\node_modules\next\dist\server\require-hook.js:65:28) {
-  type: 'TypeError'
-}
- ✓ Compiled /favicon.ico in 525ms (1060 modules)
- GET /favicon.ico 200 in 1216ms
- GET /templates 200 in 634ms
- GET /favicon.ico 200 in 42ms
- GET /templates/secret-garden 200 in 6122ms
- GET /favicon.ico 200 in 25ms
- ✓ Compiled in 1812ms (1913 modules)
- GET /templates/velvet?embed=1&bare=1 200 in 612ms
- ✓ Compiled in 1208ms (1913 modules)
- ✓ Compiled in 893ms (885 modules)
- ✓ Compiled in 1348ms (1913 modules)
- ✓ Compiled in 1584ms (1913 modules)
- ✓ Compiled in 1949ms (1913 modules)
- ✓ Compiled in 1027ms (885 modules)
- ✓ Compiled in 1852ms (1913 modules)
- ○ Compiling /_not-found ...
- ✓ Compiled /_not-found in 2.1s (1902 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 3696ms
- GET /_next/static/chunks/app/templates/LayoutGroupContext.mjs.map 404 in 1561ms
- GET /_next/static/chunks/app/LayoutGroupContext.mjs.map 404 in 1568ms
- GET /_next/static/chunks/app/templates/%5Bslug%5D/LayoutGroupContext.mjs.map 404 in 1568ms
- GET /_next/static/chunks/app/templates/%5Bslug%5D/LayoutGroupContext.mjs.map 404 in 1564ms
- ✓ Compiled in 2.2s (1924 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 300ms
- ✓ Compiled in 1296ms (889 modules)
- ○ Compiling /_not-found ...
- ✓ Compiled /_not-found in 726ms (1910 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1160ms
- ✓ Compiled in 1306ms (1921 modules)
- ✓ Compiled /_not-found in 436ms (1910 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1084ms
- ✓ Compiled in 1367ms (1921 modules)
- ✓ Compiled /_not-found in 421ms (1910 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1157ms
- ✓ Compiled in 1827ms (1921 modules)
- ✓ Compiled /_not-found in 390ms (1910 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1216ms
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 52ms
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 66ms
- ✓ Compiled in 920ms (1921 modules)
- ✓ Compiled /_not-found in 444ms (1910 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1466ms
- ○ Compiling /favicon.ico ...
- ✓ Compiled /favicon.ico in 505ms (1065 modules)
- GET /favicon.ico 200 in 1193ms
- GET /templates/bloom 200 in 1020ms
- GET /templates/velvet 200 in 233ms
- GET / 200 in 571ms
- GET /templates/bloom 200 in 302ms
+ ✓ Compiled /favicon.ico in 604ms (1161 modules)
+ GET /favicon.ico 200 in 1244ms
+ GET /invitations/party 200 in 713ms
  GET /favicon.ico 200 in 41ms
- GET /templates/velvet 200 in 690ms
- GET /favicon.ico 200 in 51ms
- GET / 200 in 107ms
- GET /templates/velvet?embed=1&bare=1 200 in 503ms
- GET /favicon.ico 200 in 50ms
- ✓ Compiled in 1183ms (1921 modules)
- ✓ Compiled /_not-found in 383ms (1910 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1213ms
-[?25h

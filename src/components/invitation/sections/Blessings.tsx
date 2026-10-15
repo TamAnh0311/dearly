@@ -212,6 +212,7 @@ export default function Blessings({
   demo = false,
   showWall = true,
   showReactions = true,
+  title = "Blessings",
 }: {
   weddingId: string;
   blessings: GuestbookEntryRow[];
@@ -223,6 +224,8 @@ export default function Blessings({
   showWall?: boolean;
   /** Show the tap-to-react bar. */
   showReactions?: boolean;
+  /** Section title (event-specific, e.g. "Birthday wishes"). */
+  title?: string;
 }) {
   const [visible, setVisible] = useState(PAGE_SIZE);
   const shown = blessings.slice(0, visible);
@@ -231,9 +234,9 @@ export default function Blessings({
     <section id="blessings" className="relative px-6 py-28 md:py-36" style={{ backgroundColor: palette.surface }}>
       <SectionHeading
         eyebrow="With love"
-        title="Blessings"
+        title={title}
         palette={palette}
-        subtitle={showWall && blessings.length > 0 ? `${blessings.length} heartfelt ${blessings.length === 1 ? "wish" : "wishes"} for the happy couple` : undefined}
+        subtitle={showWall && blessings.length > 0 ? `${blessings.length} heartfelt ${blessings.length === 1 ? "wish" : "wishes"}` : undefined}
       />
 
       {showReactions && <ReactionBar weddingId={weddingId} initial={reactions} palette={palette} demo={demo} />}

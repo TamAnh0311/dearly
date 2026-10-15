@@ -11,7 +11,10 @@ const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 const SLUG_RE = /^[a-z0-9-]{1,40}$/;
 
 export interface PendingDesign {
+  /** Template slug; may be empty when only an occasion was chosen. */
   template: string;
+  /** Occasion picked on a marketing page (?event=birthday). */
+  event?: string | null;
   scheme: string | null;
   savedAt: number;
 }
@@ -19,11 +22,13 @@ export interface PendingDesign {
 /** Reads `?template=&scheme=` from a URL search string and stores it if valid. */
 export function capturePendingDesign(search: string, storage: Storage = window.localStorage): PendingDesign | null {
   const params = new URLSearchParams(search);
-  const template = params.get("template");
-  if (!template || !SLUG_RE.test(template)) return null;
+  const template = params.get("template") ?? "";
+  const eventRaw = params.get("event");
+  const event = eventRaw && SLUG_RE.test(eventRaw) ? eventRaw : null;
+  if ((!template || !SLUG_RE.test(template)) && !event) return null;
   const schemeRaw = params.get("scheme");
   const scheme = schemeRaw && SLUG_RE.test(schemeRaw) ? schemeRaw : null;
-  const value: PendingDesign = { template, scheme, savedAt: Date.now() };
+  const value: PendingDesign = { template: SLUG_RE.test(template) ? template : "", event, scheme, savedAt: Date.now() };
   try {
     storage.setItem(KEY, JSON.stringify(value));
   } catch {
@@ -38,9 +43,10 @@ export function readPendingDesign(storage: Storage = window.localStorage, now: n
     const raw = storage.getItem(KEY);
     if (!raw) return null;
     const v = JSON.parse(raw) as PendingDesign;
-    if (typeof v.template !== "string" || !SLUG_RE.test(v.template)) return null;
+    if (typeof v.template !== "string" || (v.template && !SLUG_RE.test(v.template))) return null;
+    if (!v.template && !v.event) return null;
     if (typeof v.savedAt !== "number" || now - v.savedAt > MAX_AGE_MS) return null;
-    return { template: v.template, scheme: typeof v.scheme === "string" ? v.scheme : null, savedAt: v.savedAt };
+    return { template: v.template, event: typeof v.event === "string" ? v.event : null, scheme: typeof v.scheme === "string" ? v.scheme : null, savedAt: v.savedAt };
   } catch {
     return null;
   }

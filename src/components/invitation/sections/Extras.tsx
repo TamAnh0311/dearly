@@ -201,18 +201,32 @@ export function InvitationCard({
             {eventType === "wedding" ? "Wedding Invitation" : `${eventLabel} Invitation`}
           </p>
 
-          {/* Couple names */}
-          <h2 className="mt-6 text-4xl font-light leading-tight md:text-5xl" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
-            {names[0]}
-            {twoNames && (
-              <>
-                <span className="mx-2 inline-block text-3xl md:text-4xl" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>
-                  &amp;
-                </span>
-                {names[1]}
-              </>
-            )}
-          </h2>
+          {/* Couple names with bride/groom labels */}
+          {twoNames && eventType === "wedding" ? (
+            <div className="mt-6 flex items-center justify-center gap-6">
+              <div className="text-center">
+                <p className="text-[9px] uppercase tracking-[0.4em]" style={{ color: palette.inkMuted }}>The Groom</p>
+                <p className="mt-1 text-3xl font-light md:text-4xl" style={{ fontFamily: palette.displayFont, color: palette.ink }}>{names[0]}</p>
+              </div>
+              <span className="text-3xl md:text-4xl" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>&amp;</span>
+              <div className="text-center">
+                <p className="text-[9px] uppercase tracking-[0.4em]" style={{ color: palette.inkMuted }}>The Bride</p>
+                <p className="mt-1 text-3xl font-light md:text-4xl" style={{ fontFamily: palette.displayFont, color: palette.ink }}>{names[1]}</p>
+              </div>
+            </div>
+          ) : (
+            <h2 className="mt-6 text-4xl font-light leading-tight md:text-5xl" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
+              {names[0]}
+              {twoNames && (
+                <>
+                  <span className="mx-2 inline-block text-3xl md:text-4xl" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>
+                    &amp;
+                  </span>
+                  {names[1]}
+                </>
+              )}
+            </h2>
+          )}
 
           {/* Tagline */}
           <p className="mt-3 text-lg" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>

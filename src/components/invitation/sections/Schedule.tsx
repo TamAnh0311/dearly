@@ -7,42 +7,10 @@
 
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import {
-  Camera,
-  Church,
-  Clock,
-  GlassWater,
-  Heart,
-  Music,
-  Sparkles,
-  Utensils,
-  Wine,
-  type LucideIcon,
-} from "lucide-react";
+import { Clock } from "lucide-react";
 import type { WeddingEventRow } from "@/types/database";
 import { SectionHeading } from "./Primitives";
 import { EASE_OUT, alpha, formatTime, type InvitationPalette } from "../utils";
-
-const ICONS: Record<string, LucideIcon> = {
-  heart: Heart,
-  ring: Heart,
-  ceremony: Church,
-  church: Church,
-  glass: GlassWater,
-  cocktail: Wine,
-  wine: Wine,
-  music: Music,
-  party: Music,
-  dinner: Utensils,
-  food: Utensils,
-  camera: Camera,
-  photo: Camera,
-};
-
-/** Resolves an event icon name to a Lucide icon, defaulting to Sparkles. */
-function iconFor(name: string): LucideIcon {
-  return ICONS[name?.toLowerCase()] ?? Sparkles;
-}
 
 export default function Schedule({ events, palette, timeZone }: { events: WeddingEventRow[]; palette: InvitationPalette; timeZone?: string | null }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -63,21 +31,18 @@ export default function Schedule({ events, palette, timeZone }: { events: Weddin
 
         <ol className="space-y-14 md:space-y-20">
           {events.map((ev, i) => {
-            const Icon = iconFor(ev.icon);
             const right = i % 2 === 1;
             return (
               <li key={ev.id} className="relative md:grid md:grid-cols-2 md:gap-16">
-                {/* Node */}
+                {/* Dot on the timeline */}
                 <motion.div
-                  className="absolute left-6 top-2 z-10 flex h-12 w-12 -translate-x-1/2 items-center justify-center rounded-full border md:left-1/2"
-                  style={{ backgroundColor: palette.background, borderColor: palette.primary, color: palette.primary }}
+                  className="absolute left-6 top-3 z-10 h-3 w-3 -translate-x-1/2 rounded-full md:left-1/2"
+                  style={{ backgroundColor: palette.primary }}
                   initial={{ scale: 0 }}
                   whileInView={{ scale: 1 }}
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ type: "spring", stiffness: 220, damping: 16 }}
-                >
-                  <Icon size={18} />
-                </motion.div>
+                />
 
                 <motion.div
                   className={`ml-16 md:ml-0 ${right ? "md:col-start-2" : "md:col-start-1 md:text-right"}`}

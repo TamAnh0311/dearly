@@ -36,6 +36,19 @@ const CULTURE_DEMO: Record<Culture, { names: [string, string]; families: { side1
   vietnamese: { names: ["Huy", "Thúy"], families: { side1: "Ông Nguyễn Viết Minh · Bà Trịnh Thị Lan", side2: "Ông Trịnh Văn Huy · Bà Ngô Mai Hoàn" } },
 };
 
+/** Simple SVG that looks like a QR code (demo only — not scannable). */
+const MOCK_QR = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 21 21"><rect width="21" height="21" fill="#fff"/><g fill="#222">${[
+  [0,0,7,7],[0,1,1,1],[0,5,1,1],[1,0,1,1],[1,2,3,1],[1,6,1,1],[2,0,1,1],[2,2,1,1],[2,4,1,1],[2,6,1,1],
+  [3,0,1,1],[3,2,1,1],[3,4,1,1],[3,6,1,1],[4,0,1,1],[4,2,3,1],[4,6,1,1],[5,0,1,1],[5,6,1,1],[6,0,7,1],
+  [0,8,1,1],[2,8,1,1],[4,8,1,1],[6,8,1,1],[0,9,1,2],[1,10,2,1],[3,9,1,1],[4,10,1,1],[5,9,2,1],
+  [8,0,1,1],[8,2,1,3],[8,6,1,1],[8,8,1,1],[8,10,1,1],[9,1,1,1],[9,4,1,1],[9,7,1,1],[9,9,1,2],
+  [10,0,1,1],[10,3,1,2],[10,6,1,1],[10,8,2,1],[11,1,1,2],[11,5,1,1],[11,9,1,1],[12,0,1,1],[12,3,1,1],[12,6,1,1],[12,8,1,3],
+  [14,0,7,1],[14,2,3,1],[14,6,1,1],[14,8,1,1],[14,10,1,1],
+  [15,0,1,1],[15,6,1,1],[15,9,1,1],[16,0,1,1],[16,2,1,1],[16,4,1,1],[16,6,1,1],[16,8,1,1],[16,10,1,1],
+  [17,0,1,1],[17,2,1,1],[17,4,1,1],[17,6,1,1],[17,9,1,1],
+  [18,0,1,1],[18,2,3,1],[18,6,1,1],[18,8,1,1],[18,10,1,1],[19,0,1,1],[19,6,1,1],[19,9,1,2],[20,0,7,1]
+].map(([y,x,w,h])=>`<rect x="${x}" y="${y}" width="${w}" height="${h}"/>`).join("")}</g></svg>`)}`;
+
 /** Placeholder wedding data used for the template preview. */
 function buildMockWedding(template: TemplateRow): WeddingRow {
   // Celebration templates demo as a birthday/party so visitors see the right copy.
@@ -68,8 +81,8 @@ function buildMockWedding(template: TemplateRow): WeddingRow {
             families: demo.families,
             gift: {
               accounts: [
-                { label: `${demo.names[0]}'s family`, bank: "Demo Bank", holder: demo.names[0], number: "0000 1234 5678" },
-                { label: `${demo.names[1]}'s family`, bank: "Demo Bank", holder: demo.names[1], number: "0000 8765 4321" },
+                { label: `${demo.names[0]}'s family`, bank: "Demo Bank", holder: demo.names[0], number: "0000 1234 5678", qrUrl: MOCK_QR },
+                { label: `${demo.names[1]}'s family`, bank: "Demo Bank", holder: demo.names[1], number: "0000 8765 4321", qrUrl: MOCK_QR },
               ],
             },
           }

@@ -117,18 +117,32 @@ export function ScrollCue({ color }: { color: string }) {
   );
 }
 
-/** Small caps line that settles from wide letter-spacing. */
+/** Small caps line that settles from wide letter-spacing, with an optional "Dear {name}" greeting above. */
 export function Eyebrow({ text, color, delay = 0.2 }: { text: string; color: string; delay?: number }) {
+  const { inviteeName, copy } = useEventCopy();
   return (
-    <motion.p
-      className="text-[11px] uppercase tracking-[0.5em] md:text-xs"
-      style={{ color }}
-      initial={{ opacity: 0, letterSpacing: "0.9em" }}
-      animate={{ opacity: 1, letterSpacing: "0.5em" }}
-      transition={{ duration: 1.8, delay, ease: EASE_OUT }}
-    >
-      {text}
-    </motion.p>
+    <div className="flex flex-col items-center gap-2">
+      {inviteeName && (
+        <motion.p
+          className="text-2xl md:text-3xl"
+          style={{ fontFamily: "'Great Vibes', cursive", color }}
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.2, delay: Math.max(0, delay - 0.2), ease: EASE_OUT }}
+        >
+          Dear {inviteeName}
+        </motion.p>
+      )}
+      <motion.p
+        className="text-[11px] uppercase tracking-[0.5em] md:text-xs"
+        style={{ color }}
+        initial={{ opacity: 0, letterSpacing: "0.9em" }}
+        animate={{ opacity: 1, letterSpacing: "0.5em" }}
+        transition={{ duration: 1.8, delay, ease: EASE_OUT }}
+      >
+        {inviteeName ? `You have been invited to ${copy.label.toLowerCase()}` : text}
+      </motion.p>
+    </div>
   );
 }
 

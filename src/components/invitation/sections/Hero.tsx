@@ -245,12 +245,18 @@ function ArchHero({ wedding, palette, contentY, contentOpacity }: LayoutProps) {
 /* ─── Layout: Editorial ───────────────────────────────────────────────────── */
 
 function EditorialHero({ wedding, palette, contentY, contentOpacity }: LayoutProps) {
-  const { twoNames } = useEventCopy();
+  const { twoNames, inviteeName, copy } = useEventCopy();
   const marquee = [wedding.partner1_name, ...(twoNames ? ["&", wedding.partner2_name] : []), "·", wedding.wedding_date ? formatDotDate(wedding.wedding_date) : "Save the date", "·", "Save the date", "·"];
   return (
     <>
       <AmbientLayer palette={palette} intensity={0.6} />
       <motion.div className="relative z-10 flex w-full max-w-7xl flex-col px-6 pb-28 pt-24 md:px-12" style={{ y: contentY, opacity: contentOpacity }}>
+        {inviteeName && (
+          <motion.div className="mb-6 text-center" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
+            <p className="text-2xl md:text-3xl" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>Dear {inviteeName}</p>
+            <p className="mt-1 text-[11px] uppercase tracking-[0.4em]" style={{ color: palette.inkMuted }}>You have been invited to {copy.label.toLowerCase()}</p>
+          </motion.div>
+        )}
         <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.35em]" style={{ color: palette.inkMuted }}>
           <motion.span initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3, duration: 1 }}>
             The Wedding
@@ -524,7 +530,7 @@ const POLAROID_SPOTS = [
 
 function PolaroidHero({ wedding, palette, photos, contentY, contentOpacity }: LayoutProps) {
   const headline = useEyebrow("We're getting married!");
-  const { twoNames } = useEventCopy();
+  const { twoNames, inviteeName, copy } = useEventCopy();
   return (
     <>
       <AmbientLayer palette={palette} intensity={0.8} />
@@ -559,8 +565,11 @@ function PolaroidHero({ wedding, palette, photos, contentY, contentOpacity }: La
           animate={{ scale: 1, opacity: 1, rotate: -1.5 }}
           transition={{ type: "spring", stiffness: 90, damping: 14, delay: 1.5 }}
         >
+          {inviteeName && (
+            <p className="mb-2 text-2xl" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>Dear {inviteeName}</p>
+          )}
           <p className="text-3xl md:text-4xl" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>
-            {headline}
+            {inviteeName ? `You have been invited to ${copy.label.toLowerCase()}` : headline}
           </p>
           <h1 className="mt-4 text-5xl font-light leading-none md:text-7xl" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
             <RisingText text={wedding.partner1_name} delay={1.9} />
@@ -603,7 +612,6 @@ export default function Hero({ wedding, palette, photos }: HeroProps) {
   if (layout === "poster" && photos.length < 1) layout = "enso";
 
   const props: LayoutProps = { wedding, palette, photos, contentY, contentOpacity };
-  const { inviteeName, copy } = useEventCopy();
   const cueColor = layout === "celestial" || layout === "daynight" || layout === "poster" ? "rgba(244,241,234,0.75)" : palette.inkMuted;
 
   return (
@@ -631,23 +639,7 @@ export default function Hero({ wedding, palette, photos }: HeroProps) {
       {layout === "shoji" && <ShojiHero {...props} />}
       {layout === "bojagi" && <BojagiHero {...props} />}
       {layout !== "editorial" && <ScrollCue color={cueColor} />}
-      {/* Personal greeting for invitations sent from the guest list */}
-      {inviteeName && (
-        <motion.div
-          className="absolute left-1/2 top-16 z-[45] -translate-x-1/2 flex flex-col items-center gap-1.5 rounded-2xl px-7 py-4 shadow-lg backdrop-blur-md md:top-20"
-          style={{ background: alpha(palette.background, 0.82), border: `1px solid ${alpha(palette.primary, 0.25)}` }}
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 3.2, duration: 1 }}
-        >
-          <p className="text-xl md:text-2xl" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>
-            Dear {inviteeName}
-          </p>
-          <p className="text-[10px] uppercase tracking-[0.3em] text-center" style={{ color: cueColor }}>
-            You have been invited to {wedding.event_title || `${wedding.partner1_name}${wedding.partner2_name ? ` & ${wedding.partner2_name}'s` : "'s"} ${copy.label.toLowerCase()}`}
-          </p>
-        </motion.div>
-      )}
+      {/* "Dear {name}" greeting now rendered inside the Eyebrow component of each layout. */}
     </section>
   );
 }

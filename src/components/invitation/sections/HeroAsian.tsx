@@ -193,7 +193,7 @@ export function DoorsHero({ wedding, palette, contentY, contentOpacity }: Layout
 export function PosterHero({ wedding, palette, photos, contentY, contentOpacity }: LayoutProps) {
   const reduce = useReducedMotion();
   const t = reduce ? 0 : 1;
-  const { twoNames, copy } = useEventCopy();
+  const { twoNames, copy, inviteeName } = useEventCopy();
   const headline = useEyebrow("Save the date");
   const korean = palette.style.culture === "korean";
   const ink = "#ffffff";
@@ -215,6 +215,17 @@ export function PosterHero({ wedding, palette, photos, contentY, contentOpacity 
 
         <motion.div className="relative flex h-full min-h-[calc(100svh-5.5rem)] flex-col justify-between px-6 pb-24 pt-6 text-center md:p-12" style={{ y: contentY, opacity: contentOpacity, color: ink }}>
           <div>
+            {inviteeName && (
+              <motion.p
+                className="mb-2 text-2xl md:text-3xl"
+                style={{ fontFamily: palette.scriptFont, textShadow: "0 2px 18px rgba(0,0,0,0.35)" }}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.2 * t, duration: 1 }}
+              >
+                Dear {inviteeName}
+              </motion.p>
+            )}
             <motion.p
               className={korean ? "text-[11px] uppercase tracking-[0.5em]" : "text-4xl md:text-6xl"}
               style={{ fontFamily: korean ? undefined : palette.scriptFont, textShadow: "0 2px 18px rgba(0,0,0,0.35)" }}
@@ -222,7 +233,7 @@ export function PosterHero({ wedding, palette, photos, contentY, contentOpacity 
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.6 * t, duration: 1 }}
             >
-              {headline}
+              {inviteeName ? `You have been invited to ${copy.label.toLowerCase()}` : headline}
             </motion.p>
             {wedding.wedding_date && (
               <motion.p

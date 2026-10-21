@@ -272,51 +272,136 @@ export function Balloons({ colors, count = 9 }: { colors: string[]; count?: numb
 /* ─── Sky lanterns ────────────────────────────────────────────────────────── */
 
 /**
- * Warm paper lanterns (Chinese kongming / Mid-Autumn) rising slowly with a
- * flickering glow. At low counts (≤14) they drift gently so they never
- * compete with text. At high counts they fill the sky like Chiang Mai's
- * Yi Peng or Turkey's lantern festivals, with varied sizes for depth.
+ * Three lantern shape variants rendered as detailed SVGs:
+ *  - barrel  (traditional kongming — trapezoidal paper body)
+ *  - globe   (round paper globe lantern)
+ *  - diamond (elongated diamond / olive shape)
+ *
+ * Each has: warm radial glow, structural ribs, top cap, bottom flame.
+ * Gradient IDs are scoped per-instance to avoid SVG conflicts.
+ */
+function LanternSVG({ variant, id, color, glow, size }: { variant: number; id: string; color: string; glow: string; size: number }) {
+  const shared = (
+    <defs>
+      <radialGradient id={`lg-${id}`} cx="50%" cy="55%" r="55%">
+        <stop offset="0%" stopColor="#fffbe6" />
+        <stop offset="30%" stopColor="#fff3c4" />
+        <stop offset="60%" stopColor={glow} />
+        <stop offset="100%" stopColor={color} />
+      </radialGradient>
+      <radialGradient id={`fl-${id}`} cx="50%" cy="30%" r="70%">
+        <stop offset="0%" stopColor="#fffde0" />
+        <stop offset="100%" stopColor={glow} stopOpacity="0" />
+      </radialGradient>
+    </defs>
+  );
+  const flame = <ellipse cx="20" cy="46" rx="4" ry="2" fill={`url(#fl-${id})`} className="animate-pulse" style={{ animationDuration: "1.8s" }} />;
+
+  if (variant === 1) {
+    // Globe lantern
+    return (
+      <svg width={size} height={size * 1.3} viewBox="0 0 40 52" fill="none">
+        {shared}
+        <ellipse cx="20" cy="24" rx="16" ry="19" fill={`url(#lg-${id})`} />
+        {/* Ribs */}
+        <path d="M20 5 V43" stroke={color} strokeOpacity="0.2" strokeWidth="0.5" />
+        <path d="M10 8 Q20 28 10 42 M30 8 Q20 28 30 42" stroke={color} strokeOpacity="0.15" strokeWidth="0.5" />
+        {/* Cap */}
+        <rect x="16" y="4" width="8" height="3" rx="1" fill={color} opacity="0.6" />
+        {/* Wire */}
+        <line x1="20" y1="7" x2="20" y2="5" stroke={color} strokeWidth="0.6" opacity="0.5" />
+        {flame}
+      </svg>
+    );
+  }
+  if (variant === 2) {
+    // Diamond lantern
+    return (
+      <svg width={size} height={size * 1.5} viewBox="0 0 40 60" fill="none">
+        {shared}
+        <path d="M20 4 L36 28 L20 52 L4 28 Z" fill={`url(#lg-${id})`} />
+        {/* Ribs */}
+        <path d="M20 4 V52" stroke={color} strokeOpacity="0.2" strokeWidth="0.5" />
+        <path d="M12 16 L28 16 M12 40 L28 40" stroke={color} strokeOpacity="0.12" strokeWidth="0.4" />
+        {/* Cap */}
+        <rect x="17" y="2" width="6" height="3" rx="1" fill={color} opacity="0.6" />
+        {/* Tassel */}
+        <path d="M20 52 C18 56 22 58 20 62" stroke={color} strokeOpacity="0.4" strokeWidth="0.6" fill="none" />
+        <ellipse cx="20" cy="50" rx="4" ry="1.5" fill={`url(#fl-${id})`} className="animate-pulse" style={{ animationDuration: "2.1s" }} />
+      </svg>
+    );
+  }
+  // Barrel (traditional kongming) — default
+  return (
+    <svg width={size} height={size * 1.35} viewBox="0 0 40 54" fill="none">
+      {shared}
+      {/* Body */}
+      <path d="M10 6 H30 L35 40 Q20 50 5 40 Z" fill={`url(#lg-${id})`} />
+      {/* Ribs */}
+      <path d="M15 6 L13 40 M25 6 L27 40 M20 6 V44" stroke={color} strokeOpacity="0.18" strokeWidth="0.5" />
+      {/* Top frame */}
+      <rect x="9" y="4" width="22" height="3" rx="1" fill={color} opacity="0.45" />
+      <line x1="9" y1="7" x2="31" y2="7" stroke={color} strokeOpacity="0.3" strokeWidth="0.6" />
+      {/* Wire */}
+      <path d="M16 4 L20 1 L24 4" stroke={color} strokeOpacity="0.3" strokeWidth="0.5" fill="none" />
+      {/* Bottom glow */}
+      {flame}
+      {/* Tassel */}
+      <path d="M20 48 C18 51 22 53 20 56" stroke={color} strokeOpacity="0.35" strokeWidth="0.5" fill="none" />
+    </svg>
+  );
+}
+
+/** CSS keyframes injected once for the lantern rise + sway animation. */
+const LANTERN_KEYFRAMES = `
+@keyframes _lr{0%{transform:translateY(0) translateX(0);opacity:0}
+10%{opacity:var(--lo)}85%{opacity:var(--lo)}
+100%{transform:translateY(-125vh) translateX(var(--lx));opacity:0}}
+@keyframes _lf{0%,100%{opacity:.55}50%{opacity:1}}`;
+let keyframesInjected = false;
+
+/**
+ * GPU-composited sky lanterns. Rise animation runs entirely on the compositor
+ * via CSS @keyframes + will-change, so 30 lanterns cost almost nothing.
  */
 export function Lanterns({ color, glow, count = 8 }: { color: string; glow: string; count?: number }) {
   const reduce = useReducedMotion();
   if (reduce) return null;
   const festival = count > 14;
-  const total = Math.min(count, 40);
+  const total = Math.min(count, 35);
+
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+      {!keyframesInjected && <style>{LANTERN_KEYFRAMES}</style>}
+      {(() => { keyframesInjected = true; return null; })()}
       {Array.from({ length: total }, (_, i) => {
-        // Festival mode: three depth bands — far (small/dim), mid, near (large/bright).
-        const depthBand = festival ? (i % 3) : 1;                       // 0 = far, 1 = mid, 2 = near
-        const baseSize = festival
-          ? depthBand === 0 ? 10 + seeded(i + 900) * 10                 // far: 10–20px
-          : depthBand === 2 ? 30 + seeded(i + 900) * 22                 // near: 30–52px
-          : 18 + seeded(i + 900) * 16                                   // mid: 18–34px
-          : 22 + seeded(i + 900) * 26;                                  // original: 22–48px
-        const glowRadius = festival ? baseSize * (depthBand === 2 ? 0.6 : 0.3) : baseSize * 0.5;
-        const peakOpacity = festival ? (depthBand === 0 ? 0.55 : depthBand === 2 ? 1 : 0.8) : 0.95;
-        const drift = festival ? 18 + seeded(i + 930) * 18 : 22 + seeded(i + 930) * 14;
-        const delay = festival ? seeded(i + 940) * 22 : seeded(i + 940) * 14;
+        const band = festival ? (i % 3) : 1;
+        const sz = festival
+          ? band === 0 ? 12 + seeded(i + 900) * 10
+          : band === 2 ? 32 + seeded(i + 900) * 20
+          : 20 + seeded(i + 900) * 14
+          : 24 + seeded(i + 900) * 24;
+        const glowR = festival ? sz * (band === 2 ? 0.55 : 0.25) : sz * 0.45;
+        const peak = festival ? (band === 0 ? 0.5 : band === 2 ? 1 : 0.75) : 0.92;
+        const dur = festival ? 20 + seeded(i + 930) * 16 : 24 + seeded(i + 930) * 12;
+        const del = seeded(i + 940) * (festival ? 20 : 14);
+        const sway = (seeded(i + 920) - 0.5) * (festival ? 35 : 50);
+        const variant = i % 3;
         return (
-          <motion.div
+          <div
             key={i}
-            className="absolute"
-            style={{ left: `${2 + seeded(i + 910) * 96}%`, bottom: -90, filter: `drop-shadow(0 0 ${glowRadius}px ${glow})` }}
-            animate={{ y: ["0vh", "-120vh"], x: [0, (seeded(i + 920) - 0.5) * (festival ? 30 : 50), 0], opacity: [0, peakOpacity, peakOpacity, 0] }}
-            transition={{ duration: drift, delay, repeat: Infinity, ease: "linear", times: [0, 0.1, 0.85, 1] }}
+            className="absolute will-change-transform"
+            style={{
+              left: `${2 + seeded(i + 910) * 96}%`,
+              bottom: -90,
+              filter: `drop-shadow(0 0 ${glowR}px ${glow})`,
+              animation: `_lr ${dur}s ${del}s linear infinite`,
+              "--lo": peak,
+              "--lx": `${sway}px`,
+            } as React.CSSProperties}
           >
-            <svg width={baseSize} height={baseSize * 1.35} viewBox="0 0 40 54">
-              <defs>
-                <radialGradient id={`lantern-${i}`} cx="50%" cy="60%" r="60%">
-                  <stop offset="0" stopColor="#fff3c4" />
-                  <stop offset="0.45" stopColor={glow} />
-                  <stop offset="1" stopColor={color} />
-                </radialGradient>
-              </defs>
-              <path d="M8 4 H32 L38 44 Q20 52 2 44 Z" fill={`url(#lantern-${i})`} />
-              <path d="M14 4 L11 44 M26 4 L29 44 M20 4 V47" stroke={color} strokeOpacity="0.35" strokeWidth="0.8" />
-              <ellipse cx="20" cy="44" rx="6" ry="2.4" fill="#fff6d0" opacity="0.8" />
-            </svg>
-          </motion.div>
+            <LanternSVG variant={variant} id={`l${i}`} color={color} glow={glow} size={sz} />
+          </div>
         );
       })}
     </div>

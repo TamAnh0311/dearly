@@ -22,7 +22,7 @@ import { motion, useScroll, useTransform, type MotionValue } from "framer-motion
 import type { WeddingRow } from "@/types/database";
 import { GrowingBud, GrowingFlower } from "../effects/Botanicals";
 import AmbientLayer from "../effects/Ambient";
-import { EASE_OUT, alpha, formatDotDate, formatLongDate, mix, type InvitationPalette } from "../utils";
+import { EASE_OUT, alpha, formatDotDate, formatLongDate, mix, seeded, type InvitationPalette } from "../utils";
 import { Ampersand, DateLine, Eyebrow, RisingText, ScrollCue, useEventCopy, useEyebrow } from "./HeroParts";
 import { DayNightHero, SealHero, StainedHero } from "./HeroSignature";
 import { CurtainHero } from "./HeroCurtain";
@@ -406,21 +406,21 @@ function CelestialHero({ wedding, palette, contentY, contentOpacity }: LayoutPro
             className="pointer-events-none absolute inset-x-0 bottom-0 h-[45%]"
             style={{ background: `linear-gradient(0deg, ${alpha(mix(palette.primary, "#ff8c00", 0.5), 0.18)} 0%, transparent 100%)` }}
           />
-          {/* Scattered warm sparkles — CSS-only twinkle for performance */}
-          {Array.from({ length: 18 }, (_, i) => (
+          {/* Scattered warm sparkles — CSS-only twinkle (GPU composited, zero JS cost) */}
+          {Array.from({ length: 50 }, (_, i) => (
             <span
               key={`spark-${i}`}
               aria-hidden
               className="pointer-events-none absolute rounded-full animate-pulse"
               style={{
-                left: `${(i * 37 + 13) % 100}%`,
-                top: `${(i * 53 + 7) % 85}%`,
-                width: (i % 3) + 1,
-                height: (i % 3) + 1,
-                background: mix(palette.primary, "#ffffff", 0.5),
-                opacity: 0.25 + (i % 4) * 0.1,
-                animationDuration: `${3 + (i % 4)}s`,
-                animationDelay: `${(i % 6) * 0.5}s`,
+                left: `${seeded(i + 700) * 100}%`,
+                top: `${seeded(i + 750) * 88}%`,
+                width: 1 + (i % 3),
+                height: 1 + (i % 3),
+                background: i % 5 === 0 ? mix(palette.primary, "#ffffff", 0.7) : mix(palette.primary, "#ffffff", 0.45),
+                opacity: 0.15 + seeded(i + 800) * 0.35,
+                animationDuration: `${2 + seeded(i + 820) * 5}s`,
+                animationDelay: `${seeded(i + 830) * 4}s`,
               }}
             />
           ))}

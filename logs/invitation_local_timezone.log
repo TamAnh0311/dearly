@@ -1,0 +1,4 @@
+[2026-10-15 12:40:00]
+CONTEXT: User requested that times on invitations display in the event's local timezone, not the viewer's browser timezone.
+RESULT: Added `timezone` column to weddings table (migration 00019), auto-detected from browser on creation, editable in settings. Updated `formatTime` and `formatLongDate` to accept optional timezone parameter. Schedule component now passes the wedding's timezone to all time formatting. Deployed to https://dearly-self.vercel.app.
+---

@@ -273,24 +273,38 @@ export function Balloons({ colors, count = 9 }: { colors: string[]; count?: numb
 
 /**
  * Warm paper lanterns (Chinese kongming / Mid-Autumn) rising slowly with a
- * flickering glow. Few and slow so they never compete with text.
+ * flickering glow. At low counts (≤14) they drift gently so they never
+ * compete with text. At high counts they fill the sky like Chiang Mai's
+ * Yi Peng or Turkey's lantern festivals, with varied sizes for depth.
  */
 export function Lanterns({ color, glow, count = 8 }: { color: string; glow: string; count?: number }) {
   const reduce = useReducedMotion();
   if (reduce) return null;
+  const festival = count > 14;
+  const total = Math.min(count, 40);
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-      {Array.from({ length: Math.min(count, 14) }, (_, i) => {
-        const size = 22 + seeded(i + 900) * 26;
+      {Array.from({ length: total }, (_, i) => {
+        // Festival mode: three depth bands — far (small/dim), mid, near (large/bright).
+        const depthBand = festival ? (i % 3) : 1;                       // 0 = far, 1 = mid, 2 = near
+        const baseSize = festival
+          ? depthBand === 0 ? 10 + seeded(i + 900) * 10                 // far: 10–20px
+          : depthBand === 2 ? 30 + seeded(i + 900) * 22                 // near: 30–52px
+          : 18 + seeded(i + 900) * 16                                   // mid: 18–34px
+          : 22 + seeded(i + 900) * 26;                                  // original: 22–48px
+        const glowRadius = festival ? baseSize * (depthBand === 2 ? 0.6 : 0.3) : baseSize * 0.5;
+        const peakOpacity = festival ? (depthBand === 0 ? 0.55 : depthBand === 2 ? 1 : 0.8) : 0.95;
+        const drift = festival ? 18 + seeded(i + 930) * 18 : 22 + seeded(i + 930) * 14;
+        const delay = festival ? seeded(i + 940) * 22 : seeded(i + 940) * 14;
         return (
           <motion.div
             key={i}
             className="absolute"
-            style={{ left: `${3 + seeded(i + 910) * 92}%`, bottom: -90, filter: `drop-shadow(0 0 ${size * 0.5}px ${glow})` }}
-            animate={{ y: ["0vh", "-120vh"], x: [0, (seeded(i + 920) - 0.5) * 50, 0], opacity: [0, 0.95, 0.95, 0] }}
-            transition={{ duration: 22 + seeded(i + 930) * 14, delay: seeded(i + 940) * 14, repeat: Infinity, ease: "linear", times: [0, 0.1, 0.85, 1] }}
+            style={{ left: `${2 + seeded(i + 910) * 96}%`, bottom: -90, filter: `drop-shadow(0 0 ${glowRadius}px ${glow})` }}
+            animate={{ y: ["0vh", "-120vh"], x: [0, (seeded(i + 920) - 0.5) * (festival ? 30 : 50), 0], opacity: [0, peakOpacity, peakOpacity, 0] }}
+            transition={{ duration: drift, delay, repeat: Infinity, ease: "linear", times: [0, 0.1, 0.85, 1] }}
           >
-            <svg width={size} height={size * 1.35} viewBox="0 0 40 54">
+            <svg width={baseSize} height={baseSize * 1.35} viewBox="0 0 40 54">
               <defs>
                 <radialGradient id={`lantern-${i}`} cx="50%" cy="60%" r="60%">
                   <stop offset="0" stopColor="#fff3c4" />

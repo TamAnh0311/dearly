@@ -108,7 +108,7 @@ const STYLES: Record<string, Partial<InvitationStyle>> = {
   // ── East Asian collection ──
   "double-happiness": { music: "orchestral", hero: "doors", culture: "chinese", ambient: ["lanterns", "gold-dust"], ornament: "cloud", corners: "sharp", eyebrow: "caps", flowers: false, calendar: true },
   "crimson-keepsake": { music: "romantic", hero: "poster", culture: "vietnamese", ambient: ["petals"], ornament: "floral", corners: "rounded", headingCase: "normal", flowers: false, calendar: true },
-  "lantern-night": { music: "ambient", hero: "celestial", culture: "chinese", ambient: ["lanterns", "stars"], ornament: "cloud", corners: "pill", headingCase: "normal", flowers: false, calendar: true },
+  "lantern-night": { music: "ambient", hero: "celestial", culture: "chinese", ambient: ["lanterns"], ornament: "cloud", corners: "pill", headingCase: "normal", flowers: false, calendar: true },
   sakura: { music: "musicbox", hero: "shoji", culture: "japanese", ambient: ["petals"], ornament: "floral", corners: "sharp", texture: "paper", eyebrow: "caps", headingCase: "normal", flowers: false, calendar: true },
   enso: { music: "ambient", hero: "enso", culture: "japanese", ambient: [], ornament: "line", corners: "sharp", texture: "paper", eyebrow: "caps", headingCase: "normal", flowers: false, calendar: true },
   seigaiha: { music: "piano", hero: "enso", culture: "japanese", ambient: ["gold-dust"], ornament: "wave", corners: "sharp", eyebrow: "caps", headingCase: "normal", flowers: false, calendar: true },

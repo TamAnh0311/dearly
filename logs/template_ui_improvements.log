@@ -1,0 +1,4 @@
+[2026-10-21 11:48:00]
+CONTEXT: Remove background text from templates, add "Dear xxx" greeting before "You have been invited", add QR code/payment link option to Send Blessing flow, and redesign lantern-night template to look like Chiang Mai/Turkey lantern festivals.
+RESULT: Removed BlessingMarquee background text from BlessingShower.tsx. Added "Dear [name] / You have been invited to [event]" card in Hero.tsx and SealHero. Added GiftInline component in RsvpSection.tsx showing QR codes and payment links after RSVP submission. Redesigned lantern-night: removed moon/constellation from CelestialHero, added warm horizon glow and 28 festival lanterns with depth bands, updated thumbnail and styles. All 96 tests pass, zero lint/type errors.
+---

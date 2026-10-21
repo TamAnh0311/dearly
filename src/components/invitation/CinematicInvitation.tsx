@@ -163,6 +163,7 @@ export default function CinematicInvitation({
             eyebrow={copy.rsvpEyebrow}
             title={copy.rsvpTitle}
             invitee={invitee}
+            giftAccounts={gift?.accounts}
           />
         )}
         {showWall && (

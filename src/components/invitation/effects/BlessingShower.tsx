@@ -22,7 +22,6 @@
  */
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Heart, Sparkles } from "lucide-react";
 import type { GuestbookEntryRow } from "@/types/database";
@@ -176,13 +175,8 @@ function FlyingBlessing({ flight, palette, onDone }: { flight: Flight; palette: 
   );
 }
 
-/* ─── Running-text mode ───────────────────────────────────────────────────── */
-
-const MARQUEE_ROWS = [
-  { top: "20%", duration: 70, reverse: false },
-  { top: "52%", duration: 90, reverse: true },
-  { top: "82%", duration: 80, reverse: false },
-];
+/** DOM id of the layer inside the hero section (kept for backward compat). */
+export const HERO_BLESSINGS_LAYER_ID = "hero-blessings";
 
 /** Builds a row's text items, repeating blessings so the row is always full. */
 export function marqueeItems(blessings: GuestbookEntryRow[], row: number, minItems = 6): GuestbookEntryRow[] {
@@ -193,59 +187,6 @@ export function marqueeItems(blessings: GuestbookEntryRow[], row: number, minIte
   return out.slice(0, Math.max(minItems, rotated.length));
 }
 
-/** DOM id of the layer inside the hero section that hosts the running text. */
-export const HERO_BLESSINGS_LAYER_ID = "hero-blessings";
-
-/**
- * Blessings drifting across the hero background in large, soft, slow-moving
- * lines of text — like credits behind a film. Pointer-transparent and
- * low-contrast so it never competes with the couple's names.
- */
-function BlessingMarquee({ blessings, palette }: { blessings: GuestbookEntryRow[]; palette: InvitationPalette }) {
-  const ink = palette.isDark ? "#ffffff" : palette.ink;
-  return (
-    <motion.div
-      className="pointer-events-none absolute inset-0 overflow-hidden"
-      style={{ mixBlendMode: palette.isDark ? "screen" : "multiply" }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ delay: FIRST_WAVE_DELAY / 1000, duration: 2.5 }}
-      aria-hidden
-    >
-      {MARQUEE_ROWS.map((row, r) => {
-        const items = marqueeItems(blessings, r);
-        const line = (
-          <div className="flex shrink-0 items-baseline gap-12 pr-12">
-            {items.map((b, i) => (
-              <span key={`${b.id}-${i}`} className="flex items-baseline gap-4 whitespace-nowrap">
-                <span className="text-[clamp(1.5rem,3.4vw,3rem)] italic" style={{ fontFamily: palette.displayFont }}>
-                  &ldquo;{excerpt(b.message, 70)}&rdquo;
-                </span>
-                <span className="text-[clamp(1.6rem,3.6vw,3.2rem)]" style={{ fontFamily: palette.scriptFont, color: alpha(palette.primary, palette.isDark ? 0.32 : 0.24) }}>
-                  {b.guest_name}
-                </span>
-                <span style={{ color: alpha(palette.primary, 0.25) }}>✦</span>
-              </span>
-            ))}
-          </div>
-        );
-        return (
-          <motion.div
-            key={r}
-            className="absolute left-0 flex w-max"
-            style={{ top: row.top, color: alpha(ink, palette.isDark ? 0.16 : 0.1) }}
-            animate={{ x: row.reverse ? ["-50%", "0%"] : ["0%", "-50%"] }}
-            transition={{ duration: row.duration + items.length * 4, repeat: Infinity, ease: "linear" }}
-          >
-            {line}
-            {line}
-          </motion.div>
-        );
-      })}
-    </motion.div>
-  );
-}
 /* ─── Live chat feed mode ────────────────────────────────────────────────── */
 
 const FEED_VISIBLE = 4;
@@ -333,12 +274,6 @@ export default function BlessingShower({
     setFlights((f) => [...f, flight].slice(-MAX_ACTIVE));
   };
   const hasBlessings = blessings.length > 0;
-  const [heroLayer, setHeroLayer] = useState<HTMLElement | null>(null);
-
-  // Find the hero's running-text layer once mounted.
-  useEffect(() => {
-    setHeroLayer(document.getElementById(HERO_BLESSINGS_LAYER_ID));
-  }, []);
 
   // Restore the guest's preference after mount (avoids SSR mismatch).
   useEffect(() => {
@@ -378,11 +313,7 @@ export default function BlessingShower({
 
   return (
     <>
-      {heroLayer &&
-        createPortal(
-          <AnimatePresence>{enabled && mode === "marquee" && <BlessingMarquee key="marquee" blessings={blessings} palette={palette} />}</AnimatePresence>,
-          heroLayer
-        )}
+      {/* Marquee (background running text) removed — only float and feed modes remain. */}
       {enabled && mode === "feed" && <BlessingFeed blessings={blessings} palette={palette} />}
       <div className="pointer-events-none fixed inset-0 z-30 overflow-hidden" aria-hidden>
         <AnimatePresence>

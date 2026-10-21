@@ -51,7 +51,7 @@ export function SealHero({ wedding, palette, contentY, contentOpacity }: LayoutP
   const reduce = useReducedMotion();
   const paper = palette.isDark ? mix(palette.background, "#ffffff", 0.08) : mix(palette.background, "#ffffff", 0.6);
   const envelope = palette.isDark ? mix(palette.background, "#ffffff", 0.14) : mix(palette.background, palette.accent, 0.35);
-  const { twoNames, eventType } = useEventCopy();
+  const { twoNames, eventType, inviteeName } = useEventCopy();
   const initials = twoNames ? `${wedding.partner1_name.charAt(0)}&${wedding.partner2_name.charAt(0)}` : wedding.partner1_name.charAt(0);
   const invitedLine = eventType === "wedding" ? "You are invited" : "You're invited";
   const t = reduce ? 0 : 1;
@@ -83,6 +83,11 @@ export function SealHero({ wedding, palette, contentY, contentOpacity }: LayoutP
                 <circle key={i} cx={2.5 + i * 5} cy={3} r={2.2} fill={mix(paper, palette.primary, 0.15)} />
               ))}
             </svg>
+            {inviteeName && (
+              <p className="mb-1 text-lg" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>
+                Dear {inviteeName}
+              </p>
+            )}
             <p className="text-[10px] uppercase tracking-[0.45em]" style={{ color: palette.inkMuted }}>
               {invitedLine}
             </p>

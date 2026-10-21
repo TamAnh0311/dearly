@@ -105,16 +105,34 @@ export default function LayoutThumbnail({ slug, colors, fonts, photo, names = ["
     case "celestial": {
       const sky = dark ? secondary : mix(primary, "#0b1030", 0.88);
       const star = mix(primary, "#ffffff", 0.55);
+      const hasLanterns = style.ambient.includes("lanterns");
       return (
-        <div className="relative flex h-full items-center justify-center overflow-hidden" style={{ background: `radial-gradient(ellipse at 50% 30%, ${mix(sky, accent, 0.25)}, ${sky} 65%)` }}>
-          {Array.from({ length: 30 }, (_, i) => (
-            <span
-              key={i}
-              className="absolute rounded-full"
-              style={{ left: `${(i * 37) % 100}%`, top: `${(i * 53) % 100}%`, width: (i % 3) + 1, height: (i % 3) + 1, background: star, opacity: 0.4 + (i % 4) * 0.15 }}
-            />
-          ))}
-          <span className="absolute right-[12%] top-[12%] h-8 w-8 rounded-full" style={{ boxShadow: `inset -7px 3px 0 0 ${star}` }} />
+        <div className="relative flex h-full items-center justify-center overflow-hidden" style={{ background: hasLanterns ? `radial-gradient(ellipse at 50% 30%, ${mix(sky, "#2a1810", 0.35)}, ${sky} 55%)` : `radial-gradient(ellipse at 50% 30%, ${mix(sky, accent, 0.25)}, ${sky} 65%)` }}>
+          {hasLanterns ? (
+            <>
+              {/* Mini lanterns for the thumbnail */}
+              {Array.from({ length: 12 }, (_, i) => (
+                <span key={i} className="absolute" style={{ left: `${8 + (i * 41) % 84}%`, top: `${10 + (i * 31) % 70}%` }}>
+                  <svg width={6 + (i % 3) * 3} height={8 + (i % 3) * 4} viewBox="0 0 40 54">
+                    <path d="M8 4 H32 L38 44 Q20 52 2 44 Z" fill={mix(primary, "#ffb347", 0.5)} />
+                  </svg>
+                </span>
+              ))}
+              {/* Warm horizon glow */}
+              <div className="absolute inset-x-0 bottom-0 h-[35%]" style={{ background: `linear-gradient(0deg, ${alpha(mix(primary, "#ff8c00", 0.5), 0.2)}, transparent)` }} />
+            </>
+          ) : (
+            <>
+              {Array.from({ length: 30 }, (_, i) => (
+                <span
+                  key={i}
+                  className="absolute rounded-full"
+                  style={{ left: `${(i * 37) % 100}%`, top: `${(i * 53) % 100}%`, width: (i % 3) + 1, height: (i % 3) + 1, background: star, opacity: 0.4 + (i % 4) * 0.15 }}
+                />
+              ))}
+              <span className="absolute right-[12%] top-[12%] h-8 w-8 rounded-full" style={{ boxShadow: `inset -7px 3px 0 0 ${star}` }} />
+            </>
+          )}
           <div className="relative text-center leading-none" style={{ fontFamily: display, color: "#f4f1ea", textShadow: `0 0 18px ${alpha(star, 0.5)}` }}>
             <p className="text-2xl">{names[0]}</p>
             <p className="my-0.5 text-xl" style={{ fontFamily: script, color: star }}>

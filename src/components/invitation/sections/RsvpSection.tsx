@@ -9,11 +9,11 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Heart, HeartHandshake, LoaderCircle, Minus, PartyPopper, Plus, Send } from "lucide-react";
-import type { GuestbookEntryRow } from "@/types/database";
+import { Check, Copy, Heart, HeartHandshake, LoaderCircle, Minus, PartyPopper, Plus, QrCode, Send } from "lucide-react";
+import type { GiftAccount, GuestbookEntryRow } from "@/types/database";
 import { CelebrationBurst } from "../effects/Particles";
 import { Reveal, SectionHeading } from "./Primitives";
-import { EASE_OUT, alpha, type InvitationPalette } from "../utils";
+import { EASE_OUT, alpha, mix, type InvitationPalette } from "../utils";
 
 type Choice = "attending" | "declined";
 
@@ -34,6 +34,8 @@ interface RsvpSectionProps {
   /** When true, submissions are simulated locally (template previews). */
   demo?: boolean;
   onBlessing: (entry: GuestbookEntryRow) => void;
+  /** Optional gift accounts (QR code / payment link) shown after submission. */
+  giftAccounts?: GiftAccount[];
 }
 
 /** localStorage key remembering this browser's RSVP for a wedding. */
@@ -133,6 +135,81 @@ function ChoiceButton({
   );
 }
 
+/** Compact inline gift card shown after a successful RSVP. */
+function GiftInlineCard({ account, palette }: { account: GiftAccount; palette: InvitationPalette }) {
+  const [copied, setCopied] = useState(false);
+
+  /** Copies the account number to the clipboard. */
+  async function handleCopy() {
+    if (!account.number) return;
+    try {
+      await navigator.clipboard.writeText(account.number.replace(/\s+/g, ""));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* private mode or unsupported — non-fatal */
+    }
+  }
+
+  return (
+    <div
+      className="flex flex-col items-center gap-2 border p-4 text-center"
+      style={{ borderRadius: palette.radius.card, borderColor: alpha(palette.primary, 0.2), background: palette.isDark ? mix(palette.background, "#ffffff", 0.04) : mix(palette.background, "#ffffff", 0.6) }}
+    >
+      <p className="text-lg" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>
+        {account.label}
+      </p>
+      {account.qrUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={account.qrUrl} alt={`QR code for ${account.label}`} loading="lazy" className="h-36 w-36 bg-white object-contain p-1.5" style={{ borderRadius: palette.radius.sm === "2px" ? 2 : 10 }} />
+      )}
+      {account.bank && (
+        <p className="text-[10px] uppercase tracking-[0.25em]" style={{ color: palette.inkMuted }}>{account.bank}</p>
+      )}
+      {account.holder && (
+        <p className="text-sm" style={{ color: palette.ink }}>{account.holder}</p>
+      )}
+      {account.number && (
+        <button
+          type="button"
+          onClick={handleCopy}
+          className="inline-flex items-center gap-2 border px-3 py-1.5 font-mono text-sm tracking-wider transition hover:-translate-y-0.5"
+          style={{ borderRadius: palette.radius.sm, borderColor: alpha(palette.primary, 0.35), color: palette.ink }}
+          aria-label={`Copy account number ${account.number}`}
+        >
+          {account.number}
+          {copied ? <Check size={14} style={{ color: palette.primary }} /> : <Copy size={14} style={{ color: palette.primary }} />}
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** Gift accounts section shown inline after a successful blessing. */
+function GiftInline({ accounts, palette }: { accounts: GiftAccount[]; palette: InvitationPalette }) {
+  return (
+    <motion.div
+      className="mt-8 w-full"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.6, duration: 0.6 }}
+    >
+      <div className="mb-4 flex items-center gap-3 justify-center">
+        <span className="h-px flex-1 max-w-[4rem]" style={{ background: alpha(palette.primary, 0.25) }} />
+        <span className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.3em]" style={{ color: palette.inkMuted }}>
+          <QrCode size={14} style={{ color: palette.primary }} /> Send a gift
+        </span>
+        <span className="h-px flex-1 max-w-[4rem]" style={{ background: alpha(palette.primary, 0.25) }} />
+      </div>
+      <div className={`mx-auto grid gap-4 ${accounts.length > 1 ? "max-w-lg grid-cols-2" : "max-w-xs"}`}>
+        {accounts.map((a, i) => (
+          <GiftInlineCard key={`${a.label}-${i}`} account={a} palette={palette} />
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
 export default function RsvpSection({
   weddingId,
   coupleNames,
@@ -142,6 +219,7 @@ export default function RsvpSection({
   eyebrow = "Kindly reply",
   title = "Will you join us?",
   invitee = null,
+  giftAccounts = [],
 }: RsvpSectionProps) {
   const maxParty = invitee?.maxPartySize ?? 10;
   const [choice, setChoice] = useState<Choice | null>(null);
@@ -263,6 +341,7 @@ export default function RsvpSection({
                   ? `Thank you, ${name}. We can't wait to celebrate with you.`
                   : `Thank you, ${name}. Your love means the world to us, even from afar.`}
               </p>
+              {giftAccounts.length > 0 && <GiftInline accounts={giftAccounts} palette={palette} />}
               <button
                 type="button"
                 onClick={reset}

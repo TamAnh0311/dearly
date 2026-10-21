@@ -374,54 +374,89 @@ const CONSTELLATION = [
 ] as const;
 
 function CelestialHero({ wedding, palette, contentY, contentOpacity }: LayoutProps) {
+  const lanternFestival = palette.style.ambient.includes("lanterns");
   const sky = palette.isDark ? palette.background : mix(palette.primary, "#0b1030", 0.88);
   const starInk = mix(palette.primary, "#ffffff", 0.55);
   const ink = "#f4f1ea";
-  const eyebrow = useEyebrow("Written in the stars");
+  const eyebrow = useEyebrow(lanternFestival ? "An evening of light" : "Written in the stars");
   const { twoNames } = useEventCopy();
+
+  // Lantern-night uses a warmer sky gradient to complement the golden lanterns.
+  const skyBg = lanternFestival
+    ? `radial-gradient(ellipse 90% 80% at 50% 25%, ${mix(sky, "#2a1810", 0.35)} 0%, ${sky} 55%, ${mix(sky, "#000000", 0.5)} 100%)`
+    : `radial-gradient(ellipse 80% 70% at 50% 30%, ${mix(sky, palette.accent, 0.25)} 0%, ${sky} 60%, ${mix(sky, "#000000", 0.4)} 100%)`;
+
   return (
     <>
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{ background: `radial-gradient(ellipse 80% 70% at 50% 30%, ${mix(sky, palette.accent, 0.25)} 0%, ${sky} 60%, ${mix(sky, "#000000", 0.4)} 100%)` }}
-      />
+      <div className="pointer-events-none absolute inset-0" style={{ background: skyBg }} />
       <AmbientLayer palette={{ ...palette, primary: starInk }} />
 
-      {/* Crescent moon with soft halo */}
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute right-[8%] top-[10%] h-24 w-24 rounded-full md:h-36 md:w-36"
-        style={{ background: `radial-gradient(circle, ${alpha(starInk, 0.28)} 0%, transparent 68%)`, scale: 1.8 }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 3 }}
-      />
-      <motion.svg viewBox="0 0 100 100" className="absolute right-[8%] top-[10%] w-24 md:w-36" aria-hidden initial={{ opacity: 0, rotate: -30 }} animate={{ opacity: 1, rotate: 0 }} transition={{ duration: 2.4, ease: EASE_OUT }}>
-        <defs>
-          <mask id="crescent">
-            <rect width="100" height="100" fill="white" />
-            <circle cx="64" cy="40" r="34" fill="black" />
-          </mask>
-        </defs>
-        <circle cx="50" cy="50" r="36" fill={starInk} mask="url(#crescent)" />
-      </motion.svg>
+      {lanternFestival ? (
+        <>
+          {/* Warm horizon glow for the lantern festival (Chiang Mai / Turkey nights). */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-[45%]"
+            style={{ background: `linear-gradient(0deg, ${alpha(mix(palette.primary, "#ff8c00", 0.5), 0.18)} 0%, transparent 100%)` }}
+          />
+          {/* Scattered warm sparkles to fill the dark sky between lanterns */}
+          {Array.from({ length: 40 }, (_, i) => (
+            <motion.span
+              key={`spark-${i}`}
+              aria-hidden
+              className="pointer-events-none absolute rounded-full"
+              style={{
+                left: `${(i * 37 + 13) % 100}%`,
+                top: `${(i * 53 + 7) % 85}%`,
+                width: (i % 3) + 1,
+                height: (i % 3) + 1,
+                background: mix(palette.primary, "#ffffff", 0.5),
+              }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 0.3 + (i % 4) * 0.12, 0.15, 0.3 + (i % 3) * 0.1] }}
+              transition={{ duration: 3 + (i % 5), repeat: Infinity, delay: (i % 8) * 0.4 }}
+            />
+          ))}
+        </>
+      ) : (
+        <>
+          {/* Crescent moon with soft halo */}
+          <motion.div
+            aria-hidden
+            className="pointer-events-none absolute right-[8%] top-[10%] h-24 w-24 rounded-full md:h-36 md:w-36"
+            style={{ background: `radial-gradient(circle, ${alpha(starInk, 0.28)} 0%, transparent 68%)`, scale: 1.8 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 3 }}
+          />
+          <motion.svg viewBox="0 0 100 100" className="absolute right-[8%] top-[10%] w-24 md:w-36" aria-hidden initial={{ opacity: 0, rotate: -30 }} animate={{ opacity: 1, rotate: 0 }} transition={{ duration: 2.4, ease: EASE_OUT }}>
+            <defs>
+              <mask id="crescent">
+                <rect width="100" height="100" fill="white" />
+                <circle cx="64" cy="40" r="34" fill="black" />
+              </mask>
+            </defs>
+            <circle cx="50" cy="50" r="36" fill={starInk} mask="url(#crescent)" />
+          </motion.svg>
 
-      {/* Constellation drawing itself */}
-      <svg viewBox="0 0 400 160" className="absolute left-[4%] top-[8%] w-[70%] max-w-xl opacity-80" aria-hidden>
-        <motion.polyline
-          points={CONSTELLATION.map((p) => p.join(",")).join(" ")}
-          fill="none"
-          stroke={starInk}
-          strokeWidth={0.6}
-          strokeDasharray="2 3"
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ duration: 3, delay: 0.6, ease: "easeInOut" }}
-        />
-        {CONSTELLATION.map(([x, y], i) => (
-          <motion.circle key={i} cx={x} cy={y} r={2.4} fill={starInk} initial={{ scale: 0 }} animate={{ scale: [0, 1.6, 1] }} transition={{ delay: 0.6 + i * 0.45, duration: 0.6 }} />
-        ))}
-      </svg>
+          {/* Constellation drawing itself */}
+          <svg viewBox="0 0 400 160" className="absolute left-[4%] top-[8%] w-[70%] max-w-xl opacity-80" aria-hidden>
+            <motion.polyline
+              points={CONSTELLATION.map((p) => p.join(",")).join(" ")}
+              fill="none"
+              stroke={starInk}
+              strokeWidth={0.6}
+              strokeDasharray="2 3"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: 3, delay: 0.6, ease: "easeInOut" }}
+            />
+            {CONSTELLATION.map(([x, y], i) => (
+              <motion.circle key={i} cx={x} cy={y} r={2.4} fill={starInk} initial={{ scale: 0 }} animate={{ scale: [0, 1.6, 1] }} transition={{ delay: 0.6 + i * 0.45, duration: 0.6 }} />
+            ))}
+          </svg>
+        </>
+      )}
 
       <motion.div className="relative z-10 flex flex-col items-center px-6 text-center" style={{ y: contentY, opacity: contentOpacity }}>
         <Eyebrow text={eyebrow} color={alpha(ink, 0.7)} delay={0.8} />
@@ -555,7 +590,7 @@ export default function Hero({ wedding, palette, photos }: HeroProps) {
   if (layout === "poster" && photos.length < 1) layout = "enso";
 
   const props: LayoutProps = { wedding, palette, photos, contentY, contentOpacity };
-  const { inviteeName } = useEventCopy();
+  const { inviteeName, copy } = useEventCopy();
   const cueColor = layout === "celestial" || layout === "daynight" || layout === "poster" ? "rgba(244,241,234,0.75)" : palette.inkMuted;
 
   return (
@@ -585,15 +620,20 @@ export default function Hero({ wedding, palette, photos }: HeroProps) {
       {layout !== "editorial" && <ScrollCue color={cueColor} />}
       {/* Personal greeting for invitations sent from the guest list */}
       {inviteeName && (
-        <motion.p
-          className="absolute left-1/2 top-20 z-[45] -translate-x-1/2 whitespace-nowrap rounded-full px-5 py-2 text-xl shadow-lg backdrop-blur-md md:top-24 md:text-2xl"
-          style={{ fontFamily: palette.scriptFont, color: palette.primary, background: alpha(palette.background, 0.82), border: `1px solid ${alpha(palette.primary, 0.25)}` }}
+        <motion.div
+          className="absolute left-1/2 top-16 z-[45] -translate-x-1/2 flex flex-col items-center gap-1.5 rounded-2xl px-7 py-4 shadow-lg backdrop-blur-md md:top-20"
+          style={{ background: alpha(palette.background, 0.82), border: `1px solid ${alpha(palette.primary, 0.25)}` }}
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 3.2, duration: 1 }}
         >
-          Dear {inviteeName}
-        </motion.p>
+          <p className="text-xl md:text-2xl" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>
+            Dear {inviteeName}
+          </p>
+          <p className="text-[10px] uppercase tracking-[0.3em] text-center" style={{ color: cueColor }}>
+            You have been invited to {wedding.event_title || `${wedding.partner1_name}${wedding.partner2_name ? ` & ${wedding.partner2_name}'s` : "'s"} ${copy.label.toLowerCase()}`}
+          </p>
+        </motion.div>
       )}
     </section>
   );

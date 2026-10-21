@@ -406,22 +406,22 @@ function CelestialHero({ wedding, palette, contentY, contentOpacity }: LayoutPro
             className="pointer-events-none absolute inset-x-0 bottom-0 h-[45%]"
             style={{ background: `linear-gradient(0deg, ${alpha(mix(palette.primary, "#ff8c00", 0.5), 0.18)} 0%, transparent 100%)` }}
           />
-          {/* Scattered warm sparkles to fill the dark sky between lanterns */}
-          {Array.from({ length: 40 }, (_, i) => (
-            <motion.span
+          {/* Scattered warm sparkles — CSS-only twinkle for performance */}
+          {Array.from({ length: 18 }, (_, i) => (
+            <span
               key={`spark-${i}`}
               aria-hidden
-              className="pointer-events-none absolute rounded-full"
+              className="pointer-events-none absolute rounded-full animate-pulse"
               style={{
                 left: `${(i * 37 + 13) % 100}%`,
                 top: `${(i * 53 + 7) % 85}%`,
                 width: (i % 3) + 1,
                 height: (i % 3) + 1,
                 background: mix(palette.primary, "#ffffff", 0.5),
+                opacity: 0.25 + (i % 4) * 0.1,
+                animationDuration: `${3 + (i % 4)}s`,
+                animationDelay: `${(i % 6) * 0.5}s`,
               }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: [0, 0.3 + (i % 4) * 0.12, 0.15, 0.3 + (i % 3) * 0.1] }}
-              transition={{ duration: 3 + (i % 5), repeat: Infinity, delay: (i % 8) * 0.4 }}
             />
           ))}
         </>

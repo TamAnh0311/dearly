@@ -39,7 +39,7 @@ export default function AmbientLayer({ palette, intensity = 1 }: { palette: Invi
           case "lanterns": {
             // Festival mode (Chiang Mai / Turkey): fill the sky with many lanterns.
             const festival = palette.style.hero === "celestial" && palette.style.culture === "chinese";
-            return <Lanterns key={fx} color={mix(palette.isDark ? palette.accent : palette.primary, "#b3261e", 0.55)} glow={mix(palette.primary, "#ffb347", 0.5)} count={n(festival ? 28 : 8)} />;
+            return <Lanterns key={fx} color={mix(palette.isDark ? palette.accent : palette.primary, "#b3261e", 0.55)} glow={mix(palette.primary, "#ffb347", 0.5)} count={n(festival ? 16 : 8)} />;
           }
           case "gold-dust":
             return <GoldDust key={fx} color={palette.primary} count={n(28)} />;

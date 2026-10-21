@@ -314,15 +314,7 @@ export function Lanterns({ color, glow, count = 8 }: { color: string; glow: stri
               </defs>
               <path d="M8 4 H32 L38 44 Q20 52 2 44 Z" fill={`url(#lantern-${i})`} />
               <path d="M14 4 L11 44 M26 4 L29 44 M20 4 V47" stroke={color} strokeOpacity="0.35" strokeWidth="0.8" />
-              <motion.ellipse
-                cx="20"
-                cy="44"
-                rx="6"
-                ry="2.4"
-                fill="#fff6d0"
-                animate={{ opacity: [0.6, 1, 0.7, 1] }}
-                transition={{ duration: 1.6 + seeded(i + 950), repeat: Infinity }}
-              />
+              <ellipse cx="20" cy="44" rx="6" ry="2.4" fill="#fff6d0" opacity="0.8" />
             </svg>
           </motion.div>
         );

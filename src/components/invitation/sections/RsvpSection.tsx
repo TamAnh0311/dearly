@@ -341,7 +341,6 @@ export default function RsvpSection({
                   ? `Thank you, ${name}. We can't wait to celebrate with you.`
                   : `Thank you, ${name}. Your love means the world to us, even from afar.`}
               </p>
-              {giftAccounts.length > 0 && <GiftInline accounts={giftAccounts} palette={palette} />}
               <button
                 type="button"
                 onClick={reset}
@@ -378,6 +377,8 @@ export default function RsvpSection({
                   palette={palette}
                 />
               </Reveal>
+
+              {giftAccounts.length > 0 && <GiftInline accounts={giftAccounts} palette={palette} />}
 
               <AnimatePresence initial={false}>
                 {choice && (

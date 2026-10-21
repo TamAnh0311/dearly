@@ -378,8 +378,9 @@ function CelestialHero({ wedding, palette, contentY, contentOpacity }: LayoutPro
   const sky = palette.isDark ? palette.background : mix(palette.primary, "#0b1030", 0.88);
   const starInk = mix(palette.primary, "#ffffff", 0.55);
   const ink = "#f4f1ea";
-  const eyebrow = useEyebrow(lanternFestival ? "An evening of light" : "Written in the stars");
-  const { twoNames } = useEventCopy();
+  const { twoNames, copy } = useEventCopy();
+  const defaultEyebrow = useEyebrow("Written in the stars");
+  const eyebrow = lanternFestival ? copy.label + " Invitation" : defaultEyebrow;
 
   // Lantern-night uses a warmer sky gradient to complement the golden lanterns.
   const skyBg = lanternFestival
@@ -484,8 +485,20 @@ function CelestialHero({ wedding, palette, contentY, contentOpacity }: LayoutPro
             <RisingText text={wedding.partner2_name} delay={1.9} />
           </span>
         </h1>
+        {/* Event tagline for lantern festival mode */}
+        {lanternFestival && (
+          <motion.p
+            className="mt-6 text-2xl md:text-3xl"
+            style={{ fontFamily: palette.scriptFont, color: starInk }}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 2.3, ease: EASE_OUT }}
+          >
+            {wedding.event_title || copy.tagline(wedding.partner1_name)}
+          </motion.p>
+        )}
         {wedding.wedding_date && (
-          <div className="mt-10">
+          <div className={lanternFestival ? "mt-6" : "mt-10"}>
             <DateLine date={wedding.wedding_date} palette={{ ...palette, primary: starInk }} delay={2.6} color={ink} />
           </div>
         )}

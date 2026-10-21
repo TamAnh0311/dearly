@@ -26,7 +26,7 @@ import { Footer, TopNav, type NavLink } from "./sections/Chrome";
 import { buildPalette, googleFontsUrl } from "./utils";
 import { resolveBlessingStyle, resolveSections } from "./sections-config";
 import { EventContext } from "./sections/HeroParts";
-import { Families, GiftSection } from "./sections/Extras";
+import { Families, GiftSection, InvitationCard } from "./sections/Extras";
 import { resolveFamilies, resolveGift } from "@/lib/invitation-extras";
 import { EVENT_COPY, eventTypeOf, hostNames, isPastEvent } from "@/lib/event-types";
 import BlessingShower from "./effects/BlessingShower";
@@ -133,6 +133,10 @@ export default function CinematicInvitation({
         <TopNav names={names} links={links} palette={palette} topOffset={topOffset} showRsvp={showRsvp} />
         <Hero wedding={wedding} palette={palette} photos={photos} />
         {families && <Families families={families} names={names} palette={palette} />}
+        {/* Formal invitation card with QR code for lantern-night and similar East Asian templates. */}
+        {palette.style.hero === "celestial" && palette.style.culture === "chinese" && (
+          <InvitationCard wedding={wedding} families={families} palette={palette} giftAccounts={gift?.accounts} />
+        )}
         {wedding.wedding_date && show.countdown && (
           <Countdown
             date={wedding.wedding_date}

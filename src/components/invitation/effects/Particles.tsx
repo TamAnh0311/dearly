@@ -271,23 +271,33 @@ export function Balloons({ colors, count = 9 }: { colors: string[]; count?: numb
 
 /* ─── Sky lanterns ────────────────────────────────────────────────────────── */
 
+/** Warm colour palette — each lantern picks a tint for variety. */
+const LANTERN_TINTS = [
+  { core: "#fffbe6", mid: "#fff3c4", body: "#e8a030" },  // classic gold
+  { core: "#fff5f0", mid: "#ffd6c4", body: "#c9503a" },  // soft red
+  { core: "#fffde8", mid: "#ffe8a0", body: "#d4920e" },  // deep amber
+  { core: "#fff8f2", mid: "#ffc8a0", body: "#b85e30" },  // burnt orange
+  { core: "#fff6f6", mid: "#ffc0c0", body: "#a83030" },  // crimson
+];
+
 /**
  * Three lantern shape variants rendered as detailed SVGs:
  *  - barrel  (traditional kongming — trapezoidal paper body)
  *  - globe   (round paper globe lantern)
- *  - diamond (elongated diamond / olive shape)
+ *  - wide    (broad flat barrel — the classic sky-release shape)
  *
  * Each has: warm radial glow, structural ribs, top cap, bottom flame.
  * Gradient IDs are scoped per-instance to avoid SVG conflicts.
  */
-function LanternSVG({ variant, id, color, glow, size }: { variant: number; id: string; color: string; glow: string; size: number }) {
+function LanternSVG({ variant, id, _color, glow, size, tint }: { variant: number; id: string; _color?: string; glow: string; size: number; tint: number }) {
+  const t = LANTERN_TINTS[tint % LANTERN_TINTS.length];
   const shared = (
     <defs>
       <radialGradient id={`lg-${id}`} cx="50%" cy="55%" r="55%">
-        <stop offset="0%" stopColor="#fffbe6" />
-        <stop offset="30%" stopColor="#fff3c4" />
+        <stop offset="0%" stopColor={t.core} />
+        <stop offset="28%" stopColor={t.mid} />
         <stop offset="60%" stopColor={glow} />
-        <stop offset="100%" stopColor={color} />
+        <stop offset="100%" stopColor={t.body} />
       </radialGradient>
       <radialGradient id={`fl-${id}`} cx="50%" cy="30%" r="70%">
         <stop offset="0%" stopColor="#fffde0" />
@@ -295,7 +305,7 @@ function LanternSVG({ variant, id, color, glow, size }: { variant: number; id: s
       </radialGradient>
     </defs>
   );
-  const flame = <ellipse cx="20" cy="46" rx="4" ry="2" fill={`url(#fl-${id})`} className="animate-pulse" style={{ animationDuration: "1.8s" }} />;
+  const flame = <ellipse cx="20" cy="46" rx="4.5" ry="2" fill={`url(#fl-${id})`} className="animate-pulse" style={{ animationDuration: "1.8s" }} />;
 
   if (variant === 1) {
     // Globe lantern
@@ -303,31 +313,27 @@ function LanternSVG({ variant, id, color, glow, size }: { variant: number; id: s
       <svg width={size} height={size * 1.3} viewBox="0 0 40 52" fill="none">
         {shared}
         <ellipse cx="20" cy="24" rx="16" ry="19" fill={`url(#lg-${id})`} />
-        {/* Ribs */}
-        <path d="M20 5 V43" stroke={color} strokeOpacity="0.2" strokeWidth="0.5" />
-        <path d="M10 8 Q20 28 10 42 M30 8 Q20 28 30 42" stroke={color} strokeOpacity="0.15" strokeWidth="0.5" />
-        {/* Cap */}
-        <rect x="16" y="4" width="8" height="3" rx="1" fill={color} opacity="0.6" />
-        {/* Wire */}
-        <line x1="20" y1="7" x2="20" y2="5" stroke={color} strokeWidth="0.6" opacity="0.5" />
+        <path d="M20 5 V43" stroke={t.body} strokeOpacity="0.2" strokeWidth="0.5" />
+        <path d="M10 8 Q20 28 10 42 M30 8 Q20 28 30 42" stroke={t.body} strokeOpacity="0.15" strokeWidth="0.5" />
+        <rect x="16" y="4" width="8" height="3" rx="1" fill={t.body} opacity="0.55" />
+        <line x1="20" y1="7" x2="20" y2="5" stroke={t.body} strokeWidth="0.6" opacity="0.45" />
         {flame}
       </svg>
     );
   }
   if (variant === 2) {
-    // Diamond lantern
+    // Wide barrel — the classic flat kongming release shape
     return (
-      <svg width={size} height={size * 1.5} viewBox="0 0 40 60" fill="none">
+      <svg width={size * 1.15} height={size * 1.2} viewBox="0 0 46 48" fill="none">
         {shared}
-        <path d="M20 4 L36 28 L20 52 L4 28 Z" fill={`url(#lg-${id})`} />
-        {/* Ribs */}
-        <path d="M20 4 V52" stroke={color} strokeOpacity="0.2" strokeWidth="0.5" />
-        <path d="M12 16 L28 16 M12 40 L28 40" stroke={color} strokeOpacity="0.12" strokeWidth="0.4" />
-        {/* Cap */}
-        <rect x="17" y="2" width="6" height="3" rx="1" fill={color} opacity="0.6" />
-        {/* Tassel */}
-        <path d="M20 52 C18 56 22 58 20 62" stroke={color} strokeOpacity="0.4" strokeWidth="0.6" fill="none" />
-        <ellipse cx="20" cy="50" rx="4" ry="1.5" fill={`url(#fl-${id})`} className="animate-pulse" style={{ animationDuration: "2.1s" }} />
+        <path d="M6 6 H40 L43 36 Q23 46 3 36 Z" fill={`url(#lg-${id})`} />
+        <path d="M15 6 L13 36 M31 6 L33 36 M23 6 V40" stroke={t.body} strokeOpacity="0.16" strokeWidth="0.5" />
+        <path d="M6 18 Q23 22 40 18" stroke={t.body} strokeOpacity="0.1" strokeWidth="0.4" />
+        <rect x="5" y="4" width="36" height="3" rx="1" fill={t.body} opacity="0.4" />
+        <line x1="5" y1="7" x2="41" y2="7" stroke={t.body} strokeOpacity="0.25" strokeWidth="0.5" />
+        <path d="M16 4 L23 1 L30 4" stroke={t.body} strokeOpacity="0.25" strokeWidth="0.5" fill="none" />
+        <ellipse cx="23" cy="40" rx="5" ry="2" fill={`url(#fl-${id})`} className="animate-pulse" style={{ animationDuration: "2s" }} />
+        <path d="M23 42 C21 45 25 47 23 50" stroke={t.body} strokeOpacity="0.3" strokeWidth="0.5" fill="none" />
       </svg>
     );
   }
@@ -335,19 +341,14 @@ function LanternSVG({ variant, id, color, glow, size }: { variant: number; id: s
   return (
     <svg width={size} height={size * 1.35} viewBox="0 0 40 54" fill="none">
       {shared}
-      {/* Body */}
       <path d="M10 6 H30 L35 40 Q20 50 5 40 Z" fill={`url(#lg-${id})`} />
-      {/* Ribs */}
-      <path d="M15 6 L13 40 M25 6 L27 40 M20 6 V44" stroke={color} strokeOpacity="0.18" strokeWidth="0.5" />
-      {/* Top frame */}
-      <rect x="9" y="4" width="22" height="3" rx="1" fill={color} opacity="0.45" />
-      <line x1="9" y1="7" x2="31" y2="7" stroke={color} strokeOpacity="0.3" strokeWidth="0.6" />
-      {/* Wire */}
-      <path d="M16 4 L20 1 L24 4" stroke={color} strokeOpacity="0.3" strokeWidth="0.5" fill="none" />
-      {/* Bottom glow */}
+      <path d="M15 6 L13 40 M25 6 L27 40 M20 6 V44" stroke={t.body} strokeOpacity="0.18" strokeWidth="0.5" />
+      <path d="M10 20 Q20 23 30 20" stroke={t.body} strokeOpacity="0.1" strokeWidth="0.4" />
+      <rect x="9" y="4" width="22" height="3" rx="1" fill={t.body} opacity="0.45" />
+      <line x1="9" y1="7" x2="31" y2="7" stroke={t.body} strokeOpacity="0.3" strokeWidth="0.6" />
+      <path d="M16 4 L20 1 L24 4" stroke={t.body} strokeOpacity="0.3" strokeWidth="0.5" fill="none" />
       {flame}
-      {/* Tassel */}
-      <path d="M20 48 C18 51 22 53 20 56" stroke={color} strokeOpacity="0.35" strokeWidth="0.5" fill="none" />
+      <path d="M20 48 C18 51 22 53 20 56" stroke={t.body} strokeOpacity="0.3" strokeWidth="0.5" fill="none" />
     </svg>
   );
 }
@@ -364,7 +365,7 @@ let keyframesInjected = false;
  * GPU-composited sky lanterns. Rise animation runs entirely on the compositor
  * via CSS @keyframes + will-change, so 30 lanterns cost almost nothing.
  */
-export function Lanterns({ color, glow, count = 8 }: { color: string; glow: string; count?: number }) {
+export function Lanterns({ color: _color, glow, count = 8 }: { color: string; glow: string; count?: number }) {
   const reduce = useReducedMotion();
   if (reduce) return null;
   const festival = count > 14;
@@ -386,7 +387,6 @@ export function Lanterns({ color, glow, count = 8 }: { color: string; glow: stri
         const dur = festival ? 20 + seeded(i + 930) * 16 : 24 + seeded(i + 930) * 12;
         const del = seeded(i + 940) * (festival ? 20 : 14);
         const sway = (seeded(i + 920) - 0.5) * (festival ? 35 : 50);
-        const variant = i % 3;
         return (
           <div
             key={i}
@@ -400,7 +400,7 @@ export function Lanterns({ color, glow, count = 8 }: { color: string; glow: stri
               "--lx": `${sway}px`,
             } as React.CSSProperties}
           >
-            <LanternSVG variant={variant} id={`l${i}`} color={color} glow={glow} size={sz} />
+            <LanternSVG variant={i % 3} id={`l${i}`} glow={glow} size={sz} tint={i} />
           </div>
         );
       })}

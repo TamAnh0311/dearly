@@ -80,9 +80,10 @@ function buildMockWedding(template: TemplateRow): WeddingRow {
         ? {
             families: demo.families,
             gift: {
+              note: "Your presence is our greatest gift. For those who wish to bless us, you may scan below.",
               accounts: [
-                { label: `${demo.names[0]}'s family`, bank: "Demo Bank", holder: demo.names[0], number: "0000 1234 5678", qrUrl: MOCK_QR },
-                { label: `${demo.names[1]}'s family`, bank: "Demo Bank", holder: demo.names[1], number: "0000 8765 4321", qrUrl: MOCK_QR },
+                { label: `Nhà trai · ${demo.names[0]}`, qrUrl: MOCK_QR },
+                { label: `Nhà gái · ${demo.names[1]}`, qrUrl: MOCK_QR },
               ],
             },
           }

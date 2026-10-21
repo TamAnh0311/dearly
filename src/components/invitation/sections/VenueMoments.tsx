@@ -74,26 +74,121 @@ export function Venue({
   );
 }
 
+export type MomentsLayout = "ribbon" | "grid" | "pinned";
+
+/** Ribbon: auto-scrolling tilted photo strip. */
+function RibbonLayout({ photos, palette, reduce }: { photos: string[]; palette: InvitationPalette; reduce: boolean | null }) {
+  const loop = [...photos, ...photos];
+  return (
+    <div className="relative -rotate-2">
+      <motion.div
+        className="flex w-max gap-5"
+        animate={reduce ? undefined : { x: ["0%", "-50%"] }}
+        transition={{ duration: photos.length * 6, repeat: Infinity, ease: "linear" }}
+      >
+        {loop.map((src, i) => (
+          <div
+            key={i}
+            className="relative h-64 w-48 shrink-0 overflow-hidden bg-white p-2 shadow-xl md:h-80 md:w-60"
+            style={{ transform: `rotate(${i % 2 ? 2 : -2}deg)`, borderRadius: palette.radius.card }}
+          >
+            <div className="relative h-full w-full overflow-hidden" style={{ borderRadius: `calc(${palette.radius.card} - 6px)` }}>
+              <Image src={src} alt="" fill sizes="240px" className="object-cover" />
+            </div>
+          </div>
+        ))}
+      </motion.div>
+    </div>
+  );
+}
+
+/** Grid: Pinterest / Instagram style masonry. */
+function GridLayout({ photos, palette }: { photos: string[]; palette: InvitationPalette }) {
+  // Two-column masonry: alternate tall (aspect-[3/4]) and short (aspect-square) for visual variety.
+  return (
+    <Reveal className="mx-auto grid max-w-3xl grid-cols-2 gap-3 px-6 sm:grid-cols-3 md:gap-4">
+      {photos.slice(0, 9).map((src, i) => (
+        <motion.div
+          key={i}
+          className="relative overflow-hidden shadow-lg"
+          style={{
+            borderRadius: palette.radius.card,
+            aspectRatio: i % 3 === 0 ? "3/4" : i % 3 === 1 ? "1/1" : "4/3",
+          }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.6, delay: i * 0.08 }}
+        >
+          <Image src={src} alt="" fill sizes="(min-width:768px) 33vw, 50vw" className="object-cover" />
+        </motion.div>
+      ))}
+    </Reveal>
+  );
+}
+
+/** Pinned: one large hero photo with a smaller grid beneath. */
+function PinnedLayout({ photos, palette }: { photos: string[]; palette: InvitationPalette }) {
+  const [hero, ...rest] = photos;
+  return (
+    <div className="mx-auto max-w-3xl px-6">
+      {/* Hero pinned image */}
+      <Reveal>
+        <motion.div
+          className="relative w-full overflow-hidden shadow-2xl"
+          style={{ aspectRatio: "16/9", borderRadius: palette.radius.lg }}
+          initial={{ opacity: 0, scale: 0.96 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+        >
+          <Image src={hero} alt="" fill sizes="(min-width:768px) 800px, 100vw" className="object-cover" priority />
+        </motion.div>
+      </Reveal>
+      {/* Supporting grid */}
+      {rest.length > 0 && (
+        <Reveal className="mt-4 grid grid-cols-3 gap-3 md:gap-4">
+          {rest.slice(0, 6).map((src, i) => (
+            <motion.div
+              key={i}
+              className="relative overflow-hidden shadow-md"
+              style={{ aspectRatio: "1/1", borderRadius: palette.radius.card }}
+              initial={{ opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.5, delay: i * 0.07 }}
+            >
+              <Image src={src} alt="" fill sizes="(min-width:768px) 250px, 33vw" className="object-cover" />
+            </motion.div>
+          ))}
+        </Reveal>
+      )}
+    </div>
+  );
+}
+
 /**
- * Memories — an infinite, gently tilted photo ribbon plus calls to action to
- * open the full gallery and (when guest uploads are on) share photos, so the
- * invitation keeps collecting memories during and after the wedding.
+ * Memories — photo gallery with three layout options:
+ *  - "ribbon"  (default) infinite auto-scrolling tilted photo strip
+ *  - "grid"    Pinterest / Instagram masonry grid
+ *  - "pinned"  one large hero image with supporting grid beneath
  */
 export function Moments({
   photos,
   galleryHref,
   uploadHref,
   palette,
+  layout = "ribbon",
 }: {
   photos: string[];
   galleryHref?: string;
   /** Where guests share photos; shows the "Share your photos" button. */
   uploadHref?: string;
   palette: InvitationPalette;
+  layout?: MomentsLayout;
 }) {
   const reduce = useReducedMotion();
-  const loop = [...photos, ...photos];
-  const hasRibbon = photos.length >= 3;
+  const hasPhotos = photos.length >= 3;
 
   return (
     <section id="moments" className="relative overflow-hidden py-28 md:py-36" style={{ backgroundColor: palette.surface }}>
@@ -105,26 +200,10 @@ export function Moments({
           subtitle={uploadHref ? "Captured a moment with us? Add it to our album — every photo becomes part of our story." : undefined}
         />
       </div>
-      {hasRibbon ? (
-        <div className="relative -rotate-2">
-          <motion.div
-            className="flex w-max gap-5"
-            animate={reduce ? undefined : { x: ["0%", "-50%"] }}
-            transition={{ duration: photos.length * 6, repeat: Infinity, ease: "linear" }}
-          >
-            {loop.map((src, i) => (
-              <div
-                key={i}
-                className="relative h-64 w-48 shrink-0 overflow-hidden bg-white p-2 shadow-xl md:h-80 md:w-60"
-                style={{ transform: `rotate(${i % 2 ? 2 : -2}deg)`, borderRadius: palette.radius.card }}
-              >
-                <div className="relative h-full w-full overflow-hidden" style={{ borderRadius: `calc(${palette.radius.card} - 6px)` }}>
-                  <Image src={src} alt="" fill sizes="240px" className="object-cover" />
-                </div>
-              </div>
-            ))}
-          </motion.div>
-        </div>
+      {hasPhotos ? (
+        layout === "grid" ? <GridLayout photos={photos} palette={palette} />
+        : layout === "pinned" ? <PinnedLayout photos={photos} palette={palette} />
+        : <RibbonLayout photos={photos} palette={palette} reduce={reduce} />
       ) : (
         <Reveal className="mx-auto flex max-w-xl justify-center gap-4 px-6">
           {[-6, 3, -2].map((r, i) => (
@@ -149,7 +228,7 @@ export function Moments({
               <Camera size={14} /> Share your photos
             </Link>
           )}
-          {galleryHref && hasRibbon && (
+          {galleryHref && hasPhotos && (
             <Link
               href={galleryHref}
               className="border px-7 py-3 text-xs uppercase tracking-[0.25em] transition hover:-translate-y-0.5"

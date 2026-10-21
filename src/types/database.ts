@@ -103,6 +103,8 @@ export interface WeddingCustomization {
     gift?: boolean;
   };
   galleryLayout: "masonry" | "albums" | "timeline";
+  /** Layout for the moments section on the invitation: ribbon (default), grid, or pinned. */
+  momentsLayout?: "ribbon" | "grid" | "pinned";
   /** How blessings appear on page load: background running text (default), floating carriers or a live chat feed. */
   blessingStyle?: "marquee" | "float" | "feed";
   /** Parents / families of each host, shown under the hero ("Nhà trai · Nhà gái", "혼주"). */

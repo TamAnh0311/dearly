@@ -11,13 +11,11 @@
  */
 
 import { useState } from "react";
-import { QRCodeSVG } from "qrcode.react";
 import { Check, Copy, Gift as GiftIcon } from "lucide-react";
 import type { GiftAccount, WeddingRow } from "@/types/database";
 import { Reveal, SectionHeading } from "./Primitives";
 import { useEventCopy } from "./HeroParts";
 import { alpha, formatLongDate, mix, type InvitationPalette } from "../utils";
-import { SITE_URL } from "@/lib/seo";
 
 /* ─── Families ────────────────────────────────────────────────────────────── */
 
@@ -169,8 +167,8 @@ export function InvitationCard({
 }) {
   const { eventType, copy, twoNames } = useEventCopy();
   const names: [string, string] = [wedding.partner1_name, wedding.partner2_name];
+  const coupleNames = names.filter(Boolean).join(" & ");
   const eventLabel = wedding.event_title || copy.label;
-  const invitationUrl = `${SITE_URL}/${wedding.slug}`;
 
   const cardBg = palette.isDark ? mix(palette.background, "#ffffff", 0.06) : mix(palette.background, "#ffffff", 0.7);
   const border = alpha(palette.primary, 0.3);
@@ -261,31 +259,47 @@ export function InvitationCard({
 
           {/* Date & venue */}
           {wedding.wedding_date && (
-            <p className="text-sm" style={{ color: palette.ink }}>
+            <p className="text-base font-medium" style={{ color: palette.ink }}>
               {formatLongDate(wedding.wedding_date)}
             </p>
           )}
           {wedding.venue_name && (
-            <p className="mt-1 text-xs uppercase tracking-[0.25em]" style={{ color: palette.inkMuted }}>
+            <p className="mt-2 text-sm" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
               {wedding.venue_name}
             </p>
           )}
-
-          {/* QR code */}
-          <div className="mt-8 flex flex-col items-center gap-2">
-            <div className="rounded-lg bg-white p-3 shadow-sm" style={{ border: `1px solid ${alpha(palette.primary, 0.15)}` }}>
-              <QRCodeSVG
-                value={invitationUrl}
-                size={140}
-                level="M"
-                fgColor={palette.isDark ? "#1a1a1a" : mix(palette.ink, "#000000", 0.3)}
-                bgColor="#ffffff"
-              />
-            </div>
-            <p className="text-[10px] uppercase tracking-[0.3em]" style={{ color: palette.inkMuted }}>
-              Scan to open invitation
+          {wedding.venue_address && (
+            <p className="mt-1 text-xs" style={{ color: palette.inkMuted }}>
+              {wedding.venue_address}
             </p>
+          )}
+
+          {/* Story excerpt */}
+          {wedding.story_text && (
+            <>
+              <div className="mx-auto my-6 flex items-center gap-3">
+                <span className="h-px flex-1" style={{ background: alpha(palette.primary, 0.2) }} />
+                <span className="text-sm" style={{ color: palette.primary }}>&#10022;</span>
+                <span className="h-px flex-1" style={{ background: alpha(palette.primary, 0.2) }} />
+              </div>
+              <p className="mx-auto max-w-sm text-sm italic leading-relaxed" style={{ color: palette.inkMuted }}>
+                &ldquo;{wedding.story_text.replace(/\s+/g, " ").trim().slice(0, 160).trimEnd()}{wedding.story_text.length > 160 ? "…" : ""}&rdquo;
+              </p>
+            </>
+          )}
+
+          {/* RSVP prompt */}
+          <div className="mx-auto my-6 flex items-center gap-3">
+            <span className="h-px flex-1" style={{ background: alpha(palette.primary, 0.2) }} />
+            <span className="text-sm" style={{ color: palette.primary }}>&#10022;</span>
+            <span className="h-px flex-1" style={{ background: alpha(palette.primary, 0.2) }} />
           </div>
+          <p className="text-xs uppercase tracking-[0.35em]" style={{ color: palette.inkMuted }}>
+            {copy.rsvpEyebrow}
+          </p>
+          <p className="mt-1 text-lg" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>
+            {coupleNames} would be honoured by your presence
+          </p>
 
           {/* Gift QR codes */}
           {giftAccounts.length > 0 && (

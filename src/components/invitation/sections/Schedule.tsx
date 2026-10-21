@@ -13,7 +13,6 @@ import {
   Clock,
   GlassWater,
   Heart,
-  MapPin,
   Music,
   Sparkles,
   Utensils,
@@ -104,10 +103,10 @@ export default function Schedule({ events, palette, timeZone }: { events: Weddin
                   )}
                   {ev.location && (
                     <p
-                      className={`mt-3 flex items-center gap-1.5 text-xs uppercase tracking-[0.2em] ${right ? "" : "md:justify-end"}`}
+                      className={`mt-3 text-xs uppercase tracking-[0.2em] ${right ? "" : "md:text-right"}`}
                       style={{ color: palette.inkMuted }}
                     >
-                      <MapPin size={13} /> {ev.location}
+                      {ev.location}
                     </p>
                   )}
                 </motion.div>

@@ -154,6 +154,7 @@ export default function CinematicInvitation({
             galleryHref={demo ? undefined : `/${wedding.slug}/gallery`}
             uploadHref={guestUploads ? (demo ? "#moments" : `/${wedding.slug}/gallery#share`) : undefined}
             palette={palette}
+            layout={wedding.customization?.momentsLayout ?? "ribbon"}
           />
         )}
         {gift && <GiftSection gift={gift} palette={palette} />}

@@ -28,7 +28,7 @@ import { resolveBlessingStyle, resolveSections } from "./sections-config";
 import { EventContext } from "./sections/HeroParts";
 import { Families, GiftSection, InvitationCard, type InvitationLang } from "./sections/Extras";
 import { resolveFamilies, resolveGift } from "@/lib/invitation-extras";
-import { EVENT_COPY, eventTypeOf, getEventCopy, hostNames, isPastEvent } from "@/lib/event-types";
+import { eventTypeOf, getEventCopy, hostNames, isPastEvent } from "@/lib/event-types";
 import BlessingShower from "./effects/BlessingShower";
 import MusicPlayer from "@/components/ui/MusicPlayer";
 import type { MusicPreset } from "@/lib/ambient-music";

@@ -123,7 +123,7 @@ export default function CinematicInvitation({
   }
 
   return (
-    <EventContext.Provider value={{ eventType, copy, twoNames, inviteeName: invitee?.name ?? null }}>
+    <EventContext.Provider value={{ eventType, copy, twoNames, inviteeName: invitee?.name ?? null, lang }}>
       <div
         className="relative min-h-screen overflow-x-hidden antialiased"
         style={{ backgroundColor: palette.background, color: palette.ink, fontFamily: palette.bodyFont }}

@@ -9,9 +9,62 @@ import { createContext, useContext } from "react";
 import { motion } from "framer-motion";
 import { EVENT_COPY, type EventCopy } from "@/lib/event-types";
 import type { EventType } from "@/types/database";
+import type { InvitationLang } from "./Extras";
 import { ChevronDown } from "lucide-react";
 import { EASE_OUT, formatDotDate, type InvitationPalette } from "../utils";
 import type { LayoutProps } from "./Hero";
+
+/* ─── Shared UI strings (not in EventCopy because they're layout chrome, not event-type copy) ── */
+
+interface UIStrings {
+  scroll: string;
+  saveTheDate: string;
+  aLittleSecret: string;
+  weSaidYes: string;
+  addToCalendar: string;
+  days: string;
+  hours: string;
+  minutes: string;
+  seconds: string;
+  dear: (name: string) => string;
+  youAreInvitedTo: (label: string) => string;
+  weSayIDo: string;
+}
+
+const UI_EN: UIStrings = {
+  scroll: "Scroll",
+  saveTheDate: "Save the date",
+  aLittleSecret: "A little secret",
+  weSaidYes: "We said yes",
+  addToCalendar: "Add to calendar",
+  days: "Days",
+  hours: "Hours",
+  minutes: "Minutes",
+  seconds: "Seconds",
+  dear: (name) => `Dear ${name}`,
+  youAreInvitedTo: (label) => `You have been invited to ${label.toLowerCase()}`,
+  weSayIDo: "We say \u201CI do\u201D on",
+};
+
+const UI_VI: UIStrings = {
+  scroll: "Xem thêm",
+  saveTheDate: "Ngày trọng đại",
+  aLittleSecret: "Bí mật nhỏ",
+  weSaidYes: "Chúng tôi đã nói đồng ý",
+  addToCalendar: "Thêm vào lịch",
+  days: "Ngày",
+  hours: "Giờ",
+  minutes: "Phút",
+  seconds: "Giây",
+  dear: (name) => `Kính gửi ${name}`,
+  youAreInvitedTo: () => "Trân trọng kính mời quý khách",
+  weSayIDo: "Ngày cưới",
+};
+
+/** Returns shared UI strings for the active language. */
+export function getUIStrings(lang?: InvitationLang): UIStrings {
+  return lang === "vi" ? UI_VI : UI_EN;
+}
 
 /** Event context for the hero: type-specific copy, one vs two hosts, personal invitee. */
 export interface EventContextValue {
@@ -21,6 +74,8 @@ export interface EventContextValue {
   twoNames: boolean;
   /** Name from a personal invitation link (?i=token), if any. */
   inviteeName?: string | null;
+  /** Display language. */
+  lang?: InvitationLang;
 }
 
 export const EventContext = createContext<EventContextValue>({ eventType: "wedding", copy: EVENT_COPY.wedding, twoNames: true });
@@ -30,9 +85,16 @@ export function useEventCopy(): EventContextValue {
   return useContext(EventContext);
 }
 
-/** Wedding layouts keep their bespoke kicker; other events use their own copy. */
+/** Returns the UI strings for the current language. */
+export function useUI(): UIStrings {
+  const { lang } = useEventCopy();
+  return getUIStrings(lang);
+}
+
+/** Wedding layouts keep their bespoke kicker; other events use their own copy. When Vietnamese, always use copy.eyebrow. */
 export function useEyebrow(weddingLine: string): string {
-  const { eventType, copy } = useEventCopy();
+  const { eventType, copy, lang } = useEventCopy();
+  if (lang === "vi") return copy.eyebrow;
   return eventType === "wedding" ? weddingLine : copy.eyebrow;
 }
 /* ─── Shared pieces ───────────────────────────────────────────────────────── */
@@ -99,6 +161,7 @@ export function DateLine({ date, palette, delay, color }: { date: string; palett
 
 /** Bouncing "Scroll" cue anchored to the bottom of the hero. */
 export function ScrollCue({ color }: { color: string }) {
+  const ui = useUI();
   return (
     <motion.a
       href="#celebrate"
@@ -109,7 +172,7 @@ export function ScrollCue({ color }: { color: string }) {
       animate={{ opacity: 1 }}
       transition={{ delay: 3.2 }}
     >
-      Scroll
+      {ui.scroll}
       <motion.span animate={{ y: [0, 6, 0] }} transition={{ duration: 1.8, repeat: Infinity }}>
         <ChevronDown size={18} />
       </motion.span>
@@ -120,6 +183,7 @@ export function ScrollCue({ color }: { color: string }) {
 /** Small caps line that settles from wide letter-spacing, with an optional "Dear {name}" greeting above. */
 export function Eyebrow({ text, color, delay = 0.2 }: { text: string; color: string; delay?: number }) {
   const { inviteeName, copy } = useEventCopy();
+  const ui = useUI();
   return (
     <div className="flex flex-col items-center gap-2">
       {inviteeName && (
@@ -130,7 +194,7 @@ export function Eyebrow({ text, color, delay = 0.2 }: { text: string; color: str
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, delay: Math.max(0, delay - 0.2), ease: EASE_OUT }}
         >
-          Dear {inviteeName}
+          {ui.dear(inviteeName)}
         </motion.p>
       )}
       <motion.p
@@ -140,7 +204,7 @@ export function Eyebrow({ text, color, delay = 0.2 }: { text: string; color: str
         animate={{ opacity: 1, letterSpacing: "0.5em" }}
         transition={{ duration: 1.8, delay, ease: EASE_OUT }}
       >
-        {inviteeName ? `You have been invited to ${copy.label.toLowerCase()}` : text}
+        {inviteeName ? ui.youAreInvitedTo(copy.label) : text}
       </motion.p>
     </div>
   );

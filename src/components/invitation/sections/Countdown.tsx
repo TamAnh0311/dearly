@@ -12,6 +12,7 @@ import { alpha, calendarUrl, formatLongDate, parseWeddingDate, type InvitationPa
 import { CalendarPlus } from "lucide-react";
 import ScratchReveal from "./ScratchReveal";
 import CalendarCard from "./CalendarCard";
+import { useEventCopy, useUI } from "./HeroParts";
 
 interface Parts {
   days: number;
@@ -88,21 +89,25 @@ export default function Countdown({
 
   const isPast = parts !== null && parts.days + parts.hours + parts.minutes + parts.seconds === 0;
 
+  const ui = useUI();
+  const { lang } = useEventCopy();
+  const dateLocale = lang === "vi" ? "vi-VN" : undefined;
+
   return (
     <section id="celebrate" className="relative px-6 py-28 md:py-36" style={{ backgroundColor: palette.surface }}>
       <SectionHeading
-        eyebrow={isPast ? "We said yes" : palette.style.scratchReveal ? "A little secret" : "Save the date"}
-        title={palette.style.scratchReveal ? "Save the Date" : formatLongDate(date)}
+        eyebrow={isPast ? ui.weSaidYes : palette.style.scratchReveal ? ui.aLittleSecret : ui.saveTheDate}
+        title={palette.style.scratchReveal ? ui.saveTheDate : formatLongDate(date, null, dateLocale)}
         palette={palette}
       />
       {palette.style.scratchReveal && (
         <Reveal className="mb-14">
           <ScratchReveal palette={palette}>
             <p className="text-xs uppercase tracking-[0.35em]" style={{ color: palette.inkMuted }}>
-              We say &ldquo;I do&rdquo; on
+              {ui.weSayIDo}
             </p>
             <p className="mt-3 text-3xl md:text-4xl" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
-              {formatLongDate(date)}
+              {formatLongDate(date, null, dateLocale)}
             </p>
           </ScratchReveal>
         </Reveal>
@@ -115,10 +120,10 @@ export default function Countdown({
       <Reveal className="flex justify-center gap-3 md:gap-6">
         {parts ? (
           <>
-            <Tile value={parts.days} label="Days" palette={palette} />
-            <Tile value={parts.hours} label="Hours" palette={palette} />
-            <Tile value={parts.minutes} label="Minutes" palette={palette} />
-            <Tile value={parts.seconds} label="Seconds" palette={palette} />
+            <Tile value={parts.days} label={ui.days} palette={palette} />
+            <Tile value={parts.hours} label={ui.hours} palette={palette} />
+            <Tile value={parts.minutes} label={ui.minutes} palette={palette} />
+            <Tile value={parts.seconds} label={ui.seconds} palette={palette} />
           </>
         ) : (
           <div className="h-[7.5rem] md:h-[10rem]" />
@@ -133,7 +138,7 @@ export default function Countdown({
             className="inline-flex items-center gap-2 border px-6 py-3 text-xs uppercase tracking-[0.25em] transition hover:-translate-y-0.5"
             style={{ borderRadius: palette.radius.sm, borderColor: alpha(palette.primary, 0.5), color: palette.primary }}
           >
-            <CalendarPlus size={16} /> Add to calendar
+            <CalendarPlus size={16} /> {ui.addToCalendar}
           </a>
         </Reveal>
       )}

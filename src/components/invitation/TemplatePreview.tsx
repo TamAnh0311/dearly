@@ -21,10 +21,11 @@ import type { ResolvedTheme } from "@/components/templates/types";
 import type { GuestbookEntryRow, WeddingEventRow, WeddingRow } from "@/types/database";
 import CinematicInvitation from "./CinematicInvitation";
 import type { ReactionCounts } from "./sections/Blessings";
-import { COLOR_SCHEMES, type ColorScheme } from "./styles";
+import { COLOR_SCHEMES, getInvitationStyle, type ColorScheme } from "./styles";
 import SectionToggles from "./SectionToggles";
 import { resolveBlessingStyle, type BlessingStyle } from "./sections-config";
 import type { WeddingCustomization } from "@/types/database";
+import type { InvitationLang } from "./sections/Extras";
 
 interface TemplatePreviewProps {
   templateName: string;
@@ -102,6 +103,9 @@ export default function TemplatePreview({
   const [sections, setSections] = useState<WeddingCustomization["sections"]>(wedding.customization.sections);
   const [sectionsOpen, setSectionsOpen] = useState(false);
   const [blessingStyle, setBlessingStyle] = useState<BlessingStyle>(resolveBlessingStyle(wedding.customization.blessingStyle));
+  const culture = getInvitationStyle(templateSlug).culture;
+  const defaultLang: InvitationLang = wedding.customization.language ?? (culture === "vietnamese" ? "vi" : "en");
+  const [lang, setLang] = useState<InvitationLang>(defaultLang);
 
   /** Notifies the embedding dashboard of the current section choices. */
   function notifyParent(next: WeddingCustomization["sections"], style: BlessingStyle) {
@@ -122,8 +126,8 @@ export default function TemplatePreview({
     notifyParent(sections, style);
   }
   const previewWedding = useMemo(
-    () => ({ ...wedding, customization: { ...wedding.customization, sections, blessingStyle } }),
-    [wedding, sections, blessingStyle]
+    () => ({ ...wedding, customization: { ...wedding.customization, sections, blessingStyle, language: lang } }),
+    [wedding, sections, blessingStyle, lang]
   );
   const hiddenCount = Object.values(sections).filter((v) => v === false).length;
   const scheme = schemes.find((s) => s.id === schemeId) ?? schemes[0];
@@ -152,6 +156,24 @@ export default function TemplatePreview({
           </div>
           <span className="hidden shrink-0 text-xs text-white/80 xl:inline">{scheme.name}</span>
         </div>
+
+        {/* Language toggle — shown for East Asian culture templates */}
+        {culture && (
+          <div className="flex shrink-0 items-center rounded-lg border border-white/25">
+            {(["en", "vi"] as const).map((code) => (
+              <button
+                key={code}
+                type="button"
+                onClick={() => setLang(code)}
+                className={`px-2.5 py-1.5 text-xs font-semibold transition ${
+                  lang === code ? "bg-white/20 text-white" : "text-white/50 hover:text-white/80"
+                } ${code === "en" ? "rounded-l-[7px]" : "rounded-r-[7px]"}`}
+              >
+                {code === "en" ? "EN" : "VI"}
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className="relative shrink-0">
           <button

@@ -62,10 +62,13 @@ export function resolveBlessingStyle(value: unknown): BlessingStyle {
   return value === "float" || value === "feed" ? value : "marquee";
 }
 
-/** Resolves stored (possibly partial) section flags; anything unset is visible. */
+/** Keys that default to hidden (opt-in) rather than visible. */
+const OPT_IN_KEYS: Set<SectionKey> = new Set<SectionKey>(["invitationCard"]);
+
+/** Resolves stored (possibly partial) section flags; anything unset is visible (except opt-in keys). */
 export function resolveSections(sections?: Partial<WeddingCustomization["sections"]> | null): SectionVisibility {
   const out = {} as SectionVisibility;
-  for (const { key } of SECTION_TOGGLES) out[key] = sections?.[key] !== false;
+  for (const { key } of SECTION_TOGGLES) out[key] = OPT_IN_KEYS.has(key) ? sections?.[key] === true : sections?.[key] !== false;
   return out;
 }
 

@@ -101,7 +101,10 @@ export interface WeddingCustomization {
     music?: boolean;
     families?: boolean;
     gift?: boolean;
+    invitationCard?: boolean;
   };
+  /** Display language for invitation text (East Asian templates). Defaults to "en". */
+  language?: "en" | "vi";
   galleryLayout: "masonry" | "albums" | "timeline";
   /** Layout for the moments section on the invitation: ribbon (default), grid, or pinned. */
   momentsLayout?: "ribbon" | "grid" | "pinned";

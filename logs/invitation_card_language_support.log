@@ -1,0 +1,4 @@
+[2026-10-23 00:00:00]
+CONTEXT: Make invitation card removable via section toggle, add Vietnamese language alongside English, split family parents into separate lines, limit QR to 1 in card, support multiple destinations (Vietnamese weddings), add language picker in editor.
+RESULT: Modified database.ts (invitationCard toggle + language field), sections-config.ts (new toggle), Extras.tsx (EN/VI translations, multi-venue events, 1 QR, parent line splitting), CinematicInvitation.tsx (lang resolution, broadened culture condition), EditorForm.tsx (language picker), utils.ts (locale param for formatLongDate), templates/[slug]/page.tsx (Vietnamese demo events + 1 QR demo). Build passes.
+---

@@ -30,11 +30,39 @@ interface PageProps {
  * collection, shown on public previews. Never persisted.
  */
 const CULTURE_DEMO: Record<Culture, { names: [string, string]; families: { side1: string; side2: string } }> = {
-  chinese: { names: ["Wei", "Lin"], families: { side1: "Mr. Zhang Hao & Mrs. Li Mei", side2: "Mr. Chen Jun & Mrs. Wang Fang" } },
+  chinese: { names: ["Wei", "Lin"], families: { side1: "Mr. Zhang Hao · Mrs. Li Mei", side2: "Mr. Chen Jun · Mrs. Wang Fang" } },
   japanese: { names: ["Haruto", "Yui"], families: { side1: "Mr. & Mrs. Sato", side2: "Mr. & Mrs. Tanaka" } },
   korean: { names: ["Minjun", "Seoyeon"], families: { side1: "Kim Daeho · Park Mira", side2: "Lee Sungmin · Choi Jiwon" } },
   vietnamese: { names: ["Huy", "Thúy"], families: { side1: "Ông Nguyễn Viết Minh · Bà Trịnh Thị Lan", side2: "Ông Trịnh Văn Huy · Bà Ngô Mai Hoàn" } },
 };
+
+/** Vietnamese weddings have separate receptions at the bride's and groom's family homes. */
+const VIETNAMESE_EVENTS: WeddingEventRow[] = [
+  {
+    id: "evt-vi-1",
+    wedding_id: "preview",
+    title: "Tiệc cưới nhà trai",
+    description: "Lễ thành hôn tại gia đình nhà trai.",
+    location: "Nhà hàng Phương Đông, 123 Nguyễn Huệ, Q.1",
+    start_time: "2027-06-15T10:00:00",
+    end_time: "2027-06-15T13:00:00",
+    icon: "heart",
+    sort_order: 1,
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: "evt-vi-2",
+    wedding_id: "preview",
+    title: "Tiệc cưới nhà gái",
+    description: "Lễ vu quy tại gia đình nhà gái.",
+    location: "Trung tâm Hội nghị Hoa Sen, 456 Lê Lợi, Q.3",
+    start_time: "2027-06-14T10:00:00",
+    end_time: "2027-06-14T13:00:00",
+    icon: "heart",
+    sort_order: 2,
+    created_at: new Date().toISOString(),
+  },
+];
 
 /** Simple SVG that looks like a QR code (demo only — not scannable). */
 const MOCK_QR = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 21 21"><rect width="21" height="21" fill="#fff"/><g fill="#222">${[
@@ -80,10 +108,11 @@ function buildMockWedding(template: TemplateRow): WeddingRow {
         ? {
             families: demo.families,
             gift: {
-              note: "Your presence is our greatest gift. For those who wish to bless us, you may scan below.",
+              note: culture === "vietnamese"
+                ? "Sự hiện diện của quý khách là món quà lớn nhất. Quý khách có thể gửi lời chúc phúc qua mã QR bên dưới."
+                : "Your presence is our greatest gift. For those who wish to bless us, you may scan below.",
               accounts: [
-                { label: `Nhà trai · ${demo.names[0]}`, qrUrl: MOCK_QR },
-                { label: `Nhà gái · ${demo.names[1]}`, qrUrl: MOCK_QR },
+                { label: `${demo.names[0]} · ${demo.names[1]}`, qrUrl: MOCK_QR },
               ],
             },
           }
@@ -184,6 +213,8 @@ export default async function TemplatePreviewPage({ params, searchParams }: Page
 
   const mockWedding = buildMockWedding(template);
   const theme = resolveTheme(template.default_config, mockWedding.customization);
+  const culture = getInvitationStyle(template.slug).culture;
+  const demoEvents = culture === "vietnamese" ? VIETNAMESE_EVENTS : MOCK_EVENTS;
 
   return (
     <>
@@ -194,7 +225,7 @@ export default async function TemplatePreviewPage({ params, searchParams }: Page
         templateSlug={template.slug}
         baseTheme={theme}
         wedding={mockWedding}
-        events={MOCK_EVENTS}
+        events={demoEvents}
         blessings={DEMO_BLESSINGS}
         reactions={{ love: 128, bloom: 64, cheers: 42, sparkle: 37, rings: 21 }}
         // Poster heroes lead with a portrait of the couple (demo images only).

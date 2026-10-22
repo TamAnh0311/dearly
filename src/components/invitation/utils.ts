@@ -109,11 +109,11 @@ export function parseWeddingDate(value: string): Date {
   return /^\d{4}-\d{2}-\d{2}$/.test(value) ? new Date(`${value}T00:00:00`) : new Date(value);
 }
 
-/** "Saturday, June 15, 2027" */
-export function formatLongDate(value: string, timeZone?: string | null): string {
+/** "Saturday, June 15, 2027" — pass locale "vi-VN" for Vietnamese dates. */
+export function formatLongDate(value: string, timeZone?: string | null, locale?: string): string {
   const opts: Intl.DateTimeFormatOptions = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
   if (timeZone) opts.timeZone = timeZone;
-  return parseWeddingDate(value).toLocaleDateString("en-US", opts);
+  return parseWeddingDate(value).toLocaleDateString(locale || "en-US", opts);
 }
 
 /** "15 · 06 · 2027" */

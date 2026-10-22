@@ -26,7 +26,7 @@ import { Footer, TopNav, type NavLink } from "./sections/Chrome";
 import { buildPalette, googleFontsUrl } from "./utils";
 import { resolveBlessingStyle, resolveSections } from "./sections-config";
 import { EventContext } from "./sections/HeroParts";
-import { Families, GiftSection, InvitationCard } from "./sections/Extras";
+import { Families, GiftSection, InvitationCard, type InvitationLang } from "./sections/Extras";
 import { resolveFamilies, resolveGift } from "@/lib/invitation-extras";
 import { EVENT_COPY, eventTypeOf, hostNames, isPastEvent } from "@/lib/event-types";
 import BlessingShower from "./effects/BlessingShower";
@@ -102,6 +102,8 @@ export default function CinematicInvitation({
   const showRsvp = show.rsvp && !past;
   const families = show.families ? resolveFamilies(wedding.customization?.families) : null;
   const gift = show.gift ? resolveGift(wedding.customization?.gift) : null;
+  // Resolve display language: explicit choice → culture-based default → English.
+  const lang: InvitationLang = wedding.customization?.language ?? (palette.style.culture === "vietnamese" ? "vi" : "en");
 
   const links: NavLink[] = [
     ...(showStory ? [{ href: "#story", label: copy.storyTitle }] : []),
@@ -132,10 +134,10 @@ export default function CinematicInvitation({
         {palette.style.texture !== "none" && <TextureOverlay kind={palette.style.texture} />}
         <TopNav names={names} links={links} palette={palette} topOffset={topOffset} showRsvp={showRsvp} />
         <Hero wedding={wedding} palette={palette} photos={photos} />
-        {families && <Families families={families} names={names} palette={palette} />}
-        {/* Formal invitation card with QR code for lantern-night and similar East Asian templates. */}
-        {palette.style.hero === "celestial" && palette.style.culture === "chinese" && (
-          <InvitationCard wedding={wedding} families={families} palette={palette} giftAccounts={gift?.accounts} />
+        {families && <Families families={families} names={names} palette={palette} lang={lang} />}
+        {/* Formal invitation card for East Asian templates (toggleable). */}
+        {palette.style.culture && show.invitationCard && (
+          <InvitationCard wedding={wedding} families={families} palette={palette} giftAccounts={gift?.accounts} events={events} lang={lang} />
         )}
         {wedding.wedding_date && show.countdown && (
           <Countdown
@@ -157,7 +159,7 @@ export default function CinematicInvitation({
             layout={wedding.customization?.momentsLayout ?? "ribbon"}
           />
         )}
-        {gift && <GiftSection gift={gift} palette={palette} />}
+        {gift && <GiftSection gift={gift} palette={palette} lang={lang} />}
         {showRsvp && (
           <RsvpSection
             weddingId={wedding.id}

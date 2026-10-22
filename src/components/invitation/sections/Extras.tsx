@@ -12,16 +12,89 @@
 
 import { useState } from "react";
 import { Check, Copy, Gift as GiftIcon } from "lucide-react";
-import type { GiftAccount, WeddingRow } from "@/types/database";
+import type { GiftAccount, WeddingEventRow, WeddingRow } from "@/types/database";
 import { Reveal, SectionHeading } from "./Primitives";
 import { useEventCopy } from "./HeroParts";
 import { alpha, formatLongDate, mix, type InvitationPalette } from "../utils";
 
+/* ─── Language / Translations ────────────────────────────────────────────── */
+
+/** Supported invitation display languages. */
+export type InvitationLang = "en" | "vi";
+
+/** All translatable strings used in the Extras components. */
+interface Translations {
+  weddingInvitation: string;
+  invitation: (label: string) => string;
+  theGroom: string;
+  theBride: string;
+  familyOf: (name: string) => string;
+  honouredByPresence: (names: string) => string;
+  sendAGift: string;
+  weddingGift: string;
+  gifts: string;
+  withGratitude: string;
+  defaultGiftNote: string;
+  copied: string;
+  couldntCopy: string;
+  /** Locale for Intl.DateTimeFormat. */
+  dateLocale: string;
+}
+
+const TRANSLATIONS: Record<InvitationLang, Translations> = {
+  en: {
+    weddingInvitation: "Wedding Invitation",
+    invitation: (label) => `${label} Invitation`,
+    theGroom: "The Groom",
+    theBride: "The Bride",
+    familyOf: (name) => `The family of ${name}`,
+    honouredByPresence: (names) => `${names} would be honoured by your presence`,
+    sendAGift: "Send a gift",
+    weddingGift: "Wedding gift",
+    gifts: "Gifts",
+    withGratitude: "With gratitude",
+    defaultGiftNote: "Your presence is the greatest gift. For those who wish to send their blessings from afar, you can do so here.",
+    copied: "Copied",
+    couldntCopy: "Couldn't copy, please select the number instead",
+    dateLocale: "en-US",
+  },
+  vi: {
+    weddingInvitation: "Thiệp Mời Đám Cưới",
+    invitation: (label) => `Thiệp Mời ${label}`,
+    theGroom: "Chú Rể",
+    theBride: "Cô Dâu",
+    familyOf: (name) => `Gia đình ${name}`,
+    honouredByPresence: (names) => `Trân trọng kính mời quý khách đến chung vui cùng ${names}`,
+    sendAGift: "Mừng cưới",
+    weddingGift: "Mừng cưới",
+    gifts: "Quà tặng",
+    withGratitude: "Lời cảm ơn",
+    defaultGiftNote: "Sự hiện diện của quý khách là món quà lớn nhất. Với những ai muốn gửi lời chúc phúc, quý khách có thể gửi tại đây.",
+    copied: "Đã sao chép",
+    couldntCopy: "Không thể sao chép, vui lòng chọn số tài khoản",
+    dateLocale: "vi-VN",
+  },
+};
+
+/** Resolves translation strings for the given language. */
+function t(lang: InvitationLang | undefined): Translations {
+  return TRANSLATIONS[lang ?? "en"];
+}
+
+/**
+ * Splits a parents string by common separators (· & ,) into individual lines.
+ * "Mr. Zhang Hao & Mrs. Li Mei" → ["Mr. Zhang Hao", "Mrs. Li Mei"]
+ */
+function splitParents(value: string): string[] {
+  return value.split(/\s*[·&,]\s*/).map((s) => s.trim()).filter(Boolean);
+}
+
 /* ─── Families ────────────────────────────────────────────────────────────── */
 
 /** Two family columns under the hero; one column for single-host events. */
-export function Families({ families, names, palette }: { families: { side1?: string; side2?: string }; names: [string, string]; palette: InvitationPalette }) {
+export function Families({ families, names, palette, lang }: { families: { side1?: string; side2?: string }; names: [string, string]; palette: InvitationPalette; lang?: InvitationLang }) {
   const { twoNames } = useEventCopy();
+  const i18n = t(lang);
   const sides = [
     { name: names[0], parents: families.side1 },
     ...(twoNames ? [{ name: names[1], parents: families.side2 }] : []),
@@ -33,11 +106,15 @@ export function Families({ families, names, palette }: { families: { side1?: str
         {sides.map((s, i) => (
           <div key={s.name + i} className={i === 1 ? "md:order-3" : ""}>
             <p className="text-[11px] uppercase tracking-[0.4em]" style={{ color: palette.primary }}>
-              The family of {s.name}
+              {i18n.familyOf(s.name)}
             </p>
-            <p className="mt-3 text-xl leading-relaxed md:text-2xl" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
-              {s.parents}
-            </p>
+            <div className="mt-3 space-y-1">
+              {splitParents(s.parents!).map((line, j) => (
+                <p key={j} className="text-xl leading-relaxed md:text-2xl" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
+                  {line}
+                </p>
+              ))}
+            </div>
           </div>
         ))}
         {sides.length > 1 && (
@@ -53,9 +130,10 @@ export function Families({ families, names, palette }: { families: { side1?: str
 /* ─── Gift ────────────────────────────────────────────────────────────────── */
 
 /** One account card: label, bank, holder, number (copyable) and optional QR. */
-function AccountCard({ account, palette }: { account: GiftAccount; palette: InvitationPalette }) {
+function AccountCard({ account, palette, lang }: { account: GiftAccount; palette: InvitationPalette; lang?: InvitationLang }) {
   const [copied, setCopied] = useState(false);
   const [failed, setFailed] = useState(false);
+  const i18n = t(lang);
 
   /** Copies the account number; shows a fallback hint if the browser blocks it. */
   async function copy() {
@@ -106,27 +184,28 @@ function AccountCard({ account, palette }: { account: GiftAccount; palette: Invi
         </button>
       )}
       <p className="h-4 text-xs" style={{ color: palette.inkMuted }} aria-live="polite">
-        {copied ? "Copied" : failed ? "Couldn't copy, please select the number instead" : ""}
+        {copied ? i18n.copied : failed ? i18n.couldntCopy : ""}
       </p>
     </div>
   );
 }
 
 /** Gift section: an optional note and one or two account cards. */
-export function GiftSection({ gift, palette }: { gift: { note?: string; accounts: GiftAccount[] }; palette: InvitationPalette }) {
+export function GiftSection({ gift, palette, lang }: { gift: { note?: string; accounts: GiftAccount[] }; palette: InvitationPalette; lang?: InvitationLang }) {
   const { eventType } = useEventCopy();
-  const title = eventType === "wedding" ? "Wedding gift" : "Gifts";
+  const i18n = t(lang);
+  const title = eventType === "wedding" ? i18n.weddingGift : i18n.gifts;
   return (
     <section id="gift" className="relative px-6 py-28 md:py-36" style={{ backgroundColor: palette.surface }}>
       <SectionHeading
-        eyebrow="With gratitude"
+        eyebrow={i18n.withGratitude}
         title={title}
         palette={palette}
-        subtitle={gift.note ?? "Your presence is the greatest gift. For those who wish to send their blessings from afar, you can do so here."}
+        subtitle={gift.note ?? i18n.defaultGiftNote}
       />
       <Reveal className={`mx-auto grid max-w-3xl gap-6 ${gift.accounts.length > 1 ? "md:grid-cols-2" : "max-w-sm"}`}>
         {gift.accounts.map((a, i) => (
-          <AccountCard key={`${a.label}-${i}`} account={a} palette={palette} />
+          <AccountCard key={`${a.label}-${i}`} account={a} palette={palette} lang={lang} />
         ))}
       </Reveal>
       <div className="mt-10 flex justify-center" aria-hidden>
@@ -150,6 +229,14 @@ function CloudOrnament({ color }: { color: string }) {
 }
 
 /**
+ * Formats an event time string to a short time (e.g. "10:00 AM" or "10:00").
+ */
+function formatEventTime(value: string, locale: string): string {
+  const d = new Date(value);
+  return d.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
+}
+
+/**
  * Formal invitation card: event name, couple names, families, date, venue
  * and a QR code linking to the invitation URL. Designed for lantern-night
  * and other East Asian templates where a traditional card layout is expected.
@@ -159,13 +246,18 @@ export function InvitationCard({
   families,
   palette,
   giftAccounts = [],
+  events = [],
+  lang,
 }: {
   wedding: WeddingRow;
   families: { side1?: string; side2?: string } | null;
   palette: InvitationPalette;
   giftAccounts?: GiftAccount[];
+  events?: WeddingEventRow[];
+  lang?: InvitationLang;
 }) {
   const { eventType, copy, twoNames } = useEventCopy();
+  const i18n = t(lang);
   const names: [string, string] = [wedding.partner1_name, wedding.partner2_name];
   const coupleNames = names.filter(Boolean).join(" & ");
   const eventLabel = wedding.event_title || copy.label;
@@ -173,6 +265,12 @@ export function InvitationCard({
   const cardBg = palette.isDark ? mix(palette.background, "#ffffff", 0.06) : mix(palette.background, "#ffffff", 0.7);
   const border = alpha(palette.primary, 0.3);
   const ornamentColor = palette.primary;
+
+  // Show only the first gift account QR in the card (full GiftSection shows all).
+  const cardGift = giftAccounts.length > 0 ? giftAccounts[0] : null;
+
+  // Events with a location — shown as destination cards for multi-venue weddings.
+  const venueEvents = events.filter((e) => e.location);
 
   return (
     <section id="invitation-card" className="relative px-6 py-20 md:py-28" style={{ backgroundColor: palette.background }}>
@@ -198,19 +296,19 @@ export function InvitationCard({
 
           {/* Event label */}
           <p className="mt-6 text-[10px] uppercase tracking-[0.5em]" style={{ color: palette.inkMuted }}>
-            {eventType === "wedding" ? "Wedding Invitation" : `${eventLabel} Invitation`}
+            {eventType === "wedding" ? i18n.weddingInvitation : i18n.invitation(eventLabel)}
           </p>
 
           {/* Couple names with bride/groom labels */}
           {twoNames && eventType === "wedding" ? (
             <div className="mt-6 flex items-center justify-center gap-6">
               <div className="text-center">
-                <p className="text-[9px] uppercase tracking-[0.4em]" style={{ color: palette.inkMuted }}>The Groom</p>
+                <p className="text-[9px] uppercase tracking-[0.4em]" style={{ color: palette.inkMuted }}>{i18n.theGroom}</p>
                 <p className="mt-1 text-3xl font-light md:text-4xl" style={{ fontFamily: palette.displayFont, color: palette.ink }}>{names[0]}</p>
               </div>
               <span className="text-3xl md:text-4xl" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>&amp;</span>
               <div className="text-center">
-                <p className="text-[9px] uppercase tracking-[0.4em]" style={{ color: palette.inkMuted }}>The Bride</p>
+                <p className="text-[9px] uppercase tracking-[0.4em]" style={{ color: palette.inkMuted }}>{i18n.theBride}</p>
                 <p className="mt-1 text-3xl font-light md:text-4xl" style={{ fontFamily: palette.displayFont, color: palette.ink }}>{names[1]}</p>
               </div>
             </div>
@@ -240,17 +338,21 @@ export function InvitationCard({
             <span className="h-px flex-1" style={{ background: alpha(palette.primary, 0.25) }} />
           </div>
 
-          {/* Families */}
+          {/* Families — each parent on its own line */}
           {families && (families.side1 || families.side2) && (
             <div className={`mb-6 grid gap-6 ${families.side1 && families.side2 ? "md:grid-cols-[1fr_auto_1fr]" : ""}`}>
               {families.side1 && (
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.35em]" style={{ color: palette.primary }}>
-                    The family of {names[0]}
+                    {i18n.familyOf(names[0])}
                   </p>
-                  <p className="mt-1 text-base leading-relaxed" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
-                    {families.side1}
-                  </p>
+                  <div className="mt-1 space-y-0.5">
+                    {splitParents(families.side1).map((line, j) => (
+                      <p key={j} className="text-base leading-relaxed" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
+                        {line}
+                      </p>
+                    ))}
+                  </div>
                 </div>
               )}
               {families.side1 && families.side2 && (
@@ -261,31 +363,59 @@ export function InvitationCard({
               {families.side2 && (
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.35em]" style={{ color: palette.primary }}>
-                    The family of {names[1]}
+                    {i18n.familyOf(names[1])}
                   </p>
-                  <p className="mt-1 text-base leading-relaxed" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
-                    {families.side2}
-                  </p>
+                  <div className="mt-1 space-y-0.5">
+                    {splitParents(families.side2).map((line, j) => (
+                      <p key={j} className="text-base leading-relaxed" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
+                        {line}
+                      </p>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
           )}
 
-          {/* Date & venue */}
-          {wedding.wedding_date && (
-            <p className="text-base font-medium" style={{ color: palette.ink }}>
-              {formatLongDate(wedding.wedding_date)}
-            </p>
-          )}
-          {wedding.venue_name && (
-            <p className="mt-2 text-sm" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
-              {wedding.venue_name}
-            </p>
-          )}
-          {wedding.venue_address && (
-            <p className="mt-1 text-xs" style={{ color: palette.inkMuted }}>
-              {wedding.venue_address}
-            </p>
+          {/* Venues — multiple destinations for Vietnamese-style weddings */}
+          {venueEvents.length > 0 ? (
+            <div className={`grid gap-6 ${venueEvents.length > 1 ? "md:grid-cols-2" : ""}`}>
+              {venueEvents.map((evt) => (
+                <div key={evt.id} className="rounded-lg border p-4" style={{ borderColor: alpha(palette.primary, 0.2) }}>
+                  <p className="text-[10px] uppercase tracking-[0.35em]" style={{ color: palette.primary }}>
+                    {evt.title}
+                  </p>
+                  {evt.start_time && (
+                    <p className="mt-2 text-sm font-medium" style={{ color: palette.ink }}>
+                      {formatEventTime(evt.start_time, i18n.dateLocale)}
+                      {wedding.wedding_date && ` · ${formatLongDate(wedding.wedding_date, null, i18n.dateLocale)}`}
+                    </p>
+                  )}
+                  <p className="mt-1 text-sm" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
+                    {evt.location}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <>
+              {/* Single venue fallback (original layout) */}
+              {wedding.wedding_date && (
+                <p className="text-base font-medium" style={{ color: palette.ink }}>
+                  {formatLongDate(wedding.wedding_date, null, i18n.dateLocale)}
+                </p>
+              )}
+              {wedding.venue_name && (
+                <p className="mt-2 text-sm" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
+                  {wedding.venue_name}
+                </p>
+              )}
+              {wedding.venue_address && (
+                <p className="mt-1 text-xs" style={{ color: palette.inkMuted }}>
+                  {wedding.venue_address}
+                </p>
+              )}
+            </>
           )}
 
           {/* Story excerpt */}
@@ -312,30 +442,26 @@ export function InvitationCard({
             {copy.rsvpEyebrow}
           </p>
           <p className="mt-1 text-lg" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>
-            {coupleNames} would be honoured by your presence
+            {i18n.honouredByPresence(coupleNames)}
           </p>
 
-          {/* Gift QR codes */}
-          {giftAccounts.length > 0 && (
+          {/* Single gift QR code (first account only) */}
+          {cardGift?.qrUrl && (
             <div className="mt-6">
               <div className="mb-3 flex items-center gap-3 justify-center">
                 <span className="h-px flex-1 max-w-[3rem]" style={{ background: alpha(palette.primary, 0.2) }} />
                 <span className="text-[10px] uppercase tracking-[0.3em]" style={{ color: palette.inkMuted }}>
-                  Send a gift
+                  {i18n.sendAGift}
                 </span>
                 <span className="h-px flex-1 max-w-[3rem]" style={{ background: alpha(palette.primary, 0.2) }} />
               </div>
-              <div className={`mx-auto grid gap-4 ${giftAccounts.length > 1 ? "max-w-sm grid-cols-2" : "max-w-[10rem]"}`}>
-                {giftAccounts.map((a, i) => (
-                  <div key={`${a.label}-${i}`} className="flex flex-col items-center gap-1 text-center">
-                    {a.qrUrl && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={a.qrUrl} alt={`QR for ${a.label}`} loading="lazy" className="h-24 w-24 bg-white object-contain p-1" style={{ borderRadius: 8 }} />
-                    )}
-                    <p className="text-xs" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>{a.label}</p>
-                    {a.bank && <p className="text-[9px] uppercase tracking-wider" style={{ color: palette.inkMuted }}>{a.bank}</p>}
-                  </div>
-                ))}
+              <div className="mx-auto max-w-[10rem]">
+                <div className="flex flex-col items-center gap-1 text-center">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={cardGift.qrUrl} alt={`QR for ${cardGift.label}`} loading="lazy" className="h-24 w-24 bg-white object-contain p-1" style={{ borderRadius: 8 }} />
+                  <p className="text-xs" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>{cardGift.label}</p>
+                  {cardGift.bank && <p className="text-[9px] uppercase tracking-wider" style={{ color: palette.inkMuted }}>{cardGift.bank}</p>}
+                </div>
               </div>
             </div>
           )}

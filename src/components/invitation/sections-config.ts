@@ -19,7 +19,8 @@ export type SectionKey =
   | "music"
   | "guestbook"
   | "families"
-  | "gift";
+  | "gift"
+  | "invitationCard";
 
 export interface SectionToggle {
   key: SectionKey;
@@ -35,6 +36,7 @@ export const SECTION_TOGGLES: SectionToggle[] = [
   { key: "timeline", label: "Schedule", description: "Order of the day" },
   { key: "venue", label: "Venue & map", description: "Address with directions" },
   { key: "gallery", label: "Photo moments", description: "Photo ribbon + gallery page" },
+  { key: "invitationCard", label: "Invitation card", description: "Formal card with names, families & QR (East Asian templates)" },
   { key: "gift", label: "Gift details", description: "Bank account / QR for gifts (red envelope)" },
   { key: "rsvp", label: "RSVP", description: "\u201cI'll be there\u201d / \u201cCan't make it\u201d" },
   { key: "blessings", label: "Blessing wall", description: "All guest wishes on the page" },

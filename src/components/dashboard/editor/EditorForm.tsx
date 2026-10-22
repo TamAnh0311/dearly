@@ -188,6 +188,28 @@ export default function EditorForm() {
                 placeholder="Mr. & Mrs. Kim"
               />
             )}
+            <div className="pt-2">
+              <label className="mb-1 block text-xs font-medium text-dearly-text-secondary">Invitation language</label>
+              <div className="flex gap-2">
+                {([["en", "English"], ["vi", "Tiếng Việt"]] as const).map(([code, label]) => {
+                  const active = (customization.language ?? "en") === code;
+                  return (
+                    <button
+                      key={code}
+                      type="button"
+                      onClick={() => updateCustomization({ language: code })}
+                      className={`rounded-md border px-3 py-1.5 text-xs font-semibold transition ${
+                        active
+                          ? "border-dearly-accent bg-dearly-accent text-white"
+                          : "border-dearly-border text-dearly-text-secondary hover:border-dearly-accent/50"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
             <p className="pt-2 text-xs text-dearly-text-secondary">
               Gift details (optional): a bank account and/or a payment QR image link for guests who want to send a gift.
             </p>

@@ -132,6 +132,30 @@ export const EVENT_COPY: Record<EventType, EventCopy> = {
   },
 };
 
+/** Vietnamese copy for wedding events. Other event types fall back to English. */
+const EVENT_COPY_VI: Partial<Record<EventType, EventCopy>> = {
+  wedding: {
+    label: "Đám cưới",
+    blurb: "Thiệp mời đám cưới với RSVP, lời chúc và album ảnh kỷ niệm.",
+    eyebrow: "Trân trọng kính mời",
+    tagline: () => "hân hạnh báo tin hỷ",
+    hostLabel: ["Tên chú rể", "Tên cô dâu"],
+    storyTitle: "Câu chuyện tình yêu",
+    rsvpEyebrow: "Kính mời",
+    rsvpTitle: "Quý khách có tham dự được không?",
+    blessingsTitle: "Lời chúc",
+    wishNoun: "lời chúc",
+    calendarTitle: (n) => `Đám cưới ${n}`,
+    seoPath: "/invitations/wedding",
+  },
+};
+
+/** Returns event copy for the given language. Falls back to English for untranslated event types. */
+export function getEventCopy(eventType: EventType, lang?: string): EventCopy {
+  if (lang === "vi") return EVENT_COPY_VI[eventType] ?? EVENT_COPY[eventType];
+  return EVENT_COPY[eventType];
+}
+
 /** Event types offered in onboarding, flagship first. */
 export const EVENT_TYPE_ORDER: EventType[] = ["wedding", "engagement", "birthday", "party", "social", "anniversary", "baby-shower"];
 

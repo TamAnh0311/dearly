@@ -157,22 +157,17 @@ export default function TemplatePreview({
           <span className="hidden shrink-0 text-xs text-white/80 xl:inline">{scheme.name}</span>
         </div>
 
-        {/* Language toggle — shown for East Asian culture templates */}
+        {/* Language selector — shown for East Asian culture templates */}
         {culture && (
-          <div className="flex shrink-0 items-center rounded-lg border border-white/25">
-            {(["en", "vi"] as const).map((code) => (
-              <button
-                key={code}
-                type="button"
-                onClick={() => setLang(code)}
-                className={`px-2.5 py-1.5 text-xs font-semibold transition ${
-                  lang === code ? "bg-white/20 text-white" : "text-white/50 hover:text-white/80"
-                } ${code === "en" ? "rounded-l-[7px]" : "rounded-r-[7px]"}`}
-              >
-                {code === "en" ? "EN" : "VI"}
-              </button>
-            ))}
-          </div>
+          <select
+            value={lang}
+            onChange={(e) => setLang(e.target.value as InvitationLang)}
+            className="shrink-0 rounded-lg border border-white/25 bg-transparent px-2 py-1.5 text-xs font-semibold text-white/90 outline-none transition hover:bg-white/10 [&>option]:bg-[#1d1a17] [&>option]:text-white"
+            aria-label="Invitation language"
+          >
+            <option value="en">English</option>
+            <option value="vi">Tiếng Việt</option>
+          </select>
         )}
 
         <div className="relative shrink-0">

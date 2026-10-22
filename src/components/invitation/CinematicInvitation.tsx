@@ -28,7 +28,7 @@ import { resolveBlessingStyle, resolveSections } from "./sections-config";
 import { EventContext } from "./sections/HeroParts";
 import { Families, GiftSection, InvitationCard, type InvitationLang } from "./sections/Extras";
 import { resolveFamilies, resolveGift } from "@/lib/invitation-extras";
-import { EVENT_COPY, eventTypeOf, hostNames, isPastEvent } from "@/lib/event-types";
+import { EVENT_COPY, eventTypeOf, getEventCopy, hostNames, isPastEvent } from "@/lib/event-types";
 import BlessingShower from "./effects/BlessingShower";
 import MusicPlayer from "@/components/ui/MusicPlayer";
 import type { MusicPreset } from "@/lib/ambient-music";
@@ -89,7 +89,6 @@ export default function CinematicInvitation({
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const names: [string, string] = [wedding.partner1_name, wedding.partner2_name];
   const eventType = eventTypeOf(wedding);
-  const copy = EVENT_COPY[eventType];
   const twoNames = Boolean(wedding.partner2_name?.trim());
   // After the event the page becomes a memory book: RSVP closes, memories stay.
   const past = !demo && isPastEvent(wedding.wedding_date);
@@ -104,13 +103,15 @@ export default function CinematicInvitation({
   const gift = show.gift ? resolveGift(wedding.customization?.gift) : null;
   // Resolve display language: explicit choice → culture-based default → English.
   const lang: InvitationLang = wedding.customization?.language ?? (palette.style.culture === "vietnamese" ? "vi" : "en");
+  const copy = getEventCopy(eventType, lang);
 
+  const isVi = lang === "vi";
   const links: NavLink[] = [
     ...(showStory ? [{ href: "#story", label: copy.storyTitle }] : []),
-    ...(showSchedule ? [{ href: "#schedule", label: "Schedule" }] : []),
-    ...(showVenue ? [{ href: "#venue", label: "Venue" }] : []),
-    ...(showMoments ? [{ href: "#moments", label: "Memories" }] : []),
-    ...(gift ? [{ href: "#gift", label: "Gift" }] : []),
+    ...(showSchedule ? [{ href: "#schedule", label: isVi ? "Lịch trình" : "Schedule" }] : []),
+    ...(showVenue ? [{ href: "#venue", label: isVi ? "Địa điểm" : "Venue" }] : []),
+    ...(showMoments ? [{ href: "#moments", label: isVi ? "Kỷ niệm" : "Memories" }] : []),
+    ...(gift ? [{ href: "#gift", label: isVi ? "Mừng cưới" : "Gift" }] : []),
     ...(showWall ? [{ href: "#blessings", label: copy.blessingsTitle }] : []),
   ];
 

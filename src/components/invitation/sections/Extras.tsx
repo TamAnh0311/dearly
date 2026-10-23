@@ -28,7 +28,7 @@ interface Translations {
   invitation: (label: string) => string;
   theGroom: string;
   theBride: string;
-  familyOf: (name: string) => string;
+  familyOf: (name: string, side?: number) => string;
   honouredByPresence: (names: string) => string;
   sendAGift: string;
   weddingGift: string;
@@ -47,7 +47,7 @@ const TRANSLATIONS: Record<InvitationLang, Translations> = {
     invitation: (label) => `${label} Invitation`,
     theGroom: "The Groom",
     theBride: "The Bride",
-    familyOf: (name) => `The family of ${name}`,
+    familyOf: (name, _side) => `The family of ${name}`,
     honouredByPresence: (names) => `${names} would be honoured by your presence`,
     sendAGift: "Send a gift",
     weddingGift: "Wedding gift",
@@ -59,17 +59,17 @@ const TRANSLATIONS: Record<InvitationLang, Translations> = {
     dateLocale: "en-US",
   },
   vi: {
-    weddingInvitation: "Thiệp Mời Đám Cưới",
+    weddingInvitation: "Trân Trọng Kính Mời",
     invitation: (label) => `Thiệp Mời ${label}`,
     theGroom: "Chú Rể",
     theBride: "Cô Dâu",
-    familyOf: (name) => `Gia đình ${name}`,
-    honouredByPresence: (names) => `Trân trọng kính mời quý khách đến chung vui cùng ${names}`,
-    sendAGift: "Mừng cưới",
-    weddingGift: "Mừng cưới",
-    gifts: "Quà tặng",
-    withGratitude: "Lời cảm ơn",
-    defaultGiftNote: "Sự hiện diện của quý khách là món quà lớn nhất. Với những ai muốn gửi lời chúc phúc, quý khách có thể gửi tại đây.",
+    familyOf: (_name, side) => (side === 1 ? "Nhà Gái" : "Nhà Trai"),
+    honouredByPresence: () => "Sự hiện diện của quý khách là niềm vinh hạnh cho gia đình chúng tôi",
+    sendAGift: "Mừng Cưới",
+    weddingGift: "Mừng Cưới",
+    gifts: "Quà Tặng",
+    withGratitude: "Lời Tri Ân",
+    defaultGiftNote: "Sự hiện diện của quý khách là món quà lớn nhất dành cho gia đình chúng tôi. Quý khách có thể gửi lời chúc phúc qua mã QR bên dưới.",
     copied: "Đã sao chép",
     couldntCopy: "Không thể sao chép, vui lòng chọn số tài khoản",
     dateLocale: "vi-VN",
@@ -96,8 +96,8 @@ export function Families({ families, names, palette, lang }: { families: { side1
   const { twoNames } = useEventCopy();
   const i18n = t(lang);
   const sides = [
-    { name: names[0], parents: families.side1 },
-    ...(twoNames ? [{ name: names[1], parents: families.side2 }] : []),
+    { name: names[0], parents: families.side1, side: 0 as number },
+    ...(twoNames ? [{ name: names[1], parents: families.side2, side: 1 as number }] : []),
   ].filter((s) => s.parents);
 
   return (
@@ -106,7 +106,7 @@ export function Families({ families, names, palette, lang }: { families: { side1
         {sides.map((s, i) => (
           <div key={s.name + i} className={i === 1 ? "md:order-3" : ""}>
             <p className="text-[11px] uppercase tracking-[0.4em]" style={{ color: palette.primary }}>
-              {i18n.familyOf(s.name)}
+              {i18n.familyOf(s.name, s.side)}
             </p>
             <div className="mt-3 space-y-1">
               {splitParents(s.parents!).map((line, j) => (
@@ -344,7 +344,7 @@ export function InvitationCard({
               {families.side1 && (
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.35em]" style={{ color: palette.primary }}>
-                    {i18n.familyOf(names[0])}
+                    {i18n.familyOf(names[0], 0)}
                   </p>
                   <div className="mt-1 space-y-0.5">
                     {splitParents(families.side1).map((line, j) => (
@@ -363,7 +363,7 @@ export function InvitationCard({
               {families.side2 && (
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.35em]" style={{ color: palette.primary }}>
-                    {i18n.familyOf(names[1])}
+                    {i18n.familyOf(names[1], 1)}
                   </p>
                   <div className="mt-1 space-y-0.5">
                     {splitParents(families.side2).map((line, j) => (

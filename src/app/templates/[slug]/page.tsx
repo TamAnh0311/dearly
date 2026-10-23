@@ -110,7 +110,7 @@ function buildMockWedding(template: TemplateRow): WeddingRow {
             ...(culture === "vietnamese" ? { language: "vi" as const } : {}),
             gift: {
               note: culture === "vietnamese"
-                ? "Sự hiện diện của quý khách là món quà lớn nhất. Quý khách có thể gửi lời chúc phúc qua mã QR bên dưới."
+                ? "Sự hiện diện của quý khách là món quà lớn nhất dành cho gia đình chúng tôi. Quý khách có thể gửi lời chúc phúc qua mã QR bên dưới."
                 : "Your presence is our greatest gift. For those who wish to bless us, you may scan below.",
               accounts: [
                 { label: `${demo.names[0]} · ${demo.names[1]}`, qrUrl: MOCK_QR },

@@ -5,6 +5,7 @@ node_modules/
 *.tsbuildinfo
 .superpowers/
 coverage/
+capture/
 
 .vercel
 .env*

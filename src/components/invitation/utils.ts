@@ -123,10 +123,19 @@ export function formatDotDate(value: string): string {
   return `${pad(d.getDate())} · ${pad(d.getMonth() + 1)} · ${d.getFullYear()}`;
 }
 
-/** "3:00 PM" — displayed in the event's timezone so guests always see venue-local time. */
+/**
+ * "3:00 PM" — displayed in the event's timezone so guests always see
+ * venue-local time. Without a timezone, the clock time exactly as entered is
+ * shown, so guests abroad do not see a shifted hour.
+ */
 export function formatTime(value: string, timeZone?: string | null, locale: string = "en-US"): string {
   const opts: Intl.DateTimeFormatOptions = { hour: "numeric", minute: "2-digit" };
-  if (timeZone) opts.timeZone = timeZone;
+  if (timeZone) return new Date(value).toLocaleTimeString(locale, { ...opts, timeZone });
+  const wallClock = /(?:T|\s|^)(\d{1,2}):(\d{2})/.exec(value);
+  if (wallClock) {
+    const d = new Date(2000, 0, 1, Number(wallClock[1]), Number(wallClock[2]));
+    return d.toLocaleTimeString(locale, opts);
+  }
   return new Date(value).toLocaleTimeString(locale, opts);
 }
 

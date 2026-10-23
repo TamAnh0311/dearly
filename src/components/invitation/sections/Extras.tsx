@@ -16,7 +16,7 @@ import type { GiftAccount, WeddingEventRow, WeddingRow } from "@/types/database"
 import { Reveal, SectionHeading } from "./Primitives";
 import { useEventCopy } from "./HeroParts";
 import { type InvitationLang } from "../i18n";
-import { alpha, formatLongDate, mix, type InvitationPalette } from "../utils";
+import { alpha, formatLongDate, formatTime, mix, type InvitationPalette } from "../utils";
 
 export type { InvitationLang } from "../i18n";
 
@@ -63,9 +63,9 @@ const TRANSLATIONS: Record<InvitationLang, Translations> = {
     invitation: (label) => `Thiệp Mời ${label}`,
     theGroom: "Chú Rể",
     theBride: "Cô Dâu",
-    familyOf: (_name, side) => (side === 1 ? "Nhà Gái" : "Nhà Trai"),
+    familyOf: (_name, side) => (side === 1 ? "Nhà Trai" : "Nhà Gái"),
     honouredByPresence: () => "Sự hiện diện của quý khách là niềm vinh hạnh cho gia đình chúng tôi",
-    sendAGift: "Mừng Cưới",
+    sendAGift: "Gửi quà mừng cưới",
     weddingGift: "Mừng Cưới",
     gifts: "Quà Tặng",
     withGratitude: "Lời Tri Ân",
@@ -232,8 +232,7 @@ function CloudOrnament({ color }: { color: string }) {
  * Formats an event time string to a short time (e.g. "10:00 AM" or "10:00").
  */
 function formatEventTime(value: string, locale: string): string {
-  const d = new Date(value);
-  return d.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
+  return formatTime(value, null, locale);
 }
 
 /**

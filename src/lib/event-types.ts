@@ -141,7 +141,7 @@ const EVENT_COPY_VI: Record<EventType, EventCopy> = {
     tagline: () => "hân hạnh báo tin hỷ",
     hostLabel: ["Tên chú rể", "Tên cô dâu"],
     storyTitle: "Câu chuyện tình yêu",
-    rsvpEyebrow: "Kính mời",
+    rsvpEyebrow: "Kindly reply",
     rsvpTitle: "Xác Nhận Tham Dự",
     blessingsTitle: "Sổ Lời Chúc",
     wishNoun: "lời chúc",

@@ -96,7 +96,7 @@ function ReactionBar({
   return (
     <Reveal className="mx-auto mb-20 max-w-3xl text-center">
       <p className="mb-6 text-xs uppercase tracking-[0.3em]" style={{ color: palette.inkMuted }}>
-        {ui.blessings.tapToSend} · <span style={{ color: palette.primary }}>{total.toLocaleString()}</span> {ui.blessings.sentSoFar}
+        {ui.blessings.tapToSend} · <span style={{ color: palette.primary }}>{ui.blessings.sentSoFar(total)}</span>
       </p>
       <div className="flex flex-wrap justify-center gap-3 md:gap-4">
         {REACTIONS.map(({ kind, Icon }) => {

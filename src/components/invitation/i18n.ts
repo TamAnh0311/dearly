@@ -71,7 +71,7 @@ export interface RsvpCopy {
 export interface BlessingsCopy {
   withLove: string;
   tapToSend: string;
-  sentSoFar: string;
+  sentSoFar: (count: number) => string;
   reactions: Record<string, string>;
   willBeThere: string;
   sendingLove: string;
@@ -221,7 +221,7 @@ const EN: InvitationCopy = {
   blessings: {
     withLove: "With love",
     tapToSend: "Tap to send your love",
-    sentSoFar: "sent so far",
+    sentSoFar: (count) => `${count.toLocaleString("en-US")} sent so far`,
     reactions: { love: "Love", bloom: "Bloom", cheers: "Cheers", sparkle: "Joy", rings: "Forever" },
     willBeThere: "Will be there",
     sendingLove: "Sending love from afar",
@@ -282,23 +282,23 @@ const VI: InvitationCopy = {
     gift: "Mừng cưới",
     rsvp: "Xác nhận",
   },
-  story: { eyebrow: "Chuyện bắt đầu thế nào", genericEyebrow: "Xin chào" },
-  schedule: { eyebrow: "Ngày trọng đại", title: "Chương trình ngày cưới", timesLocal: "Giờ địa phương" },
-  venue: { eyebrow: "Địa điểm", title: "Nơi tổ chức", directions: "Chỉ đường" },
+  story: { eyebrow: "Story of us", genericEyebrow: "Xin chào" },
+  schedule: { eyebrow: "Wedding timeline", title: "Lịch trình hôn lễ", timesLocal: "Giờ địa phương" },
+  venue: { eyebrow: "Tổ chức tại", title: "Nhà hàng tiệc cưới", directions: "Chỉ đường" },
   moments: {
     eyebrow: "Kỷ niệm của chúng tôi",
-    title: "Khoảnh khắc",
-    shareSubtitle: "Bạn đã có khoảnh khắc cùng chúng tôi? Hãy thêm vào album — mỗi bức ảnh đều trở thành một phần câu chuyện của chúng tôi.",
-    sharePhotos: "Chia sẻ ảnh của bạn",
+    title: "Khoảnh khắc đáng nhớ",
+    shareSubtitle: "Cùng chia sẻ những bức ảnh đẹp để lưu giữ kỷ niệm trong ngày vui của chúng mình nhé!",
+    sharePhotos: "Chia sẻ ảnh",
     viewAlbum: "Xem toàn bộ album",
   },
   rsvp: {
-    subtitle: (names) => `${names} rất mong được đón tiếp quý khách — và luôn trân trọng những lời chúc tốt đẹp của quý khách.`,
+    subtitle: () => "Sự hiện diện của Quý khách chính là món quà quý giá nhất đối với gia đình chúng tôi. Vô cùng trân quý khi được cùng Quý khách chia sẻ niềm hạnh phúc trong ngày trọng đại này",
     inviteeSubtitle: (name, names, max) =>
       `Kính gửi ${name}, ${names} rất mong được đón tiếp quý khách${max > 1 ? ` — thiệp mời dành cho ${max} khách` : ""}.`,
-    attendingTitle: "Tôi sẽ đến",
+    attendingTitle: "Có, chắc chắn rồi!",
     attendingSubtitle: "Vui mừng xác nhận",
-    declinedTitle: "Rất tiếc, không thể đến",
+    declinedTitle: "Xin lỗi, tôi không thể tham dự",
     declinedSubtitle: "Gửi lời chúc từ xa",
     successAttending: "Hẹn gặp quý khách!",
     successDeclined: "Chúng tôi sẽ nhớ quý khách",
@@ -321,18 +321,18 @@ const VI: InvitationCopy = {
     nameError: "Vui lòng cho chúng tôi biết tên của quý khách để cô dâu chú rể biết ai đã phản hồi.",
     genericError: "Đã có lỗi xảy ra. Vui lòng thử lại.",
     timeoutError: "Kết nối quá thời gian. Vui lòng kiểm tra mạng và thử lại.",
-    sendGift: "Mừng cưới",
+    sendGift: "Gửi quà mừng cưới",
     qrAlt: (label) => `Mã QR cho ${label}`,
     copyAccount: (number) => `Sao chép số tài khoản ${number}`,
   },
   blessings: {
     withLove: "Với tất cả yêu thương",
-    tapToSend: "Chạm để gửi yêu thương",
-    sentSoFar: "lượt đã gửi",
+    tapToSend: "Chạm để gửi lời chúc",
+    sentSoFar: (count) => (count === 0 ? "Chưa có lời chúc nào" : `${count.toLocaleString("vi-VN")} lời chúc đã gửi`),
     reactions: { love: "Yêu thương", bloom: "Nở hoa", cheers: "Cạn ly", sparkle: "Niềm vui", rings: "Mãi mãi" },
     willBeThere: "Sẽ đến dự",
     sendingLove: "Gửi yêu thương từ xa",
-    firstBlessing: "Hãy là người đầu tiên gửi lời chúc",
+    firstBlessing: "Gửi lời chúc đến Dâu Rể",
     writeBlessing: "Viết lời chúc",
     showMore: (remaining) => `Xem thêm lời chúc (${remaining})`,
     wishes: (count) => `${count} lời chúc chân thành`,

@@ -8,6 +8,7 @@ import {
   buildPalette,
   calendarUrl,
   formatDotDate,
+  formatTime,
   googleFontsUrl,
   hexToRgb,
   luminance,
@@ -133,6 +134,15 @@ describe("dates & links", () => {
 
   it("encodes map queries", () => {
     expect(mapsUrl("A & B, Paris")).toContain("query=A%20%26%20B%2C%20Paris");
+  });
+
+  it("shows the entered wall-clock time when no timezone is set", () => {
+    expect(formatTime("2026-11-16T17:00:00+00:00", null, "vi-VN")).toBe("17:00");
+    expect(formatTime("2026-11-16T17:00:00+00:00", undefined, "en-US")).toContain("5:00");
+  });
+
+  it("converts to the venue timezone when one is set", () => {
+    expect(formatTime("2026-11-16T10:00:00Z", "Asia/Ho_Chi_Minh", "vi-VN")).toBe("17:00");
   });
 
   it("formats relative time", () => {

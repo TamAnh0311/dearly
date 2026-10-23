@@ -19,7 +19,16 @@ describe("invitation i18n", () => {
     expect(vi.dateLocale).toBe("vi-VN");
     expect(vi.saveTheDate).toBe("Ngày trọng đại");
     expect(vi.nav.rsvp).toBe("Xác nhận");
-    expect(vi.rsvp.attendingTitle).toBe("Tôi sẽ đến");
+    expect(vi.story.eyebrow).toBe("Story of us");
+    expect(vi.schedule.eyebrow).toBe("Wedding timeline");
+    expect(vi.schedule.title).toBe("Lịch trình hôn lễ");
+    expect(vi.venue.eyebrow).toBe("Tổ chức tại");
+    expect(vi.venue.title).toBe("Nhà hàng tiệc cưới");
+    expect(vi.moments.title).toBe("Khoảnh khắc đáng nhớ");
+    expect(vi.rsvp.attendingTitle).toBe("Có, chắc chắn rồi!");
+    expect(vi.rsvp.declinedTitle).toBe("Xin lỗi, tôi không thể tham dự");
+    expect(vi.blessings.tapToSend).toBe("Chạm để gửi lời chúc");
+    expect(vi.blessings.firstBlessing).toBe("Gửi lời chúc đến Dâu Rể");
   });
 
   it("interpolates names and counts", () => {
@@ -47,5 +56,6 @@ describe("invitation i18n", () => {
       expect(copy.blessingsTitle.length).toBeGreaterThan(0);
     }
     expect(getEventCopy(eventTypeOf(null), "vi").label).toBe("Đám cưới");
+    expect(getEventCopy("wedding", "vi").rsvpEyebrow).toBe("Kindly reply");
   });
 });

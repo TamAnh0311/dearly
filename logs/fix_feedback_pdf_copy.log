@@ -1,0 +1,4 @@
+[2026-10-23 17:27:30]
+CONTEXT: Review capture/feedback.pdf and fix any invitation copy/layout issues not already addressed.
+RESULT: Applied the PDF feedback: bride's family left/groom's right, English eyebrows (Story of us, Wedding timeline, Kindly reply), Vietnamese section/RSVP/blessing copy, and stable wall-clock schedule times when no timezone is set. Hid the gift section on wedding thao-tamanh-savethedate via its customization data. tsc, lint, 103 tests and build pass; screenshots verified on the live invitation.
+---

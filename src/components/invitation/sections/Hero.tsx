@@ -23,7 +23,7 @@ import type { WeddingRow } from "@/types/database";
 import { GrowingBud, GrowingFlower } from "../effects/Botanicals";
 import AmbientLayer from "../effects/Ambient";
 import { EASE_OUT, alpha, formatDotDate, formatLongDate, mix, seeded, type InvitationPalette } from "../utils";
-import { Ampersand, DateLine, Eyebrow, RisingText, ScrollCue, useEventCopy, useEyebrow } from "./HeroParts";
+import { Ampersand, DateLine, Eyebrow, RisingText, ScrollCue, useEventCopy, useEyebrow, useInvitationCopy } from "./HeroParts";
 import { DayNightHero, SealHero, StainedHero } from "./HeroSignature";
 import { CurtainHero } from "./HeroCurtain";
 import { BojagiHero, DoorsHero, EnsoHero, PosterHero, ShojiHero } from "./HeroAsian";
@@ -171,6 +171,7 @@ function ArchSprig({ palette }: { palette: InvitationPalette }) {
 }
 
 function ArchHero({ wedding, palette, contentY, contentOpacity }: LayoutProps) {
+  const ui = useInvitationCopy();
   const deco = palette.style.ornament === "deco";
   const archEyebrow = useEyebrow(deco ? "The wedding of" : "Together with their families");
   const archPath = "M 20 620 V 220 A 180 180 0 0 1 380 220 V 620";
@@ -227,7 +228,7 @@ function ArchHero({ wedding, palette, contentY, contentOpacity }: LayoutProps) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 2.7, duration: 1 }}
               >
-                {formatLongDate(wedding.wedding_date)}
+                {formatLongDate(wedding.wedding_date, null, ui.dateLocale)}
               </motion.p>
             )}
             {wedding.venue_name && (
@@ -246,20 +247,21 @@ function ArchHero({ wedding, palette, contentY, contentOpacity }: LayoutProps) {
 
 function EditorialHero({ wedding, palette, contentY, contentOpacity }: LayoutProps) {
   const { twoNames, inviteeName, copy } = useEventCopy();
-  const marquee = [wedding.partner1_name, ...(twoNames ? ["&", wedding.partner2_name] : []), "·", wedding.wedding_date ? formatDotDate(wedding.wedding_date) : "Save the date", "·", "Save the date", "·"];
+  const ui = useInvitationCopy();
+  const marquee = [wedding.partner1_name, ...(twoNames ? ["&", wedding.partner2_name] : []), "·", wedding.wedding_date ? formatDotDate(wedding.wedding_date) : ui.saveTheDate, "·", ui.saveTheDate, "·"];
   return (
     <>
       <AmbientLayer palette={palette} intensity={0.6} />
       <motion.div className="relative z-10 flex w-full max-w-7xl flex-col px-6 pb-28 pt-24 md:px-12" style={{ y: contentY, opacity: contentOpacity }}>
         {inviteeName && (
           <motion.div className="mb-6 text-center" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
-            <p className="text-2xl md:text-3xl" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>Dear {inviteeName}</p>
-            <p className="mt-1 text-[11px] uppercase tracking-[0.4em]" style={{ color: palette.inkMuted }}>You have been invited to {copy.label.toLowerCase()}</p>
+            <p className="text-2xl md:text-3xl" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>{ui.dear(inviteeName)}</p>
+            <p className="mt-1 text-[11px] uppercase tracking-[0.4em]" style={{ color: palette.inkMuted }}>{ui.youAreInvitedTo(copy.label)}</p>
           </motion.div>
         )}
         <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.35em]" style={{ color: palette.inkMuted }}>
           <motion.span initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3, duration: 1 }}>
-            The Wedding
+            {copy.label}
           </motion.span>
           <motion.span initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3, duration: 1 }}>
             {wedding.wedding_date ? new Date(wedding.wedding_date).getFullYear() : ""}
@@ -287,9 +289,9 @@ function EditorialHero({ wedding, palette, contentY, contentOpacity }: LayoutPro
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 2.3, duration: 1 }}
         >
-          <span>{wedding.wedding_date ? formatLongDate(wedding.wedding_date) : "Date to be announced"}</span>
+          <span>{wedding.wedding_date ? formatLongDate(wedding.wedding_date, null, ui.dateLocale) : ui.dateToBeAnnounced}</span>
           <span className="md:text-center">{wedding.venue_name ?? ""}</span>
-          <span className="md:text-right">Request the pleasure of your company</span>
+          <span className="md:text-right">{ui.requestPleasure}</span>
         </motion.div>
       </motion.div>
 
@@ -310,6 +312,7 @@ function EditorialHero({ wedding, palette, contentY, contentOpacity }: LayoutPro
 /* ─── Layout: Split ───────────────────────────────────────────────────────── */
 
 function SplitHero({ wedding, palette, photos, contentY, contentOpacity }: LayoutProps) {
+  const ui = useInvitationCopy();
   const eyebrow = useEyebrow("We're getting married");
   return (
     <div className="relative z-10 grid min-h-[100svh] w-full md:grid-cols-2">
@@ -332,7 +335,7 @@ function SplitHero({ wedding, palette, photos, contentY, contentOpacity }: Layou
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.6, duration: 1 }}
         >
-          Save the date
+          {ui.saveTheDate}
         </motion.span>
       </div>
 
@@ -358,7 +361,7 @@ function SplitHero({ wedding, palette, photos, contentY, contentOpacity }: Layou
           >
             {wedding.wedding_date && (
               <span className="text-lg" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
-                {formatLongDate(wedding.wedding_date)}
+                {formatLongDate(wedding.wedding_date, null, ui.dateLocale)}
               </span>
             )}
             {wedding.venue_name && (
@@ -385,8 +388,9 @@ function CelestialHero({ wedding, palette, contentY, contentOpacity }: LayoutPro
   const starInk = mix(palette.primary, "#ffffff", 0.55);
   const ink = "#f4f1ea";
   const { twoNames, copy } = useEventCopy();
+  const ui = useInvitationCopy();
   const defaultEyebrow = useEyebrow("Written in the stars");
-  const eyebrow = lanternFestival ? copy.label + " Invitation" : defaultEyebrow;
+  const eyebrow = lanternFestival ? ui.invitationLabel(copy.label) : defaultEyebrow;
 
   // Lantern-night uses a warmer sky gradient to complement the golden lanterns.
   const skyBg = lanternFestival
@@ -531,6 +535,7 @@ const POLAROID_SPOTS = [
 function PolaroidHero({ wedding, palette, photos, contentY, contentOpacity }: LayoutProps) {
   const headline = useEyebrow("We're getting married!");
   const { twoNames, inviteeName, copy } = useEventCopy();
+  const ui = useInvitationCopy();
   return (
     <>
       <AmbientLayer palette={palette} intensity={0.8} />
@@ -550,7 +555,7 @@ function PolaroidHero({ wedding, palette, photos, contentY, contentOpacity }: La
             <Image src={photos[i]} alt="" fill sizes="200px" className="object-cover" />
           </div>
           <span className="absolute bottom-1.5 left-0 right-0 text-center text-lg" style={{ fontFamily: palette.scriptFont, color: "#3b332d" }}>
-            {["first date", "the proposal", "us", "adventures", "forever"][i]}
+            {ui.photoCaptions[i] ?? ""}
           </span>
           {/* Washi tape */}
           <span className="absolute -top-3 left-1/2 h-6 w-16 -translate-x-1/2 rotate-[-4deg]" style={{ backgroundColor: alpha(palette.accent, 0.6) }} />
@@ -566,10 +571,10 @@ function PolaroidHero({ wedding, palette, photos, contentY, contentOpacity }: La
           transition={{ type: "spring", stiffness: 90, damping: 14, delay: 1.5 }}
         >
           {inviteeName && (
-            <p className="mb-2 text-2xl" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>Dear {inviteeName}</p>
+            <p className="mb-2 text-2xl" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>{ui.dear(inviteeName)}</p>
           )}
           <p className="text-3xl md:text-4xl" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>
-            {inviteeName ? `You have been invited to ${copy.label.toLowerCase()}` : headline}
+            {inviteeName ? ui.youAreInvitedTo(copy.label) : headline}
           </p>
           <h1 className="mt-4 text-5xl font-light leading-none md:text-7xl" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
             <RisingText text={wedding.partner1_name} delay={1.9} />
@@ -584,13 +589,13 @@ function PolaroidHero({ wedding, palette, photos, contentY, contentOpacity }: La
           </h1>
           {wedding.wedding_date && (
             <p className="mt-5 text-xs uppercase tracking-[0.3em]" style={{ color: palette.inkMuted }}>
-              {formatLongDate(wedding.wedding_date)}
+              {formatLongDate(wedding.wedding_date, null, ui.dateLocale)}
               {wedding.venue_name ? ` · ${wedding.venue_name}` : ""}
             </p>
           )}
         </motion.div>
         <motion.p className="mt-6 text-[11px] uppercase tracking-[0.3em]" style={{ color: palette.inkMuted }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 3 }}>
-          psst — you can drag the photos
+          {ui.dragPhotos}
         </motion.p>
       </motion.div>
     </>

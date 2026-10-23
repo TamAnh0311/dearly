@@ -1,0 +1,4 @@
+[2026-10-23 15:54:56]
+CONTEXT: User reported that invitation templates did not adapt to other languages and that the language dropdown UI was poor.
+RESULT: Added a central invitation i18n bundle (en/vi) and wired every section, hero, RSVP, blessings, calendar, music, scratch card and footer to it. Added complete Vietnamese event-type copy, a themed accessible LanguagePicker (preview banner + editor), and locale-aware dates/relative times. Added i18n tests; typecheck, lint, tests (101) and build pass; QA screenshots checked on crimson-keepsake at 390x844.
+---

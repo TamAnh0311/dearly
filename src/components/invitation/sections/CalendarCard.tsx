@@ -8,17 +8,23 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { monthGrid } from "@/lib/invitation-extras";
+import { useEventCopy } from "./HeroParts";
+import { invitationLocale } from "../i18n";
 import { alpha, luminance, mix, parseWeddingDate, type InvitationPalette } from "../utils";
 
-const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const WEEKDAYS_EN = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const WEEKDAYS_VI = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
 
 /** Month calendar card with the event day highlighted; `daysLeft` adds a D-day chip. */
 export default function CalendarCard({ date, palette, daysLeft }: { date: string; palette: InvitationPalette; daysLeft?: number | null }) {
+  const { lang } = useEventCopy();
+  const locale = invitationLocale(lang);
+  const weekdays = lang === "vi" ? WEEKDAYS_VI : WEEKDAYS_EN;
   const reduce = useReducedMotion();
   const d = parseWeddingDate(date);
   const day = d.getDate();
   const cells = monthGrid(d);
-  const month = d.toLocaleDateString("en-US", { month: "long" });
+  const month = d.toLocaleDateString(locale, { month: "long" });
   const headInk = luminance(palette.primary) > 0.45 ? mix(palette.primary, "#000000", 0.75) : "#ffffff";
   const card = palette.isDark ? mix(palette.background, "#ffffff", 0.06) : mix(palette.background, "#ffffff", 0.7);
 
@@ -40,7 +46,7 @@ export default function CalendarCard({ date, palette, daysLeft }: { date: string
           {d.getFullYear()}
         </span>
         <div className="relative grid grid-cols-7 gap-y-1 text-center text-sm" role="grid" aria-label={`${month} ${d.getFullYear()}`}>
-          {WEEKDAYS.map((w, i) => (
+          {weekdays.map((w, i) => (
             <span key={w} className="pb-1 text-[10px] uppercase tracking-wider" style={{ color: i === 6 ? palette.primary : palette.inkMuted }}>
               {w}
             </span>

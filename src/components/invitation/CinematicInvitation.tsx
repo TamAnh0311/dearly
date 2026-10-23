@@ -26,7 +26,8 @@ import { Footer, TopNav, type NavLink } from "./sections/Chrome";
 import { buildPalette, googleFontsUrl } from "./utils";
 import { resolveBlessingStyle, resolveSections } from "./sections-config";
 import { EventContext } from "./sections/HeroParts";
-import { Families, GiftSection, InvitationCard, type InvitationLang } from "./sections/Extras";
+import { Families, GiftSection, InvitationCard } from "./sections/Extras";
+import { getInvitationCopy, type InvitationLang } from "./i18n";
 import { resolveFamilies, resolveGift } from "@/lib/invitation-extras";
 import { eventTypeOf, getEventCopy, hostNames, isPastEvent } from "@/lib/event-types";
 import BlessingShower from "./effects/BlessingShower";
@@ -104,14 +105,14 @@ export default function CinematicInvitation({
   // Resolve display language: explicit choice → culture-based default → English.
   const lang: InvitationLang = wedding.customization?.language ?? (palette.style.culture === "vietnamese" ? "vi" : "en");
   const copy = getEventCopy(eventType, lang);
+  const ui = getInvitationCopy(lang);
 
-  const isVi = lang === "vi";
   const links: NavLink[] = [
     ...(showStory ? [{ href: "#story", label: copy.storyTitle }] : []),
-    ...(showSchedule ? [{ href: "#schedule", label: isVi ? "Lịch trình" : "Schedule" }] : []),
-    ...(showVenue ? [{ href: "#venue", label: isVi ? "Địa điểm" : "Venue" }] : []),
-    ...(showMoments ? [{ href: "#moments", label: isVi ? "Kỷ niệm" : "Memories" }] : []),
-    ...(gift ? [{ href: "#gift", label: isVi ? "Mừng cưới" : "Gift" }] : []),
+    ...(showSchedule ? [{ href: "#schedule", label: ui.nav.schedule }] : []),
+    ...(showVenue ? [{ href: "#venue", label: ui.nav.venue }] : []),
+    ...(showMoments ? [{ href: "#moments", label: ui.nav.memories }] : []),
+    ...(gift ? [{ href: "#gift", label: ui.nav.gift }] : []),
     ...(showWall ? [{ href: "#blessings", label: copy.blessingsTitle }] : []),
   ];
 

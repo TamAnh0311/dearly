@@ -124,10 +124,10 @@ export function formatDotDate(value: string): string {
 }
 
 /** "3:00 PM" — displayed in the event's timezone so guests always see venue-local time. */
-export function formatTime(value: string, timeZone?: string | null): string {
+export function formatTime(value: string, timeZone?: string | null, locale: string = "en-US"): string {
   const opts: Intl.DateTimeFormatOptions = { hour: "numeric", minute: "2-digit" };
   if (timeZone) opts.timeZone = timeZone;
-  return new Date(value).toLocaleTimeString("en-US", opts);
+  return new Date(value).toLocaleTimeString(locale, opts);
 }
 
 /** Google Maps search link for a venue. */
@@ -151,11 +151,11 @@ export function calendarUrl(title: string, date: string, location?: string | nul
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
-/** "2 days ago" style relative time. */
-export function timeAgo(value: string, now: number = Date.now()): string {
+/** "2 days ago" / "2 ngày trước" style relative time. */
+export function timeAgo(value: string, now: number = Date.now(), locale: string = "en-US"): string {
   const s = Math.max(0, Math.floor((now - new Date(value).getTime()) / 1000));
-  if (s < 60) return "just now";
-  const units: [number, string][] = [
+  if (s < 60) return locale.startsWith("vi") ? "vừa xong" : "just now";
+  const units: [number, Intl.RelativeTimeFormatUnit][] = [
     [60 * 60 * 24 * 365, "year"],
     [60 * 60 * 24 * 30, "month"],
     [60 * 60 * 24 * 7, "week"],
@@ -163,13 +163,11 @@ export function timeAgo(value: string, now: number = Date.now()): string {
     [60 * 60, "hour"],
     [60, "minute"],
   ];
-  for (const [size, label] of units) {
-    if (s >= size) {
-      const n = Math.floor(s / size);
-      return `${n} ${label}${n > 1 ? "s" : ""} ago`;
-    }
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "always" });
+  for (const [size, unit] of units) {
+    if (s >= size) return rtf.format(-Math.floor(s / size), unit);
   }
-  return "just now";
+  return locale.startsWith("vi") ? "vừa xong" : "just now";
 }
 
 /** Deterministic pseudo-random in [0,1) — keeps SSR and client particle layouts identical. */

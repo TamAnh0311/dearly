@@ -25,7 +25,8 @@ import { COLOR_SCHEMES, getInvitationStyle, type ColorScheme } from "./styles";
 import SectionToggles from "./SectionToggles";
 import { resolveBlessingStyle, type BlessingStyle } from "./sections-config";
 import type { WeddingCustomization } from "@/types/database";
-import type { InvitationLang } from "./sections/Extras";
+import { isInvitationLang, type InvitationLang } from "./i18n";
+import LanguagePicker from "./LanguagePicker";
 
 interface TemplatePreviewProps {
   templateName: string;
@@ -157,18 +158,16 @@ export default function TemplatePreview({
           <span className="hidden shrink-0 text-xs text-white/80 xl:inline">{scheme.name}</span>
         </div>
 
-        {/* Language selector — shown for East Asian culture templates */}
-        {culture && (
-          <select
-            value={lang}
-            onChange={(e) => setLang(e.target.value as InvitationLang)}
-            className="shrink-0 rounded-lg border border-white/25 bg-transparent px-2 py-1.5 text-xs font-semibold text-white/90 outline-none transition hover:bg-white/10 [&>option]:bg-[#1d1a17] [&>option]:text-white"
-            aria-label="Invitation language"
-          >
-            <option value="en">English</option>
-            <option value="vi">Tiếng Việt</option>
-          </select>
-        )}
+        <LanguagePicker
+          value={lang}
+          onChange={(next) => {
+            const safe = isInvitationLang(next) ? next : "en";
+            setLang(safe);
+            if (embedded && window.parent !== window) {
+              window.parent.postMessage({ type: "language-change", language: safe }, window.location.origin);
+            }
+          }}
+        />
 
         <div className="relative shrink-0">
           <button

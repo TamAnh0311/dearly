@@ -11,16 +11,17 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Flower, Gem, Heart, Quote, Sparkles, Wine, type LucideIcon } from "lucide-react";
 import type { GuestbookEntryRow, ReactionKind } from "@/types/database";
 import { Reveal, SectionHeading } from "./Primitives";
+import { useInvitationCopy } from "./HeroParts";
 import { EASE_OUT, alpha, seeded, timeAgo, type InvitationPalette } from "../utils";
 
 export type ReactionCounts = Record<ReactionKind, number>;
 
-const REACTIONS: { kind: ReactionKind; label: string; Icon: LucideIcon }[] = [
-  { kind: "love", label: "Love", Icon: Heart },
-  { kind: "bloom", label: "Bloom", Icon: Flower },
-  { kind: "cheers", label: "Cheers", Icon: Wine },
-  { kind: "sparkle", label: "Joy", Icon: Sparkles },
-  { kind: "rings", label: "Forever", Icon: Gem },
+const REACTIONS: { kind: ReactionKind; Icon: LucideIcon }[] = [
+  { kind: "love", Icon: Heart },
+  { kind: "bloom", Icon: Flower },
+  { kind: "cheers", Icon: Wine },
+  { kind: "sparkle", Icon: Sparkles },
+  { kind: "rings", Icon: Gem },
 ];
 
 const PAGE_SIZE = 9;
@@ -57,6 +58,7 @@ function ReactionBar({
   palette: InvitationPalette;
   demo: boolean;
 }) {
+  const ui = useInvitationCopy();
   const [counts, setCounts] = useState(initial);
   const [floaters, setFloaters] = useState<Floater[]>([]);
   const pending = useRef<Partial<ReactionCounts>>({});
@@ -94,10 +96,12 @@ function ReactionBar({
   return (
     <Reveal className="mx-auto mb-20 max-w-3xl text-center">
       <p className="mb-6 text-xs uppercase tracking-[0.3em]" style={{ color: palette.inkMuted }}>
-        Tap to send your love · <span style={{ color: palette.primary }}>{total.toLocaleString()}</span> sent so far
+        {ui.blessings.tapToSend} · <span style={{ color: palette.primary }}>{total.toLocaleString()}</span> {ui.blessings.sentSoFar}
       </p>
       <div className="flex flex-wrap justify-center gap-3 md:gap-4">
-        {REACTIONS.map(({ kind, label, Icon }) => (
+        {REACTIONS.map(({ kind, Icon }) => {
+          const label = ui.blessings.reactions[kind] ?? kind;
+          return (
           <div key={kind} className="relative">
             <AnimatePresence>
               {floaters
@@ -122,7 +126,7 @@ function ReactionBar({
               onClick={() => react(kind)}
               whileHover={{ y: -3 }}
               whileTap={{ scale: 0.85 }}
-              aria-label={`Send ${label}`}
+              aria-label={`${ui.blessings.tapToSend}: ${label}`}
               className="flex min-w-[5.5rem] flex-col items-center gap-1.5 border px-4 py-3 backdrop-blur-sm"
               style={{
                 borderRadius: palette.radius.card,
@@ -146,7 +150,8 @@ function ReactionBar({
               </motion.span>
             </motion.button>
           </div>
-        ))}
+          );
+        })}
       </div>
     </Reveal>
   );
@@ -154,12 +159,13 @@ function ReactionBar({
 
 /** A single blessing card on the wall. */
 function BlessingCard({ entry, index, palette, highlight }: { entry: GuestbookEntryRow; index: number; palette: InvitationPalette; highlight: boolean }) {
+  const ui = useInvitationCopy();
   const tint = palette.petals[index % 3];
   const badge =
     entry.rsvp_status === "attending"
-      ? "Will be there"
+      ? ui.blessings.willBeThere
       : entry.rsvp_status === "declined"
-        ? "Sending love from afar"
+        ? ui.blessings.sendingLove
         : null;
 
   return (
@@ -187,7 +193,7 @@ function BlessingCard({ entry, index, palette, highlight }: { entry: GuestbookEn
             {entry.guest_name}
           </p>
           <p className="mt-1 text-[11px] uppercase tracking-[0.15em]" style={{ color: palette.inkMuted }} suppressHydrationWarning>
-            {timeAgo(entry.created_at)}
+            {timeAgo(entry.created_at, Date.now(), ui.dateLocale)}
           </p>
         </div>
         {badge && (
@@ -227,16 +233,17 @@ export default function Blessings({
   /** Section title (event-specific, e.g. "Birthday wishes"). */
   title?: string;
 }) {
+  const ui = useInvitationCopy();
   const [visible, setVisible] = useState(PAGE_SIZE);
   const shown = blessings.slice(0, visible);
 
   return (
     <section id="blessings" className="relative px-6 py-28 md:py-36" style={{ backgroundColor: palette.surface }}>
       <SectionHeading
-        eyebrow="With love"
+        eyebrow={ui.blessings.withLove}
         title={title}
         palette={palette}
-        subtitle={showWall && blessings.length > 0 ? `${blessings.length} heartfelt ${blessings.length === 1 ? "wish" : "wishes"}` : undefined}
+        subtitle={showWall && blessings.length > 0 ? ui.blessings.wishes(blessings.length) : undefined}
       />
 
       {showReactions && <ReactionBar weddingId={weddingId} initial={reactions} palette={palette} demo={demo} />}
@@ -244,14 +251,14 @@ export default function Blessings({
       {!showWall ? null : blessings.length === 0 ? (
         <Reveal className="text-center">
           <p className="text-3xl" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>
-            Be the first to leave a blessing
+            {ui.blessings.firstBlessing}
           </p>
           <a
             href="#rsvp"
             className="mt-6 inline-block rounded-full border px-7 py-3 text-xs uppercase tracking-[0.25em]"
             style={{ borderColor: alpha(palette.primary, 0.5), color: palette.primary }}
           >
-            Write a blessing
+            {ui.blessings.writeBlessing}
           </a>
         </Reveal>
       ) : (
@@ -270,7 +277,7 @@ export default function Blessings({
             className="rounded-full border px-7 py-3 text-xs uppercase tracking-[0.25em] transition hover:-translate-y-0.5"
             style={{ borderColor: alpha(palette.primary, 0.5), color: palette.primary }}
           >
-            Show more blessings ({blessings.length - visible})
+            {ui.blessings.showMore(blessings.length - visible)}
           </button>
         </div>
       )}

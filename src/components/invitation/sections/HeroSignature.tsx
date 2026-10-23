@@ -15,7 +15,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import AmbientLayer from "../effects/Ambient";
 import { TwinklingStars } from "../effects/Particles";
 import { EASE_OUT, alpha, formatDotDate, formatLongDate, mix, type InvitationPalette } from "../utils";
-import { Ampersand, CenterNames, useEventCopy, useEyebrow } from "./HeroParts";
+import { Ampersand, CenterNames, useEventCopy, useEyebrow, useInvitationCopy } from "./HeroParts";
 import type { LayoutProps } from "./Hero";
 
 /* ─── Wax seal letter ─────────────────────────────────────────────────────── */
@@ -51,9 +51,9 @@ export function SealHero({ wedding, palette, contentY, contentOpacity }: LayoutP
   const reduce = useReducedMotion();
   const paper = palette.isDark ? mix(palette.background, "#ffffff", 0.08) : mix(palette.background, "#ffffff", 0.6);
   const envelope = palette.isDark ? mix(palette.background, "#ffffff", 0.14) : mix(palette.background, palette.accent, 0.35);
-  const { twoNames, eventType, inviteeName } = useEventCopy();
+  const { twoNames, inviteeName } = useEventCopy();
+  const ui = useInvitationCopy();
   const initials = twoNames ? `${wedding.partner1_name.charAt(0)}&${wedding.partner2_name.charAt(0)}` : wedding.partner1_name.charAt(0);
-  const invitedLine = eventType === "wedding" ? "You are invited" : "You're invited";
   const t = reduce ? 0 : 1;
 
   return (
@@ -85,11 +85,11 @@ export function SealHero({ wedding, palette, contentY, contentOpacity }: LayoutP
             </svg>
             {inviteeName && (
               <p className="mb-1 text-lg" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>
-                Dear {inviteeName}
+                {ui.dear(inviteeName)}
               </p>
             )}
             <p className="text-[10px] uppercase tracking-[0.45em]" style={{ color: palette.inkMuted }}>
-              {invitedLine}
+              {ui.youAreInvited}
             </p>
             <h1 className="mt-4 text-4xl font-light leading-tight md:text-6xl" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
               {wedding.partner1_name}
@@ -104,7 +104,7 @@ export function SealHero({ wedding, palette, contentY, contentOpacity }: LayoutP
             </h1>
             {wedding.wedding_date && (
               <p className="mt-4 text-xs uppercase tracking-[0.3em]" style={{ color: palette.inkMuted }}>
-                {formatLongDate(wedding.wedding_date)}
+                {formatLongDate(wedding.wedding_date, null, ui.dateLocale)}
               </p>
             )}
             {wedding.venue_name && (
@@ -241,6 +241,7 @@ export function DayNightHero({ wedding, palette, contentY, contentOpacity }: Lay
 /* ─── Stained-glass rose window ───────────────────────────────────────────── */
 
 export function StainedHero({ wedding, palette, contentY, contentOpacity }: LayoutProps) {
+  const ui = useInvitationCopy();
   const reduce = useReducedMotion();
   const lead = palette.isDark ? mix(palette.background, "#000000", 0.4) : "#2b2622";
   const jewels = [
@@ -352,7 +353,7 @@ export function StainedHero({ wedding, palette, contentY, contentOpacity }: Layo
 
         <motion.div className="mt-8 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: reduce ? 0 : 3.2, duration: 1 }}>
           <p className="text-xs uppercase tracking-[0.4em]" style={{ color: palette.inkMuted }}>
-            {wedding.wedding_date ? formatDotDate(wedding.wedding_date) : "Save the date"}
+            {wedding.wedding_date ? formatDotDate(wedding.wedding_date) : ui.saveTheDate}
           </p>
           {wedding.venue_name && (
             <p className="mt-2 text-2xl" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>

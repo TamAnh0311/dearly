@@ -132,8 +132,8 @@ export const EVENT_COPY: Record<EventType, EventCopy> = {
   },
 };
 
-/** Vietnamese copy for wedding events. Other event types fall back to English. */
-const EVENT_COPY_VI: Partial<Record<EventType, EventCopy>> = {
+/** Vietnamese copy for every event type. */
+const EVENT_COPY_VI: Record<EventType, EventCopy> = {
   wedding: {
     label: "Đám cưới",
     blurb: "Thiệp mời đám cưới với RSVP, lời chúc và album ảnh kỷ niệm.",
@@ -148,9 +148,93 @@ const EVENT_COPY_VI: Partial<Record<EventType, EventCopy>> = {
     calendarTitle: (n) => `Đám cưới ${n}`,
     seoPath: "/invitations/wedding",
   },
+  engagement: {
+    label: "Đính hôn",
+    blurb: "Thông báo ngày đính hôn và nhận lời chúc từ mọi người.",
+    eyebrow: "Lời cầu hôn đã được đồng ý",
+    tagline: () => "đã đính hôn",
+    hostLabel: ["Tên người thứ nhất", "Tên người thứ hai"],
+    storyTitle: "Chuyện chúng tôi",
+    rsvpEyebrow: "Cùng chung vui",
+    rsvpTitle: "Bạn sẽ tham dự chứ?",
+    blessingsTitle: "Lời chúc mừng",
+    wishNoun: "lời chúc",
+    calendarTitle: (n) => `Tiệc đính hôn ${n}`,
+    seoPath: "/invitations/wedding",
+  },
+  anniversary: {
+    label: "Kỷ niệm",
+    blurb: "Kỷ niệm những năm tháng bên nhau cùng những người thân yêu.",
+    eyebrow: "Vẫn chọn nhau mỗi ngày",
+    tagline: () => "kỷ niệm ngày cưới",
+    hostLabel: ["Tên người thứ nhất", "Tên người thứ hai"],
+    storyTitle: "Những năm tháng bên nhau",
+    rsvpEyebrow: "Kính mời",
+    rsvpTitle: "Bạn sẽ cùng chung vui chứ?",
+    blessingsTitle: "Lời chúc",
+    wishNoun: "lời chúc",
+    calendarTitle: (n) => `Kỷ niệm ngày cưới ${n}`,
+    seoPath: "/invitations/party",
+  },
+  birthday: {
+    label: "Sinh nhật",
+    blurb: "Thiệp mời sinh nhật rộn ràng — RSVP, lời chúc và tường ảnh.",
+    eyebrow: "Mời bạn đến chung vui",
+    tagline: () => "sắp đón sinh nhật!",
+    hostLabel: ["Tên nhân vật chính", null],
+    storyTitle: "Đôi lời",
+    rsvpEyebrow: "Bạn tham gia chứ?",
+    rsvpTitle: "Đến dự tiệc nhé?",
+    blessingsTitle: "Lời chúc sinh nhật",
+    wishNoun: "lời chúc",
+    calendarTitle: (n) => `Sinh nhật ${n}`,
+    seoPath: "/invitations/birthday",
+  },
+  party: {
+    label: "Tiệc",
+    blurb: "Thiệp mời tiệc với RSVP, danh sách khách và album ảnh chung.",
+    eyebrow: "Bạn có tên trong danh sách",
+    tagline: () => "mời bạn đến dự tiệc",
+    hostLabel: ["Tên người tổ chức", "Đồng tổ chức (không bắt buộc)"],
+    storyTitle: "Thông tin buổi tiệc",
+    rsvpEyebrow: "Bạn tham gia chứ?",
+    rsvpTitle: "Bạn có thể đến không?",
+    blessingsTitle: "Lời nhắn của khách",
+    wishNoun: "lời nhắn",
+    calendarTitle: (n) => `Tiệc cùng ${n}`,
+    seoPath: "/invitations/party",
+  },
+  social: {
+    label: "Sự kiện xã hội",
+    blurb: "Thiệp mời trang trọng cho bữa tối, dạ tiệc, họp mặt và gặp gỡ.",
+    eyebrow: "Trân trọng kính mời quý khách",
+    tagline: () => "trân trọng kính mời",
+    hostLabel: ["Tên người tổ chức", "Đồng tổ chức (không bắt buộc)"],
+    storyTitle: "Về buổi tối này",
+    rsvpEyebrow: "Kính mời",
+    rsvpTitle: "Quý khách sẽ tham dự chứ?",
+    blessingsTitle: "Lời nhắn của khách",
+    wishNoun: "lời nhắn",
+    calendarTitle: (n) => `Sự kiện do ${n} tổ chức`,
+    seoPath: "/invitations/social-event",
+  },
+  "baby-shower": {
+    label: "Tiệc mừng em bé",
+    blurb: "Thiệp mời tiệc mừng em bé với RSVP và lời chúc cho thiên thần nhỏ.",
+    eyebrow: "Một thiên thần nhỏ sắp chào đời",
+    tagline: () => "mời bạn đến tiệc mừng em bé",
+    hostLabel: ["Tên bố/mẹ", "Bạn đời (không bắt buộc)"],
+    storyTitle: "Tin vui nhỏ",
+    rsvpEyebrow: "Kính mời",
+    rsvpTitle: "Bạn sẽ cùng chung vui chứ?",
+    blessingsTitle: "Lời chúc cho em bé",
+    wishNoun: "lời chúc",
+    calendarTitle: (n) => `Tiệc mừng em bé của ${n}`,
+    seoPath: "/invitations/birthday",
+  },
 };
 
-/** Returns event copy for the given language. Falls back to English for untranslated event types. */
+/** Returns event copy for the given language. */
 export function getEventCopy(eventType: EventType, lang?: string): EventCopy {
   if (lang === "vi") return EVENT_COPY_VI[eventType] ?? EVENT_COPY[eventType];
   return EVENT_COPY[eventType];

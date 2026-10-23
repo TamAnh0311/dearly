@@ -9,61 +9,14 @@ import { createContext, useContext } from "react";
 import { motion } from "framer-motion";
 import { EVENT_COPY, type EventCopy } from "@/lib/event-types";
 import type { EventType } from "@/types/database";
-import type { InvitationLang } from "./Extras";
+import { getInvitationCopy, type InvitationCopy, type InvitationLang } from "../i18n";
 import { ChevronDown } from "lucide-react";
 import { EASE_OUT, formatDotDate, type InvitationPalette } from "../utils";
 import type { LayoutProps } from "./Hero";
 
-/* ─── Shared UI strings (not in EventCopy because they're layout chrome, not event-type copy) ── */
-
-interface UIStrings {
-  scroll: string;
-  saveTheDate: string;
-  aLittleSecret: string;
-  weSaidYes: string;
-  addToCalendar: string;
-  days: string;
-  hours: string;
-  minutes: string;
-  seconds: string;
-  dear: (name: string) => string;
-  youAreInvitedTo: (label: string) => string;
-  weSayIDo: string;
-}
-
-const UI_EN: UIStrings = {
-  scroll: "Scroll",
-  saveTheDate: "Save the date",
-  aLittleSecret: "A little secret",
-  weSaidYes: "We said yes",
-  addToCalendar: "Add to calendar",
-  days: "Days",
-  hours: "Hours",
-  minutes: "Minutes",
-  seconds: "Seconds",
-  dear: (name) => `Dear ${name}`,
-  youAreInvitedTo: (label) => `You have been invited to ${label.toLowerCase()}`,
-  weSayIDo: "We say \u201CI do\u201D on",
-};
-
-const UI_VI: UIStrings = {
-  scroll: "Xem thêm",
-  saveTheDate: "Ngày trọng đại",
-  aLittleSecret: "Bí mật nhỏ",
-  weSaidYes: "Chúng tôi đã nói đồng ý",
-  addToCalendar: "Thêm vào lịch",
-  days: "Ngày",
-  hours: "Giờ",
-  minutes: "Phút",
-  seconds: "Giây",
-  dear: (name) => `Kính gửi ${name}`,
-  youAreInvitedTo: () => "Trân trọng kính mời quý khách",
-  weSayIDo: "Ngày cưới",
-};
-
 /** Returns shared UI strings for the active language. */
-export function getUIStrings(lang?: InvitationLang): UIStrings {
-  return lang === "vi" ? UI_VI : UI_EN;
+export function getUIStrings(lang?: InvitationLang): InvitationCopy {
+  return getInvitationCopy(lang);
 }
 
 /** Event context for the hero: type-specific copy, one vs two hosts, personal invitee. */
@@ -86,9 +39,14 @@ export function useEventCopy(): EventContextValue {
 }
 
 /** Returns the UI strings for the current language. */
-export function useUI(): UIStrings {
+export function useUI(): InvitationCopy {
   const { lang } = useEventCopy();
   return getUIStrings(lang);
+}
+
+/** Alias for useUI that names the returned i18n bundle explicitly. */
+export function useInvitationCopy(): InvitationCopy {
+  return useUI();
 }
 
 /** Wedding layouts keep their bespoke kicker; other events use their own copy. When Vietnamese, always use copy.eyebrow. */
@@ -165,7 +123,7 @@ export function ScrollCue({ color }: { color: string }) {
   return (
     <motion.a
       href="#celebrate"
-      aria-label="Scroll to details"
+      aria-label={ui.scrollToDetails}
       className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-1 text-[10px] uppercase tracking-[0.3em]"
       style={{ color }}
       initial={{ opacity: 0 }}

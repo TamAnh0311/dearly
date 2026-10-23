@@ -15,12 +15,12 @@ import { Check, Copy, Gift as GiftIcon } from "lucide-react";
 import type { GiftAccount, WeddingEventRow, WeddingRow } from "@/types/database";
 import { Reveal, SectionHeading } from "./Primitives";
 import { useEventCopy } from "./HeroParts";
+import { type InvitationLang } from "../i18n";
 import { alpha, formatLongDate, mix, type InvitationPalette } from "../utils";
 
-/* ─── Language / Translations ────────────────────────────────────────────── */
+export type { InvitationLang } from "../i18n";
 
-/** Supported invitation display languages. */
-export type InvitationLang = "en" | "vi";
+/* ─── Language / Translations ────────────────────────────────────────────── */
 
 /** All translatable strings used in the Extras components. */
 interface Translations {

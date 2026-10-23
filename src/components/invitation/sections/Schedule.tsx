@@ -10,16 +10,18 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { Clock } from "lucide-react";
 import type { WeddingEventRow } from "@/types/database";
 import { SectionHeading } from "./Primitives";
+import { useInvitationCopy } from "./HeroParts";
 import { EASE_OUT, alpha, formatTime, type InvitationPalette } from "../utils";
 
 export default function Schedule({ events, palette, timeZone }: { events: WeddingEventRow[]; palette: InvitationPalette; timeZone?: string | null }) {
+  const ui = useInvitationCopy();
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start 75%", "end 60%"] });
   const lineScale = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
   return (
     <section id="schedule" className="relative px-6 py-28 md:py-36" style={{ backgroundColor: palette.surface }}>
-      <SectionHeading eyebrow="The celebration" title="Order of the Day" palette={palette} />
+      <SectionHeading eyebrow={ui.schedule.eyebrow} title={ui.schedule.title} palette={palette} />
 
       <div ref={ref} className="relative mx-auto max-w-4xl">
         {/* Track + animated fill */}
@@ -52,8 +54,8 @@ export default function Schedule({ events, palette, timeZone }: { events: Weddin
                   transition={{ duration: 0.9, ease: EASE_OUT }}
                 >
                   <p className="text-2xl" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>
-                    {formatTime(ev.start_time, timeZone)}
-                    {ev.end_time ? ` – ${formatTime(ev.end_time, timeZone)}` : ""}
+                    {formatTime(ev.start_time, timeZone, ui.dateLocale)}
+                    {ev.end_time ? ` – ${formatTime(ev.end_time, timeZone, ui.dateLocale)}` : ""}
                   </p>
                   <h3
                     className="mt-1 text-2xl uppercase tracking-[0.12em] md:text-3xl"
@@ -82,7 +84,7 @@ export default function Schedule({ events, palette, timeZone }: { events: Weddin
 
         <div className="mt-14 flex justify-center">
           <span className="flex items-center gap-2 text-xs uppercase tracking-[0.3em]" style={{ color: palette.inkMuted }}>
-            <Clock size={14} /> Times are local
+            <Clock size={14} /> {ui.schedule.timesLocal}
           </span>
         </div>
       </div>

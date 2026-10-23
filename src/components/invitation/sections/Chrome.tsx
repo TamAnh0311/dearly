@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { alpha, formatDotDate, type InvitationPalette } from "../utils";
+import { useInvitationCopy } from "./HeroParts";
 
 export interface NavLink {
   href: string;
@@ -37,6 +38,7 @@ export function TopNav({
   showRsvp?: boolean;
 }) {
   const [scrolled, setScrolled] = useState(false);
+  const ui = useInvitationCopy();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > window.innerHeight * 0.6);
@@ -65,7 +67,7 @@ export function TopNav({
           <a href="#top" className="text-2xl" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>
             {monogram(names[0], names[1])}
           </a>
-          <nav className="hidden items-center gap-7 md:flex" aria-label="Invitation sections">
+          <nav className="hidden items-center gap-7 md:flex" aria-label={ui.chrome.sectionsAria}>
             {links.map((l) => (
               <a
                 key={l.href}
@@ -83,7 +85,7 @@ export function TopNav({
             className="rounded-full px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.25em]"
             style={{ backgroundColor: palette.primary, color: palette.background }}
           >
-            RSVP
+            {ui.nav.rsvp}
           </a>
           ) : (
             <span className="w-16" aria-hidden />
@@ -109,6 +111,7 @@ export function Footer({
   showGallery?: boolean;
   showGuestbook?: boolean;
 }) {
+  const ui = useInvitationCopy();
   return (
     <footer className="relative px-6 pb-32 pt-24 text-center" style={{ backgroundColor: palette.background }}>
       <motion.div
@@ -132,18 +135,18 @@ export function Footer({
         </p>
       )}
       <p className="mx-auto mt-8 max-w-md text-2xl" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>
-        Thank you for being part of our story
+        {ui.chrome.thankYou}
       </p>
       {slug && (showGallery || showGuestbook) && (
         <div className="mt-10 flex flex-wrap justify-center gap-6 text-[11px] uppercase tracking-[0.25em]">
           {showGallery && (
             <Link href={`/${slug}/gallery`} style={{ color: palette.inkMuted }} className="hover:opacity-70">
-              Gallery
+              {ui.chrome.gallery}
             </Link>
           )}
           {showGuestbook && (
             <Link href={`/${slug}/guestbook`} style={{ color: palette.inkMuted }} className="hover:opacity-70">
-              Guest book
+              {ui.chrome.guestbook}
             </Link>
           )}
         </div>

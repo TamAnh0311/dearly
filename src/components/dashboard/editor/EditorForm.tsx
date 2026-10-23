@@ -14,6 +14,7 @@ import TemplatePicker from "./TemplatePicker";
 import SectionToggles from "@/components/invitation/SectionToggles";
 import ColorPicker from "./ColorPicker";
 import FontPicker from "./FontPicker";
+import LanguagePicker from "@/components/invitation/LanguagePicker";
 import type { GiftAccount, WeddingCustomization } from "@/types/database";
 
 /** Section header used throughout the form. */
@@ -190,25 +191,11 @@ export default function EditorForm() {
             )}
             <div className="pt-2">
               <label className="mb-1 block text-xs font-medium text-dearly-text-secondary">Invitation language</label>
-              <div className="flex gap-2">
-                {([["en", "English"], ["vi", "Tiếng Việt"]] as const).map(([code, label]) => {
-                  const active = (customization.language ?? "en") === code;
-                  return (
-                    <button
-                      key={code}
-                      type="button"
-                      onClick={() => updateCustomization({ language: code })}
-                      className={`rounded-md border px-3 py-1.5 text-xs font-semibold transition ${
-                        active
-                          ? "border-dearly-accent bg-dearly-accent text-white"
-                          : "border-dearly-border text-dearly-text-secondary hover:border-dearly-accent/50"
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  );
-                })}
-              </div>
+              <LanguagePicker
+                variant="light"
+                value={customization.language ?? "en"}
+                onChange={(language) => updateCustomization({ language })}
+              />
             </div>
             <p className="pt-2 text-xs text-dearly-text-secondary">
               Gift details (optional): a bank account and/or a payment QR image link for guests who want to send a gift.

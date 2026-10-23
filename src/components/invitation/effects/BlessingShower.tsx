@@ -27,6 +27,7 @@ import { Heart, Sparkles } from "lucide-react";
 import type { GuestbookEntryRow } from "@/types/database";
 import { ButterflyShape } from "../effects/Particles";
 import { alpha, luminance, mix, seeded, type InvitationPalette } from "../utils";
+import { useInvitationCopy } from "../sections/HeroParts";
 
 type Carrier = "butterfly" | "flower" | "star" | "heart" | "confetti";
 
@@ -273,6 +274,7 @@ export default function BlessingShower({
     };
     setFlights((f) => [...f, flight].slice(-MAX_ACTIVE));
   };
+  const ui = useInvitationCopy();
   const hasBlessings = blessings.length > 0;
 
   // Restore the guest's preference after mount (avoids SSR mismatch).
@@ -334,8 +336,8 @@ export default function BlessingShower({
           setFlights([]);
         }}
         aria-pressed={enabled}
-        aria-label={enabled ? "Hide blessings" : "Show blessings"}
-        title={enabled ? "Hide blessings" : "Show blessings"}
+        aria-label={enabled ? ui.blessingShower.hide : ui.blessingShower.show}
+        title={enabled ? ui.blessingShower.hide : ui.blessingShower.show}
         className="fixed bottom-6 left-6 z-40 flex items-center gap-2 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] shadow-lg backdrop-blur-md"
         style={{ borderColor: alpha(palette.primary, 0.3), background: alpha(palette.background, 0.85), color: noteAccent(palette) }}
         initial={{ opacity: 0, y: 20 }}
@@ -343,7 +345,7 @@ export default function BlessingShower({
         transition={{ delay: FIRST_WAVE_DELAY / 1000 }}
       >
         <Heart size={14} fill={enabled ? "currentColor" : "none"} />
-        {blessings.length} {blessings.length === 1 ? "blessing" : "blessings"}
+        {ui.blessingShower.count(blessings.length)}
       </motion.button>
     </>
   );

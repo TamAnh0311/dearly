@@ -10,6 +10,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { CelebrationBurst } from "../effects/Particles";
+import { useInvitationCopy } from "./HeroParts";
 import { alpha, mix, type InvitationPalette } from "../utils";
 
 const CLEAR_THRESHOLD = 0.5;
@@ -18,12 +19,13 @@ const BRUSH = 26;
 export default function ScratchReveal({
   palette,
   children,
-  label = "Scratch to reveal",
+  label,
 }: {
   palette: InvitationPalette;
   children: React.ReactNode;
   label?: string;
 }) {
+  const ui = useInvitationCopy();
   const reduce = useReducedMotion();
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -64,8 +66,9 @@ export default function ScratchReveal({
     ctx.font = `600 13px ${palette.bodyFont}`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(label.toUpperCase().split("").join(" "), width / 2, height / 2);
-  }, [palette, label]);
+    const text = (label ?? ui.scratch.label).toUpperCase();
+    ctx.fillText(ui.lang === "vi" ? text : text.split("").join(" "), width / 2, height / 2);
+  }, [palette, label, ui.scratch.label, ui.lang]);
 
   useEffect(() => {
     if (reduce) return;
@@ -160,7 +163,7 @@ export default function ScratchReveal({
           className="mx-auto mt-3 block text-[11px] uppercase tracking-[0.25em] underline-offset-4 hover:underline"
           style={{ color: palette.inkMuted }}
         >
-          Or tap here to reveal
+          {ui.scratch.orTap}
         </button>
       )}
     </div>

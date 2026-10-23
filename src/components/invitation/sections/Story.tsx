@@ -9,9 +9,11 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ScrollVine } from "../effects/Botanicals";
 import { Reveal, SectionHeading } from "./Primitives";
+import { useInvitationCopy } from "./HeroParts";
 import { alpha, type InvitationPalette } from "../utils";
 
 export default function Story({ text, palette, title = "Our Story" }: { text: string; palette: InvitationPalette; title?: string }) {
+  const ui = useInvitationCopy();
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start 85%", "end 40%"] });
   const vine = useTransform(scrollYProgress, [0, 1], [0, 1]);
@@ -35,7 +37,7 @@ export default function Story({ text, palette, title = "Our Story" }: { text: st
         ))
       )}
 
-      <SectionHeading eyebrow={title === "Our Story" ? "How it began" : "Hello"} title={title} palette={palette} />
+      <SectionHeading eyebrow={title === "Our Story" || ui.lang === "vi" ? ui.story.eyebrow : ui.story.genericEyebrow} title={title} palette={palette} />
 
       <div className="relative mx-auto max-w-2xl">
         <motion.span

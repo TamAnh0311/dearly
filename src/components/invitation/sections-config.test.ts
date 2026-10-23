@@ -14,7 +14,9 @@ describe("resolveSections", () => {
   });
 
   it("handles null/undefined", () => {
-    expect(Object.values(resolveSections(null)).every(Boolean)).toBe(true);
+    const s = resolveSections(null);
+    expect(s.invitationCard).toBe(false);
+    expect(Object.entries(s).every(([key, value]) => (key === "invitationCard" ? value === false : value))).toBe(true);
   });
 
   it("covers every toggle key", () => {

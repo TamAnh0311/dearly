@@ -11,6 +11,7 @@ import { useRef } from "react";
 import { motion, useInView, useReducedMotion } from "framer-motion";
 import { Camera, MapPin, Navigation } from "lucide-react";
 import { Reveal, SectionHeading } from "./Primitives";
+import { useInvitationCopy } from "./HeroParts";
 import { GrowingFlower } from "../effects/Botanicals";
 import { alpha, mapsUrl, type InvitationPalette } from "../utils";
 
@@ -24,11 +25,12 @@ export function Venue({
   address?: string | null;
   palette: InvitationPalette;
 }) {
+  const ui = useInvitationCopy();
   const cardRef = useRef<HTMLDivElement>(null);
   const inView = useInView(cardRef, { once: true, margin: "-120px" });
   return (
     <section id="venue" className="relative overflow-hidden px-6 py-28 md:py-36" style={{ backgroundColor: palette.background }}>
-      <SectionHeading eyebrow="Where" title="The Venue" palette={palette} />
+      <SectionHeading eyebrow={ui.venue.eyebrow} title={ui.venue.title} palette={palette} />
       <Reveal className="relative mx-auto max-w-2xl">
         <div
           ref={cardRef}
@@ -66,7 +68,7 @@ export function Venue({
             className="relative mt-8 inline-flex items-center gap-2 px-7 py-3 text-xs font-semibold uppercase tracking-[0.25em] transition hover:-translate-y-0.5"
             style={{ borderRadius: palette.radius.sm, backgroundColor: palette.primary, color: palette.background }}
           >
-            <Navigation size={14} /> Get directions
+            <Navigation size={14} /> {ui.venue.directions}
           </a>
         </div>
       </Reveal>
@@ -187,6 +189,7 @@ export function Moments({
   palette: InvitationPalette;
   layout?: MomentsLayout;
 }) {
+  const ui = useInvitationCopy();
   const reduce = useReducedMotion();
   const hasPhotos = photos.length >= 3;
 
@@ -194,10 +197,10 @@ export function Moments({
     <section id="moments" className="relative overflow-hidden py-28 md:py-36" style={{ backgroundColor: palette.surface }}>
       <div className="px-6">
         <SectionHeading
-          eyebrow="Our memories"
-          title="Moments"
+          eyebrow={ui.moments.eyebrow}
+          title={ui.moments.title}
           palette={palette}
-          subtitle={uploadHref ? "Captured a moment with us? Add it to our album — every photo becomes part of our story." : undefined}
+          subtitle={uploadHref ? ui.moments.shareSubtitle : undefined}
         />
       </div>
       {hasPhotos ? (
@@ -225,7 +228,7 @@ export function Moments({
               className="inline-flex items-center gap-2 px-7 py-3 text-xs font-semibold uppercase tracking-[0.25em] transition hover:-translate-y-0.5"
               style={{ borderRadius: palette.radius.sm, backgroundColor: palette.primary, color: palette.background }}
             >
-              <Camera size={14} /> Share your photos
+              <Camera size={14} /> {ui.moments.sharePhotos}
             </Link>
           )}
           {galleryHref && hasPhotos && (
@@ -234,7 +237,7 @@ export function Moments({
               className="border px-7 py-3 text-xs uppercase tracking-[0.25em] transition hover:-translate-y-0.5"
               style={{ borderRadius: palette.radius.sm, borderColor: alpha(palette.primary, 0.5), color: palette.primary }}
             >
-              View the full album
+              {ui.moments.viewAlbum}
             </Link>
           )}
         </div>

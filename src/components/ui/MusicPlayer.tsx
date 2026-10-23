@@ -16,6 +16,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Music2 } from "lucide-react";
 import { createAmbientMusic, type AmbientMusic, type MusicPreset } from "@/lib/ambient-music";
+import { useInvitationCopy } from "@/components/invitation/sections/HeroParts";
 
 interface MusicPlayerProps {
   /** Audio file URL. Optional — falls back to `preset`. */
@@ -86,6 +87,7 @@ function generativeEngine(preset: MusicPreset): Engine {
 }
 
 export default function MusicPlayer({ musicUrl, preset, theme }: MusicPlayerProps) {
+  const ui = useInvitationCopy();
   const engineRef = useRef<Engine | null>(null);
   const [playing, setPlaying] = useState(false);
   const [hint, setHint] = useState(false);
@@ -157,7 +159,7 @@ export default function MusicPlayer({ musicUrl, preset, theme }: MusicPlayerProp
             className="rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] shadow-lg backdrop-blur-md"
             style={{ background: `${theme.colors.secondary}e6`, color: theme.colors.primary, border: `1px solid ${theme.colors.primary}40` }}
           >
-            Tap anywhere for music ♪
+            {ui.music.tap}
           </motion.span>
         )}
       </AnimatePresence>
@@ -175,7 +177,7 @@ export default function MusicPlayer({ musicUrl, preset, theme }: MusicPlayerProp
           }
         }}
         data-music-button
-        aria-label={playing ? "Pause background music" : "Play background music"}
+        aria-label={playing ? ui.music.pause : ui.music.play}
         aria-pressed={playing}
         className="relative flex h-12 w-12 items-center justify-center rounded-full shadow-xl transition hover:scale-105"
         style={{ backgroundColor: theme.colors.primary, color: theme.colors.secondary }}

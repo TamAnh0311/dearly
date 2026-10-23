@@ -25,7 +25,7 @@ import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import AmbientLayer from "../effects/Ambient";
 import { EASE_OUT, alpha, formatDotDate, formatLongDate, luminance, mix, type InvitationPalette } from "../utils";
-import { Ampersand, CenterNames, RisingText, useEventCopy, useEyebrow } from "./HeroParts";
+import { Ampersand, CenterNames, RisingText, useEventCopy, useEyebrow, useInvitationCopy } from "./HeroParts";
 import type { LayoutProps } from "./Hero";
 import type { EventType } from "@/types/database";
 
@@ -194,6 +194,7 @@ export function PosterHero({ wedding, palette, photos, contentY, contentOpacity 
   const reduce = useReducedMotion();
   const t = reduce ? 0 : 1;
   const { twoNames, copy, inviteeName } = useEventCopy();
+  const ui = useInvitationCopy();
   const headline = useEyebrow("Save the date");
   const korean = palette.style.culture === "korean";
   const ink = "#ffffff";
@@ -223,7 +224,7 @@ export function PosterHero({ wedding, palette, photos, contentY, contentOpacity 
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.2 * t, duration: 1 }}
               >
-                Dear {inviteeName}
+                {ui.dear(inviteeName)}
               </motion.p>
             )}
             <motion.p
@@ -233,7 +234,7 @@ export function PosterHero({ wedding, palette, photos, contentY, contentOpacity 
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.6 * t, duration: 1 }}
             >
-              {inviteeName ? `You have been invited to ${copy.label.toLowerCase()}` : headline}
+              {inviteeName ? ui.youAreInvitedTo(copy.label) : headline}
             </motion.p>
             {wedding.wedding_date && (
               <motion.p
@@ -267,7 +268,7 @@ export function PosterHero({ wedding, palette, photos, contentY, contentOpacity 
               transition={{ delay: 3 * t, duration: 1 }}
             >
               <span>{wedding.event_title || copy.tagline(wedding.partner1_name)}</span>
-              {wedding.wedding_date && <span className="opacity-80">{formatLongDate(wedding.wedding_date)}</span>}
+              {wedding.wedding_date && <span className="opacity-80">{formatLongDate(wedding.wedding_date, null, ui.dateLocale)}</span>}
               {wedding.venue_name && <span className="opacity-80">{wedding.venue_name}</span>}
             </motion.div>
           </div>

@@ -13,7 +13,9 @@ import { Check, Copy, Heart, HeartHandshake, LoaderCircle, Minus, PartyPopper, P
 import type { GiftAccount, GuestbookEntryRow } from "@/types/database";
 import { CelebrationBurst } from "../effects/Particles";
 import { Reveal, SectionHeading } from "./Primitives";
+import { useInvitationCopy } from "./HeroParts";
 import { EASE_OUT, alpha, mix, type InvitationPalette } from "../utils";
+import type { InvitationCopy } from "../i18n";
 
 type Choice = "attending" | "declined";
 
@@ -56,7 +58,8 @@ function readStored(weddingId: string): StoredRsvp | null {
 /** Sends the RSVP to the API (or simulates it in demo mode). */
 async function submitRsvp(
   payload: { weddingId: string; guestName: string; attending: boolean; partySize?: number; message?: string; inviteeToken?: string },
-  demo: boolean
+  demo: boolean,
+  ui: InvitationCopy
 ): Promise<GuestbookEntryRow | null> {
   if (demo) {
     await new Promise((r) => setTimeout(r, 700));
@@ -82,11 +85,11 @@ async function submitRsvp(
       signal: controller.signal,
     });
     const data = (await res.json().catch(() => ({}))) as { error?: string; blessing?: GuestbookEntryRow | null };
-    if (!res.ok) throw new Error(data.error ?? "Something went wrong. Please try again.");
+    if (!res.ok) throw new Error(data.error ?? ui.rsvp.genericError);
     return data.blessing ?? null;
   } catch (err) {
     if (err instanceof DOMException && err.name === "AbortError") {
-      throw new Error("The connection timed out. Please check your internet and try again.");
+      throw new Error(ui.rsvp.timeoutError);
     }
     throw err;
   } finally {
@@ -137,6 +140,7 @@ function ChoiceButton({
 
 /** Compact inline gift card shown after a successful RSVP. */
 function GiftInlineCard({ account, palette }: { account: GiftAccount; palette: InvitationPalette }) {
+  const ui = useInvitationCopy();
   const [copied, setCopied] = useState(false);
 
   /** Copies the account number to the clipboard. */
@@ -161,7 +165,7 @@ function GiftInlineCard({ account, palette }: { account: GiftAccount; palette: I
       </p>
       {account.qrUrl && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={account.qrUrl} alt={`QR code for ${account.label}`} loading="lazy" className="h-36 w-36 bg-white object-contain p-1.5" style={{ borderRadius: palette.radius.sm === "2px" ? 2 : 10 }} />
+        <img src={account.qrUrl} alt={ui.rsvp.qrAlt(account.label)} loading="lazy" className="h-36 w-36 bg-white object-contain p-1.5" style={{ borderRadius: palette.radius.sm === "2px" ? 2 : 10 }} />
       )}
       {account.bank && (
         <p className="text-[10px] uppercase tracking-[0.25em]" style={{ color: palette.inkMuted }}>{account.bank}</p>
@@ -175,7 +179,7 @@ function GiftInlineCard({ account, palette }: { account: GiftAccount; palette: I
           onClick={handleCopy}
           className="inline-flex items-center gap-2 border px-3 py-1.5 font-mono text-sm tracking-wider transition hover:-translate-y-0.5"
           style={{ borderRadius: palette.radius.sm, borderColor: alpha(palette.primary, 0.35), color: palette.ink }}
-          aria-label={`Copy account number ${account.number}`}
+          aria-label={ui.rsvp.copyAccount(account.number)}
         >
           {account.number}
           {copied ? <Check size={14} style={{ color: palette.primary }} /> : <Copy size={14} style={{ color: palette.primary }} />}
@@ -187,6 +191,7 @@ function GiftInlineCard({ account, palette }: { account: GiftAccount; palette: I
 
 /** Gift accounts section shown inline after a successful blessing. */
 function GiftInline({ accounts, palette }: { accounts: GiftAccount[]; palette: InvitationPalette }) {
+  const ui = useInvitationCopy();
   return (
     <motion.div
       className="mt-8 w-full"
@@ -197,7 +202,7 @@ function GiftInline({ accounts, palette }: { accounts: GiftAccount[]; palette: I
       <div className="mb-4 flex items-center gap-3 justify-center">
         <span className="h-px flex-1 max-w-[4rem]" style={{ background: alpha(palette.primary, 0.25) }} />
         <span className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.3em]" style={{ color: palette.inkMuted }}>
-          <QrCode size={14} style={{ color: palette.primary }} /> Send a gift
+          <QrCode size={14} style={{ color: palette.primary }} /> {ui.rsvp.sendGift}
         </span>
         <span className="h-px flex-1 max-w-[4rem]" style={{ background: alpha(palette.primary, 0.25) }} />
       </div>
@@ -216,11 +221,15 @@ export default function RsvpSection({
   palette,
   demo = false,
   onBlessing,
-  eyebrow = "Kindly reply",
-  title = "Will you join us?",
+  eyebrow: eyebrowProp,
+  title: titleProp,
   invitee = null,
   giftAccounts = [],
 }: RsvpSectionProps) {
+  const ui = useInvitationCopy();
+  const t = ui.rsvp;
+  const eyebrow = eyebrowProp ?? ui.nav.rsvp;
+  const title = titleProp ?? ui.nav.rsvp;
   const maxParty = invitee?.maxPartySize ?? 10;
   const [choice, setChoice] = useState<Choice | null>(null);
   const [name, setName] = useState(invitee?.name ?? "");
@@ -247,7 +256,7 @@ export default function RsvpSection({
     if (!choice) return;
     const guestName = name.trim();
     if (!guestName) {
-      setError("Please tell us your name so the couple knows who replied.");
+      setError(t.nameError);
       return;
     }
     setError(null);
@@ -262,7 +271,8 @@ export default function RsvpSection({
           inviteeToken: invitee?.token,
           message: message.trim() || undefined,
         },
-        demo
+        demo,
+        ui
       );
       if (blessing) onBlessing(blessing);
       if (!demo) {
@@ -276,7 +286,7 @@ export default function RsvpSection({
       setBurstKey((k) => k + 1);
     } catch (err) {
       setStatus("idle");
-      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setError(err instanceof Error ? err.message : t.genericError);
     }
   }
 
@@ -306,8 +316,8 @@ export default function RsvpSection({
         palette={palette}
         subtitle={
           invitee
-            ? `Dear ${invitee.name}, ${coupleNames.filter(Boolean).join(" & ")} would love to have you there${invitee.maxPartySize > 1 ? ` — your invitation is for ${invitee.maxPartySize} guests` : ""}.`
-            : `${coupleNames.filter(Boolean).join(" & ")} would be honoured by your presence — and cherish your message either way.`
+            ? t.inviteeSubtitle(invitee.name, coupleNames.filter(Boolean).join(" & "), invitee.maxPartySize)
+            : t.subtitle(coupleNames.filter(Boolean).join(" & "))
         }
       />
 
@@ -334,12 +344,10 @@ export default function RsvpSection({
                 {attending ? <PartyPopper size={34} /> : <Heart size={34} fill="currentColor" />}
               </motion.div>
               <p className="mt-6 text-4xl" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>
-                {attending ? "See you there!" : "You'll be missed"}
+                {attending ? t.successAttending : t.successDeclined}
               </p>
               <p className="mx-auto mt-3 max-w-md leading-relaxed" style={{ color: palette.inkMuted }}>
-                {attending
-                  ? `Thank you, ${name}. We can't wait to celebrate with you.`
-                  : `Thank you, ${name}. Your love means the world to us, even from afar.`}
+                {attending ? t.thanksAttending(name) : t.thanksDeclined(name)}
               </p>
               <button
                 type="button"
@@ -347,7 +355,7 @@ export default function RsvpSection({
                 className="mt-8 text-xs uppercase tracking-[0.25em] underline-offset-4 hover:underline"
                 style={{ color: palette.primary }}
               >
-                Change my reply or send another blessing
+                {t.changeReply}
               </button>
             </motion.div>
           ) : (
@@ -364,16 +372,16 @@ export default function RsvpSection({
                   active={choice === "attending"}
                   onClick={() => setChoice("attending")}
                   icon={<PartyPopper size={30} />}
-                  title="I'll be there"
-                  subtitle="Joyfully accepts"
+                  title={t.attendingTitle}
+                  subtitle={t.attendingSubtitle}
                   palette={palette}
                 />
                 <ChoiceButton
                   active={choice === "declined"}
                   onClick={() => setChoice("declined")}
                   icon={<HeartHandshake size={30} />}
-                  title="Can't make it"
-                  subtitle="Sending my blessing"
+                  title={t.declinedTitle}
+                  subtitle={t.declinedSubtitle}
                   palette={palette}
                 />
               </Reveal>
@@ -393,7 +401,7 @@ export default function RsvpSection({
                     <div className="space-y-5 pt-8">
                       <label className="block">
                         <span className="mb-2 block text-xs uppercase tracking-[0.25em]" style={{ color: palette.inkMuted }}>
-                          Your name
+                          {t.yourName}
                         </span>
                         <input
                           value={name}
@@ -401,7 +409,7 @@ export default function RsvpSection({
                           maxLength={100}
                           required
                           autoComplete="name"
-                          placeholder="e.g. Olivia & Noah Bennett"
+                          placeholder={t.namePlaceholder}
                           className="w-full border px-5 py-4 text-base outline-none transition focus:ring-2"
                           style={inputStyle}
                         />
@@ -410,12 +418,12 @@ export default function RsvpSection({
                       {attending && (
                         <div>
                           <span className="mb-2 block text-xs uppercase tracking-[0.25em]" style={{ color: palette.inkMuted }}>
-                            Number of guests (including you)
+                            {t.guests}
                           </span>
                           <div className="inline-flex items-center gap-4 border px-3 py-2" style={inputStyle}>
                             <button
                               type="button"
-                              aria-label="Fewer guests"
+                              aria-label={t.fewerGuests}
                               onClick={() => setPartySize((n) => Math.max(1, n - 1))}
                               className="rounded-full p-2 transition hover:opacity-70 disabled:opacity-30"
                               disabled={partySize <= 1}
@@ -427,7 +435,7 @@ export default function RsvpSection({
                             </span>
                             <button
                               type="button"
-                              aria-label="More guests"
+                              aria-label={t.moreGuests}
                               onClick={() => setPartySize((n) => Math.min(maxParty, n + 1))}
                               className="rounded-full p-2 transition hover:opacity-70 disabled:opacity-30"
                               disabled={partySize >= maxParty}
@@ -440,23 +448,19 @@ export default function RsvpSection({
 
                       <label className="block">
                         <span className="mb-2 block text-xs uppercase tracking-[0.25em]" style={{ color: palette.inkMuted }}>
-                          {attending ? "A blessing for the couple (optional)" : "Send your blessing"}
+                          {attending ? t.blessingOptional : t.blessingPrompt}
                         </span>
                         <textarea
                           value={message}
                           onChange={(e) => setMessage(e.target.value)}
                           maxLength={1000}
                           rows={4}
-                          placeholder={
-                            attending
-                              ? "Wishing you a lifetime of love and laughter…"
-                              : "So sorry to miss your big day. Sending you all my love…"
-                          }
+                          placeholder={attending ? t.attendingPlaceholder : t.declinedPlaceholder}
                           className="w-full resize-none border px-5 py-4 text-base outline-none transition focus:ring-2"
                           style={inputStyle}
                         />
                         <span className="mt-1 block text-right text-[11px]" style={{ color: palette.inkMuted }}>
-                          {message.length}/1000 · Blessings appear on this page
+                          {message.length}/1000 · {t.charCount}
                         </span>
                       </label>
 
@@ -484,7 +488,7 @@ export default function RsvpSection({
                         ) : (
                           <Send size={16} />
                         )}
-                        {status === "sending" ? "Sending…" : attending ? "Send my RSVP" : "Send my love"}
+                        {status === "sending" ? t.sending : attending ? t.sendRsvp : t.sendLove}
                       </motion.button>
                     </div>
                   </motion.div>

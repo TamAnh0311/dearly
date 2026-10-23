@@ -36,6 +36,7 @@ import { clearPendingDesign, readPendingDesign, schemeColors } from "@/lib/pendi
 import LayoutThumbnail, { LAYOUT_LABEL } from "@/components/invitation/LayoutThumbnail";
 import { COLOR_SCHEMES, getInvitationStyle } from "@/components/invitation/styles";
 import { resolveBlessingStyle, sanitizeSections, type BlessingStyle } from "@/components/invitation/sections-config";
+import { isInvitationLang, type InvitationLang } from "@/components/invitation/i18n";
 import TemplateSearchInput from "@/components/invitation/TemplateSearchInput";
 import { searchTemplates } from "@/lib/template-search";
 import { EVENT_COPY, EVENT_TYPE_ORDER } from "@/lib/event-types";
@@ -116,25 +117,35 @@ function TemplateCardSkeleton() {
 
 /**
  * Full-screen modal embedding the real animated template demo
- * (/templates/[slug]?embed=1). The embedded page reports colour-scheme
- * changes via postMessage so "Use this design" can keep the choice.
+ * (/templates/[slug]?embed=1). The embedded page reports colour-scheme,
+ * section and language changes via postMessage so "Use this design" can keep
+ * the choices, and reopening the same template restores them.
  */
 function TemplatePreviewModal({
   template,
   initialScheme,
+  initialLanguage,
   onClose,
   onSelect,
 }: {
   template: TemplateRow;
   initialScheme: string;
+  initialLanguage: InvitationLang | null;
   onClose: () => void;
-  onSelect: (schemeId: string, sections: WeddingCustomization["sections"] | null, blessingStyle: BlessingStyle | null) => void;
+  onSelect: (
+    schemeId: string,
+    sections: WeddingCustomization["sections"] | null,
+    blessingStyle: BlessingStyle | null,
+    language: InvitationLang | null
+  ) => void;
 }) {
   const [schemeId, setSchemeId] = useState(initialScheme);
   const [sections, setSections] = useState<WeddingCustomization["sections"] | null>(null);
   const [blessingStyle, setBlessingStyle] = useState<BlessingStyle | null>(null);
+  const [language, setLanguage] = useState<InvitationLang | null>(initialLanguage);
   const [loaded, setLoaded] = useState(false);
-  const src = useRef(`/templates/${encodeURIComponent(template.slug)}?embed=1&scheme=${encodeURIComponent(initialScheme)}`);
+  const languageQuery = initialLanguage ? `&language=${encodeURIComponent(initialLanguage)}` : "";
+  const src = useRef(`/templates/${encodeURIComponent(template.slug)}?embed=1&scheme=${encodeURIComponent(initialScheme)}${languageQuery}`);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -142,6 +153,7 @@ function TemplatePreviewModal({
     function onMessage(e: MessageEvent) {
       if (e.origin !== window.location.origin) return;
       if (e.data?.type === "scheme-change" && typeof e.data.id === "string") setSchemeId(e.data.id);
+      if (e.data?.type === "language-change" && isInvitationLang(e.data.language)) setLanguage(e.data.language);
       if (e.data?.type === "sections-change") {
         const clean = sanitizeSections(e.data.sections);
         if (clean) setSections(clean);
@@ -197,7 +209,7 @@ function TemplatePreviewModal({
           <div className="min-w-0">
             <p className="truncate text-base font-bold text-dearly-text">{template.name}</p>
             <p className="text-xs text-dearly-text-secondary">
-              Colours: <span className="font-semibold">{schemeName(schemeId, template.name)}</span> · change colours and sections in the bar above
+              Colours: <span className="font-semibold">{schemeName(schemeId, template.name)}</span> · change colours, language and sections in the bar above
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -210,7 +222,7 @@ function TemplatePreviewModal({
             </button>
             <button
               type="button"
-              onClick={() => onSelect(schemeId, sections, blessingStyle)}
+              onClick={() => onSelect(schemeId, sections, blessingStyle, language)}
               className="rounded-lg bg-dearly-accent px-5 py-2 text-sm font-semibold text-white transition hover:opacity-90"
             >
               Use this design
@@ -253,6 +265,7 @@ export default function DashboardPage() {
   const [selectedScheme, setSelectedScheme] = useState("original");
   const [selectedSections, setSelectedSections] = useState<WeddingCustomization["sections"] | null>(null);
   const [selectedBlessingStyle, setSelectedBlessingStyle] = useState<BlessingStyle | null>(null);
+  const [selectedLanguage, setSelectedLanguage] = useState<InvitationLang | null>(null);
 
   const [previewTemplate, setPreviewTemplate] = useState<TemplateRow | null>(null);
   const closePreview = useCallback(() => setPreviewTemplate(null), []);
@@ -356,13 +369,14 @@ export default function DashboardPage() {
     try {
       const colors = schemeColors(selectedScheme);
       const customization: WeddingCustomization | undefined =
-        colors || selectedSections || selectedBlessingStyle
+        colors || selectedSections || selectedBlessingStyle || selectedLanguage
           ? {
               colors: colors ?? {},
               fonts: {},
               sections: selectedSections ?? { timeline: true, gallery: true, guestbook: true },
               galleryLayout: "masonry",
               ...(selectedBlessingStyle ? { blessingStyle: selectedBlessingStyle } : {}),
+              ...(selectedLanguage ? { language: selectedLanguage } : {}),
             }
           : undefined;
       await createWedding(selectedTemplateId, slug.trim(), {
@@ -917,9 +931,11 @@ export default function DashboardPage() {
           <TemplatePreviewModal
             template={previewTemplate}
             initialScheme={previewTemplate.id === selectedTemplateId ? selectedScheme : "original"}
+            initialLanguage={previewTemplate.id === selectedTemplateId ? selectedLanguage : null}
             onClose={closePreview}
-            onSelect={(schemeId, sections, blessingStyle) => {
+            onSelect={(schemeId, sections, blessingStyle, language) => {
               setSelectedBlessingStyle(blessingStyle);
+              setSelectedLanguage(language);
               setSelectedTemplateId(previewTemplate.id);
               setSelectedScheme(schemeId);
               setSelectedSections(sections);

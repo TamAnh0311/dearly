@@ -19,10 +19,11 @@ import TemplatePreview from "@/components/invitation/TemplatePreview";
 import { PLACEHOLDER_IMAGES } from "@/lib/placeholder-images";
 import type { TemplateRow, WeddingRow, WeddingEventRow, GuestbookEntryRow } from "@/types/database";
 import type { Culture } from "@/components/invitation/styles";
+import { isInvitationLang } from "@/components/invitation/i18n";
 
 interface PageProps {
   params: { slug: string };
-  searchParams?: { embed?: string; scheme?: string; bare?: string };
+  searchParams?: { embed?: string; scheme?: string; bare?: string; language?: string };
 }
 
 /**
@@ -198,6 +199,7 @@ export default async function TemplatePreviewPage({ params, searchParams }: Page
   const embedded = searchParams?.embed === "1";
   const bare = embedded && searchParams?.bare === "1";
   const initialScheme = typeof searchParams?.scheme === "string" ? searchParams.scheme.slice(0, 40) : "original";
+  const initialLanguage = isInvitationLang(searchParams?.language) ? searchParams.language : undefined;
   const supabase = createCookieClient();
 
   const { data: templateData } = await supabase
@@ -236,6 +238,7 @@ export default async function TemplatePreviewPage({ params, searchParams }: Page
             : [...PLACEHOLDER_IMAGES.couple, ...PLACEHOLDER_IMAGES.wedding.slice(0, 3)]
         }
         initialScheme={initialScheme}
+        initialLanguage={initialLanguage}
         embedded={embedded}
         bare={bare}
       />

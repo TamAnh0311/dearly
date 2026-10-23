@@ -7,8 +7,8 @@
  * since layout is the template's design language).
  *
  * `embedded` mode (used inside the dashboard onboarding modal) hides the
- * navigation links and reports scheme changes to the parent window via
- * `{ type: "scheme-change", id }` and `{ type: "sections-change", sections }`.
+ * navigation links and reports scheme, section and language changes to the
+ * parent window via `scheme-change`, `sections-change` and `language-change`.
  *
  * The "Sections" button opens switches to show/hide parts of the invitation.
  */
@@ -39,6 +39,8 @@ interface TemplatePreviewProps {
   photos: string[];
   /** Scheme id to start with (falls back to "original" if unknown). */
   initialScheme?: string;
+  /** Language chosen in the dashboard; otherwise the template culture decides. */
+  initialLanguage?: InvitationLang;
   /** Rendered inside an iframe — hide links, notify parent of scheme changes. */
   embedded?: boolean;
   /** No banner at all (e.g. the landing-page phone demo). */
@@ -83,6 +85,7 @@ export default function TemplatePreview({
   reactions,
   photos,
   initialScheme = "original",
+  initialLanguage,
   embedded = false,
   bare = false,
 }: TemplatePreviewProps) {
@@ -106,7 +109,7 @@ export default function TemplatePreview({
   const [blessingStyle, setBlessingStyle] = useState<BlessingStyle>(resolveBlessingStyle(wedding.customization.blessingStyle));
   const culture = getInvitationStyle(templateSlug).culture;
   const defaultLang: InvitationLang = wedding.customization.language ?? (culture === "vietnamese" ? "vi" : "en");
-  const [lang, setLang] = useState<InvitationLang>(defaultLang);
+  const [lang, setLang] = useState<InvitationLang>(isInvitationLang(initialLanguage) ? initialLanguage : defaultLang);
 
   /** Notifies the embedding dashboard of the current section choices. */
   function notifyParent(next: WeddingCustomization["sections"], style: BlessingStyle) {

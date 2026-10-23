@@ -1,0 +1,4 @@
+[2026-10-23 16:18:20]
+CONTEXT: Persist the invitation language selected inside the dashboard template-preview modal.
+RESULT: The embedded preview now reports language changes via postMessage; the dashboard stores the choice, restores it when reopening the same template, and saves it into WeddingCustomization.language on create. Added an initialLanguage prop plus a validated ?language= query param. tsc, lint, 101 tests and build pass; screenshot-checked EN override on crimson-keepsake.
+---

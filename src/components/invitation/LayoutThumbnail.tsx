@@ -6,6 +6,7 @@
  */
 
 import Image from "next/image";
+import { getArtCollection } from "./art";
 import { getInvitationStyle } from "./styles";
 import { alpha, luminance, mix } from "./utils";
 
@@ -334,6 +335,35 @@ export default function LayoutThumbnail({ slug, colors, fonts, photo, names = ["
               {nameBlock("text-base")}
             </div>
           </div>
+        </div>
+      );
+    }
+
+    case "atelier": {
+      const art = getArtCollection(style.art);
+      return (
+        <div className="relative flex h-full flex-col overflow-hidden" style={{ background: secondary }}>
+          <div className="relative z-10 flex flex-col items-center px-4 pt-5 text-center">
+            <p className="text-[6px] uppercase tracking-[0.4em]" style={{ color: alpha(ink, 0.6) }}>
+              Together with their families
+            </p>
+            <div className="mt-2" style={{ fontFamily: display, color: ink }}>
+              <p className="text-xl leading-none">{names[0]}</p>
+              <p className="text-base leading-none" style={{ fontFamily: script, color: primary }}>
+                &amp;
+              </p>
+              <p className="text-xl leading-none">{names[1]}</p>
+            </div>
+            <p className="mt-2 text-[6px] uppercase tracking-[0.3em]" style={{ color: alpha(ink, 0.55) }}>
+              15 · 06 · 2027
+            </p>
+          </div>
+          {art && (
+            <div className="absolute inset-x-0 bottom-0 h-[46%]">
+              <Image src={art.hero.src} alt="" fill sizes="240px" className="object-cover" />
+              <div className="absolute inset-0" style={{ background: `linear-gradient(180deg, ${secondary} 0%, ${alpha(secondary, 0)} 55%)` }} />
+            </div>
+          )}
         </div>
       );
     }

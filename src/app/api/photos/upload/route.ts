@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
           : `This album is full (${plan.maxPhotos} photos). Ask the host to remove a few, then try again.`,
         code: "PLAN_LIMIT",
       },
-      { status: PLANS_ENABLED ? 402 : 413 }
+      { status: PLANS_ENABLED ? 402 : 409 }
     );
   }
 

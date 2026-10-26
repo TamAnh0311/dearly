@@ -11,6 +11,8 @@ import { useRef } from "react";
 import { motion, useInView, useReducedMotion } from "framer-motion";
 import { Camera, MapPin, Navigation } from "lucide-react";
 import { Reveal, SectionHeading } from "./Primitives";
+import ArtSpray from "./ArtSpray";
+import { getArtCollection } from "../art";
 import { useInvitationCopy } from "./HeroParts";
 import { GrowingFlower } from "../effects/Botanicals";
 import { alpha, mapsUrl, type InvitationPalette } from "../utils";
@@ -28,13 +30,14 @@ export function Venue({
   const ui = useInvitationCopy();
   const cardRef = useRef<HTMLDivElement>(null);
   const inView = useInView(cardRef, { once: true, margin: "-120px" });
+  const art = getArtCollection(palette.style.art);
   return (
     <section id="venue" className="relative overflow-hidden px-6 py-28 md:py-36" style={{ backgroundColor: palette.background }}>
       <SectionHeading eyebrow={ui.venue.eyebrow} title={ui.venue.title} palette={palette} />
       <Reveal className="relative mx-auto max-w-2xl">
         <div
           ref={cardRef}
-          className="relative overflow-hidden border px-8 py-14 text-center md:px-16"
+          className="relative overflow-hidden border text-center"
           style={{
             borderRadius: palette.radius.lg,
             borderColor: alpha(palette.primary, 0.25),
@@ -42,34 +45,56 @@ export function Venue({
             boxShadow: `0 40px 80px -40px ${alpha(palette.primary, 0.45)}`,
           }}
         >
-          {inView && palette.style.flowers && (
-            <>
-          <div className="pointer-events-none absolute -bottom-4 -left-4 opacity-70">
-            <GrowingFlower petal={palette.petals[0]} petalInner={palette.petals[2]} leaf={palette.leaf} height={150} delay={0.2} petals={6} />
-          </div>
-          <div className="pointer-events-none absolute -bottom-4 -right-4 opacity-70">
-            <GrowingFlower petal={palette.petals[1]} petalInner={palette.petals[0]} leaf={palette.leaf} height={120} delay={0.5} petals={5} flip />
-          </div>
-            </>
+          {art && (
+            <div className="relative h-44 w-full overflow-hidden sm:h-52 md:h-60">
+              <Image
+                src={art.venue.src}
+                alt=""
+                fill
+                sizes="(max-width: 768px) 100vw, 672px"
+                placeholder="blur"
+                blurDataURL={art.venue.blurDataURL}
+                className="object-cover"
+                style={{ objectPosition: "50% 55%", filter: palette.isDark ? "brightness(0.72) saturate(0.9)" : "saturate(1.02)" }}
+              />
+              <div
+                aria-hidden
+                className="absolute inset-0"
+                style={{ background: `linear-gradient(180deg, transparent 45%, ${alpha(palette.background, 0.92)} 100%)` }}
+              />
+              <ArtSpray palette={palette} asset="peony" className="-left-4 -top-6 w-28 md:w-36" rotate={-12} opacity={0.85} />
+            </div>
           )}
-          <MapPin className="mx-auto" size={28} style={{ color: palette.primary }} />
-          <h3 className="mt-5 text-3xl md:text-4xl" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
-            {name}
-          </h3>
-          {address && (
-            <p className="mt-3 text-base" style={{ color: palette.inkMuted }}>
-              {address}
-            </p>
-          )}
-          <a
-            href={mapsUrl([name, address].filter(Boolean).join(", "))}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="relative mt-8 inline-flex items-center gap-2 px-7 py-3 text-xs font-semibold uppercase tracking-[0.25em] transition hover:-translate-y-0.5"
-            style={{ borderRadius: palette.radius.sm, backgroundColor: palette.primary, color: palette.background }}
-          >
-            <Navigation size={14} /> {ui.venue.directions}
-          </a>
+          <div className={art ? "px-8 pb-14 pt-2 md:px-16" : "px-8 py-14 md:px-16"}>
+            {inView && palette.style.flowers && (
+              <>
+                <div className="pointer-events-none absolute -bottom-4 -left-4 opacity-70">
+                  <GrowingFlower petal={palette.petals[0]} petalInner={palette.petals[2]} leaf={palette.leaf} height={150} delay={0.2} petals={6} />
+                </div>
+                <div className="pointer-events-none absolute -bottom-4 -right-4 opacity-70">
+                  <GrowingFlower petal={palette.petals[1]} petalInner={palette.petals[0]} leaf={palette.leaf} height={120} delay={0.5} petals={5} flip />
+                </div>
+              </>
+            )}
+            <MapPin className="mx-auto" size={28} style={{ color: palette.primary }} />
+            <h3 className="mt-5 text-3xl md:text-4xl" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
+              {name}
+            </h3>
+            {address && (
+              <p className="mt-3 text-base" style={{ color: palette.inkMuted }}>
+                {address}
+              </p>
+            )}
+            <a
+              href={mapsUrl([name, address].filter(Boolean).join(", "))}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative mt-8 inline-flex items-center gap-2 px-7 py-3 text-xs font-semibold uppercase tracking-[0.25em] transition hover:-translate-y-0.5"
+              style={{ borderRadius: palette.radius.sm, backgroundColor: palette.primary, color: palette.background }}
+            >
+              <Navigation size={14} /> {ui.venue.directions}
+            </a>
+          </div>
         </div>
       </Reveal>
     </section>

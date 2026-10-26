@@ -8,6 +8,7 @@
  */
 
 import type { MusicPreset } from "@/lib/ambient-music";
+import type { ArtCollectionId } from "./art";
 
 export type HeroLayout =
   | "garden"
@@ -25,7 +26,9 @@ export type HeroLayout =
   | "poster"
   | "enso"
   | "shoji"
-  | "bojagi";
+  | "bojagi"
+  // ── Painted collection ──
+  | "atelier";
 export type Ambient = "butterflies" | "petals" | "leaves" | "confetti" | "snow" | "gold-dust" | "stars" | "bokeh" | "balloons" | "lanterns";
 export type Ornament = "floral" | "deco" | "line" | "leaf" | "star" | "wave" | "cloud";
 /** Cultural tradition a template draws on (search keywords, copy accents). */
@@ -55,6 +58,10 @@ export interface InvitationStyle {
   calendar: boolean;
   /** Cultural tradition the design draws on, if any. */
   culture?: Culture;
+  /** Curated artwork the template layers behind its content (see ./art.ts). */
+  art?: ArtCollectionId;
+  /** Optional body-font override when the template's default pair is too playful. */
+  bodyFont?: string;
 }
 
 const BASE: InvitationStyle = {
@@ -75,7 +82,7 @@ const BASE: InvitationStyle = {
 /** Template slug → design language. Unknown slugs fall back to BASE ("garden"). */
 const STYLES: Record<string, Partial<InvitationStyle>> = {
   eternal: { music: "romantic", hero: "arch", ambient: ["gold-dust", "bokeh"], ornament: "deco", corners: "sharp", flowers: false },
-  bloom: { music: "romantic", hero: "garden", ambient: ["butterflies", "petals", "bokeh"], ornament: "floral" },
+  bloom: { music: "romantic", hero: "atelier", art: "watercolour-garden", bodyFont: "Jost", ambient: ["butterflies", "petals", "bokeh"], ornament: "line", eyebrow: "caps", headingCase: "normal", texture: "paper", flowers: false },
   minimal: { hero: "editorial", ambient: [], ornament: "line", corners: "sharp", eyebrow: "caps", headingCase: "normal", flowers: false },
   rustic: { music: "acoustic", hero: "arch", ambient: ["leaves"], ornament: "leaf", texture: "paper", flowers: true },
   deco: { music: "orchestral", hero: "arch", ambient: ["gold-dust"], ornament: "deco", corners: "sharp", eyebrow: "caps", flowers: false },
@@ -152,6 +159,7 @@ export const LAYOUT_LABEL: Record<HeroLayout, string> = {
   enso: "Zen",
   shoji: "Shoji",
   bojagi: "Bojagi",
+  atelier: "Watercolour",
 };
 
 /* ─── Colour schemes ──────────────────────────────────────────────────────── */

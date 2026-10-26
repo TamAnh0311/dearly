@@ -27,6 +27,7 @@ import { Ampersand, DateLine, Eyebrow, RisingText, ScrollCue, useEventCopy, useE
 import { DayNightHero, SealHero, StainedHero } from "./HeroSignature";
 import { CurtainHero } from "./HeroCurtain";
 import { BojagiHero, DoorsHero, EnsoHero, PosterHero, ShojiHero } from "./HeroAsian";
+import { AtelierHero } from "./HeroAtelier";
 
 export interface HeroProps {
   wedding: WeddingRow;
@@ -615,6 +616,7 @@ export default function Hero({ wedding, palette, photos }: HeroProps) {
   if (layout === "split" && photos.length < 1) layout = "arch";
   if (layout === "polaroid" && photos.length < 3) layout = "arch";
   if (layout === "poster" && photos.length < 1) layout = "enso";
+  if (layout === "atelier" && !palette.style.art) layout = "garden";
 
   const props: LayoutProps = { wedding, palette, photos, contentY, contentOpacity };
   const cueColor = layout === "celestial" || layout === "daynight" || layout === "poster" ? "rgba(244,241,234,0.75)" : palette.inkMuted;
@@ -643,6 +645,7 @@ export default function Hero({ wedding, palette, photos }: HeroProps) {
       {layout === "enso" && <EnsoHero {...props} />}
       {layout === "shoji" && <ShojiHero {...props} />}
       {layout === "bojagi" && <BojagiHero {...props} />}
+      {layout === "atelier" && <AtelierHero {...props} />}
       {layout !== "editorial" && <ScrollCue color={cueColor} />}
       {/* "Dear {name}" greeting now rendered inside the Eyebrow component of each layout. */}
     </section>

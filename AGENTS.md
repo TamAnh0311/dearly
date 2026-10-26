@@ -49,9 +49,10 @@ src/components/invitation/
   utils.ts                  ← buildPalette(theme, slug) → colour + design tokens; date/link helpers
   TemplatePreview.tsx       ← public demo: colour-scheme picker + Sections popover (embed / bare modes)
   LayoutThumbnail.tsx       ← static miniature of each hero layout for gallery cards
-  sections/                 ← Hero (+ HeroCurtain, HeroSignature, HeroAsian, HeroParts), Countdown (+ CalendarCard),
+  sections/                 ← Hero (+ HeroCurtain, HeroSignature, HeroAsian, HeroAtelier, HeroParts), Countdown (+ CalendarCard),
                               ScratchReveal, Story, Schedule, VenueMoments, Extras (Families, Gift), RsvpSection,
-                              Blessings, Chrome (nav/footer)
+                              Blessings, Chrome (nav/footer), ArtSpray
+  art.ts                    ← curated artwork manifest (assets, LQIPs, credits) used via style.art
   effects/                  ← Botanicals (growing flowers/vines), Particles, Ambient, BlessingShower
 src/components/templates/<slug>/  ← GalleryLayout + GuestbookSection only (sub-pages)
 src/components/templates/registry.ts ← slug → gallery/guestbook bundle
@@ -128,7 +129,7 @@ Every word in the query must match. Plurals are folded, so "butterflies" finds "
 - `/api/rsvp` with `inviteeToken` updates the invitee's status. The dashboard shows results, check-in on the day and CSV export.
 
 **Plans** (`src/lib/plans.ts`): **currently off** (`PLANS_ENABLED = false`, early access to attract users).
-- While off, `planOf()` returns `EARLY_ACCESS`: every design unlocked, no retention limit, abuse caps only (2,000 photos → `413`, 1,000 named guests). `/pricing` returns 404 and is left out of the sitemap; pricing links, the "Plans" sidebar item and "Premium" badges are hidden.
+- While off, `planOf()` returns `EARLY_ACCESS`: every design unlocked, no retention limit, abuse caps only (2,000 photos → `409`, 1,000 named guests). `/pricing` returns 404 and is left out of the sitemap; pricing links, the "Plans" sidebar item and "Premium" badges are hidden.
 - To turn plans on: set `PLANS_ENABLED = true`, re-add the Pricing links on the landing page, and wire a payment provider into `/api/billing/checkout` (currently `501 BILLING_NOT_CONFIGURED`). Paid limits then apply (`402 PLAN_LIMIT`).
 
 **Weddings lead:** weddings are the flagship occasion. Onboarding shows a large Wedding choice with other occasions as small chips, `/templates` sorts wedding designs first, and other occasions appear as a secondary "Not a wedding?" strip on the landing page and an "Also for" group in occasion-page navigation.
@@ -139,7 +140,7 @@ Every word in the query must match. Plurals are folded, so "butterflies" finds "
 
 ## 4. Design guideline
 
-> **Designing a new hero or template?** Read [docs/DESIGN_PLAYBOOK.md](docs/DESIGN_PLAYBOOK.md) first. It covers the step-by-step process, technique cookbook (3D doors, sliding panels, shutter reveals, brush strokes, unfolding flaps), known traps with fixes, the screenshot QA loop and a copy-paste hero skeleton.
+> **Designing a new hero or template?** Read [docs/DESIGN_PLAYBOOK.md](docs/DESIGN_PLAYBOOK.md) first. It covers the step-by-step process, technique cookbook (3D doors, sliding panels, shutter reveals, brush strokes, unfolding flaps), known traps with fixes, the screenshot QA loop and a copy-paste hero skeleton. For painted artwork read [docs/ART_KIT.md](docs/ART_KIT.md); for the template-by-template findings read [docs/DESIGN_AUDIT.md](docs/DESIGN_AUDIT.md).
 
 ### 4.1 Principles
 
@@ -153,7 +154,7 @@ Every word in the query must match. Plurals are folded, so "butterflies" finds "
 
 | Token | Values | Meaning |
 | --- | --- | --- |
-| `hero` | `garden` `arch` `editorial` `split` `celestial` `polaroid` `curtain` `seal` `daynight` `stained` `doors` `poster` `enso` `shoji` `bojagi` | Opening layout. The last five are the East Asian collection (`HeroAsian.tsx`): lacquer doors with a 囍 medallion, photo poster with a shutter reveal, brush ensō + hanko seal (seigaiha waves when `ornament` is `wave`), sliding shoji screens onto a sakura branch, and a bojagi cloth that unfolds. `poster` needs a photo (falls back to `enso`). |
+| `hero` | `garden` `arch` `editorial` `split` `celestial` `polaroid` `curtain` `seal` `daynight` `stained` `doors` `poster` `enso` `shoji` `bojagi` `atelier` | Opening layout. The five before `atelier` are the East Asian collection (`HeroAsian.tsx`): lacquer doors with a 囍 medallion, photo poster with a shutter reveal, brush ensō + hanko seal (seigaiha waves when `ornament` is `wave`), sliding shoji screens onto a sakura branch, and a bojagi cloth that unfolds. `poster` needs a photo (falls back to `enso`). `atelier` is the painted collection (`HeroAtelier.tsx`): an arched watercolour print with botanical cut-outs; it needs `art` (falls back to `garden`). |
 | `ambient` | `butterflies` `petals` `leaves` `confetti` `snow` `gold-dust` `stars` `bokeh` `balloons` `lanterns` | Background effects. Also picks the BlessingShower carriers. |
 | `ornament` | `floral` `deco` `line` `leaf` `star` `wave` `cloud` | Section dividers, Story side decoration (`cloud` = auspicious xiangyun / gureum scroll) |
 | `corners` | `rounded` `sharp` `pill` `arch` | Radius of every card and button, via `palette.radius` |
@@ -165,6 +166,8 @@ Every word in the query must match. Plurals are folded, so "butterflies" finds "
 | `scratchReveal` | boolean | Date hidden under a scratch card |
 | `calendar` | boolean | Month calendar with the day marked by a heart, plus a D-day count (shown in the countdown section unless `scratchReveal` is on) |
 | `culture` | `chinese` `japanese` `korean` `vietnamese` | Tradition the design draws on: adds search keywords and culture-matched demo names/families on previews |
+| `art` | art collection id (`watercolour-garden`) | Curated artwork the template composes into its hero and sections (manifest in `src/components/invitation/art.ts`, guide in `docs/ART_KIT.md`). Falls back to `garden` when missing. |
+| `bodyFont` | font family string | Optional body-font override when the couple's/template's default pair is too playful (the font is added to the Google Fonts link automatically). |
 
 ### 4.3 Colour
 

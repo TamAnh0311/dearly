@@ -9,3 +9,4 @@ capture/
 
 .vercel
 .env*
+.shots/

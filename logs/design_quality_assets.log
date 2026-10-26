@@ -1,0 +1,4 @@
+[2026-10-26 16:12:00]
+CONTEXT: User wants every Dearly template raised to the design level of the hand-painted watercolour garden reference (currently "kid level") and asked where to source such art for free.
+RESULT: Researched and verified free licences: StockCake (public domain, up to ~11k px, no credit), UsefulPix (2048 px transparent PNG, commercial, no credit), clip.art (matched AI packs, credit or $5.99/pack), Smithsonian Walcott / BHL / Rawpixel public domain (CC0 botanicals), ClipSafari / PublicDomainVectors (CC0 SVG). Flagged PNGTree/CityPNG/HiClipart as unusable commercially. Proposed art-kit architecture (art token, public/art, tinting for colour schemes, new cover-gate/dress-code/photo-strip sections) and a single-template pilot instead of changing 40 templates at once.
+---

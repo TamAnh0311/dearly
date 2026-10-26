@@ -41,9 +41,11 @@ if (!chromePath) {
 }
 
 mkdirSync(outDir, { recursive: true });
-const PORT = 9333;
+// Unique port per process so parallel screenshot runs don't share a browser.
+const PORT = 9300 + (process.pid % 600);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const size = /^\d{3,4}x\d{3,4}$/.test(process.env.SHOT_SIZE ?? "") ? process.env.SHOT_SIZE.replace("x", ",") : "1440,900";
+const [viewportWidth, viewportHeight] = size.split(",").map(Number);
 const chrome = spawn(chromePath, ["--headless=new", "--disable-gpu", "--hide-scrollbars", `--remote-debugging-port=${PORT}`, `--window-size=${size}`, "about:blank"], { stdio: "ignore" });
 const watchdog = setTimeout(() => {
   console.error("Timed out — killing Chrome.");
@@ -78,6 +80,15 @@ try {
       pending.set(i, res);
       ws.send(JSON.stringify({ id: i, method, params }));
     });
+
+  // Chrome clamps headless windows to ~500px wide; override device metrics so
+  // a 390px phone capture uses the real mobile layout.
+  await send("Emulation.setDeviceMetricsOverride", {
+    width: viewportWidth,
+    height: viewportHeight,
+    deviceScaleFactor: 1,
+    mobile: viewportWidth < 600,
+  });
 
   let lastUrl = "";
   for (const [i, t] of targets.entries()) {

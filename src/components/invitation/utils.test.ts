@@ -64,11 +64,18 @@ describe("buildPalette", () => {
     expect(p.style.hero).toBe("editorial");
     expect(p.radius.card).toBe("2px");
   });
+
+  it("applies a template body-font override and loads it", () => {
+    const p = buildPalette(theme("#FFF5F5"), "bloom");
+    expect(p.style.art).toBe("watercolour-garden");
+    expect(p.bodyFont).toContain("Jost");
+    expect(googleFontsUrl(theme("#FFF5F5").fonts, [p.style.bodyFont])).toContain("family=Jost");
+  });
 });
 
 describe("design styles", () => {
   it("gives templates distinct hero layouts", () => {
-    expect(getInvitationStyle("bloom").hero).toBe("garden");
+    expect(getInvitationStyle("bloom").hero).toBe("atelier");
     expect(getInvitationStyle("eternal").hero).toBe("arch");
     expect(getInvitationStyle("celestial").hero).toBe("celestial");
     expect(getInvitationStyle("polaroid").hero).toBe("polaroid");
@@ -155,9 +162,10 @@ describe("dates & links", () => {
 
 describe("misc", () => {
   it("builds a Google Fonts URL and drops unsafe family names", () => {
-    const url = googleFontsUrl({ display: "Cormorant Garamond", body: "x<script>" });
+    const url = googleFontsUrl({ display: "Cormorant Garamond", body: "x<script>" }, ["Jost"]);
     expect(url).toContain("family=Cormorant+Garamond");
     expect(url).toContain("family=Great+Vibes");
+    expect(url).toContain("family=Jost");
     expect(url).not.toContain("script");
   });
 

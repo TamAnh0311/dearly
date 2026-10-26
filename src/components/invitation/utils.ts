@@ -89,17 +89,17 @@ export function buildPalette(theme: ResolvedTheme, templateSlug?: string | null)
     ],
     leaf: isDark ? mix("#7a9a74", secondary, 0.25) : "#8aa882",
     displayFont: `'${theme.fonts.display}', 'Playfair Display', serif`,
-    bodyFont: `'${theme.fonts.body}', 'Lato', sans-serif`,
+    bodyFont: `'${style.bodyFont ?? theme.fonts.body}', 'Lato', sans-serif`,
     scriptFont: `'${SCRIPT_FONT}', cursive`,
     style,
     radius: radii(style.corners),
   };
 }
 
-/** Builds a Google Fonts stylesheet URL for the theme fonts + script font. */
-export function googleFontsUrl(fonts: ResolvedTheme["fonts"]): string {
-  const families = Array.from(new Set([fonts.display, fonts.body, SCRIPT_FONT]))
-    .filter((f) => f.length > 0 && f.length <= 60 && !/[<>{}()\[\]"';]/.test(f))
+/** Builds a Google Fonts stylesheet URL for the theme fonts + script font (+ any template overrides). */
+export function googleFontsUrl(fonts: ResolvedTheme["fonts"], extraFamilies: (string | undefined | null)[] = []): string {
+  const families = Array.from(new Set([fonts.display, fonts.body, SCRIPT_FONT, ...extraFamilies]))
+    .filter((f): f is string => typeof f === "string" && f.length > 0 && f.length <= 60 && !/[<>{}()\[\]"';]/.test(f))
     .map((f) => `family=${encodeURIComponent(f).replace(/%20/g, "+")}`);
   return `https://fonts.googleapis.com/css2?${families.join("&")}&display=swap`;
 }

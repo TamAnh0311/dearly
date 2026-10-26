@@ -1,0 +1,4 @@
+[2026-10-23 00:00:00]
+CONTEXT: User requested proper Vietnamese wedding invitation wording to replace literal/casual translations.
+RESULT: Updated Vietnamese translations across event-types.ts, Extras.tsx, and template preview page. Key fixes: "Trân Trọng Kính Mời" heading, "Nhà Trai"/"Nhà Gái" family labels, "Xác Nhận Tham Dự" RSVP, "Sổ Lời Chúc" blessings, "Lời Tri Ân" gift header. Pushed to master and deployed to Vercel production.
+---

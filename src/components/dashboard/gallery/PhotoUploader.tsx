@@ -7,6 +7,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import { Upload } from "lucide-react";
+import { uploadPhotos } from "@/lib/image-upload";
 
 interface PhotoUploaderProps {
   /** The wedding ID to associate uploads with. */
@@ -21,34 +22,34 @@ interface PhotoUploaderProps {
 export default function PhotoUploader({ weddingId, onUploaded }: PhotoUploaderProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   /**
-   * Uploads selected files via POST /api/photos/upload.
+   * Uploads selected files one at a time so a large selection never exceeds
+   * the host's request-body limit.
    */
   async function uploadFiles(files: FileList | File[]) {
     const fileList = Array.from(files).filter((f) => f.type.startsWith("image/"));
     if (fileList.length === 0) return;
 
     setUploading(true);
+    setProgress({ done: 0, total: fileList.length });
     setError(null);
 
     try {
-      const form = new FormData();
-      fileList.forEach((file) => form.append("photos", file));
-      form.append("weddingId", weddingId);
-
-      const res = await fetch("/api/photos/upload", { method: "POST", body: form });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? `Upload failed (${res.status})`);
-      }
+      await uploadPhotos({
+        weddingId,
+        files: fileList,
+        onProgress: (done, total) => setProgress({ done, total }),
+      });
       onUploaded();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
     } finally {
       setUploading(false);
+      setProgress(null);
     }
   }
 
@@ -78,7 +79,11 @@ export default function PhotoUploader({ weddingId, onUploaded }: PhotoUploaderPr
         <Upload size={28} className="text-dearly-text-secondary" />
         <div className="text-center">
           <p className="text-sm font-medium text-dearly-text">
-            {uploading ? "Uploading…" : "Drop photos here or click to browse"}
+            {uploading
+              ? progress && progress.total > 1
+                ? `Uploading ${Math.min(progress.done + 1, progress.total)} of ${progress.total}…`
+                : "Uploading…"
+              : "Drop photos here or click to browse"}
           </p>
           <p className="mt-0.5 text-xs text-dearly-text-secondary">
             JPG, PNG, WEBP — multiple files supported

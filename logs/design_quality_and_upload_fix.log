@@ -1,0 +1,4 @@
+[2026-10-26 18:11:43]
+CONTEXT: Raise Dearly invitation templates to hand-painted watercolour quality (pilot "bloom" atelier art collection, 37-template audit, art kit) and fix the photo upload 413.
+RESULT: Added atelier hero with curated watercolour art, section artwork, design audit and art-kit docs; uploads now compress and send one photo per request, and the album-cap response is 409 instead of 413. Shots folder is gitignored; tests (110), typecheck, lint and build pass.
+---

@@ -13,6 +13,7 @@ import { Check, Copy, Heart, HeartHandshake, LoaderCircle, Minus, PartyPopper, P
 import type { GiftAccount, GuestbookEntryRow } from "@/types/database";
 import { CelebrationBurst } from "../effects/Particles";
 import { Reveal, SectionHeading } from "./Primitives";
+import ArtSpray from "./ArtSpray";
 import { useInvitationCopy } from "./HeroParts";
 import { EASE_OUT, alpha, mix, type InvitationPalette } from "../utils";
 import type { InvitationCopy } from "../i18n";
@@ -309,6 +310,8 @@ export default function RsvpSection({
   return (
     <section id="rsvp" className="relative overflow-hidden px-6 py-28 md:py-36" style={{ backgroundColor: palette.background }}>
       {burstKey > 0 && <CelebrationBurst key={burstKey} colors={[palette.primary, ...palette.petals]} />}
+
+      <ArtSpray palette={palette} asset="peony" className="-right-14 top-20 hidden w-64 lg:block xl:w-80" rotate={-6} opacity={0.6} />
 
       <SectionHeading
         eyebrow={eyebrow}

@@ -6,6 +6,7 @@
 
 import { useState, useRef, FormEvent } from "react";
 import { Upload, Check, Loader2 } from "lucide-react";
+import { uploadPhotos } from "@/lib/image-upload";
 import type { ResolvedTheme } from "@/components/templates/types";
 
 interface GuestUploadFormProps {
@@ -17,33 +18,27 @@ export default function GuestUploadForm({ weddingId, theme }: GuestUploadFormPro
   const [guestName, setGuestName] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  /** Handles form submission — uploads photos via API route. */
+  /** Handles form submission — uploads photos one at a time via the API route. */
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (files.length === 0) return;
 
     setUploading(true);
+    setProgress({ done: 0, total: files.length });
     setError(null);
 
     try {
-      const formData = new FormData();
-      formData.append("weddingId", weddingId);
-      formData.append("guestName", guestName);
-      files.forEach((file) => formData.append("photos", file));
-
-      const res = await fetch("/api/photos/upload", {
-        method: "POST",
-        body: formData,
+      await uploadPhotos({
+        weddingId,
+        files,
+        guestName,
+        onProgress: (done, total) => setProgress({ done, total }),
       });
-
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? "Upload failed");
-      }
 
       setSuccess(true);
       setFiles([]);
@@ -52,6 +47,7 @@ export default function GuestUploadForm({ weddingId, theme }: GuestUploadFormPro
       setError(err instanceof Error ? err.message : "Upload failed. Please try again.");
     } finally {
       setUploading(false);
+      setProgress(null);
     }
   }
 
@@ -121,7 +117,11 @@ export default function GuestUploadForm({ weddingId, theme }: GuestUploadFormPro
         >
           {uploading ? (
             <span className="flex items-center justify-center gap-2">
-              <Loader2 size={16} className="animate-spin" /> Uploading…
+              <Loader2 size={16} className="animate-spin" /> Uploading
+              {progress && progress.total > 1
+                ? ` ${Math.min(progress.done + 1, progress.total)}/${progress.total}`
+                : ""}
+              …
             </span>
           ) : (
             "Submit Photos"

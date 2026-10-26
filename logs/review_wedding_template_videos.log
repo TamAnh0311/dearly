@@ -1,0 +1,4 @@
+[2026-10-26 15:58:12]
+CONTEXT: User asked to review a wedding invitation template from a Facebook reel; the link was blocked (HTTP 400), so they provided two screen recordings in capture/ (1.mp4, 2.mp4).
+RESULT: Extracted frames with ffmpeg and reviewed both. 1.mp4 = Glow (VN) watercolour garden invitation (illustrated hero, arch calendar, venue vignette, schedule, dress code swatches, ornate RSVP + thank-you). 2.mp4 = Easy Wedding with a baroque photo-strip tap-to-open cover, then an editorial silver/ivory magazine layout (tabs, monogram hero, framed story, photo strip, lace timeline). Produced section-by-section analysis and mapping to Dearly (missing cover gate, dress code section, photo-strip gallery, editorial hero).
+---

@@ -131,7 +131,7 @@ export default function CinematicInvitation({
       >
         {/* Theme fonts (template fonts + script accent) */}
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link rel="stylesheet" href={googleFontsUrl(theme.fonts)} />
+        <link rel="stylesheet" href={googleFontsUrl(theme.fonts, [palette.style.bodyFont])} />
 
         {palette.style.texture !== "none" && <TextureOverlay kind={palette.style.texture} />}
         <TopNav names={names} links={links} palette={palette} topOffset={topOffset} showRsvp={showRsvp} />

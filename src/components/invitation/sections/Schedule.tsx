@@ -18,11 +18,60 @@ export default function Schedule({ events, palette, timeZone }: { events: Weddin
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start 75%", "end 60%"] });
   const lineScale = useTransform(scrollYProgress, [0, 1], [0, 1]);
+  const atelier = palette.style.hero === "atelier";
 
   return (
-    <section id="schedule" className="relative px-6 py-28 md:py-36" style={{ backgroundColor: palette.surface }}>
+    <section id="schedule" className="relative overflow-hidden px-6 py-28 md:py-36" style={{ backgroundColor: palette.surface }}>
       <SectionHeading eyebrow={ui.schedule.eyebrow} title={ui.schedule.title} palette={palette} />
 
+      {atelier ? (
+        <div ref={ref} className="relative mx-auto max-w-xl">
+          <ol>
+            {events.map((ev, i) => (
+              <motion.li
+                key={ev.id}
+                className="grid grid-cols-[6rem_1fr] items-start gap-5 border-b py-6 md:grid-cols-[8rem_1fr] md:gap-8 md:py-7"
+                style={{ borderColor: alpha(palette.primary, 0.18) }}
+                initial={{ opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-80px" }}
+                transition={{ duration: 0.8, delay: i * 0.08, ease: EASE_OUT }}
+              >
+                <div className="text-right">
+                  <p className="whitespace-nowrap text-xl tracking-[0.02em] md:text-2xl" style={{ fontFamily: palette.displayFont, color: palette.primary }}>
+                    {formatTime(ev.start_time, timeZone, ui.dateLocale)}
+                  </p>
+                  {ev.end_time && (
+                    <p className="mt-0.5 text-[10px] uppercase tracking-[0.18em]" style={{ color: palette.inkMuted }}>
+                      {formatTime(ev.end_time, timeZone, ui.dateLocale)}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold uppercase tracking-[0.2em] md:text-base" style={{ fontFamily: palette.bodyFont, color: palette.ink }}>
+                    {ev.title}
+                  </h3>
+                  {ev.description && (
+                    <p className="mt-2 text-sm leading-relaxed" style={{ color: palette.inkMuted }}>
+                      {ev.description}
+                    </p>
+                  )}
+                  {ev.location && (
+                    <p className="mt-2 text-[10px] uppercase tracking-[0.2em]" style={{ color: palette.primary }}>
+                      {ev.location}
+                    </p>
+                  )}
+                </div>
+              </motion.li>
+            ))}
+          </ol>
+          <div className="mt-10 flex justify-center">
+            <span className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em]" style={{ color: palette.inkMuted }}>
+              <Clock size={13} /> {ui.schedule.timesLocal}
+            </span>
+          </div>
+        </div>
+      ) : (
       <div ref={ref} className="relative mx-auto max-w-4xl">
         {/* Track + animated fill */}
         <div className="absolute bottom-0 left-6 top-0 w-px md:left-1/2" style={{ backgroundColor: alpha(palette.primary, 0.15) }} />
@@ -88,6 +137,7 @@ export default function Schedule({ events, palette, timeZone }: { events: Weddin
           </span>
         </div>
       </div>
+      )}
     </section>
   );
 }

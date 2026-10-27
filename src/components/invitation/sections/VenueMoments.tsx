@@ -15,7 +15,7 @@ import ArtSpray from "./ArtSpray";
 import { getArtCollection } from "../art";
 import { useInvitationCopy } from "./HeroParts";
 import { GrowingFlower } from "../effects/Botanicals";
-import { alpha, mapsUrl, type InvitationPalette } from "../utils";
+import { alpha, mapsUrl, mix, type InvitationPalette } from "../utils";
 
 /** Venue card with an animated border glow and a "Get directions" link. */
 export function Venue({
@@ -31,9 +31,64 @@ export function Venue({
   const cardRef = useRef<HTMLDivElement>(null);
   const inView = useInView(cardRef, { once: true, margin: "-120px" });
   const art = getArtCollection(palette.style.art);
+  const atelier = palette.style.hero === "atelier";
+  const directions = mapsUrl([name, address].filter(Boolean).join(", "));
   return (
     <section id="venue" className="relative overflow-hidden px-6 py-28 md:py-36" style={{ backgroundColor: palette.background }}>
       <SectionHeading eyebrow={ui.venue.eyebrow} title={ui.venue.title} palette={palette} />
+      {atelier && art ? (
+        <Reveal className="relative mx-auto max-w-3xl">
+          <div
+            className="relative overflow-hidden border text-center"
+            style={{
+              borderRadius: "14rem 14rem 1.25rem 1.25rem",
+              borderColor: alpha(palette.primary, 0.32),
+              background: palette.isDark ? mix(palette.background, "#ffffff", 0.06) : mix(palette.background, "#ffffff", 0.5),
+              boxShadow: `0 46px 90px -48px ${alpha(palette.primary, 0.55)}`,
+            }}
+          >
+            <div className="relative mx-3 mt-3 overflow-hidden" style={{ borderRadius: "13.5rem 13.5rem 0.8rem 0.8rem" }}>
+              <div className="relative h-56 w-full sm:h-64 md:h-80">
+                <Image
+                  src={art.venue.src}
+                  alt=""
+                  fill
+                  sizes="(max-width: 768px) 100vw, 768px"
+                  placeholder="blur"
+                  blurDataURL={art.venue.blurDataURL}
+                  className="object-cover"
+                  style={{ objectPosition: "50% 48%", filter: palette.isDark ? "brightness(0.74) saturate(0.9)" : "saturate(1.03)" }}
+                />
+                <div aria-hidden className="absolute inset-0" style={{ background: `linear-gradient(180deg, transparent 58%, ${alpha(palette.background, 0.7)} 100%)` }} />
+              </div>
+            </div>
+            <div className="relative px-8 pb-12 pt-7 md:px-16">
+              <div aria-hidden className="pointer-events-none absolute inset-x-8 top-0 h-px" style={{ backgroundColor: alpha(palette.primary, 0.24) }} />
+              <p className="text-[10px] uppercase tracking-[0.42em]" style={{ color: palette.primary }}>
+                {ui.venue.eyebrow}
+              </p>
+              <h3 className="mt-4 text-3xl leading-tight md:text-5xl" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
+                {name}
+              </h3>
+              {address && (
+                <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed md:text-base" style={{ color: palette.inkMuted }}>
+                  {address}
+                </p>
+              )}
+              <a
+                href={directions}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-7 inline-flex items-center gap-2 border px-7 py-3 text-[10px] uppercase tracking-[0.28em] transition hover:-translate-y-0.5"
+                style={{ borderRadius: "999px", borderColor: alpha(palette.primary, 0.45), color: palette.primary }}
+              >
+                <Navigation size={13} /> {ui.venue.directions}
+              </a>
+            </div>
+          </div>
+          <ArtSpray palette={palette} asset="roses" className="-left-10 bottom-10 w-24 md:-left-6 md:w-32" rotate={-12} opacity={0.8} />
+        </Reveal>
+      ) : (
       <Reveal className="relative mx-auto max-w-2xl">
         <div
           ref={cardRef}
@@ -86,7 +141,7 @@ export function Venue({
               </p>
             )}
             <a
-              href={mapsUrl([name, address].filter(Boolean).join(", "))}
+              href={directions}
               target="_blank"
               rel="noopener noreferrer"
               className="relative mt-8 inline-flex items-center gap-2 px-7 py-3 text-xs font-semibold uppercase tracking-[0.25em] transition hover:-translate-y-0.5"
@@ -97,6 +152,7 @@ export function Venue({
           </div>
         </div>
       </Reveal>
+      )}
     </section>
   );
 }

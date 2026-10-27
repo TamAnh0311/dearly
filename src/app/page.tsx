@@ -53,7 +53,7 @@ const SHOWCASE: Showcase[] = [
   { slug: "wax-seal", name: "Wax Seal", tagline: "The seal cracks, the letter rises", colors: { primary: "#8E2F3A", secondary: "#FBF7F0", accent: "#C8A97E" }, fonts: { display: "Playfair Display", body: "Lato" } },
   { slug: "dusk", name: "Dusk till Dawn", tagline: "Golden hour melts into a starry night", colors: { primary: "#F2B880", secondary: "#FFF7EE", accent: "#6C5B9E" }, fonts: { display: "Bodoni Moda", body: "Outfit" } },
   { slug: "rosewindow", name: "Rose Window", tagline: "Stained glass lights up in jewel tones", colors: { primary: "#2E5E8C", secondary: "#F7F4EE", accent: "#B4483C" }, fonts: { display: "EB Garamond", body: "Raleway" } },
-  { slug: "bloom", name: "Bloom", tagline: "Flowers grow, butterflies drift by", colors: { primary: "#D4A0A0", secondary: "#FFF5F5", accent: "#7BA07B" }, fonts: { display: "Cormorant Garamond", body: "Quicksand" } },
+  { slug: "bloom", name: "Bloom", tagline: "A hand-painted garden aisle in ivory and sage", colors: { primary: "#A98B5D", secondary: "#F7F2E8", accent: "#71806A" }, fonts: { display: "Cormorant Garamond", body: "Jost" } },
   { slug: "eternal", name: "Eternal", tagline: "A golden arch draws itself around you", colors: { primary: "#B8860B", secondary: "#FFFFF0", accent: "#D4A574" }, fonts: { display: "Playfair Display", body: "Lato" } },
   { slug: "celestial", name: "Celestial", tagline: "Constellations and a crescent moon", colors: { primary: "#C9B06B", secondary: "#0F1729", accent: "#E8E0D0" }, fonts: { display: "Cormorant Garamond", body: "Raleway" } },
   { slug: "minimal", name: "Minimal", tagline: "Magazine-grade typography", colors: { primary: "#1A1A1A", secondary: "#FFFFFF", accent: "#666666" }, fonts: { display: "Inter", body: "Inter" } },

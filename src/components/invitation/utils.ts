@@ -182,5 +182,7 @@ export function timeAgo(value: string, now: number = Date.now(), locale: string 
 /** Deterministic pseudo-random in [0,1) — keeps SSR and client particle layouts identical. */
 export function seeded(i: number): number {
   const x = Math.sin(i * 9301 + 49297) * 233280;
-  return x - Math.floor(x);
+  const value = x - Math.floor(x);
+  // Quantise so Node and the browser produce byte-identical SSR/client styles.
+  return Math.round(value * 1_000_000) / 1_000_000;
 }

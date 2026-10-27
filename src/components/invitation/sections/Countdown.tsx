@@ -92,9 +92,11 @@ export default function Countdown({
   const ui = useUI();
   const { lang } = useEventCopy();
   const dateLocale = lang === "vi" ? "vi-VN" : undefined;
+  const atelier = palette.style.hero === "atelier";
+  const daysLeft = parts && !isPast ? parts.days + (parts.hours + parts.minutes + parts.seconds > 0 ? 1 : 0) : null;
 
   return (
-    <section id="celebrate" className="relative px-6 py-28 md:py-36" style={{ backgroundColor: palette.surface }}>
+    <section id="celebrate" className="relative overflow-hidden px-6 py-28 md:py-36" style={{ backgroundColor: palette.surface }}>
       <SectionHeading
         eyebrow={isPast ? ui.weSaidYes : palette.style.scratchReveal ? ui.aLittleSecret : ui.saveTheDate}
         title={palette.style.scratchReveal ? ui.saveTheDate : formatLongDate(date, null, dateLocale)}
@@ -113,34 +115,52 @@ export default function Countdown({
         </Reveal>
       )}
       {palette.style.calendar && !palette.style.scratchReveal && (
-        <Reveal className="mb-14">
-          <CalendarCard date={date} palette={palette} daysLeft={parts && !isPast ? parts.days + (parts.hours + parts.minutes + parts.seconds > 0 ? 1 : 0) : null} />
+        <Reveal className="mb-10">
+          <CalendarCard date={date} palette={palette} daysLeft={daysLeft} />
         </Reveal>
       )}
-      <Reveal className="flex justify-center gap-3 md:gap-6">
-        {parts ? (
-          <>
-            <Tile value={parts.days} label={ui.days} palette={palette} />
-            <Tile value={parts.hours} label={ui.hours} palette={palette} />
-            <Tile value={parts.minutes} label={ui.minutes} palette={palette} />
-            <Tile value={parts.seconds} label={ui.seconds} palette={palette} />
-          </>
-        ) : (
-          <div className="h-[7.5rem] md:h-[10rem]" />
-        )}
-      </Reveal>
-      {!isPast && (
-        <Reveal delay={0.2} className="mt-12 flex justify-center">
-          <a
-            href={calendarUrl(title, date, venue)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 border px-6 py-3 text-xs uppercase tracking-[0.25em] transition hover:-translate-y-0.5"
-            style={{ borderRadius: palette.radius.sm, borderColor: alpha(palette.primary, 0.5), color: palette.primary }}
-          >
-            <CalendarPlus size={16} /> {ui.addToCalendar}
-          </a>
-        </Reveal>
+      {atelier ? (
+        !isPast && (
+          <Reveal delay={0.2} className="flex justify-center">
+            <a
+              href={calendarUrl(title, date, venue)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 border-b px-1 py-2 text-[11px] uppercase tracking-[0.3em] transition hover:opacity-70"
+              style={{ borderColor: alpha(palette.primary, 0.4), color: palette.primary }}
+            >
+              <CalendarPlus size={14} /> {ui.addToCalendar}
+            </a>
+          </Reveal>
+        )
+      ) : (
+        <>
+          <Reveal className="flex justify-center gap-3 md:gap-6">
+            {parts ? (
+              <>
+                <Tile value={parts.days} label={ui.days} palette={palette} />
+                <Tile value={parts.hours} label={ui.hours} palette={palette} />
+                <Tile value={parts.minutes} label={ui.minutes} palette={palette} />
+                <Tile value={parts.seconds} label={ui.seconds} palette={palette} />
+              </>
+            ) : (
+              <div className="h-[7.5rem] md:h-[10rem]" />
+            )}
+          </Reveal>
+          {!isPast && (
+            <Reveal delay={0.2} className="mt-12 flex justify-center">
+              <a
+                href={calendarUrl(title, date, venue)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 border px-6 py-3 text-xs uppercase tracking-[0.25em] transition hover:-translate-y-0.5"
+                style={{ borderRadius: palette.radius.sm, borderColor: alpha(palette.primary, 0.5), color: palette.primary }}
+              >
+                <CalendarPlus size={16} /> {ui.addToCalendar}
+              </a>
+            </Reveal>
+          )}
+        </>
       )}
     </section>
   );

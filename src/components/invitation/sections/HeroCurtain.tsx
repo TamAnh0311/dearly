@@ -8,20 +8,22 @@
  *                 into tied-back swoops, a spotlight that swells on, glowing
  *                 footlights and a burst of gold dust as the show begins.
  *
- *  GardenGate     A secret garden: ivy-clad wrought-iron gates with roses and
- *                 a glowing heart lock. The lock turns, light spills through
- *                 the seam, the gates swing open in 3D, petals and butterflies
- *                 burst out, and a floral arch grows around the names.
+ *  GardenGate     An antique garden gate: wrought-iron leaves and a glowing
+ *                 heart lock. The lock turns, light spills through the seam,
+ *                 the gates swing open in 3D onto a watercolour ceremony aisle,
+ *                 and petals drift around the names.
  *
  * Timeline guidance (see AGENTS.md §4.1): ornaments 0–1.5s, signature moment
  * ≤ 3s, names rise ~2–3s. Reduced motion renders the opened end state.
  */
 
+import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import AmbientLayer from "../effects/Ambient";
 import { ButterflyShape } from "../effects/Particles";
-import { GrowingFlower } from "../effects/Botanicals";
+import { getArtCollection } from "../art";
 import { EASE_OUT, alpha, mix, seeded, type InvitationPalette } from "../utils";
+import ArtSpray from "./ArtSpray";
 import { CenterNames, useEyebrow } from "./HeroParts";
 import type { LayoutProps } from "./Hero";
 
@@ -226,23 +228,6 @@ function VelvetCurtain({ wedding, palette, contentY, contentOpacity }: LayoutPro
 
 /* ═══════════════════════════════ Garden gate ══════════════════════════════ */
 
-/** Tileable ivy leaves with tiny blossoms, as a CSS background image. */
-function ivyPattern(palette: InvitationPalette): string {
-  const tones = [palette.leaf, mix(palette.leaf, "#1e3a1e", 0.35), mix(palette.leaf, "#ffffff", 0.18), mix(palette.leaf, "#2f4f2f", 0.55)];
-  const leaf = (x: number, y: number, r: number, fill: string) =>
-    `<path transform="translate(${x} ${y}) rotate(${r})" d="M0 0 C 8 -10 20 -10 24 0 C 20 10 8 10 0 0 Z M0 0 L22 0" fill="${fill}" stroke="${mix(fill, "#000000", 0.35)}" stroke-width="0.8"/>`;
-  const spots: [number, number, number][] = [
-    [4, 10, -20], [40, 4, 25], [70, 16, -40], [14, 38, 60], [50, 34, -10], [80, 46, 30],
-    [0, 66, 15], [32, 62, -55], [62, 74, 40], [20, 88, -30], [52, 92, 10], [86, 84, -60],
-  ];
-  const leaves = spots.map(([x, y, r], i) => leaf(x, y, r, tones[i % tones.length])).join("");
-  const blooms = [[30, 24], [74, 60], [12, 78]]
-    .map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.6" fill="${mix(palette.petals[0], "#ffffff", 0.3)}"/><circle cx="${x}" cy="${y}" r="1" fill="#f3d27a"/>`)
-    .join("");
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96"><rect width="96" height="96" fill="${mix(tones[3], "#0f240f", 0.45)}"/>${leaves}${blooms}</svg>`;
-  return `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
-}
-
 /** Wrought-iron gate leaf (bars, rails, arched top, finials) over a hedge of ivy. */
 function GateLeaf({ side, palette, t }: { side: "left" | "right"; palette: InvitationPalette; t: number }) {
   const left = side === "left";
@@ -252,13 +237,15 @@ function GateLeaf({ side, palette, t }: { side: "left" | "right"; palette: Invit
     <motion.div
       aria-hidden
       className={`absolute inset-y-0 z-30 w-1/2 ${left ? "left-0" : "right-0"}`}
-      style={{ originX: left ? 0 : 1, transformPerspective: 1600, backgroundImage: ivyPattern(palette), backgroundSize: "96px 96px" }}
+      style={{
+        originX: left ? 0 : 1,
+        transformPerspective: 1600,
+        background: `linear-gradient(${left ? "90deg" : "270deg"}, ${alpha("#243021", 0.28)}, ${alpha("#243021", 0.08)} 45%, transparent 80%)`,
+      }}
       initial={{ rotateY: 0 }}
       animate={{ rotateY: left ? -112 : 112 }}
       transition={{ duration: 2.2 * t, delay: 1.9 * t, ease: [0.55, 0, 0.25, 1] }}
     >
-      {/* Shade toward the seam so the leaves feel deep */}
-      <div className="absolute inset-0" style={{ background: `linear-gradient(${left ? "90deg" : "270deg"}, transparent 55%, rgba(0,0,0,0.35))` }} />
       <svg viewBox="0 0 400 900" preserveAspectRatio="none" className="absolute inset-0 h-full w-full" style={{ transform: left ? undefined : "scaleX(-1)" }}>
         {/* Frame */}
         <rect x="8" y="140" width="384" height="752" fill="none" stroke={iron} strokeWidth="10" />
@@ -281,13 +268,9 @@ function GateLeaf({ side, palette, t }: { side: "left" | "right"; palette: Invit
           <path key={x} d={`M${x - 30} 520 C ${x - 30} 480, ${x + 30} 480, ${x + 30} 520 C ${x + 30} 560, ${x - 10} 555, ${x - 5} 530`} fill="none" stroke={iron} strokeWidth="4" />
         ))}
       </svg>
-      {/* Roses on the gate */}
-      <div className={`absolute bottom-[8%] ${left ? "right-[10%]" : "left-[10%]"} opacity-95`}>
-        <GrowingFlower petal={palette.petals[0]} petalInner={palette.petals[2]} leaf={palette.leaf} height={150} delay={0.2 * t} petals={7} flip={!left} />
-      </div>
-      <div className={`absolute top-[36%] ${left ? "right-[30%]" : "left-[30%]"} opacity-90`}>
-        <GrowingFlower petal={palette.petals[1]} petalInner={palette.petals[0]} leaf={palette.leaf} height={110} delay={0.5 * t} petals={6} flip={left} />
-      </div>
+      {/* Watercolour roses climbing the ironwork */}
+      <ArtSpray palette={palette} asset="roses" className={`bottom-[10%] w-24 opacity-90 md:w-32 ${left ? "right-[4%]" : "left-[4%]"}`} rotate={left ? -12 : 12} />
+      <ArtSpray palette={palette} asset="peony" className={`top-[30%] w-20 opacity-80 md:w-28 ${left ? "right-[24%]" : "left-[24%]"}`} rotate={left ? 8 : -8} />
     </motion.div>
   );
 }
@@ -312,47 +295,45 @@ function HeartLock({ t }: { t: number }) {
   );
 }
 
-/** Floral arch that grows around the names after the gates open. */
-function FloralArch({ palette, t }: { palette: InvitationPalette; t: number }) {
-  // Garden roses: blend the scheme with rose/ivory so blooms stay vivid on green schemes.
-  const roses = [mix(palette.petals[0], "#ef9fb3", 0.55), "#fdf3ec", mix(palette.accent, "#f6c6cf", 0.45)];
-  const path = "M 40 420 C 40 140, 160 40, 300 40 C 440 40, 560 140, 560 420";
-  const blooms = Array.from({ length: 11 }, (_, i) => {
-    const p = i / 10;
-    const a = Math.PI * (1 - p);
-    return { x: 300 + Math.cos(a) * 260, y: 420 - Math.sin(a) * 380 * (0.82 + 0.18 * Math.sin(a)), i };
-  });
-  return (
-    <svg viewBox="0 0 600 440" className="pointer-events-none absolute left-1/2 top-1/2 z-[5] w-[min(96vw,720px)] -translate-x-1/2 -translate-y-[52%]" aria-hidden>
-      <motion.path d={path} fill="none" stroke={palette.leaf} strokeWidth="5" strokeLinecap="round" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 2.6 * t, duration: 1.6 * t, ease: "easeInOut" }} />
-      {blooms.map(({ x, y, i }) => (
-        <motion.g key={i} initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: (2.9 + i * 0.12) * t, type: "spring", stiffness: 180, damping: 12 }} style={{ originX: `${x}px`, originY: `${y}px` }}>
-          <ellipse cx={x - 14} cy={y + 6} rx="12" ry="6" fill={palette.leaf} transform={`rotate(-30 ${x - 14} ${y + 6})`} />
-          <ellipse cx={x + 14} cy={y + 6} rx="12" ry="6" fill={mix(palette.leaf, "#1e3a1e", 0.25)} transform={`rotate(30 ${x + 14} ${y + 6})`} />
-          {[0, 72, 144, 216, 288].map((r) => (
-            <ellipse key={r} cx={x} cy={y - 9} rx="7" ry="11" fill={roses[i % 3]} stroke={alpha("#000000", 0.06)} transform={`rotate(${r} ${x} ${y})`} />
-          ))}
-          <circle cx={x} cy={y} r="5" fill="#f3d27a" />
-        </motion.g>
-      ))}
-    </svg>
-  );
-}
-
 function GardenGate({ wedding, palette, contentY, contentOpacity }: LayoutProps) {
   const reduce = useReducedMotion();
   const t = reduce ? 0 : 1;
   const eyebrow = useEyebrow("Welcome to our secret garden");
+  const art = getArtCollection(palette.style.art);
 
   return (
     <>
-      {/* Sunlit garden behind the gates */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background: `radial-gradient(ellipse 60% 55% at 50% 40%, ${alpha("#fff8dc", 0.95)} 0%, ${mix(palette.background, "#fff8dc", 0.4)} 40%, ${mix(palette.background, palette.leaf, 0.18)} 100%)`,
-        }}
-      />
+      {/* Sunlit watercolour garden behind the gates */}
+      {art ? (
+        <div className="absolute inset-0">
+          <Image
+            src={art.hero.src}
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            placeholder="blur"
+            blurDataURL={art.hero.blurDataURL}
+            className="object-cover"
+            style={{ objectPosition: "50% 55%", filter: palette.isDark ? "brightness(0.7) saturate(0.9)" : "saturate(1.03)" }}
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `radial-gradient(ellipse 62% 46% at 50% 46%, ${alpha(palette.background, palette.isDark ? 0.78 : 0.9)} 0%, ${alpha(palette.background, 0.46)} 50%, transparent 78%)`,
+            }}
+          />
+          <div className="absolute inset-x-0 top-0 h-40" style={{ background: `linear-gradient(180deg, ${palette.background} 0%, transparent 100%)` }} />
+          <div className="absolute inset-x-0 bottom-0 h-40" style={{ background: `linear-gradient(0deg, ${alpha(palette.background, 0.7)} 0%, transparent 100%)` }} />
+        </div>
+      ) : (
+        <div
+          className="absolute inset-0"
+          style={{
+            background: `radial-gradient(ellipse 60% 55% at 50% 40%, ${alpha("#fff8dc", 0.95)} 0%, ${mix(palette.background, "#fff8dc", 0.4)} 40%, ${mix(palette.background, palette.leaf, 0.18)} 100%)`,
+          }}
+        />
+      )}
       <AmbientLayer palette={palette} />
 
       {/* Light spilling through the seam, widening as the gates open */}
@@ -368,8 +349,8 @@ function GardenGate({ wedding, palette, contentY, contentOpacity }: LayoutProps)
       {/* Petal + butterfly burst out of the opening */}
       {t > 0 && (
         <div aria-hidden className="pointer-events-none absolute inset-0 z-[36] flex items-center justify-center">
-          {Array.from({ length: 22 }, (_, i) => {
-            const a = (i / 22) * Math.PI * 2 + seeded(i) * 0.3;
+          {Array.from({ length: 14 }, (_, i) => {
+            const a = (i / 14) * Math.PI * 2 + seeded(i) * 0.3;
             const d = 220 + seeded(i + 40) * 380;
             return (
               <motion.svg
@@ -403,19 +384,6 @@ function GardenGate({ wedding, palette, contentY, contentOpacity }: LayoutProps)
       <GateLeaf side="left" palette={palette} t={t} />
       <GateLeaf side="right" palette={palette} t={t} />
       <HeartLock t={t} />
-      <FloralArch palette={palette} t={t} />
-
-      {/* Flowerbeds bloom at the foot of the arch once the gates are open */}
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 z-[6] flex items-end justify-between px-2">
-        {[0, 1].map((side) => (
-          <div key={side} className={`flex items-end ${side ? "flex-row-reverse" : ""}`}>
-            <GrowingFlower petal={mix(palette.petals[0], "#ef9fb3", 0.55)} petalInner="#fdf3ec" leaf={palette.leaf} height={240} delay={3.1 * t} petals={7} flip={!!side} bend={side ? "left" : "right"} />
-            <div className="-ml-10">
-              <GrowingFlower petal="#fdf3ec" petalInner={mix(palette.petals[0], "#ef9fb3", 0.4)} leaf={palette.leaf} height={170} delay={3.4 * t} petals={6} flip={!!side} />
-            </div>
-          </div>
-        ))}
-      </div>
 
       <motion.div className="relative z-10 px-6 pt-10" style={{ y: contentY, opacity: contentOpacity }}>
         <CenterNames palette={palette} wedding={wedding} delay={2.9 * t} eyebrow={eyebrow} size="text-5xl md:text-7xl" />

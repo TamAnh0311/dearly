@@ -48,11 +48,11 @@ export interface ArtCollection {
 }
 
 const BLUR_HERO =
-  "data:image/webp;base64,UklGRnYAAABXRUJQVlA4IGoAAACQAwCdASoUAA8APu1iqU2ppaOiMAgBMB2JYgCdAA24OuIz5OmAAP6XIeYLt607mH6uqcKOsAsnlArEI+qRH5GFgYfTJ9LHXJ9u+7dYZbJrfKCNIYONz4mX+WWtC6LAccYekrqP58WlL6AA";
+  "data:image/webp;base64,UklGRqAAAABXRUJQVlA4IJQAAADQAwCdASoYAA4APsFOoEqnpCMhsAgA8BgJQBWABDvUad5qd028ygAA/uI2lVJBKNj0n+4l9WGfSx+FftmRZWTl1684ndxsrqvHZWN99pNtSu7QPELKQaVL5i6f58moua/H4sVqby1a1ztvMA/D2OosVUOiYMb6fmO/KjikQ3+TXRIqNjkdP44OuUo6p4rCBtVp4oAA";
 const BLUR_PORTRAIT =
-  "data:image/webp;base64,UklGRn4AAABXRUJQVlA4IHIAAABQBACdASoQABQAPu1iqU2ppaOiMAgBMB2JZgCdMoADgqe7CR19zk1Qpr+gAPzV7qXZ/DLDOPmz5166EIBKq4KTqqDasjSTOSCWVmgAILCdspEXnMvuCNsrLkSB6CJEUxZNMeOpWfPrEOVSwHg/4xOAAAA=";
+  "data:image/webp;base64,UklGRrAAAABXRUJQVlA4IKQAAABwBQCdASoTABgAPr1QoUqnJSMhsBgMAOAXiWUAyJgQ7+2ABzZmU/4QqSLLTT8KwYE7wo8wAP7x2Up9FNDPn7bkBzlX72Bww0kbDX0+ylHNxTei/KWx6aaD2y5/H6r8/9MvbW3C1e9WA7fgMOFBfxQ6BpG6iVKv/V0WqRQo7YywaDAv+DYtjIM56cZ2XpxLAe1nB/56f1kxnCAYD80Qw8GMggQAAA==";
 const BLUR_VENUE =
-  "data:image/webp;base64,UklGRm4AAABXRUJQVlA4IGIAAACwAwCdASoUAA0APu1iqk2ppaQiMAgBMB2JQBWAAyXFUOpEO82eAADN3PfvK4jypbd8mf/g226z7mcCcHbDhhVew2TTigjVjB7UN/StCXPCFVykAV91O17jb8R/5txbD4AAAA==";
+  "data:image/webp;base64,UklGRqAAAABXRUJQVlA4IJQAAAAQBACdASoYAA4APsFOoEqnpCMhsAgA8BgJQBhQtQAuVe4sLNIMHzjUAAD92yv6rWgyJtnvOUfEGYxfBwtFyNGgcwIvHaQXdYUt+nvutO8hkJkVARMAvRW6hLPB2U1FceQLc5XCmdFrWAIwaJKjbaw0XVXcLBw+TKb4V6H7TUdC/ghmcIaT1yBC64UGLFWJk/UU+wAA";
 
 const BASE = "/art/watercolour-garden";
 
@@ -61,9 +61,9 @@ export const ART_COLLECTIONS: Record<ArtCollectionId, ArtCollection> = {
   "watercolour-garden": {
     id: "watercolour-garden",
     name: "Watercolour Garden",
-    hero: { src: `${BASE}/hero-garden.webp`, width: 1800, height: 1341, blurDataURL: BLUR_HERO },
-    heroPortrait: { src: `${BASE}/hero-garden-portrait.webp`, width: 1200, height: 1500, blurDataURL: BLUR_PORTRAIT },
-    venue: { src: `${BASE}/venue-garden.webp`, width: 1600, height: 1068, blurDataURL: BLUR_VENUE },
+    hero: { src: `${BASE}/ceremony-aisle.webp`, width: 1800, height: 1013, blurDataURL: BLUR_HERO },
+    heroPortrait: { src: `${BASE}/ceremony-aisle-portrait.webp`, width: 1200, height: 1500, blurDataURL: BLUR_PORTRAIT },
+    venue: { src: `${BASE}/ceremony-venue.webp`, width: 1800, height: 1013, blurDataURL: BLUR_VENUE },
     sprays: {
       peony: { src: `${BASE}/peonies-01.webp`, width: 1400, height: 780 },
       peonyTall: { src: `${BASE}/peonies-02.webp`, width: 547, height: 1400 },
@@ -75,16 +75,16 @@ export const ART_COLLECTIONS: Record<ArtCollectionId, ArtCollection> = {
     },
     credits: [
       {
-        title: "The Artist's Garden at Saint-Clair",
-        artist: "Henri-Edmond Cross",
-        source: "The Metropolitan Museum of Art (Open Access)",
-        license: "CC0 1.0",
+        title: "Olive Grove Wedding Ceremony",
+        artist: "BudgetPixel AI",
+        source: "https://budgetpixel.com/images/olive-grove-wedding-ceremony-79ed9c86",
+        license: "CC BY 4.0",
       },
       {
-        title: "Flower Garden and Bungalow, Bermuda",
-        artist: "Winslow Homer",
-        source: "The Metropolitan Museum of Art (Open Access)",
-        license: "CC0 1.0",
+        title: "Garden Wedding Chuppah",
+        artist: "BudgetPixel AI",
+        source: "https://budgetpixel.com/images/garden-wedding-chuppah-illustration-ff02efc1",
+        license: "CC BY 4.0",
       },
       {
         title: "Botanical cut-outs (peonies, eucalyptus, roses)",

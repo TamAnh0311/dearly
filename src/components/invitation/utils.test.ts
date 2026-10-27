@@ -100,7 +100,7 @@ describe("design styles", () => {
     expect(getInvitationStyle("seigaiha")).toMatchObject({ hero: "enso", ornament: "wave" });
     expect(getInvitationStyle("hanbok")).toMatchObject({ hero: "bojagi", ornament: "cloud" });
     expect(getInvitationStyle("lantern-night").ambient).toContain("lanterns");
-    expect(getInvitationStyle("bloom").calendar).toBe(false);
+    expect(getInvitationStyle("bloom").calendar).toBe(true);
   });
 
   it("falls back to the garden layout for unknown or missing slugs", () => {

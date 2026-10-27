@@ -28,6 +28,8 @@ import { DayNightHero, SealHero, StainedHero } from "./HeroSignature";
 import { CurtainHero } from "./HeroCurtain";
 import { BojagiHero, DoorsHero, EnsoHero, PosterHero, ShojiHero } from "./HeroAsian";
 import { AtelierHero } from "./HeroAtelier";
+import { getArtCollection } from "../art";
+import ArtSpray from "./ArtSpray";
 
 export interface HeroProps {
   wedding: WeddingRow;
@@ -68,6 +70,7 @@ function FlowerCluster({ palette, side, scale = 1 }: { palette: InvitationPalett
 function GardenHero({ wedding, palette, contentY, contentOpacity }: LayoutProps) {
   const eyebrow = useEyebrow("Together with their families");
   const { copy } = useEventCopy();
+  const art = getArtCollection(palette.style.art);
   return (
     <>
       <div
@@ -77,24 +80,45 @@ function GardenHero({ wedding, palette, contentY, contentOpacity }: LayoutProps)
                        radial-gradient(ellipse 60% 40% at 50% 100%, ${alpha(palette.leaf, 0.18)} 0%, transparent 70%)`,
         }}
       />
+      {art ? (
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-[42svh] overflow-hidden">
+          <Image
+            src={art.venue.src}
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            placeholder="blur"
+            blurDataURL={art.venue.blurDataURL}
+            className="object-cover"
+            style={{ objectPosition: "50% 52%", filter: palette.isDark ? "brightness(0.74) saturate(0.9)" : "saturate(1.02)" }}
+          />
+          <div className="absolute inset-x-0 top-0 h-[32%]" style={{ background: `linear-gradient(180deg, ${palette.background} 0%, ${alpha(palette.background, 0.65)} 45%, transparent 100%)` }} />
+          <div className="absolute inset-x-0 bottom-0 h-20" style={{ background: `linear-gradient(0deg, ${alpha(palette.background, 0.55)} 0%, transparent 100%)` }} />
+        </div>
+      ) : (
+        <div className="pointer-events-none absolute inset-0">
+          <FlowerCluster palette={palette} side="left" />
+          <FlowerCluster palette={palette} side="right" />
+        </div>
+      )}
       <AmbientLayer palette={palette} />
-      <div className="pointer-events-none absolute inset-0">
-        <FlowerCluster palette={palette} side="left" />
-        <FlowerCluster palette={palette} side="right" />
-      </div>
-      <motion.div className="relative z-10 flex flex-col items-center px-6 pb-24 text-center" style={{ y: contentY, opacity: contentOpacity }}>
+      <motion.div
+        className={`relative z-10 flex min-h-[100svh] w-full flex-col items-center justify-center px-6 pt-20 text-center ${art ? "pb-[42svh]" : "pb-24"}`}
+        style={{ y: contentY, opacity: contentOpacity }}
+      >
         <Eyebrow text={eyebrow} color={palette.inkMuted} />
-        <h1 className="mt-8 flex flex-col items-center font-light leading-[0.95]" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
-          <span className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl">
+        <h1 className="mt-7 flex flex-col items-center font-light leading-[0.95]" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
+          <span className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl">
             <RisingText text={wedding.partner1_name} delay={0.5} />
           </span>
-          <Ampersand palette={palette} delay={1.1} className="my-1 text-6xl md:my-2 md:text-8xl" />
-          <span className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl">
+          <Ampersand palette={palette} delay={1.1} className="my-1 text-5xl md:my-2 md:text-8xl" />
+          <span className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl">
             <RisingText text={wedding.partner2_name} delay={1.3} />
           </span>
         </h1>
         <motion.p
-          className="mt-8 text-2xl md:text-3xl"
+          className="mt-7 text-2xl md:text-3xl"
           style={{ fontFamily: palette.scriptFont, color: palette.primary }}
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -103,7 +127,7 @@ function GardenHero({ wedding, palette, contentY, contentOpacity }: LayoutProps)
           {wedding.event_title || copy.tagline(wedding.partner1_name)}
         </motion.p>
         {wedding.wedding_date && (
-          <div className="mt-6">
+          <div className="mt-5">
             <DateLine date={wedding.wedding_date} palette={palette} delay={2.4} />
           </div>
         )}
@@ -113,6 +137,12 @@ function GardenHero({ wedding, palette, contentY, contentOpacity }: LayoutProps)
           </motion.p>
         )}
       </motion.div>
+      {art && (
+        <>
+          <ArtSpray palette={palette} asset="roses" className="-left-8 bottom-[20svh] w-24 opacity-70 md:left-2 md:w-32" rotate={-14} />
+          <ArtSpray palette={palette} asset="peony" className="-right-10 bottom-[16svh] w-28 opacity-70 md:right-0 md:w-36" rotate={12} />
+        </>
+      )}
     </>
   );
 }

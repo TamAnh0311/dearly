@@ -82,14 +82,6 @@ export default function Story({ text, palette, title = "Our Story" }: { text: st
               style={{ background: `radial-gradient(circle at 50% 48%, ${alpha(palette.primary, palette.isDark ? 0.16 : 0.08)} 0%, transparent 66%)` }}
             >
               <Image
-                src={art.sprays.wreath.src}
-                alt=""
-                fill
-                sizes="(max-width: 768px) 70vw, 24rem"
-                className="object-contain"
-                style={{ filter: artFilter }}
-              />
-              <Image
                 src={art.sprays.peonyTall.src}
                 alt=""
                 width={art.sprays.peonyTall.width}

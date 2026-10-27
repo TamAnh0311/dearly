@@ -5,13 +5,13 @@
 
 export const bloomTheme = {
   colors: {
-    primary: "#D4A0A0",
-    secondary: "#FFF5F5",
-    accent: "#7BA07B",
+    primary: "#A98B5D",
+    secondary: "#F7F2E8",
+    accent: "#71806A",
   },
   fonts: {
     display: "Cormorant Garamond",
-    body: "Quicksand",
+    body: "Jost",
   },
   animations: {
     entrance: "bloom",

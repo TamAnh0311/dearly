@@ -82,13 +82,13 @@ const BASE: InvitationStyle = {
 /** Template slug → design language. Unknown slugs fall back to BASE ("garden"). */
 const STYLES: Record<string, Partial<InvitationStyle>> = {
   eternal: { music: "romantic", hero: "arch", ambient: ["gold-dust", "bokeh"], ornament: "deco", corners: "sharp", flowers: false },
-  bloom: { music: "romantic", hero: "atelier", art: "watercolour-garden", bodyFont: "Jost", ambient: ["butterflies", "petals", "bokeh"], ornament: "line", eyebrow: "caps", headingCase: "normal", texture: "paper", flowers: false },
+  bloom: { music: "romantic", hero: "atelier", art: "watercolour-garden", bodyFont: "Jost", ambient: ["butterflies", "petals", "bokeh"], ornament: "line", eyebrow: "caps", headingCase: "normal", texture: "paper", flowers: false, calendar: true },
   minimal: { hero: "editorial", ambient: [], ornament: "line", corners: "sharp", eyebrow: "caps", headingCase: "normal", flowers: false },
   rustic: { music: "acoustic", hero: "arch", ambient: ["leaves"], ornament: "leaf", texture: "paper", flowers: true },
   deco: { music: "orchestral", hero: "arch", ambient: ["gold-dust"], ornament: "deco", corners: "sharp", eyebrow: "caps", flowers: false },
   sunset: { music: "acoustic", hero: "split", ambient: ["petals", "bokeh"], ornament: "wave", corners: "rounded", flowers: false },
   noir: { hero: "editorial", ambient: ["gold-dust"], ornament: "line", corners: "sharp", eyebrow: "caps", flowers: false },
-  garden: { music: "acoustic", hero: "garden", ambient: ["butterflies", "leaves", "bokeh"], ornament: "leaf" },
+  garden: { music: "acoustic", hero: "garden", art: "watercolour-garden", ambient: ["butterflies", "leaves", "bokeh"], ornament: "leaf", texture: "paper", calendar: true },
   polaroid: { music: "acoustic", hero: "polaroid", ambient: ["confetti"], ornament: "line", corners: "sharp", eyebrow: "script", headingCase: "normal", flowers: false },
   glass: { music: "ambient", hero: "split", ambient: ["bokeh"], ornament: "line", corners: "pill", eyebrow: "caps", headingCase: "normal", flowers: false },
   luxe: { music: "orchestral", hero: "arch", ambient: ["gold-dust", "bokeh"], ornament: "deco", corners: "sharp", flowers: false },
@@ -103,7 +103,7 @@ const STYLES: Record<string, Partial<InvitationStyle>> = {
   whimsical: { music: "musicbox", hero: "garden", ambient: ["butterflies", "confetti", "bokeh"], ornament: "star", corners: "pill", scratchReveal: true },
   // ── Signature collection ──
   velvet: { music: "orchestral", hero: "curtain", curtain: "velvet", ambient: ["gold-dust"], ornament: "deco", corners: "sharp", eyebrow: "caps", flowers: false },
-  "secret-garden": { music: "acoustic", hero: "curtain", curtain: "ivy", ambient: ["butterflies", "leaves", "bokeh"], ornament: "leaf", corners: "arch", flowers: true },
+  "secret-garden": { music: "acoustic", hero: "curtain", curtain: "ivy", art: "watercolour-garden", ambient: ["butterflies", "petals"], ornament: "floral", corners: "arch", flowers: false, calendar: true },
   "wax-seal": { music: "romantic", hero: "seal", ambient: ["petals"], ornament: "floral", corners: "rounded", texture: "paper", flowers: false, scratchReveal: true },
   dusk: { music: "ambient", hero: "daynight", ambient: ["stars"], ornament: "star", corners: "pill", headingCase: "normal", flowers: false },
   // ── Celebration collection (birthday / party / social) ──

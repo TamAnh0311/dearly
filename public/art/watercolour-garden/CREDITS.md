@@ -7,12 +7,18 @@ offered for standalone download or resale.
 
 | File | Work | Artist | Source | Licence |
 | --- | --- | --- | --- | --- |
-| `hero-garden.webp`, `hero-garden-portrait.webp` | *The Artist's Garden at Saint-Clair* (1904–5) | Henri-Edmond Cross (Henri-Edmond Delacroix) | [The Met, object 48.10.7](https://www.metmuseum.org/art/collection/search/334087) | Public domain / CC0 |
-| `venue-garden.webp` | *Flower Garden and Bungalow, Bermuda* (1899) | Winslow Homer | [The Met, object 10.228.10](https://www.metmuseum.org/art/collection/search/11121) | Public domain / CC0 |
+| `ceremony-aisle.webp`, `ceremony-aisle-portrait.webp` | *Olive Grove Wedding Ceremony* | BudgetPixel AI | [BudgetPixel](https://budgetpixel.com/images/olive-grove-wedding-ceremony-79ed9c86) | CC BY 4.0 |
+| `ceremony-venue.webp` | *Garden Wedding Chuppah* | BudgetPixel AI | [BudgetPixel](https://budgetpixel.com/images/garden-wedding-chuppah-illustration-ff02efc1) | CC BY 4.0 |
 
-Both images come from The Metropolitan Museum of Art's Open Access programme.
-They were cropped, resized and converted to WebP for the web. No generative
-alterations were made.
+Both illustrations were generated with AI and published by BudgetPixel under
+CC BY 4.0. They were cropped, resized and converted to WebP for the web. The
+required attribution is shown in the invitation footer ("Art: BudgetPixel AI ·
+CC BY 4.0").
+
+The earlier pilot paintings (`hero-garden.webp`, `hero-garden-portrait.webp`,
+`venue-garden.webp`) remain in the folder for reference: *The Artist's Garden at
+Saint-Clair* by Henri-Edmond Cross and *Flower Garden and Bungalow, Bermuda* by
+Winslow Homer, both public domain / CC0 via The Metropolitan Museum of Art.
 
 ## Botanical cut-outs
 

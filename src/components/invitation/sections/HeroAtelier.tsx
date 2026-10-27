@@ -3,48 +3,60 @@
 /**
  * AtelierHero — the painted-garden opening layout.
  *
- * A framed watercolour painting hangs in an arched panel on the right (a
- * cropped print below the type on phones). Crisp botanical cut-outs spill out
- * of the frame and across the paper, while the names sit in restrained
- * letterpress typography. All artwork is tinted and feathered from the palette
- * so the fixed painting keeps working under every colour scheme.
+ * A cream invitation card framed by a fine double rule. The names sit
+ * letterpress-centred above a full-bleed watercolour
+ * ceremony aisle that fades into the paper, with doves drifting across the
+ * sky. The whole card reads as one printed piece rather than a photo split.
  */
 
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { getArtCollection } from "../art";
 import { EASE_OUT, alpha } from "../utils";
-import { Ampersand, DateLine, RisingText, useEventCopy, useEyebrow, useInvitationCopy } from "./HeroParts";
+import { DateLine, RisingText, useEventCopy, useEyebrow, useInvitationCopy } from "./HeroParts";
 import type { LayoutProps } from "./Hero";
 
-const ARCH = "999px 999px 1.25rem 1.25rem";
+/** A small ink illustration of a dove; used as a slow ambient guest. */
+function Dove({ className, delay, drift = 26 }: { className: string; delay: number; drift?: number }) {
+  return (
+    <motion.svg
+      viewBox="0 0 72 40"
+      aria-hidden
+      className={`pointer-events-none absolute ${className}`}
+      initial={{ opacity: 0, x: 0, y: 0 }}
+      animate={{ opacity: [0, 0.85, 0.85, 0], x: [0, drift * 0.45, drift], y: [0, -7, 2] }}
+      transition={{ duration: 11, delay, repeat: Infinity, repeatDelay: 3, ease: "easeInOut" }}
+    >
+      <path
+        d="M3 24c9-10 19-12 28-5 2-9 10-13 19-11-5 3-8 8-8 14 7-1 13 1 18 6-8-2-15-1-21 4-4-4-9-6-15-5-7 1-13 2-21-3Z"
+        fill="rgba(255,255,255,0.92)"
+        stroke="rgba(74,82,62,0.28)"
+        strokeWidth="0.8"
+      />
+    </motion.svg>
+  );
+}
 
 export function AtelierHero({ wedding, palette, contentY, contentOpacity }: LayoutProps) {
-  const { copy, inviteeName, twoNames } = useEventCopy();
+  const { inviteeName, twoNames, lang } = useEventCopy();
   const ui = useInvitationCopy();
   const eyebrow = useEyebrow("Together with their families");
   const reduce = useReducedMotion();
   const art = getArtCollection(palette.style.art);
   if (!art) return null;
 
-  const imageFilter = palette.isDark ? "brightness(0.74) saturate(0.9)" : "saturate(1.06) contrast(1.04)";
+  const imageFilter = palette.isDark
+    ? "brightness(0.72) saturate(0.9)"
+    : "saturate(1.04) contrast(1.03) brightness(1.03)";
+  const conjunction = lang === "vi" ? "và" : "and";
 
   const artEntrance = reduce
     ? { initial: false as const, animate: { opacity: 1 } }
     : {
-        initial: { opacity: 0, scale: 1.04, y: 18 },
+        initial: { opacity: 0, scale: 1.06, y: 26 },
         animate: { opacity: 1, scale: 1, y: 0 },
-        transition: { duration: 1.7, ease: EASE_OUT },
+        transition: { duration: 1.9, delay: 0.15, ease: EASE_OUT },
       };
-
-  const sprayEntrance = (delay: number, from: string) =>
-    reduce
-      ? { initial: false as const, animate: { opacity: 1, rotate: 0, y: 0 } }
-      : {
-          initial: { opacity: 0, rotate: from, y: 28 },
-          animate: { opacity: 1, rotate: 0, y: 0 },
-          transition: { duration: 1.5, delay, ease: EASE_OUT },
-        };
 
   return (
     <>
@@ -53,36 +65,25 @@ export function AtelierHero({ wedding, palette, contentY, contentOpacity }: Layo
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
-          background: `radial-gradient(ellipse 52% 44% at 24% 34%, ${alpha(palette.primary, palette.isDark ? 0.17 : 0.1)} 0%, transparent 68%),
-                       radial-gradient(ellipse 42% 36% at 8% 96%, ${alpha(palette.leaf, 0.15)} 0%, transparent 70%)`,
+          background: `radial-gradient(ellipse 58% 38% at 50% 30%, ${alpha(palette.primary, palette.isDark ? 0.14 : 0.07)} 0%, transparent 72%),
+                       radial-gradient(ellipse 40% 28% at 8% 84%, ${alpha(palette.leaf, 0.14)} 0%, transparent 72%)`,
         }}
       />
 
-      {/* Cherry blossom branch entering from the lower-left on wide screens. */}
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-10 -left-16 z-0 hidden w-[33%] max-w-lg md:block"
-        {...sprayEntrance(0.9, "-18deg")}
-      >
-        <Image
-          src={art.sprays.cherry.src}
-          alt=""
-          width={art.sprays.cherry.width}
-          height={art.sprays.cherry.height}
-          className="h-auto w-full -rotate-4"
-          style={{ filter: imageFilter }}
+      <div className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-[1180px] flex-col">
+        {/* Fine double frame, like the edge of a printed card. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-3 border md:inset-5"
+          style={{ borderColor: alpha(palette.primary, 0.2) }}
         />
-      </motion.div>
-
-      <div className="relative z-10 grid min-h-[100svh] w-full grid-cols-1 items-stretch md:grid-cols-[52%_48%]">
-        {/* ── Type ── */}
         <motion.div
-          className="relative z-20 flex flex-col items-center justify-center px-7 pb-8 pt-24 text-center md:items-start md:px-12 md:py-28 md:text-left lg:px-20"
+          className="relative z-20 flex flex-1 flex-col items-center justify-center px-8 pb-4 pt-24 text-center md:pt-28"
           style={{ y: contentY, opacity: contentOpacity }}
         >
           {inviteeName && (
             <motion.p
-              className="mb-3 text-2xl md:text-3xl"
+              className="mb-2 text-2xl md:text-3xl"
               style={{ fontFamily: palette.scriptFont, color: palette.primary }}
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
@@ -93,163 +94,118 @@ export function AtelierHero({ wedding, palette, contentY, contentOpacity }: Layo
           )}
 
           <motion.div
-            className="flex items-center gap-3"
+            className="flex items-center justify-center gap-3"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1.4, delay: 0.3 }}
+            transition={{ duration: 1.4, delay: 0.35 }}
           >
-            <span className="h-px w-8 shrink-0" style={{ backgroundColor: palette.primary, opacity: 0.55 }} />
-            <p className="text-[10px] uppercase tracking-[0.3em] md:text-[11px] md:tracking-[0.42em]" style={{ color: alpha(palette.ink, 0.64) }}>
-              {inviteeName ? (
-                <>
-                  <span className="md:hidden">{ui.youAreInvited}</span>
-                  <span className="hidden md:inline">{ui.youAreInvitedTo(copy.label)}</span>
-                </>
-              ) : (
-                eyebrow
-              )}
+            <span className="h-px w-7 shrink-0 md:w-10" style={{ backgroundColor: alpha(palette.primary, 0.45) }} />
+            <p className="text-[10px] uppercase leading-relaxed tracking-[0.32em] md:text-[11px] md:tracking-[0.44em]" style={{ color: alpha(palette.ink, 0.66) }}>
+              {inviteeName ? ui.youAreInvited : eyebrow}
             </p>
-            <span className="h-px w-8 shrink-0 md:hidden" style={{ backgroundColor: palette.primary, opacity: 0.55 }} />
+            <span className="h-px w-7 shrink-0 md:w-10" style={{ backgroundColor: alpha(palette.primary, 0.45) }} />
           </motion.div>
 
           <h1
-            className="mt-7 font-light leading-[0.9]"
+            className="mt-6 font-light md:mt-8"
             style={{
               fontFamily: palette.displayFont,
               color: palette.ink,
-              fontSize: "clamp(3.4rem, 10.5vw, 7rem)",
-              letterSpacing: "-0.018em",
+              fontSize: "clamp(2.9rem, 9.2vw, 6.4rem)",
+              lineHeight: 0.98,
+              letterSpacing: "0.005em",
             }}
           >
             <span className="block">
-              <RisingText text={wedding.partner1_name} delay={0.45} stagger={0.055} />
+              <RisingText text={wedding.partner1_name} delay={0.55} stagger={0.055} />
             </span>
-            <Ampersand palette={palette} delay={1.05} className="my-2 text-[0.46em] md:my-1" />
             {twoNames && (
-              <span className="block">
-                <RisingText text={wedding.partner2_name} delay={1.25} stagger={0.055} />
-              </span>
+              <>
+                <motion.span
+                  className="my-1 block text-[0.34em] md:my-2"
+                  style={{ fontFamily: palette.scriptFont, color: palette.primary }}
+                  initial={{ opacity: 0, scale: 0.7 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 1, delay: 1.15, ease: EASE_OUT }}
+                >
+                  {conjunction}
+                </motion.span>
+                <span className="block">
+                  <RisingText text={wedding.partner2_name} delay={1.35} stagger={0.055} />
+                </span>
+              </>
             )}
           </h1>
 
           {wedding.wedding_date && (
-            <div className="mt-9">
-              <DateLine date={wedding.wedding_date} palette={palette} delay={1.85} color={palette.ink} />
+            <div className="mt-7 md:mt-9">
+              <DateLine date={wedding.wedding_date} palette={palette} delay={1.95} color={palette.ink} />
             </div>
           )}
 
           {wedding.venue_name && (
-            <p
-              className="mt-5 max-w-[19rem] text-[10px] uppercase leading-relaxed tracking-[0.32em] md:max-w-sm"
-              style={{ color: alpha(palette.ink, 0.6) }}
+            <motion.p
+              className="mt-4 max-w-[20rem] text-[10px] uppercase leading-relaxed tracking-[0.32em] md:mt-5 md:text-[11px]"
+              style={{ color: alpha(palette.ink, 0.56) }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1.2, delay: 2.35 }}
             >
               {wedding.venue_name}
-            </p>
+            </motion.p>
           )}
-
-          <motion.div
-            className="mt-10 hidden items-center gap-3 md:flex"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1.2, delay: 2.4 }}
-            aria-hidden
-          >
-            <span className="h-px w-16" style={{ backgroundColor: alpha(palette.primary, 0.5) }} />
-            <span className="h-1.5 w-1.5 rotate-45" style={{ backgroundColor: alpha(palette.primary, 0.75) }} />
-          </motion.div>
         </motion.div>
 
-        {/* ── Framed painting ── */}
-        <div className="relative z-0 flex min-h-[42svh] items-stretch px-5 pb-0 pt-2 md:min-h-[100svh] md:px-0 md:py-8 md:pr-8">
-          <motion.div {...artEntrance} className="relative h-full w-full">
+        {/* Full-bleed watercolour ceremony aisle, fading into the paper. */}
+        <div className="relative z-0 h-[49svh] w-full overflow-hidden md:h-[53svh]">
+          <motion.div {...artEntrance} className="absolute inset-0">
+            <Image
+              src={art.heroPortrait.src}
+              alt=""
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 390px"
+              placeholder="blur"
+              blurDataURL={art.heroPortrait.blurDataURL}
+              className="object-cover md:hidden"
+              style={{ objectPosition: "50% 58%", filter: imageFilter }}
+            />
+            <Image
+              src={art.hero.src}
+              alt=""
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 1180px"
+              placeholder="blur"
+              blurDataURL={art.hero.blurDataURL}
+              className="hidden object-cover md:block"
+              style={{ objectPosition: "50% 60%", filter: imageFilter }}
+            />
+
+            {/* Warm tint + paper fade at the top so the painting joins the card. */}
             <div
-              className="relative h-full w-full"
+              aria-hidden
+              className="absolute inset-0"
               style={{
-                borderRadius: ARCH,
-                border: `1px solid ${alpha(palette.primary, 0.42)}`,
-                padding: 6,
-                backgroundColor: alpha(palette.background, 0.55),
+                backgroundColor: alpha(palette.primary, palette.isDark ? 0.16 : 0.035),
+                mixBlendMode: palette.isDark ? "soft-light" : "multiply",
               }}
-            >
-              <div className="relative h-full min-h-[38svh] w-full overflow-hidden md:min-h-0" style={{ borderRadius: ARCH }}>
-                <Image
-                  src={art.heroPortrait.src}
-                  alt=""
-                  fill
-                  priority
-                  sizes="100vw"
-                  placeholder="blur"
-                  blurDataURL={art.heroPortrait.blurDataURL}
-                  className="object-cover md:hidden"
-                  style={{ objectPosition: "50% 56%", filter: imageFilter }}
-                />
-                <Image
-                  src={art.hero.src}
-                  alt=""
-                  fill
-                  priority
-                  sizes="(max-width: 768px) 100vw, 46vw"
-                  placeholder="blur"
-                  blurDataURL={art.hero.blurDataURL}
-                  className="hidden object-cover md:block"
-                  style={{ objectPosition: "50% 52%", filter: imageFilter }}
-                />
-
-                {/* Warm wash + inner vignette so the fixed painting joins the scheme. */}
-                <div
-                  aria-hidden
-                  className="absolute inset-0"
-                  style={{
-                    backgroundColor: alpha(palette.primary, palette.isDark ? 0.16 : 0.04),
-                    mixBlendMode: palette.isDark ? "soft-light" : "multiply",
-                  }}
-                />
-                <div
-                  aria-hidden
-                  className="absolute inset-0"
-                  style={{ boxShadow: `inset 0 0 110px 18px ${alpha(palette.background, palette.isDark ? 0.5 : 0.18)}` }}
-                />
-                {/* Soft top fade so the arch is not a hard cut-out of the sky. */}
-                <div
-                  aria-hidden
-                  className="absolute inset-x-0 top-0 h-20"
-                  style={{ background: `linear-gradient(180deg, ${alpha(palette.background, palette.isDark ? 0.5 : 0.22)} 0%, transparent 100%)` }}
-                />
-              </div>
-            </div>
-
-            {/* Peony spilling over the frame. */}
-            <motion.div
+            />
+            <div
               aria-hidden
-              className="pointer-events-none absolute -left-10 top-[9%] z-10 w-32 md:-left-16 md:w-44 lg:-left-20 lg:w-52"
-              {...sprayEntrance(1.05, "-16deg")}
-            >
-              <Image
-                src={art.sprays.peony.src}
-                alt=""
-                width={art.sprays.peony.width}
-                height={art.sprays.peony.height}
-                className="h-auto w-full -rotate-12"
-                style={{ filter: imageFilter }}
-              />
-            </motion.div>
-
-            {/* Eucalyptus rising from the lower corner. */}
-            <motion.div
+              className="absolute inset-x-0 top-0 h-[42%]"
+              style={{ background: `linear-gradient(180deg, ${palette.background} 0%, ${alpha(palette.background, 0.86)} 30%, ${alpha(palette.background, 0)} 100%)` }}
+            />
+            <div
               aria-hidden
-              className="pointer-events-none absolute -bottom-10 -right-6 z-10 w-32 md:-right-8 md:w-44 lg:w-52"
-              {...sprayEntrance(1.3, "16deg")}
-            >
-              <Image
-                src={art.sprays.eucalyptus.src}
-                alt=""
-                width={art.sprays.eucalyptus.width}
-                height={art.sprays.eucalyptus.height}
-                className="h-auto w-full rotate-12"
-                style={{ filter: imageFilter }}
-              />
-            </motion.div>
+              className="absolute inset-x-0 bottom-0 h-16"
+              style={{ background: `linear-gradient(0deg, ${alpha(palette.background, 0.55)} 0%, transparent 100%)` }}
+            />
           </motion.div>
+
+          <Dove className="left-[12%] top-[12%] w-10 md:w-14" delay={2.1} drift={24} />
+          <Dove className="right-[16%] top-[18%] w-8 md:w-11" delay={4.2} drift={-18} />
+          <Dove className="left-[40%] top-[6%] w-7 md:w-9" delay={6.1} drift={16} />
         </div>
       </div>
     </>

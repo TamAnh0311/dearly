@@ -13,6 +13,7 @@ import { alpha, formatDotDate, mix, type InvitationPalette } from "../utils";
 import { getArtCollection, type ArtCollection } from "../art";
 import ArtSpray from "./ArtSpray";
 import { useInvitationCopy } from "./HeroParts";
+import { ChateauDivider, ChateauWreath } from "./ChateauDecor";
 
 export interface NavLink {
   href: string;
@@ -141,6 +142,7 @@ export function Footer({
 }) {
   const ui = useInvitationCopy();
   const atelier = palette.style.hero === "atelier";
+  const chateau = palette.style.hero === "chateau";
   const art = getArtCollection(palette.style.art);
 
   return (
@@ -203,18 +205,37 @@ export function Footer({
         </div>
       ) : (
         <>
-          <motion.div
-            className="mx-auto flex h-28 w-28 items-center justify-center rounded-full border"
-            style={{ borderColor: alpha(palette.primary, 0.4) }}
-            initial={{ rotate: -90, opacity: 0 }}
-            whileInView={{ rotate: 0, opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1.4 }}
-          >
-            <span className="text-4xl" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>
-              {monogram(names[0], names[1])}
-            </span>
-          </motion.div>
+          {chateau ? (
+            <div className="flex justify-center">
+              <ChateauWreath palette={palette} size={170}>
+                <motion.div
+                  className="flex h-24 w-24 items-center justify-center rounded-full border"
+                  style={{ borderColor: alpha(palette.primary, 0.4) }}
+                  initial={{ rotate: -90, opacity: 0 }}
+                  whileInView={{ rotate: 0, opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 1.4 }}
+                >
+                  <span className="text-3xl" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>
+                    {monogram(names[0], names[1])}
+                  </span>
+                </motion.div>
+              </ChateauWreath>
+            </div>
+          ) : (
+            <motion.div
+              className="mx-auto flex h-28 w-28 items-center justify-center rounded-full border"
+              style={{ borderColor: alpha(palette.primary, 0.4) }}
+              initial={{ rotate: -90, opacity: 0 }}
+              whileInView={{ rotate: 0, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1.4 }}
+            >
+              <span className="text-4xl" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>
+                {monogram(names[0], names[1])}
+              </span>
+            </motion.div>
+          )}
           <p className="mt-8 text-3xl md:text-4xl" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
             {names.filter(Boolean).join(" & ")}
           </p>
@@ -223,7 +244,8 @@ export function Footer({
               {formatDotDate(date)}
             </p>
           )}
-          <p className="mx-auto mt-8 max-w-md text-2xl" style={{ fontFamily: palette.scriptFont, color: palette.primary }}>
+          {chateau && <ChateauDivider palette={palette} />}
+          <p className={`mx-auto max-w-md ${chateau ? "mt-2 text-3xl md:text-4xl" : "mt-8 text-2xl"}`} style={{ fontFamily: palette.scriptFont, color: palette.primary }}>
             {ui.chrome.thankYou}
           </p>
           {slug && (showGallery || showGuestbook) && (

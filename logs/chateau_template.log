@@ -1,0 +1,4 @@
+[2026-10-27 16:35:00]
+CONTEXT: Create a new premium "Chateau" wedding invitation template inspired by Glow Website, with a new art collection, ornate hero layout, botanical SVG decorations on all sections, and rich layered animations.
+RESULT: Template "chateau" created with: HeroChateau layout (ornate gold arch + watercolour paintings from Met Open Access CC0), ChateauDecor shared SVGs (corners, dividers, wreath), chateau art collection (Sargent + Fragonard), section enhancements (CalendarCard, Countdown, Schedule, VenueMoments, Chrome footer), template files (theme, gallery, guestbook), DB migration, and all registrations. Build passes, 110 tests pass, template live at /templates/chateau.
+---

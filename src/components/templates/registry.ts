@@ -7,6 +7,7 @@ import type { TemplateDefinition } from "./types";
 const templates: TemplateDefinition[] = [
   { slug: "eternal", name: "Eternal", load: () => import("./eternal").then((m) => m.default) },
   { slug: "bloom", name: "Bloom", load: () => import("./bloom").then((m) => m.default) },
+  { slug: "chateau", name: "Chateau", load: () => import("./chateau").then((m) => m.default) },
   { slug: "minimal", name: "Minimal", load: () => import("./minimal").then((m) => m.default) },
   { slug: "rustic", name: "Rustic", load: () => import("./rustic").then((m) => m.default) },
   { slug: "deco", name: "Deco", load: () => import("./deco").then((m) => m.default) },

@@ -1,0 +1,9 @@
+[2026-10-27 00:00:00]
+CONTEXT: Add chateau-aware styling to invitation section components (CalendarCard, Countdown, Schedule, VenueMoments, Chrome) using ChateauDecor SVG decorations.
+RESULT: Added chateau detection (`palette.style.hero === "chateau"`) and conditional rendering of ChateauCorners, ChateauDivider, and ChateauWreath across 5 section components. CalendarCard uses shared `arched` flag for atelier/chateau arch logic with a distinct ornate botanical SVG for chateau. TypeScript compiles cleanly for all modified files.
+---
+
+[2026-10-27 00:00:00]
+CONTEXT: Enhance chateau-aware section styling across CalendarCard, Schedule, Chrome Footer, Countdown, and VenueMoments to use premium ChateauDecor components.
+RESULT: CalendarCard wraps in GoldenArchFrame; Schedule adds BotanicalVine on left; Chrome Footer uses ChateauWreath size=170 + ChateauDivider before thank-you; Countdown adds ChateauDivider between tiles and CTA; VenueMoments shows venue painting prominently with gradient fades for chateau art. TypeScript compiles cleanly.
+---

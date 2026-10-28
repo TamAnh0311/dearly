@@ -1,0 +1,8 @@
+[2026-10-26 23:00:41]
+CONTEXT: Rebuild the Bloom template as a hand-painted watercolour garden invitation matching capture/1.mp4, including hero, calendar, venue, schedule, thank-you footer and default palette.
+RESULT: Replaced the atelier hero with a cream card, leaf garland, ceremony painting and doves; added arched calendar, atelier venue/schedule/footer styling, BudgetPixel CC BY 4.0 artwork/credits and an ivory/sage/antique-gold default palette. Pushed migration 00021; typecheck, lint, 110 tests and production build pass, with mobile/desktop screenshots checked.
+---
+[2026-10-27 11:49:08]
+CONTEXT: User approved Bloom but asked to remove the odd branch decorations, and said Secret Garden/Garden looked childlike rather than wedding-ready.
+RESULT: Removed Bloom's garland, corner sprigs, eucalyptus sprays and wreath; rebuilt Garden and Secret Garden around the watercolour ceremony artwork with refined typography, gates and floral accents. Typecheck, lint, tests and build pass; localhost demos rechecked on desktop/mobile.
+---

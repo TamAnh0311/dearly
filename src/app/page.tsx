@@ -54,6 +54,7 @@ const SHOWCASE: Showcase[] = [
   { slug: "dusk", name: "Dusk till Dawn", tagline: "Golden hour melts into a starry night", colors: { primary: "#F2B880", secondary: "#FFF7EE", accent: "#6C5B9E" }, fonts: { display: "Bodoni Moda", body: "Outfit" } },
   { slug: "rosewindow", name: "Rose Window", tagline: "Stained glass lights up in jewel tones", colors: { primary: "#2E5E8C", secondary: "#F7F4EE", accent: "#B4483C" }, fonts: { display: "EB Garamond", body: "Raleway" } },
   { slug: "bloom", name: "Bloom", tagline: "A hand-painted garden aisle in ivory and sage", colors: { primary: "#A98B5D", secondary: "#F7F2E8", accent: "#71806A" }, fonts: { display: "Cormorant Garamond", body: "Jost" } },
+  { slug: "chateau", name: "Chateau", tagline: "Ornate gold arches over Sargent watercolours", colors: { primary: "#B8943E", secondary: "#FBF7EF", accent: "#4A6741" }, fonts: { display: "Playfair Display", body: "Jost" } },
   { slug: "eternal", name: "Eternal", tagline: "A golden arch draws itself around you", colors: { primary: "#B8860B", secondary: "#FFFFF0", accent: "#D4A574" }, fonts: { display: "Playfair Display", body: "Lato" } },
   { slug: "celestial", name: "Celestial", tagline: "Constellations and a crescent moon", colors: { primary: "#C9B06B", secondary: "#0F1729", accent: "#E8E0D0" }, fonts: { display: "Cormorant Garamond", body: "Raleway" } },
   { slug: "minimal", name: "Minimal", tagline: "Magazine-grade typography", colors: { primary: "#1A1A1A", secondary: "#FFFFFF", accent: "#666666" }, fonts: { display: "Inter", body: "Inter" } },

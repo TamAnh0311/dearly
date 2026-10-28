@@ -13,6 +13,7 @@ import { CalendarPlus } from "lucide-react";
 import ScratchReveal from "./ScratchReveal";
 import CalendarCard from "./CalendarCard";
 import { useEventCopy, useUI } from "./HeroParts";
+import { ChateauCorners, ChateauDivider } from "./ChateauDecor";
 
 interface Parts {
   days: number;
@@ -93,10 +94,12 @@ export default function Countdown({
   const { lang } = useEventCopy();
   const dateLocale = lang === "vi" ? "vi-VN" : undefined;
   const atelier = palette.style.hero === "atelier";
+  const chateau = palette.style.hero === "chateau";
   const daysLeft = parts && !isPast ? parts.days + (parts.hours + parts.minutes + parts.seconds > 0 ? 1 : 0) : null;
 
   return (
     <section id="celebrate" className="relative overflow-hidden px-6 py-28 md:py-36" style={{ backgroundColor: palette.surface }}>
+      {chateau && <ChateauCorners palette={palette} />}
       <SectionHeading
         eyebrow={isPast ? ui.weSaidYes : palette.style.scratchReveal ? ui.aLittleSecret : ui.saveTheDate}
         title={palette.style.scratchReveal ? ui.saveTheDate : formatLongDate(date, null, dateLocale)}
@@ -133,6 +136,38 @@ export default function Countdown({
             </a>
           </Reveal>
         )
+      ) : chateau ? (
+        <>
+          {/* Chateau: show countdown tiles with ornate divider before CTA */}
+          <Reveal className="flex justify-center gap-3 md:gap-6">
+            {parts ? (
+              <>
+                <Tile value={parts.days} label={ui.days} palette={palette} />
+                <Tile value={parts.hours} label={ui.hours} palette={palette} />
+                <Tile value={parts.minutes} label={ui.minutes} palette={palette} />
+                <Tile value={parts.seconds} label={ui.seconds} palette={palette} />
+              </>
+            ) : (
+              <div className="h-[7.5rem] md:h-[10rem]" />
+            )}
+          </Reveal>
+          {!isPast && (
+            <>
+              <ChateauDivider palette={palette} />
+              <Reveal delay={0.2} className="flex justify-center">
+                <a
+                  href={calendarUrl(title, date, venue)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 border px-6 py-3 text-xs uppercase tracking-[0.25em] transition hover:-translate-y-0.5"
+                  style={{ borderRadius: palette.radius.sm, borderColor: alpha(palette.primary, 0.5), color: palette.primary }}
+                >
+                  <CalendarPlus size={16} /> {ui.addToCalendar}
+                </a>
+              </Reveal>
+            </>
+          )}
+        </>
       ) : (
         <>
           <Reveal className="flex justify-center gap-3 md:gap-6">

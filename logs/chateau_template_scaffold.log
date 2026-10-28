@@ -1,0 +1,4 @@
+[2026-10-27 00:00:00]
+CONTEXT: Create 7 files for the new Chateau wedding invitation template (decor component, theme, barrel, gallery, guestbook, migration, credits).
+RESULT: All 7 files created and TypeScript type check passes cleanly. Files: ChateauDecor.tsx, chateau/theme.ts, chateau/index.ts, chateau/GalleryLayout.tsx, chateau/GuestbookSection.tsx, 00022_add_chateau_template.sql, public/art/chateau/CREDITS.md.
+---

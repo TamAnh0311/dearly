@@ -16,6 +16,7 @@ import { getArtCollection } from "../art";
 import { useInvitationCopy } from "./HeroParts";
 import { GrowingFlower } from "../effects/Botanicals";
 import { alpha, mapsUrl, mix, type InvitationPalette } from "../utils";
+import { ChateauCorners } from "./ChateauDecor";
 
 /** Venue card with an animated border glow and a "Get directions" link. */
 export function Venue({
@@ -32,11 +33,72 @@ export function Venue({
   const inView = useInView(cardRef, { once: true, margin: "-120px" });
   const art = getArtCollection(palette.style.art);
   const atelier = palette.style.hero === "atelier";
+  const chateau = palette.style.hero === "chateau";
   const directions = mapsUrl([name, address].filter(Boolean).join(", "));
   return (
     <section id="venue" className="relative overflow-hidden px-6 py-28 md:py-36" style={{ backgroundColor: palette.background }}>
+      {chateau && <ChateauCorners palette={palette} />}
       <SectionHeading eyebrow={ui.venue.eyebrow} title={ui.venue.title} palette={palette} />
-      {atelier && art ? (
+      {chateau && art ? (
+        <Reveal className="relative mx-auto max-w-3xl">
+          <div
+            ref={cardRef}
+            className="relative overflow-hidden border text-center"
+            style={{
+              borderRadius: palette.radius.lg,
+              borderColor: alpha(palette.primary, 0.25),
+              background: `linear-gradient(160deg, ${alpha(palette.primary, 0.08)}, ${alpha(palette.accent, 0.04)})`,
+              boxShadow: `0 40px 80px -40px ${alpha(palette.primary, 0.45)}`,
+            }}
+          >
+            {/* Prominent venue painting */}
+            <div className="relative h-[40vh] w-full overflow-hidden">
+              <Image
+                src={art.venue.src}
+                alt=""
+                fill
+                sizes="(max-width: 768px) 100vw, 800px"
+                placeholder="blur"
+                blurDataURL={art.venue.blurDataURL}
+                className="object-cover"
+                style={{ objectPosition: "50% 45%", filter: palette.isDark ? "brightness(0.72) saturate(0.9)" : "saturate(1.05)" }}
+              />
+              {/* Top gradient fade */}
+              <div
+                aria-hidden
+                className="absolute inset-x-0 top-0 h-20"
+                style={{ background: `linear-gradient(180deg, ${alpha(palette.background, 0.6)} 0%, transparent 100%)` }}
+              />
+              {/* Bottom gradient fade */}
+              <div
+                aria-hidden
+                className="absolute inset-x-0 bottom-0 h-24"
+                style={{ background: `linear-gradient(0deg, ${alpha(palette.background, 0.92)} 0%, transparent 100%)` }}
+              />
+            </div>
+            <div className="px-8 pb-14 pt-2 md:px-16">
+              <MapPin className="mx-auto" size={28} style={{ color: palette.primary }} />
+              <h3 className="mt-5 text-3xl md:text-4xl" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
+                {name}
+              </h3>
+              {address && (
+                <p className="mt-3 text-base" style={{ color: palette.inkMuted }}>
+                  {address}
+                </p>
+              )}
+              <a
+                href={directions}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-8 inline-flex items-center gap-2 border px-7 py-3 text-[10px] uppercase tracking-[0.28em] transition hover:-translate-y-0.5"
+                style={{ borderRadius: "999px", borderColor: alpha(palette.primary, 0.45), color: palette.primary }}
+              >
+                <Navigation size={13} /> {ui.venue.directions}
+              </a>
+            </div>
+          </div>
+        </Reveal>
+      ) : atelier && art ? (
         <Reveal className="relative mx-auto max-w-3xl">
           <div
             className="relative overflow-hidden border text-center"

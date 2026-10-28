@@ -28,7 +28,8 @@ export type HeroLayout =
   | "shoji"
   | "bojagi"
   // ── Painted collection ──
-  | "atelier";
+  | "atelier"
+  | "chateau";
 export type Ambient = "butterflies" | "petals" | "leaves" | "confetti" | "snow" | "gold-dust" | "stars" | "bokeh" | "balloons" | "lanterns";
 export type Ornament = "floral" | "deco" | "line" | "leaf" | "star" | "wave" | "cloud";
 /** Cultural tradition a template draws on (search keywords, copy accents). */
@@ -83,6 +84,7 @@ const BASE: InvitationStyle = {
 const STYLES: Record<string, Partial<InvitationStyle>> = {
   eternal: { music: "romantic", hero: "arch", ambient: ["gold-dust", "bokeh"], ornament: "deco", corners: "sharp", flowers: false },
   bloom: { music: "romantic", hero: "atelier", art: "watercolour-garden", bodyFont: "Jost", ambient: ["butterflies", "petals", "bokeh"], ornament: "line", eyebrow: "caps", headingCase: "normal", texture: "paper", flowers: false, calendar: true },
+  chateau: { music: "orchestral", hero: "chateau", art: "chateau", bodyFont: "Jost", ambient: ["petals", "gold-dust", "bokeh"], ornament: "floral", corners: "arch", texture: "paper", eyebrow: "caps", headingCase: "normal", flowers: false, calendar: true },
   minimal: { hero: "editorial", ambient: [], ornament: "line", corners: "sharp", eyebrow: "caps", headingCase: "normal", flowers: false },
   rustic: { music: "acoustic", hero: "arch", ambient: ["leaves"], ornament: "leaf", texture: "paper", flowers: true },
   deco: { music: "orchestral", hero: "arch", ambient: ["gold-dust"], ornament: "deco", corners: "sharp", eyebrow: "caps", flowers: false },
@@ -160,6 +162,7 @@ export const LAYOUT_LABEL: Record<HeroLayout, string> = {
   shoji: "Shoji",
   bojagi: "Bojagi",
   atelier: "Watercolour",
+  chateau: "Grand Estate",
 };
 
 /* ─── Colour schemes ──────────────────────────────────────────────────────── */

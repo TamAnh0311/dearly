@@ -12,6 +12,7 @@ import type { WeddingEventRow } from "@/types/database";
 import { SectionHeading } from "./Primitives";
 import { useInvitationCopy } from "./HeroParts";
 import { EASE_OUT, alpha, formatTime, type InvitationPalette } from "../utils";
+import { BotanicalVine, ChateauCorners } from "./ChateauDecor";
 
 export default function Schedule({ events, palette, timeZone }: { events: WeddingEventRow[]; palette: InvitationPalette; timeZone?: string | null }) {
   const ui = useInvitationCopy();
@@ -19,13 +20,20 @@ export default function Schedule({ events, palette, timeZone }: { events: Weddin
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start 75%", "end 60%"] });
   const lineScale = useTransform(scrollYProgress, [0, 1], [0, 1]);
   const atelier = palette.style.hero === "atelier";
+  const chateau = palette.style.hero === "chateau";
 
   return (
     <section id="schedule" className="relative overflow-hidden px-6 py-28 md:py-36" style={{ backgroundColor: palette.surface }}>
+      {chateau && <ChateauCorners palette={palette} />}
       <SectionHeading eyebrow={ui.schedule.eyebrow} title={ui.schedule.title} palette={palette} />
 
-      {atelier ? (
+      {atelier || chateau ? (
         <div ref={ref} className="relative mx-auto max-w-xl">
+          {chateau && (
+            <div className="pointer-events-none absolute -left-4 top-0 bottom-0 hidden md:block" aria-hidden>
+              <BotanicalVine palette={palette} height={Math.max(450, events.length * 120)} />
+            </div>
+          )}
           <ol>
             {events.map((ev, i) => (
               <motion.li
@@ -37,7 +45,20 @@ export default function Schedule({ events, palette, timeZone }: { events: Weddin
                 viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.8, delay: i * 0.08, ease: EASE_OUT }}
               >
-                <div className="text-right">
+                <div className="relative text-right">
+                  {chateau && (
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 18 18"
+                      className="pointer-events-none absolute -left-7 top-1.5"
+                      aria-hidden
+                    >
+                      <ellipse cx="9" cy="9" rx="3.5" ry="7" fill={alpha(palette.leaf, 0.5)} transform="rotate(-30 9 9)" />
+                      <ellipse cx="9" cy="9" rx="3.5" ry="7" fill={alpha(palette.leaf, 0.35)} transform="rotate(30 9 9)" />
+                      <circle cx="9" cy="9" r="1.5" fill={alpha(palette.primary, 0.5)} />
+                    </svg>
+                  )}
                   <p className="whitespace-nowrap text-xl tracking-[0.02em] md:text-2xl" style={{ fontFamily: palette.displayFont, color: palette.primary }}>
                     {formatTime(ev.start_time, timeZone, ui.dateLocale)}
                   </p>

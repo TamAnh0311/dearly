@@ -1,0 +1,9 @@
+[2026-10-27 00:00:00]
+CONTEXT: Create the HeroChateau.tsx component — a premium flagship hero layout with full-bleed watercolour painting, golden ornate double-rule arch frame with botanical SVG decorations, corner flower clusters, animated doves, and elegant serif typography.
+RESULT: Created D:/pet/dearly/src/components/invitation/sections/HeroChateau.tsx (~310 lines). Registered "chateau" in HeroLayout type (styles.ts), added LAYOUT_LABEL entry ("Grand Estate"), imported and wired ChateauHero in Hero.tsx dispatcher with art-fallback to "arch". Full project tsc --noEmit passes cleanly.
+---
+
+[2026-10-27 00:00:00]
+CONTEXT: Complete rewrite of HeroChateau.tsx to match Glow Website premium Vietnamese wedding spec — split layout with cream text area on top, watercolour painting as bottom centrepiece, no arch frame.
+RESULT: Rewrote D:/pet/dearly/src/components/invitation/sections/HeroChateau.tsx. Removed ornate arch, botanical corner clusters, arch leaf decorations. New layout: top 48svh cream paper with staggered text animations (greeting, eyebrow, large names, gold date, venue), bottom 52svh full-width painting with ArtSpray botanical framing, doves, blur-to-sharp intro, and double-rule border.
+---

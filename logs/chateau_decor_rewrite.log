@@ -1,0 +1,4 @@
+[2026-10-27 00:00:00]
+CONTEXT: Complete rewrite of ChateauDecor.tsx with richer, premium-quality SVG decorations for Vietnamese wedding invitation platform.
+RESULT: Rewrote D:/pet/dearly/src/components/invitation/sections/ChateauDecor.tsx — added GoldenArchFrame (ornate arch with 18 botanical elements, crown cluster, vine tendrils, corner diamonds), enlarged ChateauCorners (120px, 10 detailed leaves, 3 petal flowers, vine stems), richer ChateauDivider (340px, dual spirals, 8-petal rosette, endpoint dots), BotanicalVine (vertical S-curve stem, 10 leaves, 3 flower buds, spring animations), enhanced ChateauWreath (20 filled leaves, inner ring, 6 flower accents, dove silhouettes). All existing exports preserved with compatible signatures. TypeScript and ESLint pass cleanly.
+---

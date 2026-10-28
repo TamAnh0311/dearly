@@ -372,7 +372,7 @@ export function Lanterns({ color: _color, glow, count = 8 }: { color: string; gl
   const total = Math.min(count, 35);
 
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+    <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden>
       {!keyframesInjected && <style>{LANTERN_KEYFRAMES}</style>}
       {(() => { keyframesInjected = true; return null; })()}
       {Array.from({ length: total }, (_, i) => {

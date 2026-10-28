@@ -20,10 +20,14 @@ export interface NavLink {
   label: string;
 }
 
-/** Couple initials, e.g. "E & J". */
+/** Couple initials from the given (last) word of each name, e.g. "T & A". */
 function monogram(a: string, b: string): string {
-  const x = a.trim().charAt(0).toUpperCase();
-  const y = b.trim().charAt(0).toUpperCase();
+  const given = (s: string) => {
+    const parts = s.trim().split(/\s+/);
+    return (parts[parts.length - 1]?.charAt(0) ?? "").toUpperCase();
+  };
+  const x = given(a);
+  const y = given(b);
   return x && y ? `${x} & ${y}` : x || y;
 }
 

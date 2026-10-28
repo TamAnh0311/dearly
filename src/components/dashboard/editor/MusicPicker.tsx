@@ -9,8 +9,9 @@
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { MusicTrackRow } from "@/types/database";
-import { Music2, Play, Square, Star } from "lucide-react";
+import { Music2, Play, Square, Star, Upload, AlertTriangle } from "lucide-react";
 import { createAmbientMusic, toMusicPreset } from "@/lib/ambient-music";
+import { uploadMusic } from "@/lib/supabase/storage";
 
 type Genre = MusicTrackRow["genre"] | "all";
 
@@ -19,13 +20,15 @@ interface MusicPickerProps {
   selectedTrackId: string | null;
   /** Current custom music URL value. */
   customUrl: string;
+  /** Wedding ID for file uploads. */
+  weddingId?: string;
   /** Called when a library track is selected or deselected (null to deselect). */
   onSelectTrack: (trackId: string | null) => void;
   /** Called when the custom URL input changes. */
   onCustomUrl: (url: string) => void;
 }
 
-type Tab = "library" | "custom";
+type Tab = "library" | "upload" | "custom";
 
 const GENRES: { value: Genre; label: string }[] = [
   { value: "all", label: "All" },
@@ -119,6 +122,7 @@ function GenreBadge({ genre }: { genre: MusicTrackRow["genre"] }) {
 export default function MusicPicker({
   selectedTrackId,
   customUrl,
+  weddingId,
   onSelectTrack,
   onCustomUrl,
 }: MusicPickerProps) {
@@ -127,6 +131,9 @@ export default function MusicPicker({
   const [loadingTracks, setLoadingTracks] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [genreFilter, setGenreFilter] = useState<Genre>("all");
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   /** Fetches all tracks from Supabase on mount. */
   useEffect(() => {
@@ -157,7 +164,7 @@ export default function MusicPicker({
     <div className="space-y-3">
       {/* Tab switcher */}
       <div className="flex rounded-lg border border-dearly-border bg-dearly-cream p-1 text-sm">
-        {(["library", "custom"] as Tab[]).map((t) => (
+        {(["library", "upload", "custom"] as Tab[]).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -167,7 +174,7 @@ export default function MusicPicker({
                 : "text-dearly-text-secondary hover:text-dearly-text"
             }`}
           >
-            {t === "library" ? "Library" : "Custom URL"}
+            {t === "library" ? "Library" : t === "upload" ? "Upload" : "Custom URL"}
           </button>
         ))}
       </div>
@@ -270,6 +277,56 @@ export default function MusicPicker({
               Remove selection
             </button>
           )}
+        </div>
+      )}
+
+      {/* Upload tab */}
+      {tab === "upload" && (
+        <div className="space-y-3">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="audio/*,video/mp4"
+            className="hidden"
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file || !weddingId) return;
+              setUploading(true);
+              setUploadError(null);
+              try {
+                const url = await uploadMusic(weddingId, file);
+                onCustomUrl(url);
+                onSelectTrack(null);
+              } catch (err) {
+                setUploadError(err instanceof Error ? err.message : "Upload failed");
+              } finally {
+                setUploading(false);
+                if (fileInputRef.current) fileInputRef.current.value = "";
+              }
+            }}
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading || !weddingId}
+            className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-dearly-border bg-dearly-cream px-4 py-6 text-sm text-dearly-text-secondary transition hover:border-dearly-accent hover:text-dearly-text disabled:opacity-50"
+          >
+            <Upload size={18} />
+            {uploading ? "Uploading…" : "Choose an audio file (max 15 MB)"}
+          </button>
+          {uploadError && (
+            <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">{uploadError}</p>
+          )}
+          <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5">
+            <AlertTriangle size={14} className="mt-0.5 shrink-0 text-amber-600" />
+            <p className="text-xs leading-relaxed text-amber-700">
+              <strong>Copyright notice:</strong> By uploading music you confirm that you own the
+              rights or have a valid licence to use it. Dearly is not responsible for
+              any copyright claims arising from user-uploaded content.
+            </p>
+          </div>
+          <p className="text-xs text-dearly-text-secondary">
+            Supported formats: MP3, MP4, WAV, OGG, AAC.
+          </p>
         </div>
       )}
 

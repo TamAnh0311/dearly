@@ -1,0 +1,4 @@
+[2026-10-28 00:00:00]
+CONTEXT: Fix lantern overlay on hero text, update monogram to Vietnamese given-name convention (T&A), upload "I See the Light" music, and add music file upload with copyright disclaimer.
+RESULT: Monogram in Chrome.tsx uses last word of each name (Thảo→T, Anh→A). Lanterns in Particles.tsx get z-0 to stay behind z-10 content. Music uploaded to wedding-music/shared/i-see-the-light.mp4 and set on wedding. MusicPicker.tsx gains Upload tab with 15 MB limit, format validation, and copyright notice. Storage policy migration 00023 applied.
+---

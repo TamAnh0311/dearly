@@ -199,6 +199,7 @@ export default function SettingsPage() {
           <MusicPicker
             selectedTrackId={musicTrackId}
             customUrl={musicUrl}
+            weddingId={wedding.id}
             onSelectTrack={(id) => {
               setMusicTrackId(id);
               // Clear custom URL when a library track is chosen.

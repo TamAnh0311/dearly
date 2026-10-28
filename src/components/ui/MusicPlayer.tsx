@@ -120,26 +120,38 @@ export default function MusicPlayer({ musicUrl, preset, theme }: MusicPlayerProp
     setPlaying(false);
   }, []);
 
-  // Start on the first user gesture anywhere (autoplay policy), unless the guest opted out.
+  // Try autoplay immediately; if the browser blocks it, wait for a user gesture.
   useEffect(() => {
     if (!available || !wantsMusic()) return;
-    setHint(true);
-    const hideHint = setTimeout(() => setHint(false), 9000);
-    const onGesture = (e: Event) => {
-      // The music button handles its own clicks (avoids a double start).
-      if ((e.target as Element | null)?.closest?.("[data-music-button]")) return;
-      remove();
-      void play();
-    };
-    const remove = () => {
-      window.removeEventListener("pointerdown", onGesture);
-      window.removeEventListener("keydown", onGesture);
-    };
-    window.addEventListener("pointerdown", onGesture);
-    window.addEventListener("keydown", onGesture);
+    let cancelled = false;
+
+    /** Attempt autoplay — succeeds silently or falls back to a gesture listener. */
+    void play().then(() => {
+      if (!cancelled) setHint(false);
+    }).catch(() => {
+      if (cancelled) return;
+      // Autoplay blocked — show hint and wait for gesture.
+      setHint(true);
+      const hideHint = setTimeout(() => setHint(false), 9000);
+      const onGesture = (e: Event) => {
+        if ((e.target as Element | null)?.closest?.("[data-music-button]")) return;
+        remove();
+        void play();
+      };
+      const remove = () => {
+        window.removeEventListener("pointerdown", onGesture);
+        window.removeEventListener("keydown", onGesture);
+        cleanups.push(() => clearTimeout(hideHint));
+      };
+      window.addEventListener("pointerdown", onGesture);
+      window.addEventListener("keydown", onGesture);
+      cleanups.push(remove, () => clearTimeout(hideHint));
+    });
+
+    const cleanups: (() => void)[] = [];
     return () => {
-      clearTimeout(hideHint);
-      remove();
+      cancelled = true;
+      cleanups.forEach((fn) => fn());
     };
   }, [available, play]);
 

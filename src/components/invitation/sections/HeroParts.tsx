@@ -155,15 +155,17 @@ export function Eyebrow({ text, color, delay = 0.2 }: { text: string; color: str
           {ui.dear(inviteeName)}
         </motion.p>
       )}
-      <motion.p
-        className="text-[11px] uppercase tracking-[0.5em] md:text-xs"
-        style={{ color }}
-        initial={{ opacity: 0, letterSpacing: "0.9em" }}
-        animate={{ opacity: 1, letterSpacing: "0.5em" }}
-        transition={{ duration: 1.8, delay, ease: EASE_OUT }}
-      >
-        {inviteeName ? ui.youAreInvitedTo(copy.label) : text}
-      </motion.p>
+      {(inviteeName || text) && (
+        <motion.p
+          className="text-[11px] uppercase tracking-[0.5em] md:text-xs"
+          style={{ color }}
+          initial={{ opacity: 0, letterSpacing: "0.9em" }}
+          animate={{ opacity: 1, letterSpacing: "0.5em" }}
+          transition={{ duration: 1.8, delay, ease: EASE_OUT }}
+        >
+          {inviteeName ? ui.youAreInvitedTo(copy.label) : text}
+        </motion.p>
+      )}
     </div>
   );
 }

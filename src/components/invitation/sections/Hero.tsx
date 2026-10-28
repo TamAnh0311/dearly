@@ -420,9 +420,8 @@ function CelestialHero({ wedding, palette, contentY, contentOpacity }: LayoutPro
   const starInk = mix(palette.primary, "#ffffff", 0.55);
   const ink = "#f4f1ea";
   const { twoNames, copy } = useEventCopy();
-  const ui = useInvitationCopy();
   const defaultEyebrow = useEyebrow("Written in the stars");
-  const eyebrow = lanternFestival ? ui.invitationLabel(copy.label) : defaultEyebrow;
+  const eyebrow = lanternFestival ? "" : defaultEyebrow;
 
   // Lantern-night uses a warmer sky gradient to complement the golden lanterns.
   const skyBg = lanternFestival

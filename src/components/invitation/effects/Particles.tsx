@@ -387,12 +387,16 @@ export function Lanterns({ color: _color, glow, count = 8 }: { color: string; gl
         const dur = festival ? 20 + seeded(i + 930) * 16 : 24 + seeded(i + 930) * 12;
         const del = seeded(i + 940) * (festival ? 20 : 14);
         const sway = (seeded(i + 920) - 0.5) * (festival ? 35 : 50);
+        // Distribute lanterns evenly across the width with a small jitter to avoid overlap.
+        const slot = (i / total) * 96 + 2;
+        const jitter = (seeded(i + 910) - 0.5) * (96 / total) * 0.6;
+        const leftPos = Math.max(2, Math.min(98, slot + jitter));
         return (
           <div
             key={i}
             className="absolute will-change-transform"
             style={{
-              left: `${2 + seeded(i + 910) * 96}%`,
+              left: `${leftPos}%`,
               bottom: -90,
               filter: `drop-shadow(0 0 ${glowR}px ${glow})`,
               animation: `_lr ${dur}s ${del}s linear infinite`,

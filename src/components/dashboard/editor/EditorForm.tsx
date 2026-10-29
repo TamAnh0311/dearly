@@ -15,7 +15,7 @@ import SectionToggles from "@/components/invitation/SectionToggles";
 import ColorPicker from "./ColorPicker";
 import FontPicker from "./FontPicker";
 import LanguagePicker from "@/components/invitation/LanguagePicker";
-import type { GiftAccount, WeddingCustomization } from "@/types/database";
+import type { DressSwatch, GiftAccount, WeddingCustomization } from "@/types/database";
 
 /** Section header used throughout the form. */
 function SectionHeading({ children }: { children: React.ReactNode }) {
@@ -153,6 +153,18 @@ export default function EditorForm() {
               onChange={(v) => updateField("venue_address", v || null)}
               placeholder="123 Garden Lane, Napa, CA"
             />
+            <Field
+              label="Place line (optional)"
+              value={customization.locationLabel ?? ""}
+              onChange={(v) => updateCustomization({ locationLabel: v.slice(0, 80) })}
+              placeholder="Da Lat · Vietnam"
+            />
+            <Field
+              label="Date note (optional)"
+              value={customization.dateNote ?? ""}
+              onChange={(v) => updateCustomization({ dateNote: v.slice(0, 220) })}
+              placeholder="The garden opens at 14:30. Please arrive with time to find your seat."
+            />
           </div>
         </section>
 
@@ -168,6 +180,65 @@ export default function EditorForm() {
               placeholder="Tell your story…"
               className="w-full resize-none rounded-lg border border-dearly-border bg-dearly-card px-3 py-2 text-sm text-dearly-text placeholder:text-dearly-text-muted focus:outline-none focus:ring-2 focus:ring-dearly-accent"
             />
+          </div>
+        </section>
+
+        {/* ── Dress code (Storybook collection and any template with a palette) ── */}
+        <section>
+          <SectionHeading>Dress Code</SectionHeading>
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-dearly-text">What should guests wear?</label>
+              <textarea
+                value={customization.dressCode?.text ?? ""}
+                onChange={(e) =>
+                  updateCustomization({
+                    dressCode: {
+                      text: e.target.value.slice(0, 240),
+                      colors: customization.dressCode?.colors ?? [],
+                    },
+                  })
+                }
+                rows={3}
+                maxLength={240}
+                placeholder="Garden formal, in the colours of a summer bouquet…"
+                className="w-full resize-none rounded-lg border border-dearly-border bg-dearly-card px-3 py-2 text-sm text-dearly-text placeholder:text-dearly-text-muted focus:outline-none focus:ring-2 focus:ring-dearly-accent"
+              />
+            </div>
+            <p className="text-xs text-dearly-text-secondary">Optional colour swatches for the palette (up to five).</p>
+            <div className="grid grid-cols-1 gap-2">
+              {Array.from({ length: 5 }, (_, i) => {
+                const swatch: DressSwatch = customization.dressCode?.colors?.[i] ?? { label: "", hex: "#E8DFC9" };
+                /** Replaces one swatch without touching the other entries. */
+                const setSwatch = (patch: Partial<DressSwatch>) => {
+                  const colors = Array.from({ length: 5 }, (_, j) => customization.dressCode?.colors?.[j] ?? { label: "", hex: "#E8DFC9" });
+                  colors[i] = { ...swatch, ...patch };
+                  updateCustomization({
+                    dressCode: {
+                      text: customization.dressCode?.text ?? "",
+                      colors: colors.filter((c) => c.label.trim()),
+                    },
+                  });
+                };
+                return (
+                  <div key={i} className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={/^#[0-9a-fA-F]{6}$/.test(swatch.hex) ? swatch.hex : "#E8DFC9"}
+                      onChange={(e) => setSwatch({ hex: e.target.value })}
+                      aria-label={`Swatch ${i + 1} colour`}
+                      className="h-8 w-9 cursor-pointer rounded border border-dearly-border bg-dearly-card p-0.5"
+                    />
+                    <input
+                      value={swatch.label}
+                      onChange={(e) => setSwatch({ label: e.target.value.slice(0, 30) })}
+                      placeholder={["Ivory", "Olive", "Gold", "Rose", "Sage"][i]}
+                      className="flex-1 rounded-lg border border-dearly-border bg-dearly-card px-3 py-2 text-sm text-dearly-text placeholder:text-dearly-text-muted focus:outline-none focus:ring-2 focus:ring-dearly-accent"
+                    />
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </section>
 

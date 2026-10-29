@@ -230,7 +230,13 @@ export default function TemplatePreview({
         topOffset={bannerHeight}
         guestUploads
         demo
-        invitee={wedding.event_type === "wedding" || wedding.event_type === "engagement" ? { token: "demo", name: "Sarah", maxPartySize: 2 } : null}
+        invitee={
+          getInvitationStyle(templateSlug).storybook
+            ? null
+            : wedding.event_type === "wedding" || wedding.event_type === "engagement"
+              ? { token: "demo", name: "Sarah", maxPartySize: 2 }
+              : null
+        }
       />
     </>
   );

@@ -139,10 +139,11 @@ export default async function WeddingPage({ params, searchParams }: PageProps) {
   );
   const photos = ((photosRes.data ?? []) as { url: string; thumbnail_url: string | null }[]).map((p) => p.thumbnail_url ?? p.url);
   const theme = resolveTheme(weddingData.template.default_config, weddingData.customization);
+  const style = getInvitationStyle(weddingData.template.slug);
 
   const content = (
     <>
-      <ScrollProgress color={theme.colors.primary} />
+      {!style.storybook && <ScrollProgress color={theme.colors.primary} />}
       <CinematicInvitation
         wedding={weddingData}
         events={(eventsRes.data ?? []) as WeddingEventRow[]}
@@ -158,8 +159,8 @@ export default async function WeddingPage({ params, searchParams }: PageProps) {
     </>
   );
 
-  // The wax-seal design opens its own envelope, so skip the generic envelope intro.
-  if (getInvitationStyle(weddingData.template.slug).hero === "seal") return content;
+  // The wax-seal and Storybook designs open their own page, so skip the generic envelope intro.
+  if (style.hero === "seal" || style.storybook) return content;
 
   return (
     <EnvelopeWrapper weddingId={weddingData.id} theme={theme} partnerNames={[weddingData.partner1_name, weddingData.partner2_name]}>

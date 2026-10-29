@@ -5,7 +5,7 @@
  * so everything is re-validated here before it reaches the guest page.
  */
 
-import type { GiftAccount, WeddingCustomization } from "@/types/database";
+import type { DressSwatch, GiftAccount, WeddingCustomization } from "@/types/database";
 
 const MAX_TEXT = 120;
 const MAX_NOTE = 280;
@@ -39,6 +39,16 @@ export function resolveFamilies(input: WeddingCustomization["families"] | unknow
   return side1 || side2 ? { side1, side2 } : null;
 }
 
+/** Short couple-entered place line for the hero, trimmed and capped. */
+export function resolveLocationLabel(input: unknown): string | null {
+  return clean(input, 80) ?? null;
+}
+
+/** Practical note shown under the wedding date, trimmed and capped. */
+export function resolveDateNote(input: unknown): string | null {
+  return clean(input, 220) ?? null;
+}
+
 /** Gift block with valid accounts only (needs a label plus a number or QR), or null. */
 export function resolveGift(input: WeddingCustomization["gift"] | unknown): { note?: string; accounts: GiftAccount[] } | null {
   if (!input || typeof input !== "object") return null;
@@ -59,6 +69,24 @@ export function resolveGift(input: WeddingCustomization["gift"] | unknown): { no
   }
   if (accounts.length === 0) return null;
   return { note: clean(raw.note, MAX_NOTE), accounts };
+}
+
+/** Dress-code copy + safe hex swatches, or null when empty. */
+export function resolveDressCode(input: WeddingCustomization["dressCode"] | unknown): { text?: string; colors: DressSwatch[] } | null {
+  if (!input || typeof input !== "object") return null;
+  const raw = input as Record<string, unknown>;
+  const text = clean(raw.text, 400);
+  const colors: DressSwatch[] = [];
+  if (Array.isArray(raw.colors)) {
+    for (const c of raw.colors.slice(0, 6)) {
+      if (!c || typeof c !== "object") continue;
+      const r = c as Record<string, unknown>;
+      const label = clean(r.label, 24);
+      const hex = clean(r.hex, 7);
+      if (label && hex && /^#[0-9a-f]{6}$/i.test(hex)) colors.push({ label, hex });
+    }
+  }
+  return text || colors.length ? { text, colors } : null;
 }
 
 /** Days in the month grid for a date: leading blanks (Mon-first) then 1..n. */

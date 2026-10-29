@@ -114,6 +114,18 @@ export interface WeddingCustomization {
   families?: { side1?: string; side2?: string };
   /** Monetary-gift details (red envelope / 축의금 / mừng cưới): up to 2 accounts with optional QR. */
   gift?: { note?: string; accounts?: GiftAccount[] };
+  /** Optional dress-code note and colour swatches for storybook templates. */
+  dressCode?: { text?: string; colors?: DressSwatch[] };
+  /** Optional short place line for the hero (e.g. "Da Lat · Vietnam"). */
+  locationLabel?: string;
+  /** Optional practical note under the date (arrival time, parking, etc.). */
+  dateNote?: string;
+}
+
+/** One suggested dress-code colour. */
+export interface DressSwatch {
+  label: string;
+  hex: string;
 }
 
 /** One account guests can send a gift to. */

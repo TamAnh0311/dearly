@@ -29,13 +29,17 @@ export type HeroLayout =
   | "bojagi"
   // ── Painted collection ──
   | "atelier"
-  | "chateau";
+  | "chateau"
+  // ── Storybook collection ──
+  | "storybook";
 export type Ambient = "butterflies" | "petals" | "leaves" | "confetti" | "snow" | "gold-dust" | "stars" | "bokeh" | "balloons" | "lanterns";
 export type Ornament = "floral" | "deco" | "line" | "leaf" | "star" | "wave" | "cloud";
 /** Cultural tradition a template draws on (search keywords, copy accents). */
 export type Culture = "chinese" | "japanese" | "korean" | "vietnamese";
 export type Corners = "rounded" | "sharp" | "arch" | "pill";
 export type Texture = "none" | "paper" | "grain";
+/** Storybook layout family — shared editorial paper/hero design with per-variant art. */
+export type StorybookVariant = "ivory" | "lakeside" | "peony" | "lantern";
 
 export interface InvitationStyle {
   hero: HeroLayout;
@@ -63,6 +67,10 @@ export interface InvitationStyle {
   art?: ArtCollectionId;
   /** Optional body-font override when the template's default pair is too playful. */
   bodyFont?: string;
+  /** Optional script-accent override (defaults to Great Vibes). */
+  scriptFont?: string;
+  /** Render the dedicated Storybook invitation page for this variant. */
+  storybook?: StorybookVariant;
 }
 
 const BASE: InvitationStyle = {
@@ -123,6 +131,11 @@ const STYLES: Record<string, Partial<InvitationStyle>> = {
   seigaiha: { music: "piano", hero: "enso", culture: "japanese", ambient: ["gold-dust"], ornament: "wave", corners: "sharp", eyebrow: "caps", headingCase: "normal", flowers: false, calendar: true },
   "seoul-studio": { music: "piano", hero: "poster", culture: "korean", ambient: [], ornament: "line", corners: "sharp", eyebrow: "caps", headingCase: "normal", flowers: false, calendar: true },
   hanbok: { music: "acoustic", hero: "bojagi", culture: "korean", ambient: ["petals", "bokeh"], ornament: "cloud", corners: "rounded", texture: "paper", headingCase: "normal", flowers: false, calendar: true },
+  // ── Storybook collection ──
+  "atelier-ivory": { music: "romantic", hero: "storybook", storybook: "ivory", art: "watercolour-garden", bodyFont: "Jost", ambient: ["petals", "butterflies", "bokeh"], ornament: "floral", texture: "grain", eyebrow: "caps", headingCase: "upper", flowers: false },
+  "lakeside-hydrangea": { music: "acoustic", hero: "storybook", storybook: "lakeside", art: "watercolour-garden", bodyFont: "Jost", ambient: ["petals", "bokeh"], ornament: "floral", texture: "grain", eyebrow: "caps", headingCase: "upper", flowers: false },
+  "peony-letter": { music: "romantic", hero: "storybook", storybook: "peony", art: "watercolour-garden", bodyFont: "Jost", scriptFont: "Petit Formal Script", ambient: ["petals", "butterflies"], ornament: "floral", texture: "grain", eyebrow: "caps", headingCase: "upper", flowers: false, calendar: true },
+  "lantern-garden": { music: "ambient", hero: "storybook", storybook: "lantern", art: "watercolour-garden", bodyFont: "Jost", scriptFont: "Petit Formal Script", ambient: ["lanterns", "gold-dust"], ornament: "floral", texture: "grain", eyebrow: "caps", headingCase: "upper", flowers: false, calendar: true },
 };
 
 /** Resolves the design language for a template slug. */
@@ -163,6 +176,7 @@ export const LAYOUT_LABEL: Record<HeroLayout, string> = {
   bojagi: "Bojagi",
   atelier: "Watercolour",
   chateau: "Grand Estate",
+  storybook: "Storybook",
 };
 
 /* ─── Colour schemes ──────────────────────────────────────────────────────── */

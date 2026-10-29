@@ -38,6 +38,60 @@ export default function LayoutThumbnail({ slug, colors, fonts, photo, names = ["
   );
 
   switch (style.hero) {
+    case "storybook": {
+      const art = getArtCollection(style.art) ?? getArtCollection("watercolour-garden");
+      const wreath = style.storybook === "peony" || style.storybook === "lantern";
+      const night = style.storybook === "lantern";
+      const bg = night ? mix(secondary, "#0b1020", 0.35) : secondary;
+      if (!art) {
+        return <div className="h-full" style={{ background: bg }} />;
+      }
+      return (
+        <div className="relative h-full overflow-hidden" style={{ background: bg, color: ink }}>
+          <Image
+            src={wreath ? art.venue.src : art.hero.src}
+            alt=""
+            fill
+            sizes="240px"
+            className="object-cover"
+            style={{ opacity: wreath ? 0.22 : 0.42 }}
+          />
+          {wreath && (
+            <Image
+              src={art.sprays.wreath.src}
+              alt=""
+              width={art.sprays.wreath.width}
+              height={art.sprays.wreath.height}
+              className="absolute left-1/2 top-1/2 h-[78%] w-auto -translate-x-1/2 -translate-y-1/2 opacity-90"
+            />
+          )}
+          <div className="relative flex h-full flex-col items-center justify-center text-center">
+            <p className="mb-1 text-[5px] uppercase tracking-[0.35em]" style={{ color: alpha(ink, 0.65) }}>
+              {night ? "Follow the lanterns" : wreath ? "With our families" : "Together with their families"}
+            </p>
+            <p className="text-2xl leading-none" style={{ fontFamily: display }}>
+              {names[0]}
+            </p>
+            <p className="my-0.5 text-sm" style={{ fontFamily: script, color: primary }}>
+              &amp;
+            </p>
+            <p className="text-2xl leading-none" style={{ fontFamily: display }}>
+              {names[1]}
+            </p>
+            <p className="mt-2 text-[5px] uppercase tracking-[0.3em]" style={{ color: alpha(ink, 0.65) }}>
+              12 · 09 · 2027
+            </p>
+            {night && (
+              <>
+                <span className="absolute left-[12%] top-[12%] h-3 w-2.5 rounded-b-full" style={{ background: mix(primary, "#ffb347", 0.45), boxShadow: `0 0 16px ${alpha(primary, 0.55)}` }} />
+                <span className="absolute right-[16%] top-[20%] h-2 w-1.5 rounded-b-full" style={{ background: mix(primary, "#ffb347", 0.4), boxShadow: `0 0 12px ${alpha(primary, 0.45)}` }} />
+              </>
+            )}
+          </div>
+        </div>
+      );
+    }
+
     case "arch":
       return (
         <div className="relative flex h-full items-center justify-center" style={{ background: secondary }}>

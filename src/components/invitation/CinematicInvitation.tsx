@@ -32,6 +32,7 @@ import { resolveFamilies, resolveGift } from "@/lib/invitation-extras";
 import { eventTypeOf, getEventCopy, hostNames, isPastEvent } from "@/lib/event-types";
 import BlessingShower from "./effects/BlessingShower";
 import MusicPlayer from "@/components/ui/MusicPlayer";
+import StorybookInvitation from "./storybook/StorybookInvitation";
 import type { MusicPreset } from "@/lib/ambient-music";
 
 export interface CinematicInvitationProps {
@@ -88,6 +89,29 @@ export default function CinematicInvitation({
   const palette = useMemo(() => buildPalette(theme, templateSlug), [theme, templateSlug]);
   const [blessings, setBlessings] = useState(initialBlessings);
   const [highlightId, setHighlightId] = useState<string | null>(null);
+
+  // The Storybook collection owns its whole page; the classic sections below
+  // stay untouched so existing templates keep their exact behaviour.
+  if (palette.style.storybook) {
+    return (
+      <StorybookInvitation
+        wedding={wedding}
+        events={events}
+        theme={theme}
+        templateSlug={templateSlug}
+        blessings={initialBlessings}
+        reactions={reactions}
+        photos={photos}
+        demo={demo}
+        topOffset={topOffset}
+        music={music}
+        guestUploads={guestUploads}
+        invitee={invitee}
+        palette={palette}
+      />
+    );
+  }
+
   const names: [string, string] = [wedding.partner1_name, wedding.partner2_name];
   const eventType = eventTypeOf(wedding);
   const twoNames = Boolean(wedding.partner2_name?.trim());

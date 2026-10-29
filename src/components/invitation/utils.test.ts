@@ -71,6 +71,12 @@ describe("buildPalette", () => {
     expect(p.bodyFont).toContain("Jost");
     expect(googleFontsUrl(theme("#FFF5F5").fonts, [p.style.bodyFont])).toContain("family=Jost");
   });
+
+  it("uses a template script-font override when one is defined", () => {
+    const p = buildPalette(theme("#FFF5F5"), "peony-letter");
+    expect(p.scriptFont).toContain("Petit Formal Script");
+    expect(googleFontsUrl(theme("#FFF5F5").fonts, [p.style.scriptFont])).toContain("family=Petit+Formal+Script");
+  });
 });
 
 describe("design styles", () => {
@@ -101,6 +107,13 @@ describe("design styles", () => {
     expect(getInvitationStyle("hanbok")).toMatchObject({ hero: "bojagi", ornament: "cloud" });
     expect(getInvitationStyle("lantern-night").ambient).toContain("lanterns");
     expect(getInvitationStyle("bloom").calendar).toBe(true);
+  });
+
+  it("maps the Storybook collection to its paper variants", () => {
+    expect(getInvitationStyle("atelier-ivory")).toMatchObject({ hero: "storybook", storybook: "ivory" });
+    expect(getInvitationStyle("lakeside-hydrangea")).toMatchObject({ hero: "storybook", storybook: "lakeside" });
+    expect(getInvitationStyle("peony-letter")).toMatchObject({ hero: "storybook", storybook: "peony", calendar: true });
+    expect(getInvitationStyle("lantern-garden")).toMatchObject({ hero: "storybook", storybook: "lantern", calendar: true });
   });
 
   it("falls back to the garden layout for unknown or missing slugs", () => {

@@ -18,7 +18,7 @@ import ScrollProgress from "@/components/ui/ScrollProgress";
 import TemplatePreview from "@/components/invitation/TemplatePreview";
 import { PLACEHOLDER_IMAGES } from "@/lib/placeholder-images";
 import type { TemplateRow, WeddingRow, WeddingEventRow, GuestbookEntryRow } from "@/types/database";
-import type { Culture } from "@/components/invitation/styles";
+import type { Culture, StorybookVariant } from "@/components/invitation/styles";
 import { isInvitationLang } from "@/components/invitation/i18n";
 
 interface PageProps {
@@ -36,6 +36,142 @@ const CULTURE_DEMO: Record<Culture, { names: [string, string]; families: { side1
   korean: { names: ["Minjun", "Seoyeon"], families: { side1: "Kim Daeho · Park Mira", side2: "Lee Sungmin · Choi Jiwon" } },
   vietnamese: { names: ["Huy", "Thúy"], families: { side1: "Ông Nguyễn Viết Minh · Bà Trịnh Thị Lan", side2: "Ông Trịnh Văn Huy · Bà Ngô Mai Hoàn" } },
 };
+
+/** Approved Storybook demo copy, used only on public previews. Never persisted. */
+const STORYBOOK_DEMO: Record<
+  StorybookVariant,
+  {
+    names: [string, string];
+    date: string;
+    venue: string;
+    address: string;
+    note: string;
+    place: string;
+    dateNote?: string;
+    dress: { text: string; colors: { label: string; hex: string }[] };
+    events: { title: string; description: string; time: string }[];
+  }
+> = {
+  ivory: {
+    names: ["Amelia", "Theodore"],
+    date: "2026-11-29",
+    venue: "The Olive Garden",
+    address: "Villa 12, Ecopark Riverside, Van Giang, Hung Yen, Hanoi",
+    note: "A garden wedding at The Olive Garden",
+    place: "Hanoi · Vietnam",
+    dress: {
+      text: "We would love you to dress in the colours of the garden — soft olive, warm ivory and quiet gold. Long dresses, linen suits and comfortable shoes for the lawn are all perfect.",
+      colors: [
+        { label: "Ivory", hex: "#E8DFC9" },
+        { label: "Olive", hex: "#9AA07F" },
+        { label: "Gold", hex: "#C3A97C" },
+        { label: "Rose", hex: "#B99C93" },
+        { label: "Sage", hex: "#7E8C7A" },
+      ],
+    },
+    events: [
+      { title: "Welcome", description: "Arrival, welcome drinks and seating in the garden.", time: "10:30" },
+      { title: "The Ceremony", description: "Vows beneath the rose arch, followed by confetti.", time: "11:00" },
+      { title: "Lunch", description: "A long table under the olive trees, with speeches and toasts.", time: "12:30" },
+      { title: "Cake & Portraits", description: "Dessert, coffee and photographs with everyone we love.", time: "15:00" },
+      { title: "Dinner & Dancing", description: "Sunset dinner, live music and the first dance.", time: "18:00" },
+    ],
+  },
+  lakeside: {
+    names: ["Elena", "James"],
+    date: "2027-06-06",
+    venue: "The Olive Terrace",
+    address: "112 Wanaka–Mount Aspiring Road, Glendhu Bay, Wanaka 9305",
+    note: "A lakeside wedding at The Olive Terrace",
+    place: "Lake Wanaka · New Zealand",
+    dress: {
+      text: "Garden formal, in the colours of the lake — dusty blue, soft sage, hydrangea white and warm sand. Long dresses, light suits and shoes that are happy on grass.",
+      colors: [
+        { label: "Mist", hex: "#DCE4EA" },
+        { label: "Hydrangea", hex: "#8FA9C4" },
+        { label: "Lake", hex: "#47657C" },
+        { label: "Sage", hex: "#A9B49B" },
+        { label: "Sand", hex: "#D8C9AC" },
+      ],
+    },
+    events: [
+      { title: "Arrival", description: "Welcome drinks on the lake lawn and seating.", time: "14:30" },
+      { title: "The Ceremony", description: "Vows beneath the pergola, followed by confetti.", time: "15:00" },
+      { title: "Drinks & Canapés", description: "Portraits by the water while the sun is high.", time: "16:00" },
+      { title: "Dinner", description: "A long table in the pavilion, with speeches and toasts.", time: "18:00" },
+      { title: "Dancing", description: "First dance, live band and dessert under the stars.", time: "20:30" },
+    ],
+  },
+  peony: {
+    names: ["Mai", "Anh"],
+    date: "2027-09-12",
+    venue: "The Glasshouse",
+    address: "15 Tran Hung Dao, Ward 3, Da Lat, Lam Dong · Vietnam",
+    note: "A garden wedding at The Glasshouse",
+    place: "Da Lat · Vietnam",
+    dateNote: "The garden opens at 14:30. Please arrive with time to find your seat among the flowers.",
+    dress: {
+      text: "Garden formal, in the colours of a summer bouquet — blush, rose, sage and cream. Long dresses, light suits and shoes that are happy on grass.",
+      colors: [
+        { label: "Blush", hex: "#E8C7C4" },
+        { label: "Rose", hex: "#B76E79" },
+        { label: "Sage", hex: "#9AA88B" },
+        { label: "Cream", hex: "#F3E7D8" },
+        { label: "Gold", hex: "#C4A77B" },
+      ],
+    },
+    events: [
+      { title: "Arrival", description: "Welcome drinks in the garden and time to settle in.", time: "14:30" },
+      { title: "The Ceremony", description: "Vows beneath the roses, followed by a shower of petals.", time: "15:00" },
+      { title: "Garden Portraits", description: "Photographs among the flowers, with tea and canapés.", time: "16:00" },
+      { title: "Dinner", description: "A long table in the glasshouse, with speeches and toasts.", time: "18:00" },
+      { title: "Dancing", description: "The first dance, live music and dessert under the stars.", time: "20:00" },
+    ],
+  },
+  lantern: {
+    names: ["Linh", "Minh"],
+    date: "2027-09-12",
+    venue: "The Lantern Garden",
+    address: "12 Nguyen Trai, Ward 1, Da Lat, Lam Dong · Vietnam",
+    note: "An evening wedding at The Lantern Garden",
+    place: "Da Lat · Vietnam",
+    dateNote: "The lanterns are lit at dusk. Please arrive with time to find your seat among the flowers.",
+    dress: {
+      text: "Evening garden formal, lit by lanterns — deep green, amber, ivory and a touch of gold. Long dresses, dark suits and a light layer for after sunset.",
+      colors: [
+        { label: "Amber", hex: "#D8A45C" },
+        { label: "Forest", hex: "#2F4A3A" },
+        { label: "Ivory", hex: "#EFE5D2" },
+        { label: "Sage", hex: "#9AA88B" },
+        { label: "Gold", hex: "#C4A77B" },
+      ],
+    },
+    events: [
+      { title: "Lanterns & Welcome", description: "Warm drinks and lanterns at dusk in the garden.", time: "16:30" },
+      { title: "The Ceremony", description: "Vows beneath the wreath as the lanterns are lit.", time: "17:30" },
+      { title: "Garden Portraits", description: "Photographs in the last light, with tea and canapés.", time: "18:30" },
+      { title: "Dinner", description: "A long table under the stars, with speeches and toasts.", time: "19:30" },
+      { title: "Dancing", description: "The first dance, live music and dessert by lantern light.", time: "21:00" },
+    ],
+  },
+};
+
+/** Converts Storybook demo events into the shared event row shape. */
+function storybookEvents(slug: StorybookVariant): WeddingEventRow[] {
+  const demo = STORYBOOK_DEMO[slug];
+  return demo.events.map((ev, i) => ({
+    id: `sb-evt-${i + 1}`,
+    wedding_id: "preview",
+    title: ev.title,
+    description: ev.description,
+    location: "",
+    start_time: `${demo.date}T${ev.time}:00`,
+    end_time: `${demo.date}T${ev.time}:00`,
+    icon: "heart",
+    sort_order: i + 1,
+    created_at: new Date().toISOString(),
+  }));
+}
 
 /** Vietnamese weddings have separate receptions at the bride's and groom's family homes. */
 const VIETNAMESE_EVENTS: WeddingEventRow[] = [
@@ -81,29 +217,37 @@ const MOCK_QR = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www
 /** Placeholder wedding data used for the template preview. */
 function buildMockWedding(template: TemplateRow): WeddingRow {
   // Celebration templates demo as a birthday/party so visitors see the right copy.
+  const style = getInvitationStyle(template.slug);
   const type = template.event_types?.[0] ?? "wedding";
   const single = type === "birthday" || type === "party" || type === "social" || type === "baby-shower";
-  const culture = getInvitationStyle(template.slug).culture;
+  const culture = style.culture;
   const demo = culture && !single ? CULTURE_DEMO[culture] : null;
+  const storybook = style.storybook ? STORYBOOK_DEMO[style.storybook] : null;
   return {
     id: "preview",
     user_id: "preview",
     template_id: template.id,
     slug: "preview",
-    partner1_name: demo?.names[0] ?? "Emma",
-    partner2_name: single ? "" : demo?.names[1] ?? "James",
+    partner1_name: storybook?.names[0] ?? demo?.names[0] ?? "Emma",
+    partner2_name: single ? "" : storybook?.names[1] ?? demo?.names[1] ?? "James",
     event_type: type,
-    event_title: type === "birthday" ? "Emma's 30th Birthday" : type === "party" ? "Summer Rooftop Party" : type === "social" ? "An Evening at the Grand Estate" : null,
-    wedding_date: "2027-06-15",
-    venue_name: "The Grand Estate",
-    venue_address: "123 Garden Lane, Countryside",
-    story_text:
-      "We met on a rainy afternoon in a small coffee shop downtown. What started as a conversation over lattes became the greatest adventure of our lives. Three years, countless memories, and one very special question later — here we are, ready to begin our forever surrounded by the people we love most.",
+    event_title: storybook?.note ?? (type === "birthday" ? "Emma's 30th Birthday" : type === "party" ? "Summer Rooftop Party" : type === "social" ? "An Evening at the Grand Estate" : null),
+    wedding_date: storybook?.date ?? "2027-06-15",
+    venue_name: storybook?.venue ?? "The Grand Estate",
+    venue_address: storybook?.address ?? "123 Garden Lane, Countryside",
+    story_text: storybook
+      ? ""
+      : "We met on a rainy afternoon in a small coffee shop downtown. What started as a conversation over lattes became the greatest adventure of our lives. Three years, countless memories, and one very special question later — here we are, ready to begin our forever surrounded by the people we love most.",
     customization: {
       colors: {},
       fonts: {},
-      sections: { timeline: true, gallery: true, guestbook: true },
+      sections: storybook
+        ? { timeline: true, venue: true, rsvp: true, story: false, gallery: false, gift: false, blessings: false, reactions: false, blessingShower: false, music: false, families: false, guestbook: false }
+        : { timeline: true, gallery: true, guestbook: true },
       galleryLayout: "masonry",
+      ...(storybook
+        ? { dressCode: storybook.dress, locationLabel: storybook.place, dateNote: storybook.dateNote }
+        : {}),
       // DEMO ONLY: sample families + clearly fake gift accounts (shown on previews only).
       ...(demo
         ? {
@@ -216,8 +360,9 @@ export default async function TemplatePreviewPage({ params, searchParams }: Page
 
   const mockWedding = buildMockWedding(template);
   const theme = resolveTheme(template.default_config, mockWedding.customization);
-  const culture = getInvitationStyle(template.slug).culture;
-  const demoEvents = culture === "vietnamese" ? VIETNAMESE_EVENTS : MOCK_EVENTS;
+  const style = getInvitationStyle(template.slug);
+  const culture = style.culture;
+  const demoEvents = style.storybook ? storybookEvents(style.storybook) : culture === "vietnamese" ? VIETNAMESE_EVENTS : MOCK_EVENTS;
 
   return (
     <>

@@ -90,7 +90,7 @@ export function buildPalette(theme: ResolvedTheme, templateSlug?: string | null)
     leaf: isDark ? mix("#7a9a74", secondary, 0.25) : "#8aa882",
     displayFont: `'${theme.fonts.display}', 'Playfair Display', serif`,
     bodyFont: `'${style.bodyFont ?? theme.fonts.body}', 'Lato', sans-serif`,
-    scriptFont: `'${SCRIPT_FONT}', cursive`,
+    scriptFont: `'${style.scriptFont ?? SCRIPT_FONT}', cursive`,
     style,
     radius: radii(style.corners),
   };

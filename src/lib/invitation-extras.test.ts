@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { monthGrid, resolveFamilies, resolveGift, safeHttpsUrl } from "./invitation-extras";
+import { monthGrid, resolveDateNote, resolveDressCode, resolveFamilies, resolveGift, resolveLocationLabel, safeHttpsUrl } from "./invitation-extras";
 
 describe("resolveFamilies", () => {
   it("returns null when nothing is filled in", () => {
@@ -44,6 +44,54 @@ describe("resolveGift", () => {
     expect(out!.accounts).toHaveLength(2);
     expect(out!.accounts[0].qrUrl).toBeUndefined();
     expect(out!.accounts[1].qrUrl).toBe("https://x/qr.png");
+  });
+});
+
+describe("resolveDressCode", () => {
+  it("returns null when empty and keeps text-only notes", () => {
+    expect(resolveDressCode(undefined)).toBeNull();
+    expect(resolveDressCode({ text: "  " })).toBeNull();
+    expect(resolveDressCode({ text: " Garden formal " })).toEqual({ text: "Garden formal", colors: [] });
+  });
+
+  it("keeps labelled valid hex swatches and drops the rest", () => {
+    const out = resolveDressCode({
+      colors: [
+        { label: "Sage", hex: "#9AA88B" },
+        { label: "", hex: "#FFFFFF" },
+        { label: "Bad", hex: "green" },
+        { label: "Rose", hex: "#B76E79" },
+      ],
+    });
+    expect(out!.colors).toEqual([
+      { label: "Sage", hex: "#9AA88B" },
+      { label: "Rose", hex: "#B76E79" },
+    ]);
+  });
+
+  it("caps the swatch list and label length", () => {
+    const out = resolveDressCode({
+      colors: Array.from({ length: 8 }, () => ({ label: "x".repeat(40), hex: "#123456" })),
+    });
+    expect(out!.colors).toHaveLength(6);
+    expect(out!.colors[0].label).toHaveLength(24);
+  });
+});
+
+describe("resolveLocationLabel", () => {
+  it("trims, collapses and caps the place line", () => {
+    expect(resolveLocationLabel("  Da   Lat · Vietnam  ")).toBe("Da Lat · Vietnam");
+    expect(resolveLocationLabel("x".repeat(200))).toHaveLength(80);
+    expect(resolveLocationLabel(42)).toBeNull();
+  });
+});
+
+describe("resolveDateNote", () => {
+  it("trims, collapses and caps the practical note", () => {
+    expect(resolveDateNote("  The garden opens at 14:30.  ")).toBe("The garden opens at 14:30.");
+    expect(resolveDateNote("x".repeat(300))).toHaveLength(220);
+    expect(resolveDateNote("   ")).toBeNull();
+    expect(resolveDateNote(12)).toBeNull();
   });
 });
 

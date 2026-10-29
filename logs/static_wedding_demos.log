@@ -1,0 +1,16 @@
+[2026-10-28 15:34:31]
+CONTEXT: Build two standalone static HTML wedding invitation demos visually close to the reference video before integrating them into the React template system.
+RESULT: Added public/demo/atelier-ivory.html and public/demo/lakeside-hydrangea.html with local art assets, credits, responsive layouts and a simulated RSVP. Verified 360/390 mobile and 1440 desktop screenshots, no console errors. Awaiting approval before integration.
+---
+[2026-10-28 16:33:09]
+CONTEXT: User rejected the first demos as too far from the reference video and requested a cinematic storybook redesign with blur-to-focus, staggered reveals and continuous ivory paper.
+RESULT: Rebuilt both demos on shared public/demo/assets/storybook.css + storybook.js, added arch-framed date scenes, hero florals, dark RSVP fields, success state, and responsive QA at 360/390/1440. Tests, typecheck, lint and build pass; awaiting visual approval before React integration.
+---
+[2026-10-28 17:48:20]
+CONTEXT: User approved the two storybook demos and asked for a third floral template with a different creative effect.
+RESULT: Added public/demo/peony-letter.html with standalone peony-letter.css/js: wreath hero, scroll-growing vine, wreath calendar, postcard venue, floral timeline and wax-seal RSVP with petal burst. Verified RSVP success, 360/390/1440 screenshots; tests, typecheck, lint and build pass. Awaiting approval before React integration.
+---
+[2026-10-29 10:57:59]
+CONTEXT: Integrate the approved static storybook demos into the live React invitation system and add a fourth lantern variant, keeping all production RSVP/blessing/music behaviour.
+RESULT: Added atelier-ivory, lakeside-hydrangea, peony-letter and lantern-garden templates with a dedicated StorybookInvitation page, live data wiring, dress-code/date-note/place controls, preview mock data and migration 00024. QA passed at 360/390/1440 with no overflow or console errors; 115 tests, typecheck, lint and build pass.
+---

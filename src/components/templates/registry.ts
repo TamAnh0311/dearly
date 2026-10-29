@@ -47,6 +47,11 @@ const templates: TemplateDefinition[] = [
   { slug: "seigaiha", name: "Seigaiha", load: () => import("./noir").then((m) => m.default) },
   { slug: "seoul-studio", name: "Seoul Studio", load: () => import("./minimal").then((m) => m.default) },
   { slug: "hanbok", name: "Hanbok", load: () => import("./rustic").then((m) => m.default) },
+  // Storybook collection — editorial paper invitations rendered by StorybookInvitation.
+  { slug: "atelier-ivory", name: "Atelier Ivory", load: () => import("./bloom").then((m) => m.default) },
+  { slug: "lakeside-hydrangea", name: "Lakeside Hydrangea", load: () => import("./seaside").then((m) => m.default) },
+  { slug: "peony-letter", name: "Peony Letter", load: () => import("./garden").then((m) => m.default) },
+  { slug: "lantern-garden", name: "Lantern Garden", load: () => import("./celestial").then((m) => m.default) },
 ];
 
 /**

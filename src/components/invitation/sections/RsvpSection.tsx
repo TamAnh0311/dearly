@@ -20,7 +20,7 @@ import type { InvitationCopy } from "../i18n";
 
 type Choice = "attending" | "declined";
 
-interface StoredRsvp {
+export interface StoredRsvp {
   choice: Choice;
   name: string;
 }
@@ -42,10 +42,10 @@ interface RsvpSectionProps {
 }
 
 /** localStorage key remembering this browser's RSVP for a wedding. */
-const storageKey = (weddingId: string) => `dearly-rsvp-${weddingId}`;
+export const storageKey = (weddingId: string) => `dearly-rsvp-${weddingId}`;
 
 /** Reads a previously stored RSVP; tolerates missing/corrupt storage. */
-function readStored(weddingId: string): StoredRsvp | null {
+export function readStored(weddingId: string): StoredRsvp | null {
   try {
     const raw = window.localStorage.getItem(storageKey(weddingId));
     if (!raw) return null;
@@ -57,7 +57,7 @@ function readStored(weddingId: string): StoredRsvp | null {
 }
 
 /** Sends the RSVP to the API (or simulates it in demo mode). */
-async function submitRsvp(
+export async function submitRsvp(
   payload: { weddingId: string; guestName: string; attending: boolean; partySize?: number; message?: string; inviteeToken?: string },
   demo: boolean,
   ui: InvitationCopy

@@ -1,0 +1,4 @@
+[2026-10-29 18:09:54]
+CONTEXT: Port the approved motion-preview animations into the real storybook invitation templates.
+RESULT: Removed butterflies, added bottom-up growing flora, falling petals, scroll-driven branch/garland/wreath/lantern parallax and date reveal motion. Tests (117), typecheck, lint and build pass.
+---

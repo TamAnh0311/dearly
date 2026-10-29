@@ -42,6 +42,7 @@ import type {
 import type { ReactionCounts } from "../sections/Blessings";
 import type { StorybookVariant } from "../styles";
 import "./storybook.css";
+import { FallingPetals, GoldDust } from "../effects/Particles";
 import BlessingShower from "../effects/BlessingShower";
 import MusicPlayer from "@/components/ui/MusicPlayer";
 
@@ -189,6 +190,7 @@ function EditorialHero({
   art,
   familiesText,
   place,
+  palette,
 }: {
   variant: StorybookVariant;
   wedding: WeddingRow;
@@ -199,17 +201,31 @@ function EditorialHero({
   art: NonNullable<ReturnType<typeof getArtCollection>>;
   familiesText: string | null;
   place: string;
+  palette: InvitationPalette;
 }) {
+  const ref = useRef<HTMLElement>(null);
+  const reduce = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const floraY = useTransform(scrollYProgress, [0, 1], [0, -96]);
+  const floraRotate = useTransform(scrollYProgress, [0, 1], [0, 1.6]);
+  const sceneY = useTransform(scrollYProgress, [0, 1], [0, 34]);
   const flora =
     variant === "lakeside"
       ? { l: art.sprays.eucalyptus, r: DEMO_ART.hydrangea }
       : { l: art.sprays.eucalyptus, r: art.sprays.magnolia };
   return (
-    <header className="sb-hero sb-hero-editorial" id="top">
-      <div className="sb-hero-flora" aria-hidden="true">
+    <header ref={ref} className="sb-hero sb-hero-editorial" id="top">
+      <div className="sb-editorial-petals" aria-hidden="true">
+        <FallingPetals
+          colors={variant === "lakeside" ? [palette.leaf, palette.petals[0]] : [palette.petals[0], palette.petals[1], palette.leaf]}
+          count={variant === "lakeside" ? 5 : 6}
+          shape={variant === "lakeside" ? "leaf" : "petal"}
+        />
+      </div>
+      <motion.div className="sb-hero-flora" aria-hidden="true" style={{ y: reduce ? 0 : floraY, rotate: reduce ? 0 : floraRotate }}>
         <Image className="sb-flora-l" src={flora.l.src} alt="" width={flora.l.width} height={flora.l.height} priority />
         <Image className="sb-flora-r" src={flora.r.src} alt="" width={flora.r.width} height={flora.r.height} priority />
-      </div>
+      </motion.div>
       <div className="sb-hero-copy">
         <p className="sb-greeting">{greeting}</p>
         <p className="sb-invite">{inviteLine}</p>
@@ -226,7 +242,7 @@ function EditorialHero({
         <p className="sb-place">{place}</p>
         {familiesText && <p className="sb-hero-families">{familiesText}</p>}
       </div>
-      <div className="sb-hero-scene" aria-hidden="true">
+      <motion.div className="sb-hero-scene" aria-hidden="true" style={{ y: reduce ? 0 : sceneY }}>
         <Image
           src={variant === "lakeside" ? DEMO_ART.pergola : DEMO_ART.chuppah}
           alt=""
@@ -235,7 +251,7 @@ function EditorialHero({
           priority
           className="object-cover"
         />
-      </div>
+      </motion.div>
     </header>
   );
 }
@@ -250,6 +266,7 @@ function WreathHero({
   note,
   art,
   place,
+  palette,
 }: {
   variant: StorybookVariant;
   wedding: WeddingRow;
@@ -259,20 +276,38 @@ function WreathHero({
   note: string;
   art: NonNullable<ReturnType<typeof getArtCollection>>;
   place: string;
+  palette: InvitationPalette;
 }) {
+  const ref = useRef<HTMLElement>(null);
+  const reduce = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const garlandY = useTransform(scrollYProgress, [0, 1], [0, -86]);
+  const garlandRotate = useTransform(scrollYProgress, [0, 1], [0, 1.4]);
+  const wreathY = useTransform(scrollYProgress, [0, 1], [0, -38]);
+  const wreathRotate = useTransform(scrollYProgress, [0, 1], [0, -1.2]);
+  const lanternY = useTransform(scrollYProgress, [0, 1], [0, -28]);
   const petals = [6, 16, 27, 38, 49, 59, 68, 77, 86, 94];
   return (
-    <header className={`sb-hero sb-hero-${variant === "lantern" ? "lantern" : "peony"}`} id="top">
-      <div className="sb-hero-garland" aria-hidden="true">
+    <header ref={ref} className={`sb-hero sb-hero-${variant === "lantern" ? "lantern" : "peony"}`} id="top">
+      {variant === "lantern" && (
+        <div className="sb-hero-life" aria-hidden="true">
+          <GoldDust color={palette.accent} count={24} />
+        </div>
+      )}
+      <motion.div className="sb-hero-garland" aria-hidden="true" style={{ y: reduce ? 0 : garlandY, rotate: reduce ? 0 : garlandRotate }}>
         <Image className="sb-garland-tl" src={art.sprays.cherry.src} alt="" width={art.sprays.cherry.width} height={art.sprays.cherry.height} priority />
         <Image className="sb-garland-tr" src={art.sprays.roses.src} alt="" width={art.sprays.roses.width} height={art.sprays.roses.height} priority />
         <Image className="sb-garland-bl" src={art.sprays.eucalyptus.src} alt="" width={art.sprays.eucalyptus.width} height={art.sprays.eucalyptus.height} priority />
         <Image className="sb-garland-br" src={art.sprays.cherry.src} alt="" width={art.sprays.cherry.width} height={art.sprays.cherry.height} priority />
-      </div>
+      </motion.div>
       <div className="sb-hero-wash" aria-hidden="true">
         <Image src={art.venue.src} alt="" fill sizes="760px" className="object-cover" />
       </div>
-      {variant === "lantern" && <Lanterns />}
+      {variant === "lantern" && (
+        <motion.div className="sb-hero-lanterns" aria-hidden="true" style={{ y: reduce ? 0 : lanternY }}>
+          <Lanterns />
+        </motion.div>
+      )}
       <div className="sb-hero-petals" aria-hidden="true">
         {petals.map((x, i) => (
           <i
@@ -290,8 +325,10 @@ function WreathHero({
           />
         ))}
       </div>
-      <div className="sb-hero-wreath">
-        <Image className="sb-wreath" src={art.sprays.wreath.src} alt="" width={art.sprays.wreath.width} height={art.sprays.wreath.height} priority />
+      <motion.div className="sb-hero-wreath" style={{ y: reduce ? 0 : wreathY }}>
+        <motion.div className="sb-wreath-spin" style={{ rotate: reduce ? 0 : wreathRotate }}>
+          <Image className="sb-wreath" src={art.sprays.wreath.src} alt="" width={art.sprays.wreath.width} height={art.sprays.wreath.height} priority />
+        </motion.div>
         {variant !== "lantern" && (
           <>
             <span className="sb-wf sb-wf-top">
@@ -319,7 +356,7 @@ function WreathHero({
           {wedding.wedding_date && <p className="sb-date-line">{formatDotDate(wedding.wedding_date)}</p>}
           <p className="sb-place">{place}</p>
         </div>
-      </div>
+      </motion.div>
       <p className="sb-hero-note">{note}</p>
       <a className="sb-scroll" href="#sb-date">
         {variant === "lantern" ? "Follow the lanterns" : "Open the invitation"} <i aria-hidden="true" />
@@ -878,9 +915,9 @@ export default function StorybookInvitation({
         <div className="sb-page">
           {variant === "peony" || variant === "lantern" ? <ScrollVine /> : null}
           {variant === "peony" || variant === "lantern" ? (
-            <WreathHero variant={variant} wedding={wedding} names={names} twoNames={twoNames} greeting={greeting} note={note} art={art} place={place} />
+            <WreathHero variant={variant} wedding={wedding} names={names} twoNames={twoNames} greeting={greeting} note={note} art={art} place={place} palette={palette} />
           ) : (
-            <EditorialHero variant={variant} wedding={wedding} names={names} twoNames={twoNames} greeting={greeting} inviteLine={inviteLine} art={art} familiesText={familiesText} place={place} />
+            <EditorialHero variant={variant} wedding={wedding} names={names} twoNames={twoNames} greeting={greeting} inviteLine={inviteLine} art={art} familiesText={familiesText} place={place} palette={palette} />
           )}
 
           <main>

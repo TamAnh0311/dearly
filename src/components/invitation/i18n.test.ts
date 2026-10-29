@@ -33,7 +33,7 @@ describe("invitation i18n", () => {
 
   it("interpolates names and counts", () => {
     const vi = getInvitationCopy("vi");
-    expect(vi.dear("An")).toBe("Kính gửi An");
+    expect(vi.dear("An")).toBe("Thân gửi An");
     expect(vi.blessingShower.count(2)).toBe("2 lời chúc");
     const en = getInvitationCopy("en");
     expect(en.blessings.wishes(1)).toBe("1 heartfelt wish");

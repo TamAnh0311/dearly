@@ -46,8 +46,8 @@ function fileEngine(url: string): Engine {
   return {
     async start() {
       await audio.play();
-      // Slow ramp: ~0.01 every 80 ms → reaches 0.8 in ~6.4 s
-      ramp(0.8, 0.01);
+      // Quick ramp: ~0.04 every 80 ms → reaches 0.8 in ~1.6 s
+      ramp(0.8, 0.04);
     },
     stop() {
       ramp(0, 0.05, () => audio.pause());

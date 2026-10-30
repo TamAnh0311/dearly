@@ -77,6 +77,31 @@ const STORYBOOK_DEMO: Record<
       { title: "Dinner & Dancing", description: "Sunset dinner, live music and the first dance.", time: "18:00" },
     ],
   },
+  "ivory-veil": {
+    names: ["Amelia", "Theodore"],
+    date: "2026-11-29",
+    venue: "The Olive Garden",
+    address: "Villa 12, Ecopark Riverside, Van Giang, Hung Yen, Hanoi",
+    note: "An evening wrapped in flowers",
+    place: "Hanoi · Vietnam",
+    dress: {
+      text: "We would love you to dress in the colours of the garden — soft olive, warm ivory and quiet gold. Long dresses, linen suits and comfortable shoes for the lawn are all perfect.",
+      colors: [
+        { label: "Ivory", hex: "#E8DFC9" },
+        { label: "Olive", hex: "#9AA07F" },
+        { label: "Gold", hex: "#C3A97C" },
+        { label: "Rose", hex: "#B99C93" },
+        { label: "Sage", hex: "#7E8C7A" },
+      ],
+    },
+    events: [
+      { title: "Welcome", description: "Arrival, welcome drinks and seating in the garden.", time: "10:30" },
+      { title: "The Ceremony", description: "Vows beneath the ivory veil, followed by confetti.", time: "11:00" },
+      { title: "Lunch", description: "A long table under the olive trees, with speeches and toasts.", time: "12:30" },
+      { title: "Cake & Portraits", description: "Dessert, coffee and photographs with everyone we love.", time: "15:00" },
+      { title: "Dinner & Dancing", description: "Sunset dinner, live music and the first dance.", time: "18:00" },
+    ],
+  },
   lakeside: {
     names: ["Elena", "James"],
     date: "2027-06-06",

@@ -1,0 +1,24 @@
+[2026-10-29 18:52:00]
+CONTEXT: Create a new template inspired by the ivory drapery and white/green floral reference image, preview locally first.
+RESULT: Added public/demo/ivory-veil.html with layered fabric panels, bottom-up floral growth, falling petals, pollen, sheen and scroll parallax. Preview is at http://localhost:3000/demo/ivory-veil.html; not yet ported into the app registry.
+---
+[2026-10-29 19:12:00]
+CONTEXT: Replace the synthetic Ivory Veil design with the actual reference artwork from capture/door-bg.webp.
+RESULT: Copied the artwork to public/demo/assets/ivory-veil.webp and rebuilt public/demo/ivory-veil.html around it, with a bottom-up reveal, breathing drift, sheen, petals and pollen. Preview: http://localhost:3000/demo/ivory-veil.html
+---
+[2026-10-30 10:42:00]
+CONTEXT: User asked to add flower branches and petals to the Ivory Veil preview.
+RESULT: Added two soft floral branch sprays cropped from capture/door-bg.webp, with bottom-up growth and slow sway, plus a larger continuous petal fall. Preview: http://localhost:3000/demo/ivory-veil.html
+---
+[2026-10-30 11:05:00]
+CONTEXT: User rejected the soft cropped floral blobs and asked for branches like the other template.
+RESULT: Replaced them with crisp transparent watercolour cutouts from /art/watercolour-garden: magnolia branches at the top corners and eucalyptus stems at the base, with bloom-in and float animation. Preview: http://localhost:3000/demo/ivory-veil.html
+---
+[2026-10-30 11:24:00]
+CONTEXT: User asked to anchor the hero floral branches to edges/corners instead of floating midair.
+RESULT: Moved the magnolia branches outward so their cut stems sit outside the top corners, and kept the eucalyptus stems rising from the bottom corners. Preview: http://localhost:3000/demo/ivory-veil.html
+---
+[2026-10-30 11:47:00]
+CONTEXT: User asked for the two lower eucalyptus branches to come out of the corners.
+RESULT: Anchored both lower branches to the bottom-left and bottom-right corners with their cut stems outside the page, angled inward. Preview: http://localhost:3000/demo/ivory-veil.html
+---

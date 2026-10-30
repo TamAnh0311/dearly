@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex" />
+<meta name="theme-color" content="#F6F3EA" />
+<title>Camille &amp; Lucien — 20.06.2027</title>
+<meta name="description" content="Camille and Lucien are getting married beneath the ivory veil. Sunday, 20 June 2027, Da Lat." />
+<script>document.documentElement.classList.add("js");</script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Great+Vibes&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/demo/assets/storybook.css" />
+<style>
+  :root{
+    --paper:#FBFAF6;
+    --paper-2:#FEFDFA;
+    --ink:#303429;
+    --muted:#74796A;
+    --accent:#879478;
+    --accent-deep:#4F5A45;
+    --gold:#B6A57E;
+    --line:rgba(116,121,106,.28);
+    --line-soft:rgba(116,121,106,.14);
+  }
+
+  /* ─── Ivory Veil hero ─────────────────────────────────────────────────── */
+  .veil-hero{
+    position:relative;min-height:100svh;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;overflow:hidden;
+    padding:clamp(4.8rem,10vh,6.4rem) 1.2rem clamp(4.5rem,9vh,6rem);
+    text-align:center;
+  }
+  .veil-hero::before{
+    content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(90% 58% at 50% 17%,rgba(255,255,255,.7),transparent 62%),
+      radial-gradient(78% 54% at 50% 88%,rgba(126,139,107,.06),transparent 76%),
+      linear-gradient(to bottom,transparent 72%,var(--paper) 100%);
+  }
+  .veil-art{
+    position:absolute;left:0;right:0;bottom:1%;z-index:1;width:120%;margin-left:-10%;
+    pointer-events:none;translate:0 var(--py,0px);
+    opacity:0;clip-path:inset(100% 0 0 0);mix-blend-mode:multiply;
+    -webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 9%,#000 94%,transparent 100%);
+    mask-image:linear-gradient(to bottom,transparent 0%,#000 9%,#000 94%,transparent 100%);
+    animation:veilArtIn 2.8s var(--ease) .15s forwards;
+  }
+  .veil-art img{width:100%;height:auto;display:block;animation:veilArtBreathe 14s ease-in-out 3s infinite alternate}
+  .veil-art::after{
+    content:"";position:absolute;inset:8% 4% 12%;pointer-events:none;
+    background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,.45) 48%,transparent 60%);
+    transform:translateX(-120%);
+    animation:veilSheen 11s cubic-bezier(.5,0,.2,1) 3.2s infinite;
+  }
+  .veil-flora{
+    position:absolute;z-index:3;pointer-events:none;opacity:0;filter:blur(7px);
+    animation:floraIn 2.2s var(--ease) 1.35s both;
+  }
+  .veil-flora img{width:100%;height:auto;display:block;animation:floraFloat 11s ease-in-out 3s infinite alternate;transform-origin:50% 50%}
+  .veil-flora--tl{top:-3%;left:-20%;width:50%;rotate:6deg}
+  .veil-flora--tr{top:-3%;right:-20%;width:50%;scale:-1 1;rotate:6deg}
+  .veil-flora--bl{bottom:-8%;left:-10%;width:18%;rotate:14deg;transform-origin:50% 100%}
+  .veil-flora--br{bottom:-8%;right:-10%;width:18%;rotate:-14deg;transform-origin:50% 100%}
+  .veil-pollen{position:absolute;inset:0;z-index:2;pointer-events:none}
+  .veil-pollen i{
+    position:absolute;left:var(--x);top:var(--y);width:3px;height:3px;border-radius:50%;
+    background:var(--gold);box-shadow:0 0 7px rgba(182,165,126,.9);opacity:0;
+    animation:pollen var(--dur) ease-in-out var(--delay) infinite alternate;
+  }
+  .veil-petals{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}
+  .veil-petals i{
+    position:absolute;top:-8%;left:var(--x);width:var(--s);height:calc(var(--s) * .68);
+    border-radius:62% 0 62% 0;background:var(--paper-2);opacity:0;
+    box-shadow:inset 0 0 0 1px rgba(116,121,106,.03),0 1px 2px rgba(80,90,70,.08);
+    animation:veilFall var(--dur) linear var(--delay) infinite;
+  }
+  .veil-petals i:nth-child(3n){background:#DCE3D4}
+  .veil-petals i:nth-child(4n){background:#EFE7D6}
+  .veil-petals i:nth-child(5n){background:#E6EBD9}
+  .veil-petals--front{z-index:5}
+  .veil-petals--front i{
+    opacity:0;filter:none;border-radius:72% 8% 72% 8%;
+    background:linear-gradient(135deg,#FFFEFB 0%,#F3F1E7 55%,#DCE3D0 100%);
+    box-shadow:0 2px 7px rgba(80,90,70,.13),inset 0 0 0 1px rgba(255,255,255,.55);
+  }
+
+  .veil-copy{position:relative;z-index:4;width:min(31rem,90%);margin-top:0;transform:translateY(-9vh)}
+  .veil-copy::before{
+    content:"";position:absolute;inset:-22% -18%;z-index:-1;pointer-events:none;
+    background:radial-gradient(ellipse at center,rgba(251,250,246,.97) 0%,rgba(251,250,246,.74) 48%,transparent 74%);
+    filter:blur(9px);
+  }
+  .veil-copy > *{animation:veilRise .95s var(--ease) both}
+  .veil-copy > *:nth-child(1){animation-delay:1.05s}
+  .veil-copy > *:nth-child(2){animation-delay:1.18s}
+  .veil-copy > *:nth-child(3){animation-delay:1.3s}
+  .veil-copy > *:nth-child(4){animation-delay:1.48s}
+  .veil-copy > *:nth-child(5){animation-delay:1.62s}
+  .veil-eyebrow{font-size:.55rem;letter-spacing:.42em;text-transform:uppercase;color:var(--gold);margin:0 0 1.1rem}
+  .veil-invite{
+    font-family:var(--display);font-style:italic;font-size:clamp(.98rem,2.5vw,1.12rem);
+    color:var(--muted);max-width:23rem;margin:0 auto 1.5rem;line-height:1.7;
+  }
+  .veil-names{
+    font-family:var(--display);font-weight:400;font-size:clamp(2.5rem,8vw,4.15rem);
+    line-height:1.02;letter-spacing:.13em;text-transform:uppercase;margin:0;
+  }
+  .veil-names span{display:block}
+  .veil-names .amp{
+    display:block;font-family:var(--script);font-size:clamp(1.65rem,5vw,2.3rem);
+    color:var(--gold);line-height:1.15;letter-spacing:0;margin:.3rem 0;
+    text-transform:none;
+  }
+  .veil-date{font-family:var(--display);font-size:clamp(.94rem,2.4vw,1.08rem);letter-spacing:.3em;margin:1.55rem 0 .35rem;text-shadow:0 1px 14px rgba(255,255,255,.95),0 0 22px rgba(246,243,234,.9)}
+  .veil-place{font-size:.56rem;letter-spacing:.32em;text-transform:uppercase;color:var(--muted);text-shadow:0 1px 14px rgba(255,255,255,.95),0 0 22px rgba(246,243,234,.9)}
+  .veil-note{font-family:var(--script);font-size:clamp(1.1rem,2.8vw,1.32rem);color:var(--accent-deep);margin-top:1.15rem}
+  .veil-cue{
+    position:absolute;left:50%;bottom:1.6rem;z-index:5;display:inline-flex;flex-direction:column;align-items:center;gap:.4rem;
+    transform:translateX(-50%);text-decoration:none;font-size:.5rem;letter-spacing:.34em;
+    text-transform:uppercase;color:var(--muted);opacity:0;padding:.55rem 1rem;border-radius:999px;
+    background:color-mix(in srgb,var(--paper) 82%,transparent);
+    text-shadow:0 1px 12px rgba(255,255,255,.95);animation:veilCueIn .9s var(--ease) 2s both;
+  }
+  .veil-cue i{width:1px;height:1.9rem;background:linear-gradient(to bottom,var(--gold),transparent);animation:cue 2.6s var(--ease) infinite}
+
+  @keyframes veilArtIn{
+    0%{opacity:0;clip-path:inset(100% 0 0 0);filter:blur(7px)}
+    25%{opacity:1}
+    100%{opacity:1;clip-path:inset(0 0 0 0);filter:none}
+  }
+  @keyframes veilArtBreathe{from{scale:1}to{scale:1.015}}
+  @keyframes veilSheen{0%,62%{transform:translateX(-120%);opacity:0}70%{opacity:.6}88%,100%{transform:translateX(120%);opacity:0}}
+  @keyframes veilFall{
+    0%{transform:translate3d(0,-10vh,0) rotate(0);opacity:0}
+    12%{opacity:.62}
+    88%{opacity:.46}
+    100%{transform:translate3d(48px,112vh,0) rotate(420deg);opacity:0}
+  }
+  @keyframes floraIn{from{opacity:0;filter:blur(8px);translate:0 -12px}to{opacity:1;filter:none;translate:0 0}}
+  @keyframes floraFloat{from{transform:rotate(-.8deg) translateY(0)}to{transform:rotate(.9deg) translateY(6px)}}
+  @keyframes pollen{from{transform:translate3d(0,8px,0);opacity:0}35%{opacity:.7}to{transform:translate3d(10px,-18px,0);opacity:0}}
+  @keyframes veilRise{from{opacity:0;transform:translateY(15px);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}
+  @keyframes veilCueIn{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+
+  @media (max-width:640px){
+    .veil-hero{padding-top:clamp(4.2rem,9vh,5.2rem)}
+    .veil-art{width:165%;margin-left:-32.5%;bottom:0}
+    .veil-flora--tl{width:64%;left:-26%}
+    .veil-flora--tr{width:64%;right:-26%}
+    .veil-flora--bl{width:26%;left:-14%;bottom:-10%}
+    .veil-flora--br{width:26%;right:-14%;bottom:-10%}
+    .veil-copy{margin-top:0;transform:translateY(-3vh);width:min(20rem,84%)}
+    .veil-names{font-size:clamp(2.35rem,12vw,3.1rem)}
+    .veil-note{margin-top:.8rem}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .veil-art,.veil-copy > *,.veil-cue,.veil-petals i,.veil-pollen i{animation:none!important;opacity:1!important;filter:none!important;transform:none!important}
+    .veil-art{clip-path:none!important}
+    .veil-cue{transform:translateX(-50%)!important}
+    .veil-petals,.veil-pollen{display:none}
+    .veil-art img,.veil-flora img{animation:none!important}
+    .veil-flora{animation:none!important;opacity:1!important;filter:none!important;translate:0 0!important}
+  }
+</style>
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+
+<div class="page">
+  <header class="veil-hero" id="top">
+    <div class="veil-art" aria-hidden="true">
+      <img src="/demo/assets/ivory-veil.webp" alt="" />
+    </div>
+
+    <div class="veil-flora veil-flora--tl" aria-hidden="true">
+      <img src="/art/watercolour-garden/magnolia-01.webp" alt="" />
+    </div>
+    <div class="veil-flora veil-flora--tr" aria-hidden="true">
+      <img src="/art/watercolour-garden/magnolia-01.webp" alt="" />
+    </div>
+    <div class="veil-flora veil-flora--bl" aria-hidden="true">
+      <img src="/art/watercolour-garden/eucalyptus-01.webp" alt="" />
+    </div>
+    <div class="veil-flora veil-flora--br" aria-hidden="true">
+      <img src="/art/watercolour-garden/eucalyptus-02.webp" alt="" />
+    </div>
+
+    <div class="veil-pollen" aria-hidden="true">
+      <i style="--x:15%;--y:28%;--dur:7s;--delay:-1s"></i>
+      <i style="--x:26%;--y:56%;--dur:9s;--delay:-4s"></i>
+      <i style="--x:38%;--y:36%;--dur:8s;--delay:-2.5s"></i>
+      <i style="--x:47%;--y:67%;--dur:10s;--delay:-6s"></i>
+      <i style="--x:59%;--y:24%;--dur:7.5s;--delay:-3s"></i>
+      <i style="--x:68%;--y:48%;--dur:9.5s;--delay:-5.5s"></i>
+      <i style="--x:79%;--y:30%;--dur:8.5s;--delay:-1.8s"></i>
+      <i style="--x:88%;--y:62%;--dur:7s;--delay:-4.8s"></i>
+    </div>
+
+    <div class="veil-petals" aria-hidden="true">
+      <i style="--x:7%;--s:7px;--dur:18s;--delay:-3s"></i>
+      <i style="--x:16%;--s:5px;--dur:23s;--delay:-10s"></i>
+      <i style="--x:27%;--s:8px;--dur:20s;--delay:-6s"></i>
+      <i style="--x:37%;--s:4px;--dur:26s;--delay:-14s"></i>
+      <i style="--x:48%;--s:6px;--dur:21s;--delay:-8s"></i>
+      <i style="--x:59%;--s:7px;--dur:24s;--delay:-17s"></i>
+      <i style="--x:69%;--s:4px;--dur:19s;--delay:-4s"></i>
+      <i style="--x:78%;--s:8px;--dur:27s;--delay:-12s"></i>
+      <i style="--x:87%;--s:5px;--dur:22s;--delay:-7s"></i>
+      <i style="--x:94%;--s:6px;--dur:25s;--delay:-15s"></i>
+      <i style="--x:12%;--s:11px;--dur:31s;--delay:-19s"></i>
+      <i style="--x:23%;--s:6px;--dur:28s;--delay:-2s"></i>
+      <i style="--x:33%;--s:9px;--dur:34s;--delay:-24s"></i>
+      <i style="--x:45%;--s:7px;--dur:29s;--delay:-11s"></i>
+      <i style="--x:55%;--s:10px;--dur:36s;--delay:-21s"></i>
+      <i style="--x:66%;--s:6px;--dur:27s;--delay:-5s"></i>
+      <i style="--x:76%;--s:12px;--dur:33s;--delay:-16s"></i>
+      <i style="--x:91%;--s:8px;--dur:30s;--delay:-26s"></i>
+      <i style="--x:9%;--s:13px;--dur:35s;--delay:-8s"></i>
+      <i style="--x:30%;--s:10px;--dur:32s;--delay:-22s"></i>
+      <i style="--x:41%;--s:7px;--dur:37s;--delay:-13s"></i>
+      <i style="--x:62%;--s:9px;--dur:34s;--delay:-29s"></i>
+      <i style="--x:72%;--s:13px;--dur:38s;--delay:-6s"></i>
+      <i style="--x:96%;--s:11px;--dur:31s;--delay:-18s"></i>
+    </div>
+
+    <div class="veil-petals veil-petals--front" aria-hidden="true">
+      <i style="--x:3%;--s:26px;--dur:30s;--delay:-9s"></i>
+      <i style="--x:10%;--s:18px;--dur:26s;--delay:-19s"></i>
+      <i style="--x:88%;--s:24px;--dur:32s;--delay:-4s"></i>
+      <i style="--x:95%;--s:16px;--dur:28s;--delay:-14s"></i>
+      <i style="--x:92%;--s:30px;--dur:36s;--delay:-24s"></i>
+      <i style="--x:6%;--s:20px;--dur:31s;--delay:-2s"></i>
+    </div>
+
+    <div class="veil-copy">
+      <p class="veil-eyebrow">Together with their families</p>
+      <p class="veil-invite">request the pleasure of your company as they say “I do” beneath the ivory veil</p>
+      <h1 class="veil-names">
+        <span>Camille</span>
+        <span class="amp">and</span>
+        <span>Lucien</span>
+      </h1>
+      <p class="veil-date">20 · 06 · 2027</p>
+      <p class="veil-place">The Orangery · Da Lat</p>
+      <p class="veil-note">An evening wrapped in flowers</p>
+    </div>
+
+    <a class="veil-cue" href="#date">Open the invitation <i aria-hidden="true"></i></a>
+  </header>
+
+  <main>
+    <section class="scene" id="date">
+      <div class="scene-bg" aria-hidden="true">
+        <img src="/demo/assets/garden-chuppah.webp" alt="" />
+      </div>
+      <svg class="arch" viewBox="0 0 400 800" preserveAspectRatio="none" aria-hidden="true">
+        <path pathLength="1" d="M14 800 L14 250 C14 90 386 90 386 250 L386 800" />
+        <path pathLength="1" d="M26 800 L26 252 C26 108 374 108 374 252 L374 800" />
+      </svg>
+      <svg class="crest" viewBox="0 0 44 30" fill="none" aria-hidden="true">
+        <path d="M22 1.5 L31 12 L22 28.5 L13 12 Z" stroke="currentColor" />
+        <circle cx="22" cy="13" r="2" fill="currentColor" />
+        <path d="M22 17.5 V24" stroke="currentColor" stroke-linecap="round" />
+      </svg>
+
+      <div class="scene-inner reveal">
+        <p class="kicker">Save the date</p>
+        <h2 class="title">The Day</h2>
+        <p class="month">June 2027</p>
+
+        <div class="strip" aria-label="Wedding week, Sunday 20 June 2027">
+          <div class="strip-day"><span>Wed</span><b>16</b></div>
+          <div class="strip-day"><span>Thu</span><b>17</b></div>
+          <div class="strip-day"><span>Fri</span><b>18</b></div>
+          <div class="strip-day"><span>Sat</span><b>19</b></div>
+          <div class="strip-day mark" aria-label="Wedding day, Sunday 20 June"><span>Sun</span><b>20</b></div>
+          <div class="strip-day"><span>Mon</span><b>21</b></div>
+          <div class="strip-day"><span>Tue</span><b>22</b></div>
+        </div>
+
+        <p class="weekday">Sunday · Ceremony at 16:00</p>
+      </div>
+    </section>
+
+    <section class="section" id="story">
+      <div class="reveal">
+        <p class="kicker">A little of us</p>
+        <h2 class="title">Our Story</h2>
+        <div class="ornament" aria-hidden="true"></div>
+        <p class="lede">
+          We met in a small bookshop in Hanoi, on a rainy afternoon, both reaching
+          for the same worn copy of a garden journal. Years later we are still
+          collecting flowers, quiet mornings and long dinners with the people we love.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="venue">
+      <div class="reveal">
+        <p class="kicker">Where we gather</p>
+        <h2 class="title">The Venue</h2>
+        <div class="ornament" aria-hidden="true"></div>
+
+        <figure class="venue-art">
+          <img src="/art/watercolour-garden/ceremony-aisle.webp" alt="Watercolour painting of an olive grove wedding ceremony beneath a rose arch" loading="lazy" />
+        </figure>
+
+        <h3 class="venue-name">The Orangery</h3>
+        <p class="venue-address">12 Tran Phu, Ward 4<br />Da Lat, Lam Dong · Vietnam</p>
+        <a class="pill" href="https://www.google.com/maps/search/?api=1&amp;query=Da+Lat+Lam+Dong+Vietnam" target="_blank" rel="noopener noreferrer">View map</a>
+      </div>
+    </section>
+
+    <section class="section" id="schedule">
+      <div class="reveal">
+        <p class="kicker">Order of the day</p>
+        <h2 class="title">The Schedule</h2>
+        <div class="ornament" aria-hidden="true"></div>
+
+        <div class="program">
+          <div class="prog-item"><p class="prog-time">15:30</p><h3>Welcome</h3><p>Garden drinks and time to find your place among the flowers.</p></div>
+          <div class="prog-item"><p class="prog-time">16:00</p><h3>The Ceremony</h3><p>Vows beneath the ivory veil, followed by a shower of petals.</p></div>
+          <div class="prog-item"><p class="prog-time">17:00</p><h3>Portraits</h3><p>Photographs in the orangery, with tea and canapés on the lawn.</p></div>
+          <div class="prog-item"><p class="prog-time">19:00</p><h3>Dinner &amp; Dancing</h3><p>A long table, candlelight, speeches and the first dance.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section rsvp" id="rsvp">
+      <img class="rsvp-flora tl" src="/art/watercolour-garden/magnolia-01.webp" alt="" aria-hidden="true" loading="lazy" />
+      <img class="rsvp-flora br" src="/art/watercolour-garden/eucalyptus-02.webp" alt="" aria-hidden="true" loading="lazy" />
+
+      <div class="reveal">
+        <p class="kicker">Kindly reply</p>
+        <h2 class="title">Will You Join Us?</h2>
+        <div class="ornament" aria-hidden="true"></div>
+        <p class="lede">Kindly reply by 1 May 2027 so we can prepare your seat.</p>
+
+        <div class="form-card">
+          <form id="rsvp-form" novalidate>
+            <div class="field">
+              <label id="attend-label">Your reply</label>
+              <div class="choice-grid" role="radiogroup" aria-labelledby="attend-label">
+                <label class="choice"><input type="radio" name="attending" value="yes" checked /><span>Joyfully accepts</span></label>
+                <label class="choice"><input type="radio" name="attending" value="no" /><span>Regretfully declines</span></label>
+              </div>
+            </div>
+            <div class="field">
+              <label for="name">Your name</label>
+              <input id="name" name="name" type="text" placeholder="How should we call you?" autocomplete="name" required />
+            </div>
+            <div class="field">
+              <label for="guests">Number of guests</label>
+              <select id="guests" name="guests">
+                <option value="1">Just me</option>
+                <option value="2">Two of us</option>
+                <option value="3">Three of us</option>
+                <option value="4">Four of us</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="message">A note or blessing (optional)</label>
+              <textarea id="message" name="message" placeholder="Leave a few words for the couple…"></textarea>
+            </div>
+            <button class="submit" type="submit">Send reply</button>
+            <p class="rsvp-note">This is a design preview — no data is sent or stored.</p>
+          </form>
+
+          <div class="rsvp-success" id="rsvp-success" role="status" aria-live="polite">
+            <div class="check" aria-hidden="true">✓</div>
+            <h3>Thank you</h3>
+            <p id="success-copy">Your reply has been noted. We cannot wait to celebrate with you.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="thanks" id="thanks">
+      <div class="thanks-card">
+        <img class="thanks-flora tl" src="/art/watercolour-garden/magnolia-01.webp" alt="" aria-hidden="true" loading="lazy" />
+        <img class="thanks-flora br" src="/art/watercolour-garden/magnolia-01.webp" alt="" aria-hidden="true" loading="lazy" />
+        <p class="thanks-script">With love</p>
+        <h2 class="thanks-title">Thank You</h2>
+        <p class="thanks-text">
+          Your presence is the greatest gift. Thank you for travelling to the
+          garden, for lending us your joy, and for being part of our story.
+        </p>
+        <p class="monogram">C &amp; L</p>
+        <p class="thanks-date">20.06.2027 · Da Lat</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p class="mono">Camille &amp; Lucien</p>
+    <p>20 June 2027 · Da Lat, Vietnam</p>
+    <p>Made with Dearly · Art: UsefulPix botanical cut-outs · BudgetPixel AI watercolour · CC BY 4.0</p>
+  </footer>
+</div>
+
+<script src="/demo/assets/storybook.js"></script>
+<script>
+  (function () {
+    "use strict";
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
+    var art = document.querySelector(".veil-art");
+    if (!art) return;
+    var raf = 0;
+    /** Drifts the artwork upward as the guest scrolls through the hero. */
+    function frame() {
+      art.style.setProperty("--py", (window.scrollY * -0.045).toFixed(1) + "px");
+      raf = 0;
+    }
+    window.addEventListener("scroll", function () {
+      if (!raf) raf = requestAnimationFrame(frame);
+    }, { passive: true });
+  })();
+</script>
+</body>
+</html>

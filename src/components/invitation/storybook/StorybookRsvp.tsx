@@ -58,14 +58,14 @@ export default function StorybookRsvp({
 }: StorybookRsvpProps) {
   const ui = useInvitationCopy();
   const t = ui.rsvp;
-  const editorial = variant === "ivory" || variant === "lakeside";
+  const editorial = variant === "ivory" || variant === "lakeside" || variant === "ivory-veil";
   const maxParty = Math.max(1, invitee?.maxPartySize ?? 10);
   const attendingLabel = ui.lang === "en" ? (editorial ? "Joyfully accepts" : "With joy") : t.attendingSubtitle;
   const declinedLabel = ui.lang === "en" ? (editorial ? "Regretfully declines" : "With regret") : t.declinedSubtitle;
   const lede =
     replyBy && ui.lang === "en"
       ? editorial
-        ? `Kindly reply by ${replyBy} so we can ${variant === "lakeside" ? "save your seat by the lake" : "prepare your seat"}.`
+        ? `Kindly reply by ${replyBy} so we can ${variant === "lakeside" ? "save your seat by the lake" : variant === "ivory-veil" ? "save your seat beneath the ivory veil" : "prepare your seat"}.`
         : `Please reply by ${replyBy} so we can save your seat${variant === "lantern" ? " by lantern light" : " in the garden"}.`
       : replyBy
         ? `Please reply by ${replyBy} so we can save your seat.`

@@ -256,6 +256,125 @@ function EditorialHero({
   );
 }
 
+const VEIL_EUCALYPTUS = {
+  left: { src: "/art/watercolour-garden/eucalyptus-01.webp", width: 827, height: 1400 },
+  right: { src: "/art/watercolour-garden/eucalyptus-02.webp", width: 645, height: 1400 },
+} as const;
+
+const VEIL_PETALS = [
+  [2, 30, 24, -2], [8, 18, 34, -9], [15, 26, 29, 4], [23, 16, 37, 12],
+  [31, 28, 32, -5], [38, 20, 40, 18], [46, 14, 27, 7], [52, 24, 35, -12],
+  [59, 17, 30, 2], [66, 27, 38, 15], [73, 15, 28, -7], [81, 25, 33, 5],
+  [88, 19, 36, 11], [95, 28, 31, -3], [12, 12, 42, 20], [29, 22, 26, -14],
+  [57, 13, 39, 9], [78, 21, 34, -1],
+] as const;
+
+const VEIL_PETALS_FRONT = [
+  [6, 56, 18, 1], [19, 40, 24, 9], [69, 46, 20, 3],
+  [86, 58, 17, 12], [12, 34, 26, 7], [94, 44, 21, -4],
+] as const;
+
+/** Hero for Ivory Veil: a painted garden revealed beneath watercolour branches. */
+function IvoryVeilHero({
+  wedding,
+  names,
+  twoNames,
+  greeting,
+  inviteLine,
+  note,
+  art,
+  familiesText,
+  place,
+}: {
+  wedding: WeddingRow;
+  names: [string, string];
+  twoNames: boolean;
+  greeting: string;
+  inviteLine: string;
+  note: string | null;
+  art: NonNullable<ReturnType<typeof getArtCollection>>;
+  familiesText: string | null;
+  place: string;
+}) {
+  const ref = useRef<HTMLElement>(null);
+  const reduce = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const artY = useTransform(scrollYProgress, [0, 1], [0, -40]);
+  const floraY = useTransform(scrollYProgress, [0, 1], [0, -64]);
+  return (
+    <header ref={ref} className="sb-hero sb-hero-veil" id="top">
+      <motion.div className="sb-veil-art" aria-hidden="true" style={{ y: reduce ? 0 : artY }}>
+        <Image src="/art/ivory-veil/hero.webp" alt="" width={2752} height={1536} priority />
+      </motion.div>
+
+      <div className="sb-veil-petals" aria-hidden="true">
+        {VEIL_PETALS.map(([x, size, duration, delay], i) => (
+          <i
+            key={i}
+            style={{
+              "--x": `${x}%`,
+              "--s": `${size}px`,
+              "--dur": `${duration}s`,
+              "--delay": `${delay}s`,
+            } as CSSProperties}
+          />
+        ))}
+      </div>
+
+      <motion.div className="sb-veil-flora-layer" aria-hidden="true" style={{ y: reduce ? 0 : floraY }}>
+        <div className="sb-veil-flora sb-veil-flora--tl">
+          <Image src={art.sprays.magnolia.src} alt="" width={art.sprays.magnolia.width} height={art.sprays.magnolia.height} priority />
+        </div>
+        <div className="sb-veil-flora sb-veil-flora--tr">
+          <Image src={art.sprays.magnolia.src} alt="" width={art.sprays.magnolia.width} height={art.sprays.magnolia.height} priority />
+        </div>
+        <div className="sb-veil-flora sb-veil-flora--bl">
+          <Image src={VEIL_EUCALYPTUS.left.src} alt="" width={VEIL_EUCALYPTUS.left.width} height={VEIL_EUCALYPTUS.left.height} priority />
+        </div>
+        <div className="sb-veil-flora sb-veil-flora--br">
+          <Image src={VEIL_EUCALYPTUS.right.src} alt="" width={VEIL_EUCALYPTUS.right.width} height={VEIL_EUCALYPTUS.right.height} priority />
+        </div>
+      </motion.div>
+
+      <div className="sb-veil-petals sb-veil-petals--front" aria-hidden="true">
+        {VEIL_PETALS_FRONT.map(([x, size, duration, delay], i) => (
+          <i
+            key={i}
+            style={{
+              "--x": `${x}%`,
+              "--s": `${size}px`,
+              "--dur": `${duration}s`,
+              "--delay": `${delay}s`,
+            } as CSSProperties}
+          />
+        ))}
+      </div>
+
+      <div className="sb-hero-copy sb-veil-copy">
+        <p className="sb-greeting">{greeting}</p>
+        <p className="sb-invite">{inviteLine}</p>
+        <h1 className="sb-names">
+          <span>{names[0]}</span>
+          {twoNames && (
+            <>
+              <span className="sb-amp">and</span>
+              <span>{names[1]}</span>
+            </>
+          )}
+        </h1>
+        {wedding.wedding_date && <p className="sb-date-line">{formatDotDate(wedding.wedding_date)}</p>}
+        <p className="sb-place">{place}</p>
+        {familiesText && <p className="sb-hero-families">{familiesText}</p>}
+        {note && <p className="sb-veil-note">{note}</p>}
+      </div>
+
+      <a className="sb-scroll sb-veil-cue" href="#sb-date">
+        Open the invitation <i aria-hidden="true" />
+      </a>
+    </header>
+  );
+}
+
 /** Wreath hero for Peony Letter and Lantern Garden. */
 function WreathHero({
   variant,
@@ -372,12 +491,14 @@ function SceneDate({
   ui,
   ceremony,
   note,
+  variant,
 }: {
   date: string;
   wedding: WeddingRow;
   ui: InvitationCopy;
   ceremony?: WeddingEventRow;
   note?: string | null;
+  variant?: StorybookVariant;
 }) {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: "-100px" });
@@ -387,7 +508,7 @@ function SceneDate({
   return (
     <section ref={ref} className={`sb-scene ${inView ? "in" : ""}`} id="sb-date">
       <div className="sb-scene-bg" aria-hidden="true">
-        <Image src={DEMO_ART.pergola} alt="" fill sizes="760px" className="object-cover" />
+        <Image src={variant === "ivory-veil" ? DEMO_ART.chuppah : DEMO_ART.pergola} alt="" fill sizes="760px" className="object-cover" />
       </div>
       <svg className="sb-arch" viewBox="0 0 400 800" preserveAspectRatio="none" aria-hidden="true">
         <path pathLength={1} d="M14 800 L14 250 C14 90 386 90 386 250 L386 800" />
@@ -401,7 +522,7 @@ function SceneDate({
       <div className="sb-scene-inner">
         <Reveal>
           <p className="sb-kicker">Save the date</p>
-          <h2 className="sb-title">The Time</h2>
+          <h2 className="sb-title">{variant === "ivory-veil" ? "The Day" : "The Time"}</h2>
           <p className="sb-month">{d.toLocaleDateString(ui.dateLocale, { month: "long", year: "numeric" })}</p>
           <div className="sb-strip" aria-label={`Wedding week, ${d.toLocaleDateString(ui.dateLocale, { weekday: "long", day: "numeric", month: "long" })}`}>
             {strip.map((day) => (
@@ -485,14 +606,16 @@ function WreathDate({
 }
 
 /** Our Story as a pressed-paper letter. */
-function StorySection({ text, title, art }: { text: string; title: string; art: NonNullable<ReturnType<typeof getArtCollection>> }) {
+function StorySection({ text, title, art, variant }: { text: string; title: string; art: NonNullable<ReturnType<typeof getArtCollection>>; variant?: StorybookVariant }) {
   const paragraphs = text.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
   return (
     <section className="sb-section sb-story" id="story">
       <Reveal>
         <Head kicker="How it began" title={title} />
         <div className="sb-story-card">
-          <Image className="sb-story-spray" src={art.sprays.roses.src} alt="" width={art.sprays.roses.width} height={art.sprays.roses.height} aria-hidden />
+          {variant !== "ivory-veil" && (
+            <Image className="sb-story-spray" src={art.sprays.roses.src} alt="" width={art.sprays.roses.width} height={art.sprays.roses.height} aria-hidden />
+          )}
           {paragraphs.map((p, i) => (
             <p key={i}>{p}</p>
           ))}
@@ -756,13 +879,13 @@ function GiftSection({ accounts, note, palette }: { accounts: GiftAccount[]; not
 }
 
 /** Closing thanks card. */
-function ThanksSection({ names, date, venue, art }: { names: [string, string]; date: string | null; venue: string | null; art: NonNullable<ReturnType<typeof getArtCollection>> }) {
+function ThanksSection({ names, date, venue, art, variant }: { names: [string, string]; date: string | null; venue: string | null; art: NonNullable<ReturnType<typeof getArtCollection>>; variant?: StorybookVariant }) {
   return (
     <section className="sb-thanks" id="thanks">
       <div className="sb-thanks-card">
         <Image className="sb-thanks-wreath" src={art.sprays.wreath.src} alt="" width={art.sprays.wreath.width} height={art.sprays.wreath.height} aria-hidden />
-        <Image className="sb-thanks-flora sb-tl" src={art.sprays.cherry.src} alt="" width={art.sprays.cherry.width} height={art.sprays.cherry.height} aria-hidden />
-        <Image className="sb-thanks-flora sb-br" src={art.sprays.cherry.src} alt="" width={art.sprays.cherry.width} height={art.sprays.cherry.height} aria-hidden />
+        <Image className="sb-thanks-flora sb-tl" src={variant === "ivory-veil" ? art.sprays.magnolia.src : art.sprays.cherry.src} alt="" width={variant === "ivory-veil" ? art.sprays.magnolia.width : art.sprays.cherry.width} height={variant === "ivory-veil" ? art.sprays.magnolia.height : art.sprays.cherry.height} aria-hidden />
+        <Image className="sb-thanks-flora sb-br" src={variant === "ivory-veil" ? art.sprays.magnolia.src : art.sprays.cherry.src} alt="" width={variant === "ivory-veil" ? art.sprays.magnolia.width : art.sprays.cherry.width} height={variant === "ivory-veil" ? art.sprays.magnolia.height : art.sprays.cherry.height} aria-hidden />
         <p className="sb-thanks-script">With love</p>
         <h2 className="sb-thanks-title">Thank You</h2>
         <p className="sb-thanks-text">For the miles travelled, the hands held and the joy you bring into our lives — thank you for being part of our story.</p>
@@ -872,13 +995,16 @@ export default function StorybookInvitation({
   const dateUi = { ...ui, dateLocale };
   const greeting = invitee
     ? ui.dear(invitee.name)
-    : variant === "peony" || variant === "lantern"
-      ? "With our families"
-      : copy.eyebrow;
+    : variant === "ivory-veil"
+      ? "Together with their families"
+      : variant === "peony" || variant === "lantern"
+        ? "With our families"
+        : copy.eyebrow;
   const inviteLine =
     eventType === "wedding"
-      ? `request the pleasure of your company as we say “I do” ${variant === "lakeside" ? "by the lake" : "in the garden"}`
+      ? `request the pleasure of your company as we say “I do” ${variant === "lakeside" ? "by the lake" : variant === "ivory-veil" ? "beneath the ivory veil" : "in the garden"}`
       : copy.tagline(hostNames(wedding));
+  const veilNote = wedding.event_title || (eventType === "wedding" ? "An evening wrapped in flowers" : null);
 
   /** Adds a blessing and scrolls the guest to the wall. */
   function handleBlessing(entry: GuestbookEntryRow) {
@@ -916,6 +1042,8 @@ export default function StorybookInvitation({
           {variant === "peony" || variant === "lantern" ? <ScrollVine /> : null}
           {variant === "peony" || variant === "lantern" ? (
             <WreathHero variant={variant} wedding={wedding} names={names} twoNames={twoNames} greeting={greeting} note={note} art={art} place={place} palette={palette} />
+          ) : variant === "ivory-veil" ? (
+            <IvoryVeilHero wedding={wedding} names={names} twoNames={twoNames} greeting={greeting} inviteLine={inviteLine} note={veilNote} art={art} familiesText={familiesText} place={place} />
           ) : (
             <EditorialHero variant={variant} wedding={wedding} names={names} twoNames={twoNames} greeting={greeting} inviteLine={inviteLine} art={art} familiesText={familiesText} place={place} palette={palette} />
           )}
@@ -925,9 +1053,9 @@ export default function StorybookInvitation({
               (variant === "peony" || variant === "lantern" ? (
                 <WreathDate date={wedding.wedding_date} wedding={wedding} ui={dateUi} art={art} ceremony={ceremony} note={dateNote} />
               ) : (
-                <SceneDate date={wedding.wedding_date} wedding={wedding} ui={dateUi} ceremony={ceremony} note={dateNote} />
+                <SceneDate date={wedding.wedding_date} wedding={wedding} ui={dateUi} ceremony={ceremony} note={dateNote} variant={variant} />
               ))}
-            {showStory && <StorySection text={wedding.story_text!} title={copy.storyTitle} art={art} />}
+            {showStory && <StorySection text={wedding.story_text!} title={copy.storyTitle} art={art} variant={variant} />}
             {showSchedule && <ScheduleSection events={events} wedding={wedding} ui={dateUi} variant={variant} />}
             {showVenue && <VenueSection name={wedding.venue_name!} address={wedding.venue_address} date={wedding.wedding_date} art={art} variant={variant} />}
             {dress && <DressSection text={dress.text} colors={dress.colors} art={art} variant={variant} />}
@@ -960,7 +1088,7 @@ export default function StorybookInvitation({
                 palette={palette}
               />
             )}
-            <ThanksSection names={names} date={wedding.wedding_date} venue={wedding.venue_name} art={art} />
+            <ThanksSection names={names} date={wedding.wedding_date} venue={wedding.venue_name} art={art} variant={variant} />
           </main>
 
           <FooterSection

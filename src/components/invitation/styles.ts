@@ -39,7 +39,7 @@ export type Culture = "chinese" | "japanese" | "korean" | "vietnamese";
 export type Corners = "rounded" | "sharp" | "arch" | "pill";
 export type Texture = "none" | "paper" | "grain";
 /** Storybook layout family — shared editorial paper/hero design with per-variant art. */
-export type StorybookVariant = "ivory" | "lakeside" | "peony" | "lantern";
+export type StorybookVariant = "ivory" | "lakeside" | "peony" | "lantern" | "ivory-veil";
 
 export interface InvitationStyle {
   hero: HeroLayout;
@@ -133,6 +133,7 @@ const STYLES: Record<string, Partial<InvitationStyle>> = {
   hanbok: { music: "acoustic", hero: "bojagi", culture: "korean", ambient: ["petals", "bokeh"], ornament: "cloud", corners: "rounded", texture: "paper", headingCase: "normal", flowers: false, calendar: true },
   // ── Storybook collection ──
   "atelier-ivory": { music: "romantic", hero: "storybook", storybook: "ivory", art: "watercolour-garden", bodyFont: "Jost", ambient: ["petals", "butterflies", "bokeh"], ornament: "floral", texture: "grain", eyebrow: "caps", headingCase: "upper", flowers: false },
+  "ivory-veil": { music: "romantic", hero: "storybook", storybook: "ivory-veil", art: "watercolour-garden", bodyFont: "Jost", ambient: ["petals", "bokeh"], ornament: "floral", texture: "grain", eyebrow: "caps", headingCase: "upper", flowers: false },
   "lakeside-hydrangea": { music: "acoustic", hero: "storybook", storybook: "lakeside", art: "watercolour-garden", bodyFont: "Jost", ambient: ["petals", "bokeh"], ornament: "floral", texture: "grain", eyebrow: "caps", headingCase: "upper", flowers: false },
   "peony-letter": { music: "romantic", hero: "storybook", storybook: "peony", art: "watercolour-garden", bodyFont: "Jost", scriptFont: "Petit Formal Script", ambient: ["petals", "butterflies"], ornament: "floral", texture: "grain", eyebrow: "caps", headingCase: "upper", flowers: false, calendar: true },
   "lantern-garden": { music: "ambient", hero: "storybook", storybook: "lantern", art: "watercolour-garden", bodyFont: "Jost", scriptFont: "Petit Formal Script", ambient: ["lanterns", "gold-dust"], ornament: "floral", texture: "grain", eyebrow: "caps", headingCase: "upper", flowers: false, calendar: true },

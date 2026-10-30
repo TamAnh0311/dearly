@@ -111,6 +111,7 @@ describe("design styles", () => {
 
   it("maps the Storybook collection to its paper variants", () => {
     expect(getInvitationStyle("atelier-ivory")).toMatchObject({ hero: "storybook", storybook: "ivory" });
+    expect(getInvitationStyle("ivory-veil")).toMatchObject({ hero: "storybook", storybook: "ivory-veil" });
     expect(getInvitationStyle("lakeside-hydrangea")).toMatchObject({ hero: "storybook", storybook: "lakeside" });
     expect(getInvitationStyle("peony-letter")).toMatchObject({ hero: "storybook", storybook: "peony", calendar: true });
     expect(getInvitationStyle("lantern-garden")).toMatchObject({ hero: "storybook", storybook: "lantern", calendar: true });

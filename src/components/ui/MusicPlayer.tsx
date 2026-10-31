@@ -9,7 +9,7 @@
  * No visible UI — music is ambient atmosphere, not a feature guests toggle.
  */
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createAmbientMusic, type AmbientMusic, type MusicPreset } from "@/lib/ambient-music";
 
 interface MusicPlayerProps {
@@ -61,9 +61,10 @@ function generativeEngine(preset: MusicPreset): Engine {
   return { start: () => m.start(), stop: () => m.stop() };
 }
 
-export default function MusicPlayer({ musicUrl, preset }: MusicPlayerProps) {
+export default function MusicPlayer({ musicUrl, preset, visible = false }: MusicPlayerProps & { visible?: boolean }) {
   const engineRef = useRef<Engine | null>(null);
   const startedRef = useRef(false);
+  const [playing, setPlaying] = useState(false);
   const available = Boolean(musicUrl || preset);
 
   /** Starts playback, falling back from file to generative music on failure. */
@@ -73,18 +74,28 @@ export default function MusicPlayer({ musicUrl, preset }: MusicPlayerProps) {
       if (!engineRef.current) engineRef.current = musicUrl ? fileEngine(musicUrl) : generativeEngine(preset ?? "piano");
       await engineRef.current.start();
       startedRef.current = true;
+      setPlaying(true);
     } catch {
       if (musicUrl && preset !== null) {
         engineRef.current = generativeEngine(preset ?? "piano");
         try {
           await engineRef.current.start();
           startedRef.current = true;
+          setPlaying(true);
         } catch {
           /* browser blocked all audio — give up silently */
         }
       }
     }
   }, [musicUrl, preset]);
+
+  /** Stops playback. */
+  const stop = useCallback(() => {
+    engineRef.current?.stop();
+    startedRef.current = false;
+    engineRef.current = null;
+    setPlaying(false);
+  }, []);
 
   // Try autoplay on mount; if blocked, start on first user gesture.
   useEffect(() => {
@@ -113,6 +124,18 @@ export default function MusicPlayer({ musicUrl, preset }: MusicPlayerProps) {
   // Stop music when unmounting.
   useEffect(() => () => engineRef.current?.stop(), []);
 
-  // No visible UI — music is purely ambient.
-  return null;
+  if (!visible) return null;
+
+  return (
+    <button
+      type="button"
+      onClick={(e) => { e.stopPropagation(); if (playing) stop(); else void play(); }}
+      aria-label={playing ? "Tắt nhạc" : "Bật nhạc"}
+      className={`sb-music-btn ${playing ? "sb-music-playing" : ""}`}
+    >
+      <span className="sb-music-bars">
+        <span /><span /><span /><span />
+      </span>
+    </button>
+  );
 }

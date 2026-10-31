@@ -9,7 +9,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useCallback, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { motion, useInView, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { Check, Copy, MapPin, Navigation, QrCode } from "lucide-react";
 import type { CinematicInvitationProps } from "../CinematicInvitation";
@@ -526,8 +526,8 @@ function SceneDate({
       </svg>
       <div className="sb-scene-inner">
         <Reveal>
-          <p className="sb-kicker">Save the date</p>
-          <h2 className="sb-title">{variant === "ivory-veil" ? "The Day" : "The Time"}</h2>
+          <p className="sb-kicker">{ui.lang === "vi" ? "Ngày trọng đại" : "Save the date"}</p>
+          <h2 className="sb-title">{ui.lang === "vi" ? "Ngày Cưới" : variant === "ivory-veil" ? "The Day" : "The Time"}</h2>
           <p className="sb-month">{d.toLocaleDateString(ui.dateLocale, { month: "long", year: "numeric" })}</p>
           <div className="sb-strip" aria-label={`Wedding week, ${d.toLocaleDateString(ui.dateLocale, { weekday: "long", day: "numeric", month: "long" })}`}>
             {strip.map((day) => (
@@ -539,7 +539,7 @@ function SceneDate({
           </div>
           <p className="sb-weekday">
             {d.toLocaleDateString(ui.dateLocale, { weekday: "long" })}
-            {time ? ` · Ceremony at ${time}` : ""}
+            {time ? (ui.lang === "vi" ? ` · Lễ thành hôn lúc ${time}` : ` · Ceremony at ${time}`) : ""}
           </p>
           {note && <p className="sb-date-note">{note}</p>}
           <a className="sb-pill" href={calendarUrl(hostNames(wedding), date, [wedding.venue_name, wedding.venue_address].filter(Boolean).join(", "))} target="_blank" rel="noopener noreferrer">
@@ -611,12 +611,12 @@ function WreathDate({
 }
 
 /** Our Story as a pressed-paper letter. */
-function StorySection({ text, title, art, variant }: { text: string; title: string; art: NonNullable<ReturnType<typeof getArtCollection>>; variant?: StorybookVariant }) {
+function StorySection({ text, title, kicker = "How it began", art, variant }: { text: string; title: string; kicker?: string; art: NonNullable<ReturnType<typeof getArtCollection>>; variant?: StorybookVariant }) {
   const paragraphs = text.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
   return (
     <section className="sb-section sb-story" id="story">
       <Reveal>
-        <Head kicker="How it began" title={title} />
+        <Head kicker={kicker} title={title} />
         <div className="sb-story-card">
           {variant !== "ivory-veil" && (
             <Image className="sb-story-spray" src={art.sprays.roses.src} alt="" width={art.sprays.roses.width} height={art.sprays.roses.height} aria-hidden />
@@ -635,7 +635,7 @@ function ScheduleSection({ events, wedding, ui, variant }: { events: WeddingEven
   return (
     <section className="sb-section sb-schedule" id="schedule">
       <Reveal>
-        <Head kicker="Order of the day" title="The Schedule" />
+        <Head kicker={ui.lang === "vi" ? "Lịch trình hôn lễ" : "Order of the day"} title={ui.lang === "vi" ? "Chương Trình" : "The Schedule"} />
         {variant === "peony" || variant === "lantern" ? (
           <div className="sb-timeline">
             {events.map((ev) => (
@@ -674,12 +674,14 @@ function VenueSection({
   date,
   art,
   variant,
+  lang = "en",
 }: {
   name: string;
   address?: string | null;
   date: string | null;
   art: NonNullable<ReturnType<typeof getArtCollection>>;
   variant: StorybookVariant;
+  lang?: string;
 }) {
   const directions = mapsUrl([name, address].filter(Boolean).join(", "));
   const parts = (address ?? "").split(",").map((p) => p.trim()).filter(Boolean);
@@ -690,7 +692,7 @@ function VenueSection({
     return (
       <section className="sb-section sb-venue" id="venue">
         <Reveal>
-          <Head kicker="Where we gather" title="The Venue" />
+          <Head kicker={lang === "vi" ? "Tổ chức tại" : "Where we gather"} title={lang === "vi" ? "Nhà Hàng Tiệc Cưới" : "The Venue"} />
           <figure className="sb-postcard">
             <span className="sb-stamp" aria-hidden="true">
               {stamp}
@@ -716,7 +718,7 @@ function VenueSection({
             </p>
           )}
           <a className="sb-pill" href={directions} target="_blank" rel="noopener noreferrer">
-            <Navigation size={12} aria-hidden /> View map
+            <Navigation size={12} aria-hidden /> {lang === "vi" ? "Chỉ đường" : "View map"}
           </a>
         </Reveal>
       </section>
@@ -725,7 +727,7 @@ function VenueSection({
   return (
     <section className="sb-section sb-venue" id="venue">
       <Reveal>
-        <Head kicker="Where we gather" title="The Venue" />
+        <Head kicker={lang === "vi" ? "Tổ chức tại" : "Where we gather"} title={lang === "vi" ? "Nhà Hàng Tiệc Cưới" : "The Venue"} />
         <figure className="sb-venue-art">
           <Image src={DEMO_ART.aisle} alt="" fill sizes="(max-width: 760px) 100vw, 760px" className="object-cover" />
         </figure>
@@ -741,7 +743,7 @@ function VenueSection({
           </p>
         )}
         <a className="sb-pill" href={directions} target="_blank" rel="noopener noreferrer">
-          <MacPin /> View map
+          <MacPin /> {lang === "vi" ? "Chỉ đường" : "View map"}
         </a>
       </Reveal>
     </section>
@@ -958,6 +960,17 @@ function FooterSection({
   );
 }
 
+/** Floating VI/EN language toggle for ivory-veil. */
+function LangToggle({ lang, onToggle }: { lang: string; onToggle: () => void }) {
+  return (
+    <button type="button" className="sb-lang-btn" onClick={onToggle}>
+      <span className={lang === "vi" ? "sb-lang-active" : ""}>VI</span>
+      <span className="sb-lang-sep">|</span>
+      <span className={lang === "en" ? "sb-lang-active" : ""}>EN</span>
+    </button>
+  );
+}
+
 export default function StorybookInvitation({
   wedding,
   events,
@@ -972,7 +985,11 @@ export default function StorybookInvitation({
   palette,
 }: StorybookProps) {
   const variant = palette.style.storybook ?? "ivory";
-  const ui = getInvitationCopy(wedding.customization?.language ?? "en");
+  const baseLang = wedding.customization?.language ?? "en";
+  const [langOverride, setLangOverride] = useState<string | null>(null);
+  const activeLang = langOverride ?? baseLang;
+  const toggleLang = useCallback(() => setLangOverride((prev) => (prev ?? baseLang) === "vi" ? "en" : "vi"), [baseLang]);
+  const ui = getInvitationCopy(activeLang as "en" | "vi");
   const eventType = eventTypeOf(wedding);
   const copy = getEventCopy(eventType, ui.lang);
   const names: [string, string] = [wedding.partner1_name, wedding.partner2_name];
@@ -1065,9 +1082,9 @@ export default function StorybookInvitation({
               ) : (
                 <SceneDate date={wedding.wedding_date} wedding={wedding} ui={dateUi} ceremony={ceremony} note={dateNote} variant={variant} />
               ))}
-            {showStory && <StorySection text={wedding.story_text!} title={copy.storyTitle} art={art} variant={variant} />}
+            {showStory && <StorySection text={wedding.story_text!} title={copy.storyTitle} kicker={ui.story.eyebrow} art={art} variant={variant} />}
             {showSchedule && <ScheduleSection events={events} wedding={wedding} ui={dateUi} variant={variant} />}
-            {showVenue && <VenueSection name={wedding.venue_name!} address={wedding.venue_address} date={wedding.wedding_date} art={art} variant={variant} />}
+            {showVenue && <VenueSection name={wedding.venue_name!} address={wedding.venue_address} date={wedding.wedding_date} art={art} variant={variant} lang={ui.lang} />}
             {dress && <DressSection text={dress.text} colors={dress.colors} art={art} variant={variant} />}
             {showMoments && <MomentsSection photos={photos} slug={wedding.slug} guestUploads={guestUploads} demo={demo} ui={ui} />}
             {gift && <GiftSection accounts={gift.accounts} note={gift.note} palette={palette} />}
@@ -1115,7 +1132,8 @@ export default function StorybookInvitation({
         {show.blessingShower && (
           <BlessingShower blessings={blessings} palette={palette} latestId={highlightId} mode={resolveBlessingStyle(wedding.customization?.blessingStyle)} />
         )}
-        {show.music && <MusicPlayer musicUrl={music?.url} preset={music?.preset ?? palette.style.music} theme={theme} />}
+        {show.music && <MusicPlayer musicUrl={music?.url} preset={music?.preset ?? palette.style.music} theme={theme} visible={variant === "ivory-veil"} />}
+        {variant === "ivory-veil" && <LangToggle lang={activeLang} onToggle={toggleLang} />}
       </div>
     </EventContext.Provider>
   );

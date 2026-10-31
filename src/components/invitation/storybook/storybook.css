@@ -972,4 +972,48 @@
   .sb-timeline::before { transform: none; transition: none; }
   .sb-postcard { transform: none; transition: none; }
   .sb-scene-bg img { filter: none; transform: none; transition: none; }
+  .sb-music-btn .sb-music-bars span { animation: none !important; }
 }
+
+/* ─── Floating music + lang buttons ───────────────────────────────────────── */
+.sb-music-btn {
+  position: fixed; bottom: 1.2rem; right: 1.2rem; z-index: 70;
+  width: 2.8rem; height: 2.8rem; border-radius: 50%;
+  border: 1px solid var(--sb-line-soft);
+  background: color-mix(in srgb, var(--sb-paper) 90%, transparent);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  display: grid; place-items: center; cursor: pointer;
+  box-shadow: 0 6px 20px -8px rgba(62, 58, 47, 0.35);
+  transition: transform 0.3s var(--sb-ease), background 0.3s var(--sb-ease);
+}
+.sb-music-btn:hover { transform: scale(1.08); }
+.sb-music-btn:active { transform: scale(0.95); }
+.sb-music-playing { background: var(--sb-accent-deep); border-color: var(--sb-accent-deep); }
+.sb-music-bars { display: flex; align-items: flex-end; gap: 2px; height: 12px; color: var(--sb-accent-deep); }
+.sb-music-playing .sb-music-bars { color: var(--sb-paper); }
+.sb-music-bars span {
+  width: 2px; background: currentColor; border-radius: 1px; height: 4px;
+}
+.sb-music-playing .sb-music-bars span { animation: sbBarBounce 0.8s ease-in-out infinite alternate; }
+.sb-music-playing .sb-music-bars span:nth-child(1) { height: 4px; animation-delay: 0s; }
+.sb-music-playing .sb-music-bars span:nth-child(2) { height: 8px; animation-delay: 0.15s; }
+.sb-music-playing .sb-music-bars span:nth-child(3) { height: 6px; animation-delay: 0.3s; }
+.sb-music-playing .sb-music-bars span:nth-child(4) { height: 10px; animation-delay: 0.1s; }
+@keyframes sbBarBounce { 0% { height: 3px; } 100% { height: 12px; } }
+
+.sb-lang-btn {
+  position: fixed; bottom: 1.2rem; right: 4.6rem; z-index: 70;
+  height: 2.8rem; padding: 0 0.9rem; border-radius: 999px;
+  border: 1px solid var(--sb-line-soft);
+  background: color-mix(in srgb, var(--sb-paper) 90%, transparent);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  display: flex; align-items: center; gap: 0.35rem; cursor: pointer;
+  box-shadow: 0 6px 20px -8px rgba(62, 58, 47, 0.35);
+  font-family: var(--sb-body); font-size: 0.52rem; font-weight: 400;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--sb-accent-deep);
+  transition: transform 0.3s var(--sb-ease);
+}
+.sb-lang-btn:hover { transform: scale(1.05); }
+.sb-lang-btn:active { transform: scale(0.95); }
+.sb-lang-active { font-weight: 600; color: var(--sb-ink); }
+.sb-lang-sep { color: var(--sb-line); margin: 0 0.1rem; }

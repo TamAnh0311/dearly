@@ -243,22 +243,24 @@ export default function StorybookRsvp({
                   </div>
                 </div>
 
-                <div className="sb-field">
-                  <label htmlFor="sb-name">Your name</label>
-                  <input
-                    id="sb-name"
-                    className="sb-input"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    maxLength={100}
-                    autoComplete="name"
-                    placeholder="How should we call you?"
-                    aria-invalid={!!error && !name.trim()}
-                    required
-                  />
-                </div>
+                {!(variant === "ivory-veil" && invitee) && (
+                  <div className="sb-field">
+                    <label htmlFor="sb-name">Your name</label>
+                    <input
+                      id="sb-name"
+                      className="sb-input"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      maxLength={100}
+                      autoComplete="name"
+                      placeholder="How should we call you?"
+                      aria-invalid={!!error && !name.trim()}
+                      required
+                    />
+                  </div>
+                )}
 
-                {attending && (
+                {attending && !(variant === "ivory-veil" && invitee) && (
                   <div className="sb-field">
                     <label htmlFor="sb-guests">Number of guests</label>
                     <select

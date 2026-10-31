@@ -380,6 +380,72 @@ function IvoryVeilHero({
   );
 }
 
+/** Wreath monogram section for Ivory Veil — greenery wreath with couple initials. */
+function VeilWreathSection({ names, art, lang }: { names: [string, string]; art: NonNullable<ReturnType<typeof getArtCollection>>; lang: string }) {
+  return (
+    <section className="sb-veil-wreath-section">
+      <Reveal>
+        <div className="sb-veil-wreath-frame">
+          <Image className="sb-veil-wreath-img" src={art.sprays.wreath.src} alt="" width={art.sprays.wreath.width} height={art.sprays.wreath.height} aria-hidden />
+          <div className="sb-veil-wreath-center">
+            <p className="sb-veil-wreath-mono">
+              {names[0]?.[0] ?? ""} <span className="sb-veil-wreath-amp">&amp;</span> {names[1]?.[0] ?? ""}
+            </p>
+          </div>
+        </div>
+        <p className="sb-veil-wreath-caption">{lang === "vi" ? "N\u01a1i t\u00ecnh y\u00eau n\u1edf hoa" : "Where love blooms"}</p>
+      </Reveal>
+    </section>
+  );
+}
+
+/** Photo gallery for Ivory Veil — masonry grid with scroll-in animation. */
+/** Photo gallery for Ivory Veil — masonry grid with scroll-in animation. */
+function VeilGallerySection({ photos }: { photos: string[] }) {
+  if (photos.length < 1) return null;
+  return (
+    <section className="sb-veil-gallery">
+      <div className="sb-veil-gallery-grid">
+        {photos.slice(0, 7).map((url, i) => (
+          <div key={i} className={`sb-veil-gallery-item ${i === 0 ? "sb-veil-gallery-main" : ""}`}>
+            <Image src={url} alt="" fill sizes={i === 0 ? "680px" : "340px"} className="object-cover" loading="lazy" />
+            <div className="sb-veil-gallery-frame" aria-hidden="true" />
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/** Family section for Ivory Veil — two-column layout with parents' names. */
+function VeilFamilySection({ families, lang }: { families: { side1?: string; side2?: string }; lang: string }) {
+  const side1Parts = (families.side1 ?? "").split(/[&·,]/).map((s) => s.trim()).filter(Boolean);
+  const side2Parts = (families.side2 ?? "").split(/[&·,]/).map((s) => s.trim()).filter(Boolean);
+  if (!side1Parts.length && !side2Parts.length) return null;
+  return (
+    <section className="sb-section sb-veil-family" id="family">
+      <Reveal>
+        <Head kicker={lang === "vi" ? "Gia \u0111\u00ecnh hai b\u00ean" : "Our families"} title={lang === "vi" ? "Th\u00e0nh H\u00f4n" : "Our Wedding"} />
+        <div className="sb-veil-family-sides">
+          {side1Parts.length > 0 && (
+            <div className="sb-veil-family-side">
+              <p className="sb-veil-family-label">{lang === "vi" ? "Nh\u00e0 trai" : "Groom\u2019s family"}</p>
+              {side1Parts.map((p, i) => <p key={i} className="sb-veil-family-parent">{p}</p>)}
+            </div>
+          )}
+          {side1Parts.length > 0 && side2Parts.length > 0 && <div className="sb-veil-family-divider" aria-hidden="true" />}
+          {side2Parts.length > 0 && (
+            <div className="sb-veil-family-side">
+              <p className="sb-veil-family-label">{lang === "vi" ? "Nh\u00e0 g\u00e1i" : "Bride\u2019s family"}</p>
+              {side2Parts.map((p, i) => <p key={i} className="sb-veil-family-parent">{p}</p>)}
+            </div>
+          )}
+        </div>
+      </Reveal>
+    </section>
+  );
+}
+
 /** Wreath hero for Peony Letter and Lantern Garden. */
 function WreathHero({
   variant,
@@ -843,10 +909,11 @@ function MomentsSection({
 }
 
 /** Gift accounts, QR images and copyable account numbers. */
-function GiftSection({ accounts, note, palette, lang = "en", variant }: { accounts: GiftAccount[]; note?: string; palette: InvitationPalette; lang?: string; variant?: StorybookVariant }) {
+function GiftSection({ accounts, note, palette, lang = "en" }: { accounts: GiftAccount[]; note?: string; palette: InvitationPalette; lang?: string }) {
   const [copied, setCopied] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState(0);
-  const tabbed = variant === "ivory-veil" && accounts.length > 1;
+  const hasQr = accounts.some((a) => a.qrUrl);
+  const tabbed = hasQr && accounts.length > 1;
 
   /** Copies an account number without ever logging it. */
   async function copy(number: string) {
@@ -868,9 +935,9 @@ function GiftSection({ accounts, note, palette, lang = "en", variant }: { accoun
           // eslint-disable-next-line @next/next/no-img-element
           <img className="sb-gift-qr" src={a.qrUrl} alt={`QR ${a.label}`} loading="lazy" />
         )}
-        {a.bank && <p>{a.bank}</p>}
-        {a.holder && <p>{a.holder}</p>}
-        {a.number && (
+        {!tabbed && a.bank && <p>{a.bank}</p>}
+        {!tabbed && a.holder && <p>{a.holder}</p>}
+        {!tabbed && a.number && (
           <button type="button" className="sb-gift-copy" onClick={() => copy(a.number!)}>
             <QrCode size={12} aria-hidden /> {a.number} {copied === a.number ? <Check size={12} /> : <Copy size={12} />}
           </button>
@@ -1096,6 +1163,9 @@ export default function StorybookInvitation({
           )}
 
           <main>
+            {variant === "ivory-veil" && <VeilWreathSection names={names} art={art} lang={ui.lang} />}
+            {variant === "ivory-veil" && photos.length > 0 && <VeilGallerySection photos={photos} />}
+            {variant === "ivory-veil" && families && <VeilFamilySection families={families} lang={ui.lang} />}
             {wedding.wedding_date &&
               (variant === "peony" || variant === "lantern" ? (
                 <WreathDate date={wedding.wedding_date} wedding={wedding} ui={dateUi} art={art} ceremony={ceremony} note={dateNote} />
@@ -1107,7 +1177,7 @@ export default function StorybookInvitation({
             {showVenue && <VenueSection name={wedding.venue_name!} address={wedding.venue_address} date={wedding.wedding_date} art={art} variant={variant} lang={ui.lang} />}
             {dress && <DressSection text={dress.text} colors={dress.colors} art={art} variant={variant} />}
             {showMoments && <MomentsSection photos={photos} slug={wedding.slug} guestUploads={guestUploads} demo={demo} ui={ui} />}
-            {gift && <GiftSection accounts={gift.accounts} note={gift.note} palette={palette} lang={ui.lang} variant={variant} />}
+            {gift && <GiftSection accounts={gift.accounts} note={gift.note} palette={palette} lang={ui.lang} />}
             {showRsvp && (
               <StorybookRsvp
                 variant={variant}

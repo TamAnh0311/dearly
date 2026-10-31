@@ -63,13 +63,17 @@ export default function StorybookRsvp({
   const attendingLabel = ui.lang === "en" ? (editorial ? "Joyfully accepts" : "With joy") : t.attendingSubtitle;
   const declinedLabel = ui.lang === "en" ? (editorial ? "Regretfully declines" : "With regret") : t.declinedSubtitle;
   const lede =
-    replyBy && ui.lang === "en"
-      ? editorial
-        ? `Kindly reply by ${replyBy} so we can ${variant === "lakeside" ? "save your seat by the lake" : variant === "ivory-veil" ? "save your seat beneath the ivory veil" : "prepare your seat"}.`
-        : `Please reply by ${replyBy} so we can save your seat${variant === "lantern" ? " by lantern light" : " in the garden"}.`
-      : replyBy
-        ? `Please reply by ${replyBy} so we can save your seat.`
-        : "We would love to know if you can join us, and keep a few words from you.";
+    replyBy && ui.lang === "vi"
+      ? `Xin vui l\u00f2ng x\u00e1c nh\u1eadn tr\u01b0\u1edbc ng\u00e0y ${replyBy} \u0111\u1ec3 ch\u00fang t\u00f4i chu\u1ea9n b\u1ecb ch\u1ed7 ng\u1ed3i cho qu\u00fd kh\u00e1ch.`
+      : replyBy && ui.lang === "en"
+        ? editorial
+          ? `Kindly reply by ${replyBy} so we can ${variant === "lakeside" ? "save your seat by the lake" : variant === "ivory-veil" ? "save your seat beneath the ivory veil" : "prepare your seat"}.`
+          : `Please reply by ${replyBy} so we can save your seat${variant === "lantern" ? " by lantern light" : " in the garden"}.`
+        : replyBy
+          ? `Please reply by ${replyBy} so we can save your seat.`
+          : ui.lang === "vi"
+            ? "S\u1ef1 hi\u1ec7n di\u1ec7n c\u1ee7a qu\u00fd kh\u00e1ch l\u00e0 ni\u1ec1m vui l\u1edbn nh\u1ea5t c\u1ee7a ch\u00fang t\u00f4i."
+            : "We would love to know if you can join us, and keep a few words from you.";
   const [choice, setChoice] = useState<Choice>("attending");
   const [name, setName] = useState(invitee?.name ?? "");
   const [partySize, setPartySize] = useState(1);

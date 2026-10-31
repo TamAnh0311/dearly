@@ -673,6 +673,25 @@
 .sb-gift-copy { display: inline-flex; align-items: center; gap: 0.45rem; margin-top: 0.55rem; border: 1px solid var(--sb-line); background: transparent; color: var(--sb-ink); padding: 0.45rem 0.7rem; font-size: 0.72rem; cursor: pointer; }
 .sb-gift-note { max-width: 30rem; margin: 1rem auto 0; color: var(--sb-muted); font-size: 0.84rem; }
 @media (max-width: 620px) { .sb-gift-grid { grid-template-columns: 1fr; } }
+.sb-gift-tabs {
+  display: flex; justify-content: center; gap: 0; margin: 1.8rem auto 0;
+  max-width: 18rem; border: 1px solid var(--sb-line-soft); border-radius: 999px; overflow: hidden;
+}
+.sb-gift-tab {
+  flex: 1; padding: 0.85rem 0.5rem; border: 0; background: transparent;
+  font-family: var(--sb-body); font-size: 0.52rem; font-weight: 400; letter-spacing: 0.24em;
+  text-transform: uppercase; color: var(--sb-muted); cursor: pointer;
+  transition: background 0.35s var(--sb-ease), color 0.35s var(--sb-ease);
+}
+.sb-gift-tab:first-child { border-right: 1px solid var(--sb-line-soft); }
+.sb-gift-tab-active { background: var(--sb-accent-deep); color: var(--sb-paper); font-weight: 500; }
+.sb-gift-panel {
+  max-width: 18rem; margin: 1.6rem auto 0;
+  animation: sbGiftIn 0.5s var(--sb-ease) both;
+}
+.sb-gift-panel .sb-gift-card { border-radius: 16px; box-shadow: 0 24px 56px -40px rgba(62, 58, 47, 0.4); }
+.sb-gift-panel .sb-gift-qr { width: clamp(140px, 36vw, 180px); height: clamp(140px, 36vw, 180px); border-radius: 12px; }
+@keyframes sbGiftIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
 /* ─── RSVP ────────────────────────────────────────────────────────────────── */
 .sb-form-card {

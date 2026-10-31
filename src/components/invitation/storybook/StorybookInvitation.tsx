@@ -572,7 +572,7 @@ function WreathDate({
   return (
     <section className="sb-section sb-date-wreath" id="sb-date">
       <Reveal>
-        <Head kicker="Save the date" title="The Day" />
+        <Head kicker={ui.lang === "vi" ? "Ngày trọng đại" : "Save the date"} title={ui.lang === "vi" ? "Ngày Cưới" : "The Day"} />
         <div className="sb-wreath-calendar">
           <Image className="sb-calendar-wreath" src={art.sprays.wreath.src} alt="" width={art.sprays.wreath.width} height={art.sprays.wreath.height} />
           <div className="sb-calendar">
@@ -843,8 +843,10 @@ function MomentsSection({
 }
 
 /** Gift accounts, QR images and copyable account numbers. */
-function GiftSection({ accounts, note, palette }: { accounts: GiftAccount[]; note?: string; palette: InvitationPalette }) {
+function GiftSection({ accounts, note, palette, lang = "en", variant }: { accounts: GiftAccount[]; note?: string; palette: InvitationPalette; lang?: string; variant?: StorybookVariant }) {
   const [copied, setCopied] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState(0);
+  const tabbed = variant === "ivory-veil" && accounts.length > 1;
 
   /** Copies an account number without ever logging it. */
   async function copy(number: string) {
@@ -857,45 +859,63 @@ function GiftSection({ accounts, note, palette }: { accounts: GiftAccount[]; not
     }
   }
 
+  /** Renders a single gift account card. */
+  function renderCard(a: GiftAccount, i: number) {
+    return (
+      <div key={`${a.label}-${i}`} className="sb-gift-card">
+        {!tabbed && <h3>{a.label}</h3>}
+        {a.qrUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img className="sb-gift-qr" src={a.qrUrl} alt={`QR ${a.label}`} loading="lazy" />
+        )}
+        {a.bank && <p>{a.bank}</p>}
+        {a.holder && <p>{a.holder}</p>}
+        {a.number && (
+          <button type="button" className="sb-gift-copy" onClick={() => copy(a.number!)}>
+            <QrCode size={12} aria-hidden /> {a.number} {copied === a.number ? <Check size={12} /> : <Copy size={12} />}
+          </button>
+        )}
+      </div>
+    );
+  }
+
   return (
     <section className="sb-section sb-gift" id="gift" style={{ backgroundColor: palette.surface }}>
       <Reveal>
-        <Head kicker="With gratitude" title="Gifts" />
+        <Head kicker={lang === "vi" ? "M\u1eebng c\u01b0\u1edbi" : "With gratitude"} title={lang === "vi" ? "G\u1eedi Qu\u00e0" : "Gifts"} />
         {note && <p className="sb-gift-note">{note}</p>}
-        <div className="sb-gift-grid">
-          {accounts.map((a, i) => (
-            <div key={`${a.label}-${i}`} className="sb-gift-card">
-              <h3>{a.label}</h3>
-              {a.qrUrl && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img className="sb-gift-qr" src={a.qrUrl} alt={`QR code for ${a.label}`} loading="lazy" />
-              )}
-              {a.bank && <p>{a.bank}</p>}
-              {a.holder && <p>{a.holder}</p>}
-              {a.number && (
-                <button type="button" className="sb-gift-copy" onClick={() => copy(a.number!)}>
-                  <QrCode size={12} aria-hidden /> {a.number} {copied === a.number ? <Check size={12} /> : <Copy size={12} />}
+        {tabbed ? (
+          <>
+            <div className="sb-gift-tabs" role="tablist">
+              {accounts.map((a, i) => (
+                <button key={i} type="button" role="tab" aria-selected={activeTab === i} className={`sb-gift-tab ${activeTab === i ? "sb-gift-tab-active" : ""}`} onClick={() => setActiveTab(i)}>
+                  {a.label}
                 </button>
-              )}
+              ))}
             </div>
-          ))}
-        </div>
+            <div className="sb-gift-panel">{renderCard(accounts[activeTab], activeTab)}</div>
+          </>
+        ) : (
+          <div className="sb-gift-grid">
+            {accounts.map((a, i) => renderCard(a, i))}
+          </div>
+        )}
       </Reveal>
     </section>
   );
 }
 
 /** Closing thanks card. */
-function ThanksSection({ names, date, venue, art, variant }: { names: [string, string]; date: string | null; venue: string | null; art: NonNullable<ReturnType<typeof getArtCollection>>; variant?: StorybookVariant }) {
+function ThanksSection({ names, date, venue, art, variant, lang = "en" }: { names: [string, string]; date: string | null; venue: string | null; art: NonNullable<ReturnType<typeof getArtCollection>>; variant?: StorybookVariant; lang?: string }) {
   return (
     <section className="sb-thanks" id="thanks">
       <div className="sb-thanks-card">
         <Image className="sb-thanks-wreath" src={art.sprays.wreath.src} alt="" width={art.sprays.wreath.width} height={art.sprays.wreath.height} aria-hidden />
         <Image className="sb-thanks-flora sb-tl" src={variant === "ivory-veil" ? art.sprays.magnolia.src : art.sprays.cherry.src} alt="" width={variant === "ivory-veil" ? art.sprays.magnolia.width : art.sprays.cherry.width} height={variant === "ivory-veil" ? art.sprays.magnolia.height : art.sprays.cherry.height} aria-hidden />
         <Image className="sb-thanks-flora sb-br" src={variant === "ivory-veil" ? art.sprays.magnolia.src : art.sprays.cherry.src} alt="" width={variant === "ivory-veil" ? art.sprays.magnolia.width : art.sprays.cherry.width} height={variant === "ivory-veil" ? art.sprays.magnolia.height : art.sprays.cherry.height} aria-hidden />
-        <p className="sb-thanks-script">With love</p>
-        <h2 className="sb-thanks-title">Thank You</h2>
-        <p className="sb-thanks-text">For the miles travelled, the hands held and the joy you bring into our lives — thank you for being part of our story.</p>
+        <p className="sb-thanks-script">{lang === "vi" ? "V\u1edbi t\u1ea5t c\u1ea3 y\u00eau th\u01b0\u01a1ng" : "With love"}</p>
+        <h2 className="sb-thanks-title">{lang === "vi" ? "C\u1ea3m \u01a0n" : "Thank You"}</h2>
+        <p className="sb-thanks-text">{lang === "vi" ? "S\u1ef1 hi\u1ec7n di\u1ec7n c\u1ee7a qu\u00fd kh\u00e1ch l\u00e0 m\u00f3n qu\u00e0 qu\u00fd gi\u00e1 nh\u1ea5t. C\u1ea3m \u01a1n qu\u00fd kh\u00e1ch \u0111\u00e3 \u0111\u1ebfn chung vui, chia s\u1ebb ni\u1ec1m h\u1ea1nh ph\u00fac v\u00e0 tr\u1edf th\u00e0nh m\u1ed9t ph\u1ea7n trong c\u00e2u chuy\u1ec7n t\u00ecnh y\u00eau c\u1ee7a ch\u00fang t\u00f4i." : "For the miles travelled, the hands held and the joy you bring into our lives \u2014 thank you for being part of our story."}</p>
         <p className="sb-monogram">
           {names[0]?.[0] ?? ""}
           {names[1] ? ` & ${names[1][0] ?? ""}` : ""}
@@ -1087,7 +1107,7 @@ export default function StorybookInvitation({
             {showVenue && <VenueSection name={wedding.venue_name!} address={wedding.venue_address} date={wedding.wedding_date} art={art} variant={variant} lang={ui.lang} />}
             {dress && <DressSection text={dress.text} colors={dress.colors} art={art} variant={variant} />}
             {showMoments && <MomentsSection photos={photos} slug={wedding.slug} guestUploads={guestUploads} demo={demo} ui={ui} />}
-            {gift && <GiftSection accounts={gift.accounts} note={gift.note} palette={palette} />}
+            {gift && <GiftSection accounts={gift.accounts} note={gift.note} palette={palette} lang={ui.lang} variant={variant} />}
             {showRsvp && (
               <StorybookRsvp
                 variant={variant}
@@ -1115,7 +1135,7 @@ export default function StorybookInvitation({
                 palette={palette}
               />
             )}
-            <ThanksSection names={names} date={wedding.wedding_date} venue={wedding.venue_name} art={art} variant={variant} />
+            <ThanksSection names={names} date={wedding.wedding_date} venue={wedding.venue_name} art={art} variant={variant} lang={ui.lang} />
           </main>
 
           <FooterSection

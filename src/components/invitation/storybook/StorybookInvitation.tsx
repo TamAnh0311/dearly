@@ -279,22 +279,26 @@ function IvoryVeilHero({
   wedding,
   names,
   twoNames,
+  dearLine,
   greeting,
   inviteLine,
   note,
   art,
   familiesText,
   place,
+  ui,
 }: {
   wedding: WeddingRow;
   names: [string, string];
   twoNames: boolean;
+  dearLine: string | null;
   greeting: string;
   inviteLine: string;
   note: string | null;
   art: NonNullable<ReturnType<typeof getArtCollection>>;
   familiesText: string | null;
   place: string;
+  ui: InvitationCopy;
 }) {
   const ref = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
@@ -351,13 +355,14 @@ function IvoryVeilHero({
       </div>
 
       <div className="sb-hero-copy sb-veil-copy">
+        {dearLine && <p className="sb-veil-dear">{dearLine}</p>}
         <p className="sb-greeting">{greeting}</p>
         <p className="sb-invite">{inviteLine}</p>
         <h1 className="sb-names">
           <span>{names[0]}</span>
           {twoNames && (
             <>
-              <span className="sb-amp">and</span>
+              <span className="sb-amp">{ui.lang === "vi" ? "và" : "and"}</span>
               <span>{names[1]}</span>
             </>
           )}
@@ -369,7 +374,7 @@ function IvoryVeilHero({
       </div>
 
       <a className="sb-scroll sb-veil-cue" href="#sb-date">
-        Open the invitation <i aria-hidden="true" />
+        {ui.lang === "vi" ? "Mở thiệp mời" : "Open the invitation"} <i aria-hidden="true" />
       </a>
     </header>
   );
@@ -993,18 +998,23 @@ export default function StorybookInvitation({
   const place = resolveLocationLabel(wedding.customization?.locationLabel) ?? placeLine(wedding);
   const dateLocale = ui.lang === "en" ? "en-GB" : ui.dateLocale;
   const dateUi = { ...ui, dateLocale };
-  const greeting = invitee
+  const veilDearLine = variant === "ivory-veil" && invitee ? ui.dear(invitee.name) : null;
+  const greeting = invitee && variant !== "ivory-veil"
     ? ui.dear(invitee.name)
     : variant === "ivory-veil"
-      ? "Together with their families"
+      ? (ui.lang === "vi" ? "C\u00f9ng v\u1edbi gia \u0111\u00ecnh hai b\u00ean" : "Together with their families")
       : variant === "peony" || variant === "lantern"
         ? "With our families"
         : copy.eyebrow;
   const inviteLine =
     eventType === "wedding"
-      ? `request the pleasure of your company as we say “I do” ${variant === "lakeside" ? "by the lake" : variant === "ivory-veil" ? "beneath the ivory veil" : "in the garden"}`
+      ? (variant === "ivory-veil" && ui.lang === "vi"
+        ? "tr\u00e2n tr\u1ecdng k\u00ednh m\u1eddi qu\u00fd kh\u00e1ch \u0111\u1ebfn chung vui trong ng\u00e0y tr\u1ecdng \u0111\u1ea1i"
+        : `request the pleasure of your company as we say "I do" ${variant === "lakeside" ? "by the lake" : variant === "ivory-veil" ? "beneath the ivory veil" : "in the garden"}`)
       : copy.tagline(hostNames(wedding));
-  const veilNote = wedding.event_title || (eventType === "wedding" ? "An evening wrapped in flowers" : null);
+  const veilNote = variant === "ivory-veil" && ui.lang === "vi"
+    ? (wedding.event_title || "N\u0103m n\u0103m b\u00ean nhau, m\u00e3i m\u00e3i v\u1ec1 sau")
+    : (wedding.event_title || (eventType === "wedding" ? "An evening wrapped in flowers" : null));
 
   /** Adds a blessing and scrolls the guest to the wall. */
   function handleBlessing(entry: GuestbookEntryRow) {
@@ -1043,7 +1053,7 @@ export default function StorybookInvitation({
           {variant === "peony" || variant === "lantern" ? (
             <WreathHero variant={variant} wedding={wedding} names={names} twoNames={twoNames} greeting={greeting} note={note} art={art} place={place} palette={palette} />
           ) : variant === "ivory-veil" ? (
-            <IvoryVeilHero wedding={wedding} names={names} twoNames={twoNames} greeting={greeting} inviteLine={inviteLine} note={veilNote} art={art} familiesText={familiesText} place={place} />
+            <IvoryVeilHero wedding={wedding} names={names} twoNames={twoNames} dearLine={veilDearLine} greeting={greeting} inviteLine={inviteLine} note={veilNote} art={art} familiesText={familiesText} place={place} ui={ui} />
           ) : (
             <EditorialHero variant={variant} wedding={wedding} names={names} twoNames={twoNames} greeting={greeting} inviteLine={inviteLine} art={art} familiesText={familiesText} place={place} palette={palette} />
           )}

@@ -35,6 +35,8 @@ export default function GuestsPage() {
   const [saving, setSaving] = useState(false);
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
+  const [groupInput, setGroupInput] = useState("");
+  const [groupFilter, setGroupFilter] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const plan = planOf(wedding);
   const origin = typeof window === "undefined" ? "" : window.location.origin;
@@ -59,6 +61,11 @@ export default function GuestsPage() {
   const parsed = useMemo(() => parseGuestList(paste), [paste]);
   const remaining = plan.maxInvitees - invitees.length;
   const summary = useMemo(() => summarizeGuestList(invitees), [invitees]);
+  const groups = useMemo(() => {
+    const set = new Set<string>();
+    invitees.forEach((i) => { if (i.guest_group) set.add(i.guest_group); });
+    return Array.from(set).sort();
+  }, [invitees]);
 
   /** Creates personal invitations for every pasted name (within the plan limit). */
   async function addGuests() {
@@ -81,7 +88,7 @@ export default function GuestsPage() {
     setSaving(true);
     const { data, error: insErr } = await createClient()
       .from("invitees")
-      .insert(fresh.map((p) => ({ wedding_id: wedding.id, name: p.name, max_party_size: p.maxPartySize })))
+      .insert(fresh.map((p) => ({ wedding_id: wedding.id, name: p.name, max_party_size: p.maxPartySize, guest_group: groupInput.trim() || null })))
       .select("*");
     setSaving(false);
     if (insErr) {
@@ -153,6 +160,7 @@ export default function GuestsPage() {
 
   const shown = invitees.filter((i) => {
     if (query && !i.name.toLowerCase().includes(query.toLowerCase())) return false;
+    if (groupFilter && i.guest_group !== groupFilter) return false;
     if (filter === "checked-in") return !!i.checked_in_at;
     return filter === "all" || i.status === filter;
   });
@@ -218,6 +226,21 @@ export default function GuestsPage() {
           placeholder={"Anna Lee\nMinh Tran +1\nThe Nguyen family, 4"}
           className="w-full rounded-xl border border-dearly-border bg-dearly-cream px-3 py-2.5 font-mono text-sm text-dearly-text outline-none focus:border-dearly-accent focus:ring-2 focus:ring-dearly-accent/20"
         />
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <label className="flex items-center gap-2 text-sm text-dearly-text-secondary">
+            <Users size={14} />
+            <input
+              value={groupInput}
+              onChange={(e) => setGroupInput(e.target.value)}
+              placeholder="Group (e.g. Family, Colleagues)"
+              list="guest-groups"
+              className="rounded-lg border border-dearly-border bg-dearly-cream px-2.5 py-1.5 text-sm text-dearly-text outline-none focus:border-dearly-accent"
+            />
+            <datalist id="guest-groups">
+              {groups.map((g) => <option key={g} value={g} />)}
+            </datalist>
+          </label>
+        </div>
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs text-dearly-text-secondary">
             Tip: <code>+1</code> adds a companion, <code>, 4</code> reserves 4 seats.
@@ -258,6 +281,28 @@ export default function GuestsPage() {
             {f.replace("-", " ")}
           </button>
         ))}
+        {groups.length > 0 && (
+          <>
+            <span className="mx-1 text-dearly-border">|</span>
+            <button
+              type="button"
+              onClick={() => setGroupFilter(null)}
+              className={`rounded-full px-3 py-1.5 text-xs font-semibold ${!groupFilter ? "bg-dearly-accent text-white" : "border border-dearly-border bg-dearly-card text-dearly-text-secondary"}`}
+            >
+              All groups
+            </button>
+            {groups.map((g) => (
+              <button
+                key={g}
+                type="button"
+                onClick={() => setGroupFilter(g)}
+                className={`rounded-full px-3 py-1.5 text-xs font-semibold ${groupFilter === g ? "bg-dearly-accent text-white" : "border border-dearly-border bg-dearly-card text-dearly-text-secondary"}`}
+              >
+                {g}
+              </button>
+            ))}
+          </>
+        )}
       </div>
 
       {/* List */}
@@ -276,7 +321,10 @@ export default function GuestsPage() {
             return (
               <li key={i.id} className="flex flex-wrap items-center gap-3 p-3 sm:flex-nowrap">
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium text-dearly-text">{i.name}</p>
+                  <p className="truncate font-medium text-dearly-text">
+                    {i.name}
+                    {i.guest_group && <span className="ml-2 rounded-full bg-dearly-cream px-2 py-0.5 text-[10px] font-medium text-dearly-text-secondary">{i.guest_group}</span>}
+                  </p>
                   <p className="text-xs text-dearly-text-muted">
                     {i.max_party_size > 1 ? `${i.max_party_size} seats (with ${i.max_party_size - 1} companion${i.max_party_size > 2 ? "s" : ""})` : "1 seat"}
                     {i.status === "attending" && ` · coming with ${Math.max(i.party_size - 1, 0)} companion${i.party_size - 1 === 1 ? "" : "s"}`}

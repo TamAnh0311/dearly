@@ -245,7 +245,7 @@
 }
 .sb-veil-copy .sb-greeting { margin-bottom: 1.1rem; color: var(--sb-gold); }
 .sb-veil-copy .sb-invite { margin-bottom: 1.5rem; max-width: 26rem; text-align: center; }
-.sb-veil-copy .sb-names { font-size: clamp(2.5rem, 8vw, 4.15rem); line-height: 1.02; letter-spacing: 0.13em; }
+.sb-veil-copy .sb-names { font-size: clamp(2rem, 6.5vw, 3.4rem); line-height: 1.06; letter-spacing: 0.08em; }
 .sb-veil-copy .sb-amp { font-size: clamp(1.65rem, 5vw, 2.3rem); line-height: 1.15; margin: 0.3rem 0; color: var(--sb-gold); }
 .sb-veil-copy .sb-date-line { font-size: clamp(0.94rem, 2.4vw, 1.08rem); letter-spacing: 0.3em; margin: 1.55rem 0 0.35rem; text-shadow: 0 1px 14px rgba(255, 255, 255, 0.95), 0 0 22px rgba(246, 243, 234, 0.9); }
 .sb-veil-copy .sb-place { font-size: 0.56rem; letter-spacing: 0.32em; text-shadow: 0 1px 14px rgba(255, 255, 255, 0.95), 0 0 22px rgba(246, 243, 234, 0.9); }
@@ -952,7 +952,7 @@
   .sb-veil-flora--bl { width: 26%; left: -14%; bottom: -10%; }
   .sb-veil-flora--br { width: 26%; right: -14%; bottom: -10%; }
   .sb-veil-copy { translate: 0 -3vh; width: min(20rem, 84%); }
-  .sb-veil-copy .sb-names { font-size: clamp(2.35rem, 12vw, 3.1rem); }
+  .sb-veil-copy .sb-names { font-size: clamp(1.8rem, 9vw, 2.6rem); }
   .sb-veil-note { margin-top: 0.8rem; }
   .sb-veil-cue { bottom: 1.2rem; }
   .sb-strip { gap: 0.35rem; }

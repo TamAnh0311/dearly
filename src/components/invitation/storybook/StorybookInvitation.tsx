@@ -382,6 +382,8 @@ function IvoryVeilHero({
 
 /** Wreath monogram section for Ivory Veil — greenery wreath with couple initials. */
 function VeilWreathSection({ names, art, lang }: { names: [string, string]; art: NonNullable<ReturnType<typeof getArtCollection>>; lang: string }) {
+  /** Uses the last word's initial for Vietnamese names (family name comes first). */
+  const initial = (n: string) => { const parts = n.trim().split(/\s+/); return (parts[parts.length - 1]?.[0] ?? "").toUpperCase(); };
   return (
     <section className="sb-veil-wreath-section">
       <Reveal>
@@ -389,7 +391,7 @@ function VeilWreathSection({ names, art, lang }: { names: [string, string]; art:
           <Image className="sb-veil-wreath-img" src={art.sprays.wreath.src} alt="" width={art.sprays.wreath.width} height={art.sprays.wreath.height} aria-hidden />
           <div className="sb-veil-wreath-center">
             <p className="sb-veil-wreath-mono">
-              {names[0]?.[0] ?? ""} <span className="sb-veil-wreath-amp">&amp;</span> {names[1]?.[0] ?? ""}
+              {initial(names[0])} <span className="sb-veil-wreath-amp">&amp;</span> {initial(names[1])}
             </p>
           </div>
         </div>
@@ -1165,7 +1167,7 @@ export default function StorybookInvitation({
           <main>
             {variant === "ivory-veil" && <VeilWreathSection names={names} art={art} lang={ui.lang} />}
             {variant === "ivory-veil" && photos.length > 0 && <VeilGallerySection photos={photos} />}
-            {variant === "ivory-veil" && families && <VeilFamilySection families={families} lang={ui.lang} />}
+            {variant === "ivory-veil" && show.families && families && <VeilFamilySection families={families} lang={ui.lang} />}
             {wedding.wedding_date &&
               (variant === "peony" || variant === "lantern" ? (
                 <WreathDate date={wedding.wedding_date} wedding={wedding} ui={dateUi} art={art} ceremony={ceremony} note={dateNote} />
@@ -1176,7 +1178,7 @@ export default function StorybookInvitation({
             {showSchedule && <ScheduleSection events={events} wedding={wedding} ui={dateUi} variant={variant} />}
             {showVenue && <VenueSection name={wedding.venue_name!} address={wedding.venue_address} date={wedding.wedding_date} art={art} variant={variant} lang={ui.lang} />}
             {dress && <DressSection text={dress.text} colors={dress.colors} art={art} variant={variant} />}
-            {showMoments && <MomentsSection photos={photos} slug={wedding.slug} guestUploads={guestUploads} demo={demo} ui={ui} />}
+            {showMoments && variant !== "ivory-veil" && <MomentsSection photos={photos} slug={wedding.slug} guestUploads={guestUploads} demo={demo} ui={ui} />}
             {gift && <GiftSection accounts={gift.accounts} note={gift.note} palette={palette} lang={ui.lang} />}
             {showRsvp && (
               <StorybookRsvp

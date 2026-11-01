@@ -121,6 +121,8 @@ export interface WeddingCustomization {
   locationLabel?: string;
   /** Optional practical note under the date (arrival time, parking, etc.). */
   dateNote?: string;
+  /** Custom RSVP deadline (ISO date). Falls back to 42 days before the event. */
+  rsvpDeadline?: string;
 }
 
 /** One suggested dress-code colour. */

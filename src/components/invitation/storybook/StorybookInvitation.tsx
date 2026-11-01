@@ -93,10 +93,10 @@ function placeLine(wedding: WeddingRow): string {
   return [wedding.venue_name, tail].filter(Boolean).join(" · ") || wedding.venue_name || "";
 }
 
-/** Reply-by date: six weeks before the event, formatted for the RSVP note. */
-function replyBy(date: string, locale: string): string {
-  const d = parseWeddingDate(date);
-  d.setDate(d.getDate() - 42);
+/** Reply-by date: uses custom deadline if set, otherwise six weeks before the event. */
+function replyBy(date: string, locale: string, customDeadline?: string | null): string {
+  const d = customDeadline ? parseWeddingDate(customDeadline) : parseWeddingDate(date);
+  if (!customDeadline) d.setDate(d.getDate() - 42);
   return d.toLocaleDateString(locale, { day: "numeric", month: "long", year: "numeric" });
 }
 
@@ -284,8 +284,6 @@ function IvoryVeilHero({
   inviteLine,
   note,
   art,
-  familiesText,
-  place,
   ui,
 }: {
   wedding: WeddingRow;
@@ -296,8 +294,6 @@ function IvoryVeilHero({
   inviteLine: string;
   note: string | null;
   art: NonNullable<ReturnType<typeof getArtCollection>>;
-  familiesText: string | null;
-  place: string;
   ui: InvitationCopy;
 }) {
   const ref = useRef<HTMLElement>(null);
@@ -368,8 +364,6 @@ function IvoryVeilHero({
           )}
         </h1>
         {wedding.wedding_date && <p className="sb-date-line">{formatDotDate(wedding.wedding_date)}</p>}
-        <p className="sb-place">{place}</p>
-        {familiesText && <p className="sb-hero-families">{familiesText}</p>}
         {note && <p className="sb-veil-note">{note}</p>}
       </div>
 
@@ -401,20 +395,43 @@ function VeilWreathSection({ names, art, lang }: { names: [string, string]; art:
   );
 }
 
-/** Photo gallery for Ivory Veil — masonry grid with scroll-in animation. */
-/** Photo gallery for Ivory Veil — masonry grid with scroll-in animation. */
-function VeilGallerySection({ photos }: { photos: string[] }) {
+/** Photo gallery for Ivory Veil — bride/groom intro cards + masonry grid. */
+function VeilGallerySection({ photos, names, lang }: { photos: string[]; names: [string, string]; lang: string }) {
   if (photos.length < 1) return null;
+  const brideLabel = lang === "vi" ? "C\u00f4 d\u00e2u" : "The Bride";
+  const groomLabel = lang === "vi" ? "Ch\u00fa r\u1ec3" : "The Groom";
   return (
     <section className="sb-veil-gallery">
-      <div className="sb-veil-gallery-grid">
-        {photos.slice(0, 7).map((url, i) => (
-          <div key={i} className={`sb-veil-gallery-item ${i === 0 ? "sb-veil-gallery-main" : ""}`}>
-            <Image src={url} alt="" fill sizes={i === 0 ? "680px" : "340px"} className="object-cover" loading="lazy" />
-            <div className="sb-veil-gallery-frame" aria-hidden="true" />
+      <Reveal>
+        <div className="sb-veil-intro">
+          <div className="sb-veil-intro-card">
+            <div className="sb-veil-intro-photo">
+              <Image src={photos[0]} alt={names[0]} fill sizes="340px" className="object-cover" loading="lazy" />
+            </div>
+            <p className="sb-veil-intro-label">{brideLabel}</p>
+            <p className="sb-veil-intro-name">{names[0]}</p>
           </div>
-        ))}
-      </div>
+          {photos.length > 1 && (
+            <div className="sb-veil-intro-card">
+              <div className="sb-veil-intro-photo">
+                <Image src={photos[1]} alt={names[1]} fill sizes="340px" className="object-cover" loading="lazy" />
+              </div>
+              <p className="sb-veil-intro-label">{groomLabel}</p>
+              <p className="sb-veil-intro-name">{names[1]}</p>
+            </div>
+          )}
+        </div>
+      </Reveal>
+      {photos.length > 2 && (
+        <div className="sb-veil-gallery-grid">
+          {photos.slice(2, 9).map((url, i) => (
+            <div key={i} className={`sb-veil-gallery-item ${i === 0 ? "sb-veil-gallery-main" : ""}`}>
+              <Image src={url} alt="" fill sizes={i === 0 ? "680px" : "340px"} className="object-cover" loading="lazy" />
+              <div className="sb-veil-gallery-frame" aria-hidden="true" />
+            </div>
+          ))}
+        </div>
+      )}
     </section>
   );
 }
@@ -760,7 +777,7 @@ function VenueSection({
     return (
       <section className="sb-section sb-venue" id="venue">
         <Reveal>
-          <Head kicker={lang === "vi" ? "Tổ chức tại" : "Where we gather"} title={lang === "vi" ? "Nhà Hàng Tiệc Cưới" : "The Venue"} />
+          <Head kicker={lang === "vi" ? "T\u1ed5 ch\u1ee9c t\u1ea1i" : "Where we gather"} title={lang === "vi" ? "Nh\u00e0 H\u00e0ng" : "The Venue"} />
           <figure className="sb-postcard">
             <span className="sb-stamp" aria-hidden="true">
               {stamp}
@@ -795,7 +812,7 @@ function VenueSection({
   return (
     <section className="sb-section sb-venue" id="venue">
       <Reveal>
-        <Head kicker={lang === "vi" ? "Tổ chức tại" : "Where we gather"} title={lang === "vi" ? "Nhà Hàng Tiệc Cưới" : "The Venue"} />
+        <Head kicker={lang === "vi" ? "T\u1ed5 ch\u1ee9c t\u1ea1i" : "Where we gather"} title={lang === "vi" ? "Nh\u00e0 H\u00e0ng" : "The Venue"} />
         <figure className="sb-venue-art">
           <Image src={DEMO_ART.aisle} alt="" fill sizes="(max-width: 760px) 100vw, 760px" className="object-cover" />
         </figure>
@@ -1159,14 +1176,14 @@ export default function StorybookInvitation({
           {variant === "peony" || variant === "lantern" ? (
             <WreathHero variant={variant} wedding={wedding} names={names} twoNames={twoNames} greeting={greeting} note={note} art={art} place={place} palette={palette} />
           ) : variant === "ivory-veil" ? (
-            <IvoryVeilHero wedding={wedding} names={names} twoNames={twoNames} dearLine={veilDearLine} greeting={greeting} inviteLine={inviteLine} note={veilNote} art={art} familiesText={familiesText} place={place} ui={ui} />
+            <IvoryVeilHero wedding={wedding} names={names} twoNames={twoNames} dearLine={veilDearLine} greeting={greeting} inviteLine={inviteLine} note={veilNote} art={art} ui={ui} />
           ) : (
             <EditorialHero variant={variant} wedding={wedding} names={names} twoNames={twoNames} greeting={greeting} inviteLine={inviteLine} art={art} familiesText={familiesText} place={place} palette={palette} />
           )}
 
           <main>
             {variant === "ivory-veil" && <VeilWreathSection names={names} art={art} lang={ui.lang} />}
-            {variant === "ivory-veil" && photos.length > 0 && <VeilGallerySection photos={photos} />}
+            {variant === "ivory-veil" && photos.length > 0 && <VeilGallerySection photos={photos} names={names} lang={ui.lang} />}
             {variant === "ivory-veil" && show.families && families && <VeilFamilySection families={families} lang={ui.lang} />}
             {wedding.wedding_date &&
               (variant === "peony" || variant === "lantern" ? (
@@ -1190,7 +1207,7 @@ export default function StorybookInvitation({
                 giftAccounts={gift?.accounts}
                 eyebrow={copy.rsvpEyebrow}
                 title={copy.rsvpTitle}
-                replyBy={wedding.wedding_date ? replyBy(wedding.wedding_date, dateLocale) : null}
+                replyBy={wedding.wedding_date ? replyBy(wedding.wedding_date, dateLocale, wedding.customization?.rsvpDeadline as string | undefined) : null}
                 onBlessing={handleBlessing}
               />
             )}

@@ -109,9 +109,13 @@ export default function MusicPlayer({ musicUrl, preset, visible = false }: Music
       const remove = () => {
         window.removeEventListener("pointerdown", onGesture);
         window.removeEventListener("keydown", onGesture);
+        window.removeEventListener("scroll", onGesture);
+        window.removeEventListener("touchstart", onGesture);
       };
       window.addEventListener("pointerdown", onGesture);
       window.addEventListener("keydown", onGesture);
+      window.addEventListener("scroll", onGesture, { passive: true });
+      window.addEventListener("touchstart", onGesture, { passive: true });
       cleanups.push(remove);
     });
 

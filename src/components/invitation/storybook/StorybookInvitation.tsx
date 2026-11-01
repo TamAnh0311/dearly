@@ -986,8 +986,8 @@ function ThanksSection({ names, date, venue, art, variant, lang = "en" }: { name
         <h2 className="sb-thanks-title">{lang === "vi" ? "C\u1ea3m \u01a0n" : "Thank You"}</h2>
         <p className="sb-thanks-text">{lang === "vi" ? "S\u1ef1 hi\u1ec7n di\u1ec7n c\u1ee7a qu\u00fd kh\u00e1ch l\u00e0 m\u00f3n qu\u00e0 qu\u00fd gi\u00e1 nh\u1ea5t. C\u1ea3m \u01a1n qu\u00fd kh\u00e1ch \u0111\u00e3 \u0111\u1ebfn chung vui, chia s\u1ebb ni\u1ec1m h\u1ea1nh ph\u00fac v\u00e0 tr\u1edf th\u00e0nh m\u1ed9t ph\u1ea7n trong c\u00e2u chuy\u1ec7n t\u00ecnh y\u00eau c\u1ee7a ch\u00fang t\u00f4i." : "For the miles travelled, the hands held and the joy you bring into our lives \u2014 thank you for being part of our story."}</p>
         <p className="sb-monogram">
-          {names[0]?.[0] ?? ""}
-          {names[1] ? ` & ${names[1][0] ?? ""}` : ""}
+          {(names[0]?.trim().split(/\s+/).pop()?.[0] ?? "").toUpperCase()}
+          {names[1] ? ` & ${(names[1].trim().split(/\s+/).pop()?.[0] ?? "").toUpperCase()}` : ""}
         </p>
         <p className="sb-thanks-date">
           {date ? formatDotDate(date) : ""}

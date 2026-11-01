@@ -76,9 +76,10 @@ export default function MusicPlayer({ musicUrl, preset, visible = false }: Music
       startedRef.current = true;
       setPlaying(true);
     } catch {
-      if (musicUrl && preset !== null) {
-        engineRef.current = generativeEngine(preset ?? "piano");
+      // File failed — fall back to generative; or generative failed — retry once
+      if (!startedRef.current) {
         try {
+          engineRef.current = generativeEngine(preset ?? "piano");
           await engineRef.current.start();
           startedRef.current = true;
           setPlaying(true);

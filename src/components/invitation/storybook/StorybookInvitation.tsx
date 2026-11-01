@@ -841,12 +841,12 @@ function MacPin() {
 }
 
 /** Dress code with couple-entered swatches. */
-function DressSection({ text, colors, art, variant }: { text?: string; colors: DressSwatch[]; art: NonNullable<ReturnType<typeof getArtCollection>>; variant: StorybookVariant }) {
+function DressSection({ text, colors, art, variant, lang = "en" }: { text?: string; colors: DressSwatch[]; art: NonNullable<ReturnType<typeof getArtCollection>>; variant: StorybookVariant; lang?: string }) {
   const flora = variant === "lakeside" ? DEMO_ART.hydrangea : art.sprays.peonyTall;
   return (
     <section className="sb-section sb-dress" id="dress">
       <Reveal>
-        <Head kicker="What to wear" title="Dress Code" />
+        <Head kicker={lang === "vi" ? "Trang ph\u1ee5c" : "What to wear"} title="Dress Code" />
         {variant === "peony" || variant === "lantern" ? (
           <div className="sb-dress-grid">
             <div className="sb-dress-copy">
@@ -1194,7 +1194,7 @@ export default function StorybookInvitation({
             {showStory && <StorySection text={wedding.story_text!} title={copy.storyTitle} kicker={ui.story.eyebrow} art={art} variant={variant} />}
             {showSchedule && <ScheduleSection events={events} wedding={wedding} ui={dateUi} variant={variant} />}
             {showVenue && <VenueSection name={wedding.venue_name!} address={wedding.venue_address} date={wedding.wedding_date} art={art} variant={variant} lang={ui.lang} />}
-            {dress && <DressSection text={dress.text} colors={dress.colors} art={art} variant={variant} />}
+            {dress && <DressSection text={dress.text} colors={dress.colors} art={art} variant={variant} lang={ui.lang} />}
             {showMoments && variant !== "ivory-veil" && <MomentsSection photos={photos} slug={wedding.slug} guestUploads={guestUploads} demo={demo} ui={ui} />}
             {gift && <GiftSection accounts={gift.accounts} note={gift.note} palette={palette} lang={ui.lang} />}
             {showRsvp && (

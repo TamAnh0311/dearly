@@ -356,7 +356,7 @@ function IvoryVeilHero({
 
       <div className="sb-hero-copy sb-veil-copy">
         {dearLine && <p className="sb-veil-dear">{dearLine}</p>}
-        <p className="sb-greeting">{greeting}</p>
+        {greeting && <p className="sb-greeting">{greeting}</p>}
         <p className="sb-invite">{inviteLine}</p>
         <h1 className="sb-names">
           <span>{names[0]}</span>
@@ -1108,7 +1108,7 @@ export default function StorybookInvitation({
   const greeting = invitee && variant !== "ivory-veil"
     ? ui.dear(invitee.name)
     : variant === "ivory-veil"
-      ? (ui.lang === "vi" ? "C\u00f9ng v\u1edbi gia \u0111\u00ecnh hai b\u00ean" : "Together with their families")
+      ? ""
       : variant === "peony" || variant === "lantern"
         ? "With our families"
         : copy.eyebrow;

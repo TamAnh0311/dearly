@@ -64,7 +64,7 @@ export default function StorybookRsvp({
   const declinedLabel = ui.lang === "en" ? (editorial ? "Regretfully declines" : "With regret") : t.declinedSubtitle;
   const lede =
     replyBy && ui.lang === "vi"
-      ? `Xin vui l\u00f2ng x\u00e1c nh\u1eadn tr\u01b0\u1edbc ng\u00e0y ${replyBy} \u0111\u1ec3 ch\u00fang t\u00f4i chu\u1ea9n b\u1ecb ch\u1ed7 ng\u1ed3i cho qu\u00fd kh\u00e1ch.`
+      ? `Vui l\u00f2ng x\u00e1c nh\u1eadn tham d\u1ef1 tr\u01b0\u1edbc ng\u00e0y ${replyBy} \u0111\u1ec3 ch\u00fang t\u00f4i c\u00f3 th\u1ec3 chu\u1ea9n b\u1ecb \u0111\u00f3n ti\u1ebfp Qu\u00fd kh\u00e1ch \u0111\u01b0\u1ee3c chu \u0111\u00e1o nh\u1ea5t.`
       : replyBy && ui.lang === "en"
         ? editorial
           ? `Kindly reply by ${replyBy} so we can ${variant === "lakeside" ? "save your seat by the lake" : variant === "ivory-veil" ? "save your seat beneath the ivory veil" : "prepare your seat"}.`

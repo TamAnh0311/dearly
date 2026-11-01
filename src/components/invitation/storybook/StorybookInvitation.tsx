@@ -97,6 +97,7 @@ function placeLine(wedding: WeddingRow): string {
 function replyBy(date: string, locale: string, customDeadline?: string | null): string {
   const d = customDeadline ? parseWeddingDate(customDeadline) : parseWeddingDate(date);
   if (!customDeadline) d.setDate(d.getDate() - 42);
+  if (locale === "vi-VN" || locale === "vi") return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`;
   return d.toLocaleDateString(locale, { day: "numeric", month: "long", year: "numeric" });
 }
 
@@ -813,9 +814,11 @@ function VenueSection({
     <section className="sb-section sb-venue" id="venue">
       <Reveal>
         <Head kicker={lang === "vi" ? "T\u1ed5 ch\u1ee9c t\u1ea1i" : "Where we gather"} title={lang === "vi" ? "Nh\u00e0 H\u00e0ng" : "The Venue"} />
-        <figure className="sb-venue-art">
-          <Image src={DEMO_ART.aisle} alt="" fill sizes="(max-width: 760px) 100vw, 760px" className="object-cover" />
-        </figure>
+        {variant !== "ivory-veil" && (
+          <figure className="sb-venue-art">
+            <Image src={DEMO_ART.aisle} alt="" fill sizes="(max-width: 760px) 100vw, 760px" className="object-cover" />
+          </figure>
+        )}
         <h3 className="sb-venue-name">{name}</h3>
         {address && (
           <p className="sb-venue-address">

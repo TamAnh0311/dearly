@@ -98,32 +98,31 @@ export default function MusicPlayer({ musicUrl, preset, visible = false }: Music
     setPlaying(false);
   }, []);
 
-  // Try autoplay on mount; if blocked, start on first user gesture.
+  // Try autoplay on mount; always add gesture listeners as fallback.
   useEffect(() => {
     if (!available) return;
 
-    void play().catch(() => {
-      const onGesture = () => {
-        remove();
-        void play();
-      };
-      const remove = () => {
-        window.removeEventListener("pointerdown", onGesture);
-        window.removeEventListener("keydown", onGesture);
-        window.removeEventListener("scroll", onGesture);
-        window.removeEventListener("touchstart", onGesture);
-      };
-      window.addEventListener("pointerdown", onGesture);
-      window.addEventListener("keydown", onGesture);
-      window.addEventListener("scroll", onGesture, { passive: true });
-      window.addEventListener("touchstart", onGesture, { passive: true });
-      cleanups.push(remove);
-    });
-
-    const cleanups: (() => void)[] = [];
-    return () => {
-      cleanups.forEach((fn) => fn());
+    const onGesture = () => {
+      if (!startedRef.current) void play();
+      remove();
     };
+    const remove = () => {
+      window.removeEventListener("pointerdown", onGesture);
+      window.removeEventListener("keydown", onGesture);
+      window.removeEventListener("scroll", onGesture);
+      window.removeEventListener("touchstart", onGesture);
+      window.removeEventListener("click", onGesture);
+    };
+    window.addEventListener("pointerdown", onGesture, { passive: true });
+    window.addEventListener("keydown", onGesture, { passive: true });
+    window.addEventListener("scroll", onGesture, { passive: true });
+    window.addEventListener("touchstart", onGesture, { passive: true });
+    window.addEventListener("click", onGesture, { passive: true });
+
+    // Also try autoplay immediately.
+    void play().catch(() => { /* blocked — gesture listeners will handle it */ });
+
+    return remove;
   }, [available, play]);
 
   // Stop music when unmounting.

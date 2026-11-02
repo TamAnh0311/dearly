@@ -28,6 +28,8 @@ import {
   mix,
   mapsUrl,
   parseWeddingDate,
+  BODY_FONT_VI,
+  SCRIPT_FONT_VI,
   type InvitationPalette,
 } from "../utils";
 import { eventTypeOf, getEventCopy, hostNames, isPastEvent } from "@/lib/event-types";
@@ -1149,6 +1151,7 @@ export default function StorybookInvitation({
     setTimeout(() => document.getElementById("blessings")?.scrollIntoView({ behavior: "smooth" }), 2200);
   }
 
+  const isVi = ui.lang === "vi";
   const vars = useMemo(
     () =>
       ({
@@ -1163,16 +1166,17 @@ export default function StorybookInvitation({
         "--sb-line": alpha(palette.primary, 0.28),
         "--sb-line-soft": alpha(palette.primary, 0.14),
         "--sb-display": palette.displayFont,
-        "--sb-script": palette.scriptFont,
-        "--sb-body": palette.bodyFont,
+        /* Vietnamese: use VI-compatible fonts as primary so diacritics don't mix per-glyph. */
+        "--sb-script": isVi ? `'${SCRIPT_FONT_VI}', cursive` : palette.scriptFont,
+        "--sb-body": isVi ? `'${BODY_FONT_VI}', ${palette.bodyFont}` : palette.bodyFont,
       }) as CSSProperties,
-    [palette]
+    [palette, isVi]
   );
 
   return (
     <EventContext.Provider value={{ eventType, copy, twoNames, inviteeName: invitee?.name ?? null, lang: ui.lang }}>
       <div className={`sb-root sb-variant-${variant} ${palette.isDark ? "sb-dark" : ""}`} style={vars}>
-        <link rel="stylesheet" href={googleFontsUrl(theme.fonts, [palette.style.bodyFont, palette.style.scriptFont])} />
+        <link rel="stylesheet" href={googleFontsUrl(theme.fonts, [palette.style.bodyFont], [palette.style.scriptFont])} />
         <div className="sb-grain" aria-hidden="true" />
         <div className="sb-page">
           {variant === "peony" || variant === "lantern" ? <ScrollVine /> : null}

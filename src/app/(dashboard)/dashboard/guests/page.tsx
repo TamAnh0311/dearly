@@ -11,7 +11,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Check, Copy, Download, MessageCircle, Search, Trash2, UserCheck, UserPlus, Users } from "lucide-react";
+import { Check, Copy, Download, Mail, MessageCircle, Search, Trash2, UserCheck, UserPlus, Users } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useMyWedding } from "@/hooks/useWedding";
 import { guestListCsv, inviteUrl, parseGuestList, summarizeGuestList } from "@/lib/guest-list";
@@ -111,6 +111,18 @@ export default function GuestsPage() {
     }
   }
 
+  /** Marks or unmarks an invitation as sent. */
+  async function toggleInvited(i: InviteeRow) {
+    const invited = !i.invited_at;
+    const patch = { invited_at: invited ? new Date().toISOString() : null };
+    setInvitees((prev) => prev.map((x) => (x.id === i.id ? { ...x, ...patch } : x)));
+    const { error: upErr } = await createClient().from("invitees").update(patch).eq("id", i.id);
+    if (upErr) {
+      setError("Couldn't update invitation status. Please try again.");
+      void load();
+    }
+  }
+
   /** Toggles day-of check-in; arrivals default to confirmed seats (or 1). */
   async function toggleCheckIn(i: InviteeRow) {
     const checkedIn = !i.checked_in_at;
@@ -167,6 +179,7 @@ export default function GuestsPage() {
 
   const stats = [
     { label: "Invited", value: summary.invited, sub: `${summary.seatsInvited} seats` },
+    { label: "Sent", value: summary.sent, sub: `${summary.invited - summary.sent} not sent` },
     { label: "Coming", value: summary.attending, sub: `${summary.seatsConfirmed} people` },
     { label: "Can't make it", value: summary.declined, sub: "declined" },
     { label: "No reply yet", value: summary.pending, sub: "pending" },
@@ -198,7 +211,7 @@ export default function GuestsPage() {
       </div>
 
       {/* Results */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {stats.map((s) => (
           <div key={s.label} className="rounded-xl border border-dearly-border bg-dearly-card p-4">
             <p className="text-2xl font-bold text-dearly-text">{s.value}</p>
@@ -334,6 +347,15 @@ export default function GuestsPage() {
                   {i.status === "attending" ? `Coming · ${i.party_size}` : i.status === "declined" ? "Can't make it" : "No reply"}
                 </span>
                 <div className="flex shrink-0 items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => toggleInvited(i)}
+                    title={i.invited_at ? "Mark as not sent" : "Mark invitation as sent"}
+                    aria-pressed={!!i.invited_at}
+                    className={`flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-semibold ${i.invited_at ? "bg-blue-600 text-white" : "border border-dearly-border text-dearly-text-secondary hover:bg-dearly-cream"}`}
+                  >
+                    <Mail size={14} /> {i.invited_at ? "Sent" : "Not sent"}
+                  </button>
                   <button
                     type="button"
                     onClick={() => toggleCheckIn(i)}

@@ -69,6 +69,7 @@ export interface InviteeRow {
   checked_in_at: string | null;
   arrived_count: number;
   guest_group: string | null;
+  invited_at: string | null;
   created_at: string;
 }
 

@@ -53,6 +53,7 @@ export interface GuestListSummary {
   pending: number;
   checkedIn: number;
   arrived: number;
+  sent: number;
 }
 
 /** Totals for the results dashboard. */
@@ -67,8 +68,9 @@ export function summarizeGuestList(invitees: InviteeRow[]): GuestListSummary {
       pending: s.pending + (i.status === "pending" ? 1 : 0),
       checkedIn: s.checkedIn + (i.checked_in_at ? 1 : 0),
       arrived: s.arrived + (i.checked_in_at ? i.arrived_count : 0),
+      sent: s.sent + (i.invited_at ? 1 : 0),
     }),
-    { invited: 0, seatsInvited: 0, attending: 0, seatsConfirmed: 0, declined: 0, pending: 0, checkedIn: 0, arrived: 0 }
+    { invited: 0, seatsInvited: 0, attending: 0, seatsConfirmed: 0, declined: 0, pending: 0, checkedIn: 0, arrived: 0, sent: 0 }
   );
 }
 
@@ -80,9 +82,9 @@ export function inviteUrl(origin: string, slug: string, token: string): string {
 /** CSV export of the guest list (RFC 4180 quoting). */
 export function guestListCsv(invitees: InviteeRow[], origin: string, slug: string): string {
   const q = (v: string | number) => `"${String(v).replace(/"/g, '""')}"`;
-  const rows = [["Name", "Group", "Seats invited", "Status", "Seats confirmed", "Checked in", "Arrived", "Link"]];
+  const rows = [["Name", "Group", "Seats invited", "Invitation sent", "Status", "Seats confirmed", "Checked in", "Arrived", "Link"]];
   for (const i of invitees) {
-    rows.push([i.name, i.guest_group ?? "", String(i.max_party_size), i.status, String(i.party_size), i.checked_in_at ? "yes" : "no", String(i.arrived_count), inviteUrl(origin, slug, i.token)]);
+    rows.push([i.name, i.guest_group ?? "", String(i.max_party_size), i.invited_at ? "yes" : "no", i.status, String(i.party_size), i.checked_in_at ? "yes" : "no", String(i.arrived_count), inviteUrl(origin, slug, i.token)]);
   }
   return rows.map((r) => r.map(q).join(",")).join("\n");
 }

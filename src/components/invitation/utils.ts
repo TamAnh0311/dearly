@@ -11,6 +11,10 @@ export const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 
 /** Script font used for flourishes (ampersand, eyebrows). Loaded alongside theme fonts. */
 export const SCRIPT_FONT = "Great Vibes";
+/** Vietnamese-compatible cursive fallback (Great Vibes lacks Vietnamese glyphs). */
+export const SCRIPT_FONT_VI = "Dancing Script";
+/** Vietnamese-compatible sans-serif fallback (Jost/Lato lack Vietnamese glyphs). */
+export const BODY_FONT_VI = "Be Vietnam Pro";
 
 /** Colour + font tokens every invitation section consumes. */
 export interface InvitationPalette {
@@ -89,19 +93,45 @@ export function buildPalette(theme: ResolvedTheme, templateSlug?: string | null)
     ],
     leaf: isDark ? mix("#7a9a74", secondary, 0.25) : "#8aa882",
     displayFont: `'${theme.fonts.display}', 'Playfair Display', serif`,
-    bodyFont: `'${style.bodyFont ?? theme.fonts.body}', 'Lato', sans-serif`,
-    scriptFont: `'${style.scriptFont ?? SCRIPT_FONT}', cursive`,
+    bodyFont: `'${style.bodyFont ?? theme.fonts.body}', '${BODY_FONT_VI}', 'Lato', sans-serif`,
+    scriptFont: `'${style.scriptFont ?? SCRIPT_FONT}', '${SCRIPT_FONT_VI}', cursive`,
     style,
     radius: radii(style.corners),
   };
 }
 
-/** Builds a Google Fonts stylesheet URL for the theme fonts + script font (+ any template overrides). */
-export function googleFontsUrl(fonts: ResolvedTheme["fonts"], extraFamilies: (string | undefined | null)[] = []): string {
-  const families = Array.from(new Set([fonts.display, fonts.body, SCRIPT_FONT, ...extraFamilies]))
-    .filter((f): f is string => typeof f === "string" && f.length > 0 && f.length <= 60 && !/[<>{}()\[\]"';]/.test(f))
-    .map((f) => `family=${encodeURIComponent(f).replace(/%20/g, "+")}`);
-  return `https://fonts.googleapis.com/css2?${families.join("&")}&display=swap`;
+/** Builds a Google Fonts stylesheet URL for the theme fonts + script font (+ any template overrides).
+ *  Requests explicit weight/italic axes so Vietnamese diacritics render with
+ *  real outlines instead of browser-synthesised faux bold/italic. */
+export function googleFontsUrl(
+  fonts: ResolvedTheme["fonts"],
+  extraBodies: (string | undefined | null)[] = [],
+  extraScripts: (string | undefined | null)[] = [],
+): string {
+  const safe = (f: unknown): f is string =>
+    typeof f === "string" && f.length > 0 && f.length <= 60 && !/[<>{}()\[\]"';]/.test(f);
+  const enc = (f: string) => encodeURIComponent(f).replace(/%20/g, "+");
+
+  const seen = new Set<string>();
+  const parts: string[] = [];
+  const add = (name: string, axis: string) => {
+    if (seen.has(name)) return;
+    seen.add(name);
+    parts.push(`family=${enc(name)}${axis}`);
+  };
+
+  /* Display font: italic + weights 300–600 (headings, hero names, calendar). */
+  if (safe(fonts.display)) add(fonts.display, ":ital,wght@0,300;0,400;0,500;0,600;1,300;1,400");
+  /* Body (theme default + overrides): weights 300–600 (copy, kickers, UI). */
+  for (const f of [fonts.body, ...extraBodies]) if (safe(f)) add(f, ":wght@300;400;500;600");
+  /* Vietnamese-compatible body fallback: weights 300–600. */
+  if (safe(BODY_FONT_VI)) add(BODY_FONT_VI, ":wght@300;400;500;600");
+  /* Script fonts (built-in + overrides + Vietnamese fallback): single weight only. */
+  if (safe(SCRIPT_FONT)) add(SCRIPT_FONT, "");
+  if (safe(SCRIPT_FONT_VI)) add(SCRIPT_FONT_VI, "");
+  for (const f of extraScripts) if (safe(f)) add(f, "");
+
+  return `https://fonts.googleapis.com/css2?${parts.join("&")}&display=swap`;
 }
 
 /** Parses a date-only (YYYY-MM-DD) or ISO string without timezone drift. */

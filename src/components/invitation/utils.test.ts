@@ -75,7 +75,7 @@ describe("buildPalette", () => {
   it("uses a template script-font override when one is defined", () => {
     const p = buildPalette(theme("#FFF5F5"), "peony-letter");
     expect(p.scriptFont).toContain("Petit Formal Script");
-    expect(googleFontsUrl(theme("#FFF5F5").fonts, [p.style.scriptFont])).toContain("family=Petit+Formal+Script");
+    expect(googleFontsUrl(theme("#FFF5F5").fonts, [], [p.style.scriptFont])).toContain("family=Petit+Formal+Script");
   });
 });
 

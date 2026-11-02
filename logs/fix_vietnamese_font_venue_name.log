@@ -1,0 +1,4 @@
+[2026-11-02 14:03:00]
+CONTEXT: Fix Vietnamese text font rendering on ivory-veil invitation and add "- sân Riverside" to venue name.
+RESULT: (1) Updated googleFontsUrl() in utils.ts to request explicit weight/italic axes (display: ital,wght@0,300..0,600+1,300..1,400; body: wght@300..600) — previously only loaded regular 400, causing browser-synthesised faux bold/italic that broke Vietnamese diacritics. Updated StorybookInvitation.tsx caller and test to separate body/script font overrides. All 23 tests pass, TS compiles clean. (2) Updated venue_name in Supabase from "Soft Water" to "Soft Water - sân Riverside" for wedding slug thao-tamanh.
+---

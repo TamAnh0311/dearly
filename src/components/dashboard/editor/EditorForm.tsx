@@ -16,6 +16,7 @@ import ColorPicker from "./ColorPicker";
 import FontPicker from "./FontPicker";
 import LanguagePicker from "@/components/invitation/LanguagePicker";
 import type { DressSwatch, GiftAccount, WeddingCustomization } from "@/types/database";
+import MusicPicker from "./MusicPicker";
 
 /** Section header used throughout the form. */
 function SectionHeading({ children }: { children: React.ReactNode }) {
@@ -83,6 +84,8 @@ export default function EditorForm() {
         story_text: wedding.story_text,
         template_id: wedding.template_id,
         customization: wedding.customization,
+        music_url: wedding.music_url,
+        music_track_id: wedding.music_track_id,
       }).catch(() => {
         // Non-fatal — next save attempt will retry.
       });
@@ -181,6 +184,24 @@ export default function EditorForm() {
               className="w-full resize-none rounded-lg border border-dearly-border bg-dearly-card px-3 py-2 text-sm text-dearly-text placeholder:text-dearly-text-muted focus:outline-none focus:ring-2 focus:ring-dearly-accent"
             />
           </div>
+        </section>
+
+        {/* ── Background Music ── */}
+        <section>
+          <SectionHeading>Background Music</SectionHeading>
+          <MusicPicker
+            selectedTrackId={wedding.music_track_id}
+            customUrl={wedding.music_url ?? ""}
+            weddingId={wedding.id}
+            onSelectTrack={(trackId) => {
+              updateField("music_track_id", trackId);
+              if (trackId) updateField("music_url", null);
+            }}
+            onCustomUrl={(url) => {
+              updateField("music_url", url || null);
+              if (url) updateField("music_track_id", null);
+            }}
+          />
         </section>
 
         {/* ── Dress code (Storybook collection and any template with a palette) ── */}

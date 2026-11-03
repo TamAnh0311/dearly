@@ -71,28 +71,22 @@ export default function MusicPlayer({ musicUrl, preset, visible = false }: Music
   const [playing, setPlaying] = useState(false);
   const available = Boolean(musicUrl || preset);
 
-  /** Starts playback, falling back from file to generative music on failure. */
+  /** Starts playback with whichever source is configured (file or preset). */
   const play = useCallback(async () => {
     if (startedRef.current) return;
     try {
-      if (!engineRef.current) engineRef.current = musicUrl ? fileEngine(musicUrl) : generativeEngine(preset ?? "piano");
+      if (!engineRef.current) {
+        if (musicUrl) engineRef.current = fileEngine(musicUrl);
+        else if (preset) engineRef.current = generativeEngine(preset);
+        else return;
+      }
       await engineRef.current.start();
       startedRef.current = true;
       setPlaying(true);
     } catch {
-      // Stop the failed engine so its Audio element can't auto-resume later.
+      // Clean up the failed engine so it can't produce stray audio.
       engineRef.current?.stop();
       engineRef.current = null;
-      if (!startedRef.current && preset) {
-        try {
-          engineRef.current = generativeEngine(preset);
-          await engineRef.current.start();
-          startedRef.current = true;
-          setPlaying(true);
-        } catch {
-          /* browser blocked all audio — give up silently */
-        }
-      }
     }
   }, [musicUrl, preset]);
 

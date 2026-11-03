@@ -385,6 +385,9 @@ export default function TemplatesPage() {
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <span className="font-display text-xl font-bold text-dearly-accent">Dearly</span>
           <div className="flex items-center gap-6 text-sm text-dearly-text-muted">
+            <Link href="/help" className="hover:text-dearly-text-secondary transition-colors">
+              Help
+            </Link>
             <Link href="/privacy" className="hover:text-dearly-text-secondary transition-colors">
               Privacy
             </Link>

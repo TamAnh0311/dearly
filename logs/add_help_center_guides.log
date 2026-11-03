@@ -1,0 +1,4 @@
+[2026-11-03 12:36:41]
+CONTEXT: Dearly had no in-app documentation or guide system; the only docs were design notes for contributors.
+RESULT: Added a public Help Center at /help plus 15 pre-rendered guide articles at /help/[slug], with search, category filters, FAQ/JSON-LD, related guides, links from the dashboard sidebar and marketing footers, and sitemap entries. Data lives in src/lib/guides.ts (tested in src/lib/guides.test.ts); npm test, tsc, lint and build pass.
+---

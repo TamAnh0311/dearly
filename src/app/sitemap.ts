@@ -6,6 +6,7 @@
 import type { MetadataRoute } from "next";
 import { OCCASIONS } from "@/lib/occasions";
 import { absoluteUrl } from "@/lib/seo";
+import { GUIDES } from "@/lib/guides";
 import { PLANS_ENABLED } from "@/lib/plans";
 import { createPublicClient } from "@/lib/supabase/public";
 
@@ -18,6 +19,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: absoluteUrl("/templates"), lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     ...(PLANS_ENABLED ? [{ url: absoluteUrl("/pricing"), lastModified: now, changeFrequency: "monthly" as const, priority: 0.7 }] : []),
     { url: absoluteUrl("/cards"), lastModified: now, changeFrequency: "monthly", priority: 0.5 },
+    { url: absoluteUrl("/help"), lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    ...GUIDES.map((guide) => ({
+      url: absoluteUrl(`/help/${guide.slug}`),
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    })),
     ...OCCASIONS.map((o) => ({
       url: absoluteUrl(`/invitations/${o.slug}`),
       lastModified: now,

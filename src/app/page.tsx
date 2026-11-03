@@ -564,6 +564,7 @@ export default function LandingPage() {
             <Link href="/invitations/social-event" className="hover:text-dearly-text-secondary">Event invitations</Link>
             <Link href="/invitations/date-night" className="hover:text-dearly-text-secondary">Date night & proposals</Link>
             <Link href="/templates" className="hover:text-dearly-text-secondary">Templates</Link>
+            <Link href="/help" className="hover:text-dearly-text-secondary">Help center</Link>
             <Link href="/login" className="hover:text-dearly-text-secondary">Sign in</Link>
           </div>
           <p className="text-sm text-dearly-text-muted">&copy; {new Date().getFullYear()} Dearly. Made with love.</p>

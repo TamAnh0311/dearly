@@ -136,7 +136,13 @@ Every word in the query must match. Plurals are folded, so "butterflies" finds "
 
 **Slugs:** event slugs live at the site root, so `isReservedSlug()` (`src/lib/reserved-slugs.ts`) rejects names of app routes. Add new top-level routes there.
 
-**SEO** (`src/lib/seo.ts`, `SITE_URL` from `NEXT_PUBLIC_SITE_URL`): indexable pages are `/`, `/templates`, `/templates/<slug>`, `/invitations/<occasion>` (`src/lib/occasions.ts`) and `/pricing` (only while plans are on); they are listed in `sitemap.ts`. Guest event pages, `/q/*` and `?embed=1` previews are `noindex`.
+**SEO** (`src/lib/seo.ts`, `SITE_URL` from `NEXT_PUBLIC_SITE_URL`): indexable pages are `/`, `/templates`, `/templates/<slug>`, `/invitations/<occasion>` (`src/lib/occasions.ts`), `/help` + `/help/<slug>` and `/pricing` (only while plans are on); they are listed in `sitemap.ts`. Guest event pages, `/q/*` and `?embed=1` previews are `noindex`.
+
+**Help Center** (`/help`, `src/lib/guides.ts`, `src/components/help/HelpCenter.tsx`):
+- Every guide is static data in `GUIDES` (`slug`, category, summary, keywords, sections, optional FAQ). No database or route change is needed to add one.
+- `/help` filters guides on the client with `searchGuides()`; `/help/[slug]` is pre-rendered by `generateStaticParams` and builds metadata + FAQ JSON-LD from the same entry. Add a guide by appending to `GUIDES`; `relatedGuides()` cross-links it automatically.
+- Keep the Help links in the landing footer, the templates footer and the dashboard sidebar, and keep guides in `sitemap.ts`.
+- Write in plain host-facing language and only document shipped behaviour.
 
 ## 4. Design guideline
 

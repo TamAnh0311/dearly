@@ -8,7 +8,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { Palette, Image, MessageSquare, Clock, Settings, User, Send, Heart, MailCheck, X, Users, Crown } from "lucide-react";
+import { Palette, Image, MessageSquare, Clock, Settings, User, Send, Heart, MailCheck, X, Users, Crown, HelpCircle } from "lucide-react";
 import { createContext, useContext, useState, useCallback } from "react";
 import { PLANS_ENABLED } from "@/lib/plans";
 
@@ -24,6 +24,7 @@ const NAV_ITEMS = [
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
   ...(PLANS_ENABLED ? [{ href: "/pricing", label: "Plans", icon: Crown }] : []),
   { href: "/dashboard/account", label: "Account", icon: User },
+  { href: "/help", label: "Help & guides", icon: HelpCircle },
 ];
 
 /** Context so TopBar can toggle the mobile drawer without prop-drilling. */

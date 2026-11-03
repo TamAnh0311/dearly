@@ -50,7 +50,11 @@ function fileEngine(url: string): Engine {
       ramp(0.8, 0.04);
     },
     stop() {
-      ramp(0, 0.05, () => audio.pause());
+      if (fade) clearInterval(fade);
+      fade = null;
+      audio.pause();
+      audio.currentTime = 0;
+      audio.volume = 0;
     },
   };
 }
@@ -76,10 +80,12 @@ export default function MusicPlayer({ musicUrl, preset, visible = false }: Music
       startedRef.current = true;
       setPlaying(true);
     } catch {
-      // File failed — fall back to generative; or generative failed — retry once
-      if (!startedRef.current) {
+      // Stop the failed engine so its Audio element can't auto-resume later.
+      engineRef.current?.stop();
+      engineRef.current = null;
+      if (!startedRef.current && preset) {
         try {
-          engineRef.current = generativeEngine(preset ?? "piano");
+          engineRef.current = generativeEngine(preset);
           await engineRef.current.start();
           startedRef.current = true;
           setPlaying(true);
@@ -99,8 +105,12 @@ export default function MusicPlayer({ musicUrl, preset, visible = false }: Music
   }, []);
 
   // Try autoplay on mount; always add gesture listeners as fallback.
+  // When a visible toggle button is shown, skip gesture listeners to avoid
+  // conflicting with the button's own click handler (which could start a
+  // second engine before the first is stopped).
   useEffect(() => {
     if (!available) return;
+    if (visible) return; // button-only control when visible
 
     const onGesture = () => {
       if (!startedRef.current) void play();
@@ -123,7 +133,7 @@ export default function MusicPlayer({ musicUrl, preset, visible = false }: Music
     void play().catch(() => { /* blocked — gesture listeners will handle it */ });
 
     return remove;
-  }, [available, play]);
+  }, [available, play, visible]);
 
   // Stop music when unmounting.
   useEffect(() => () => engineRef.current?.stop(), []);

@@ -447,7 +447,7 @@ function VeilFamilySection({ families, lang }: { families: { side1?: string; sid
   return (
     <section className="sb-section sb-veil-family" id="family">
       <Reveal>
-        <Head kicker={lang === "vi" ? "Gia \u0111\u00ecnh hai b\u00ean" : "Our families"} title={lang === "vi" ? "Th\u00e0nh H\u00f4n" : "Our Wedding"} />
+        <Head kicker={lang === "vi" ? "Gia \u0111\u00ecnh hai b\u00ean" : "Our families"} title={lang === "vi" ? "T\u1ed5 ch\u1ee9c th\u00e0nh h\u00f4n" : "Our Wedding"} />
         <div className="sb-veil-family-sides">
           {side1Parts.length > 0 && (
             <div className="sb-veil-family-side">
@@ -780,7 +780,7 @@ function VenueSection({
     return (
       <section className="sb-section sb-venue" id="venue">
         <Reveal>
-          <Head kicker={lang === "vi" ? "T\u1ed5 ch\u1ee9c t\u1ea1i" : "Where we gather"} title={lang === "vi" ? "Nh\u00e0 H\u00e0ng" : "The Venue"} />
+          <Head kicker={lang === "vi" ? "T\u1ed5 ch\u1ee9c t\u1ea1i" : "Where we gather"} title={lang === "vi" ? name : "The Venue"} />
           <figure className="sb-postcard">
             <span className="sb-stamp" aria-hidden="true">
               {stamp}
@@ -794,7 +794,7 @@ function VenueSection({
               <span>{city || "The garden"}</span>
             </figcaption>
           </figure>
-          <h3 className="sb-venue-name">{name}</h3>
+          {lang !== "vi" && <h3 className="sb-venue-name">{name}</h3>}
           {address && (
             <p className="sb-venue-address">
               {addressLines.map((line, i) => (
@@ -815,13 +815,13 @@ function VenueSection({
   return (
     <section className="sb-section sb-venue" id="venue">
       <Reveal>
-        <Head kicker={lang === "vi" ? "T\u1ed5 ch\u1ee9c t\u1ea1i" : "Where we gather"} title={lang === "vi" ? "Nh\u00e0 H\u00e0ng" : "The Venue"} />
+        <Head kicker={lang === "vi" ? "T\u1ed5 ch\u1ee9c t\u1ea1i" : "Where we gather"} title={lang === "vi" ? name : "The Venue"} />
         {variant !== "ivory-veil" && (
           <figure className="sb-venue-art">
             <Image src={DEMO_ART.aisle} alt="" fill sizes="(max-width: 760px) 100vw, 760px" className="object-cover" />
           </figure>
         )}
-        <h3 className="sb-venue-name">{name}</h3>
+        {lang !== "vi" && <h3 className="sb-venue-name">{name}</h3>}
         {address && (
           <p className="sb-venue-address">
             {addressLines.map((line, i) => (

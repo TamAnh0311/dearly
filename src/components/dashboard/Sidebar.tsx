@@ -8,11 +8,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { Palette, Image, MessageSquare, Clock, Settings, User, Send, Heart, MailCheck, X, Users, Crown, HelpCircle } from "lucide-react";
+import { Palette, Image, MessageSquare, Clock, Settings, User, Send, Heart, MailCheck, X, Users, Crown, HelpCircle, LayoutDashboard } from "lucide-react";
 import { createContext, useContext, useState, useCallback } from "react";
 import { PLANS_ENABLED } from "@/lib/plans";
 
 const NAV_ITEMS = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/editor", label: "Editor", icon: Palette },
   { href: "/dashboard/guests", label: "Guest list", icon: Users },
   { href: "/dashboard/rsvps", label: "RSVPs", icon: MailCheck },
@@ -39,7 +40,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <>
       {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
-        const isActive = pathname.startsWith(href);
+        const isActive = href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(href);
         return (
           <Link
             key={href}

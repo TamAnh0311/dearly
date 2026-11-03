@@ -2,96 +2,23 @@
 
 /**
  * useWedding — fetches and mutates a wedding by user ID or slug.
+ * Dashboard components share state via WeddingContext; this hook
+ * delegates to the context when available, or fetches independently
+ * for pages outside the dashboard layout.
  */
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import type { WeddingRow } from "@/types/database";
 import type { WeddingWithTemplate } from "@/types/wedding";
+import { useWeddingContext } from "@/context/WeddingContext";
 
 /**
- * Fetches the current user's wedding data.
- * Returns the wedding with its template joined.
+ * Returns the active wedding from the shared WeddingContext.
+ * All dashboard pages share the same state so switching in the
+ * TopBar updates every component.
  */
 export function useMyWedding() {
-  const [wedding, setWedding] = useState<WeddingWithTemplate | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetch() {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { setLoading(false); return; }
-
-      const { data, error: queryError } = await supabase
-        .from("weddings")
-        .select("*, template:templates(*)")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (queryError) {
-        setError(queryError.message);
-      }
-      setWedding(data as WeddingWithTemplate | null);
-      setLoading(false);
-    }
-    fetch();
-  }, []);
-
-  /** Saves wedding data to Supabase and refreshes template if it changed. */
-  async function saveWedding(updates: Partial<WeddingRow>): Promise<void> {
-    if (!wedding) return;
-    const supabase = createClient();
-    const { error: updateError } = await supabase
-      .from("weddings")
-      .update(updates)
-      .eq("id", wedding.id);
-    if (updateError) throw new Error(updateError.message);
-
-    if (updates.template_id && updates.template_id !== wedding.template_id) {
-      const { data } = await supabase
-        .from("weddings")
-        .select("*, template:templates(*)")
-        .eq("id", wedding.id)
-        .single();
-      if (data) { setWedding(data as WeddingWithTemplate); return; }
-    }
-    setWedding({ ...wedding, ...updates });
-  }
-
-  /**
-   * Creates a new wedding for the current user in a single insert.
-   * `extra` lets onboarding set names, date and customisation atomically
-   * (calling saveWedding right after would see stale state and no-op).
-   */
-  async function createWedding(
-    templateId: string,
-    slug: string,
-    extra: Partial<Pick<WeddingRow, "partner1_name" | "partner2_name" | "wedding_date" | "customization" | "event_type" | "event_title">> = {}
-  ): Promise<WeddingRow> {
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error("Please sign in again to create your wedding site.");
-
-    const { data, error: insertError } = await supabase
-      .from("weddings")
-      .insert({
-        user_id: user.id,
-        template_id: templateId,
-        slug,
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        ...extra,
-      })
-      .select("*, template:templates(*)")
-      .single();
-
-    if (insertError) throw new Error(insertError.message);
-    setWedding(data as WeddingWithTemplate);
-    return data as WeddingRow;
-  }
-
-  return { wedding, loading, error, saveWedding, createWedding };
+  return useWeddingContext();
 }
 
 /**

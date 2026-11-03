@@ -24,7 +24,6 @@ import {
   Heart,
   CalendarDays,
   Link as LinkIcon,
-  ChevronRight,
   Sparkles,
   Eye,
   X,
@@ -249,7 +248,7 @@ function TemplatePreviewModal({
 // ---------------------------------------------------------------------------
 
 export default function DashboardPage() {
-  const { wedding, loading: weddingLoading, createWedding } = useMyWedding();
+  const { wedding, allWeddings, loading: weddingLoading, createWedding, switchWedding } = useMyWedding();
   const router = useRouter();
 
   // Template picker state
@@ -279,8 +278,9 @@ export default function DashboardPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  // Dashboard stats state
-  const [stats, setStats] = useState({ photos: 0, guestbookEntries: 0, timelineEvents: 0 });
+  // Dashboard stats state — per-wedding map
+  type WeddingStats = { photos: number; guestbookEntries: number; timelineEvents: number };
+  const [statsMap, setStatsMap] = useState<Record<string, WeddingStats>>({});
   const [statsLoading, setStatsLoading] = useState(true);
 
   /** Fetches all templates from Supabase on mount. */
@@ -319,35 +319,31 @@ export default function DashboardPage() {
     else setSlug(`wedding-${Math.random().toString(36).slice(2, 8)}`);
   }, [partner1, partner2, slugEdited]);
 
-  /** Fetches photo, guestbook, and timeline counts when a wedding exists. */
+  /** Fetches photo, guestbook, and timeline counts for every wedding. */
   useEffect(() => {
-    if (!wedding) return;
-    async function fetchStats() {
+    if (allWeddings.length === 0) return;
+    let cancelled = false;
+    async function fetchAllStats() {
+      setStatsLoading(true);
       const supabase = createClient();
-      const [photosRes, guestbookRes, eventsRes] = await Promise.all([
-        supabase
-          .from("gallery_photos")
-          .select("id", { count: "exact", head: true })
-          .eq("wedding_id", wedding!.id)
-          .eq("status", "approved"),
-        supabase
-          .from("guestbook_entries")
-          .select("id", { count: "exact", head: true })
-          .eq("wedding_id", wedding!.id),
-        supabase
-          .from("wedding_events")
-          .select("id", { count: "exact", head: true })
-          .eq("wedding_id", wedding!.id),
-      ]);
-      setStats({
-        photos: photosRes.count ?? 0,
-        guestbookEntries: guestbookRes.count ?? 0,
-        timelineEvents: eventsRes.count ?? 0,
-      });
-      setStatsLoading(false);
+      const entries = await Promise.all(
+        allWeddings.map(async (w) => {
+          const [photosRes, guestbookRes, eventsRes] = await Promise.all([
+            supabase.from("gallery_photos").select("id", { count: "exact", head: true }).eq("wedding_id", w.id).eq("status", "approved"),
+            supabase.from("guestbook_entries").select("id", { count: "exact", head: true }).eq("wedding_id", w.id),
+            supabase.from("wedding_events").select("id", { count: "exact", head: true }).eq("wedding_id", w.id),
+          ]);
+          return [w.id, { photos: photosRes.count ?? 0, guestbookEntries: guestbookRes.count ?? 0, timelineEvents: eventsRes.count ?? 0 }] as const;
+        })
+      );
+      if (!cancelled) {
+        setStatsMap(Object.fromEntries(entries));
+        setStatsLoading(false);
+      }
     }
-    fetchStats();
-  }, [wedding]);
+    fetchAllStats();
+    return () => { cancelled = true; };
+  }, [allWeddings]);
 
   /**
    * Handles the "Create Wedding Site" form submission.
@@ -419,165 +415,139 @@ export default function DashboardPage() {
   // ---------------------------------------------------------------------------
 
   if (wedding) {
-    const formattedDate = wedding.wedding_date
-      ? new Date(wedding.wedding_date).toLocaleDateString("en-AU", {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-        })
-      : null;
+    const multi = allWeddings.length > 1;
 
     return (
-      <div className="mx-auto max-w-4xl space-y-8 pb-10">
+      <div className="mx-auto max-w-4xl space-y-6 pb-10">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <h1 className="font-display text-3xl font-bold text-dearly-text">
-            Welcome back
-          </h1>
+          <h1 className="font-display text-3xl font-bold text-dearly-text">Welcome back</h1>
           <p className="mt-1 text-dearly-text-secondary">
-            Here&apos;s an overview of your wedding site.
+            {multi
+              ? `You have ${allWeddings.length} invitations. Tap one to manage it.`
+              : "Here\u2019s an overview of your wedding site."}
           </p>
         </motion.div>
 
-        {/* Couple Card */}
+        {/* Invitation cards — one per wedding, vertical stack */}
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.08 }}
-          className="relative overflow-hidden rounded-2.5xl border border-dearly-border bg-dearly-card shadow-card px-6 py-5"
+          className="space-y-4"
+          initial="hidden"
+          animate="visible"
+          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }}
         >
-          {/* Decorative gradient */}
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-dearly-rose-soft/30 via-transparent to-dearly-gold-soft/20" />
+          {allWeddings.map((w) => {
+            const active = w.id === wedding.id;
+            const wStats = statsMap[w.id];
+            const wDate = w.wedding_date
+              ? new Date(w.wedding_date).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" })
+              : null;
 
-          <div className="relative flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <Heart size={16} className="text-dearly-rose fill-dearly-rose" />
-                <p className="font-display text-xl font-bold text-dearly-text">
-                  {wedding.partner1_name} &amp; {wedding.partner2_name}
-                </p>
-              </div>
-              <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-dearly-text-secondary">
-                {formattedDate && (
-                  <span className="flex items-center gap-1.5">
-                    <CalendarDays size={14} />
-                    {formattedDate}
-                  </span>
-                )}
-                <span className="flex items-center gap-1.5">
-                  <Palette size={14} />
-                  {wedding.template?.name ?? "Custom"}
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <LinkIcon size={14} />
-                  <span className="font-mono text-xs">{wedding.slug}</span>
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <span
-                className={`rounded-full px-3 py-1 text-xs font-semibold ring-1 ${
-                  wedding.is_published
-                    ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
-                    : "bg-amber-50 text-amber-700 ring-amber-200"
+            return (
+              <motion.div
+                key={w.id}
+                variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.35 } } }}
+                className={`relative overflow-hidden rounded-2xl border-2 shadow-card transition-all ${
+                  active
+                    ? "border-dearly-accent bg-dearly-card ring-2 ring-dearly-accent/20"
+                    : "border-dearly-border bg-dearly-card hover:border-dearly-accent/40"
                 }`}
               >
-                {wedding.is_published ? "Published" : "Draft"}
-              </span>
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-dearly-rose-soft/20 via-transparent to-dearly-gold-soft/10" />
 
-              <a
-                href={`/${wedding.slug}`}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-full bg-dearly-accent px-4 py-1.5 text-sm font-medium text-white shadow-sm transition hover:opacity-90"
-              >
-                <Globe size={14} />
-                View Site
-                <ExternalLink size={12} />
-              </a>
-            </div>
-          </div>
-        </motion.div>
+                {/* Row 1: Header — clickable to activate */}
+                <button
+                  type="button"
+                  onClick={() => switchWedding(w.id)}
+                  className="relative w-full text-left px-5 pt-4 pb-3"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-display text-lg font-bold text-dearly-text truncate">
+                        {w.venue_name ?? `${w.partner1_name} & ${w.partner2_name}`}
+                      </p>
+                      <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-dearly-text-secondary">
+                        {wDate && (
+                          <span className="flex items-center gap-1">
+                            <CalendarDays size={12} /> {wDate}
+                          </span>
+                        )}
+                        <span className="flex items-center gap-1">
+                          <LinkIcon size={12} />
+                          <span className="font-mono">/{w.slug}</span>
+                        </span>
+                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 ${
+                          w.is_published
+                            ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
+                            : "bg-amber-50 text-amber-700 ring-amber-200"
+                        }`}>
+                          {w.is_published ? "Published" : "Draft"}
+                        </span>
+                      </div>
+                    </div>
+                    {multi && active && (
+                      <span className="flex shrink-0 items-center gap-1 rounded-full bg-dearly-accent px-2 py-0.5 text-[10px] font-semibold text-white">
+                        <CheckCircle2 size={10} /> Active
+                      </span>
+                    )}
+                  </div>
+                </button>
 
-        {/* Quick Stats Row */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.16 }}
-          className="grid grid-cols-1 gap-4 sm:grid-cols-3"
-        >
-          {[
-            { label: "Photos", value: statsLoading ? "—" : stats.photos, Icon: Image },
-            { label: "Messages", value: statsLoading ? "—" : stats.guestbookEntries, Icon: MessageSquare },
-            { label: "Events", value: statsLoading ? "—" : stats.timelineEvents, Icon: Clock },
-          ].map(({ label, value, Icon }) => (
-            <div
-              key={label}
-              className="flex items-center gap-4 rounded-2xl border border-dearly-border bg-dearly-card px-5 py-4 shadow-card"
-            >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-dearly-accent-soft">
-                <Icon size={18} className="text-dearly-accent" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-dearly-text">{value}</p>
-                <p className="text-xs text-dearly-text-secondary">{label}</p>
-              </div>
-            </div>
-          ))}
-        </motion.div>
-
-        {/* Quick Links Grid */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.24 }}
-        >
-          <h2 className="mb-3 text-sm font-semibold text-dearly-text">Quick Links</h2>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            {QUICK_LINKS.map(({ href, label, description, Icon, colour, iconBg }) => (
-              <motion.a
-                key={href}
-                href={href}
-                whileHover={{ scale: 1.02, y: -2 }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                className={`flex flex-col gap-3 rounded-2xl border bg-gradient-to-br p-4 shadow-card transition ${colour}`}
-              >
-                <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${iconBg}`}>
-                  <Icon size={18} />
+                {/* Row 2: Inline mini stats */}
+                <div className="relative flex flex-wrap items-center gap-x-5 gap-y-1 border-t border-dearly-border/50 px-5 py-2.5">
+                  {([
+                    { label: "Photos", value: wStats?.photos, Icon: Image },
+                    { label: "Messages", value: wStats?.guestbookEntries, Icon: MessageSquare },
+                    { label: "Events", value: wStats?.timelineEvents, Icon: Clock },
+                  ] as const).map(({ label, value, Icon }) => (
+                    <div key={label} className="flex items-center gap-1.5 text-xs text-dearly-text-secondary">
+                      <Icon size={13} className="text-dearly-accent" />
+                      <span className="font-semibold text-dearly-text">{statsLoading ? "\u2014" : (value ?? 0)}</span>
+                      <span>{label}</span>
+                    </div>
+                  ))}
                 </div>
-                <div>
-                  <p className="font-semibold text-sm">{label}</p>
-                  <p className="mt-0.5 text-xs opacity-70">{description}</p>
-                </div>
-                <ChevronRight size={14} className="self-end opacity-50" />
-              </motion.a>
-            ))}
-          </div>
-        </motion.div>
 
-        {/* Big preview CTA */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.4, delay: 0.32 }}
-        >
-          <a
-            href={`/${wedding.slug}`}
-            target="_blank"
-            rel="noreferrer"
-            className="group flex items-center justify-center gap-3 rounded-2xl border border-dearly-border bg-dearly-card px-6 py-4 shadow-card transition hover:shadow-card-hover"
-          >
-            <Globe size={18} className="text-dearly-accent" />
-            <span className="font-medium text-dearly-text group-hover:text-dearly-accent transition">
-              View Your Wedding Site
-            </span>
-            <ExternalLink size={14} className="text-dearly-text-muted group-hover:text-dearly-accent transition" />
-          </a>
+                {/* Row 3: Quick action pills + View site */}
+                <div className="relative flex flex-wrap items-center gap-2 border-t border-dearly-border/50 px-5 py-3">
+                  {QUICK_LINKS.map(({ href, label, Icon }) => (
+                    <a
+                      key={href}
+                      href={href}
+                      onClick={(e) => {
+                        if (multi && !active) {
+                          e.preventDefault();
+                          switchWedding(w.id);
+                          router.push(href);
+                        }
+                      }}
+                      className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] font-medium transition ${
+                        active
+                          ? "border-dearly-border text-dearly-text-secondary hover:bg-dearly-accent-soft hover:text-dearly-accent hover:border-dearly-accent/40"
+                          : "border-dearly-border/60 text-dearly-text-muted hover:text-dearly-text-secondary hover:border-dearly-border"
+                      }`}
+                    >
+                      <Icon size={12} />
+                      {label}
+                    </a>
+                  ))}
+                  <div className="flex-1" />
+                  <a
+                    href={`/${w.slug}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 rounded-lg bg-dearly-accent px-3 py-1.5 text-[11px] font-semibold text-white shadow-sm transition hover:opacity-90"
+                  >
+                    <Globe size={11} /> View site <ExternalLink size={10} />
+                  </a>
+                </div>
+              </motion.div>
+            );
+          })}
         </motion.div>
       </div>
     );

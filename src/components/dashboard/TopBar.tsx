@@ -24,12 +24,12 @@ export default function TopBar() {
 
   return (
     <header className="flex h-14 items-center justify-between border-b border-dearly-border bg-dearly-card px-4 md:px-6">
-      <div className="flex items-center gap-3 text-sm text-dearly-text-secondary">
-        <button type="button" onClick={toggle} className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-dearly-accent-soft md:hidden" aria-label="Open menu">
+      <div className="flex min-w-0 flex-1 items-center gap-2 text-sm text-dearly-text-secondary">
+        <button type="button" onClick={toggle} className="shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-dearly-accent-soft md:hidden" aria-label="Open menu">
           <Menu size={20} />
         </button>
         {wedding ? (
-          <span>
+          <span className="truncate">
             {wedding.partner1_name || "Partner 1"} &amp; {wedding.partner2_name || "Partner 2"}
           </span>
         ) : (
@@ -37,7 +37,7 @@ export default function TopBar() {
         )}
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex shrink-0 items-center gap-2 md:gap-3">
         {wedding?.slug && (
           <a
             href={`/${wedding.slug}`}

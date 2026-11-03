@@ -1,0 +1,4 @@
+[2026-11-03 16:02:00]
+CONTEXT: Clone thao-tamanh invitation for Vietnamese wedding (nhà gái side), fix "Thành Hôn" title, fix StorybookRsvp i18n and mobile guest count UI.
+RESULT: 1) Changed "Thành Hôn" → "Tổ chức thành hôn" in StorybookInvitation.tsx VeilFamilySection and ivory-veil.html demo. 2) Fixed StorybookRsvp.tsx: localised hardcoded English strings (labels, placeholders, buttons) using i18n system, added Vietnamese partyLabel, wrapped select in .sb-select-wrap with chevron SVG, fixed font-size to max(0.92rem, 16px) to prevent iOS zoom. 3) Created migration 00029_clone_thao_tamanh_nha_gai.sql cloning wedding row with venue "Tư gia nhà gái" at "Số nhà 29 Trần Phú, xã Thường Tín, Hà Nội", plus events and photos.
+---

@@ -37,8 +37,12 @@ function monogram(names: [string, string]): string {
   return initials.join("&") || "♥";
 }
 
-/** "Just me" / "Two of us" / "Four guests". */
-function partyLabel(size: number): string {
+/** "Just me" / "Two of us" / "Four guests" — localised. */
+function partyLabel(size: number, lang: string): string {
+  if (lang === "vi") {
+    if (size === 1) return "Chỉ mình tôi";
+    return `${size} khách`;
+  }
   if (size === 1) return "Just me";
   if (size === 2) return "Two of us";
   return `${size} guests`;
@@ -210,8 +214,8 @@ export default function StorybookRsvp({
             <>
               {!editorial && (
                 <div className="sb-letter-head">
-                  <p className="sb-kicker">Your reply</p>
-                  <h3 className="sb-title">A Note From You</h3>
+                  <p className="sb-kicker">{english ? "Your reply" : "Phản hồi"}</p>
+                  <h3 className="sb-title">{english ? "A Note From You" : "Lời nhắn từ quý khách"}</h3>
                   <p>
                     {invitee
                       ? t.inviteeSubtitle(invitee.name, coupleNames.filter(Boolean).join(" & "), invitee.maxPartySize)
@@ -222,7 +226,7 @@ export default function StorybookRsvp({
 
               <form onSubmit={handleSubmit} noValidate>
                 <div className="sb-field">
-                  <label id="sb-attend-label">{editorial ? "Your reply" : "Will you be there?"}</label>
+                  <label id="sb-attend-label">{editorial ? (english ? "Your reply" : "Phản hồi") : (english ? "Will you be there?" : "Quý khách có tham dự?")}</label>
                   <div className="sb-choice-grid" role="radiogroup" aria-labelledby="sb-attend-label">
                     <label className="sb-choice">
                       <input
@@ -249,7 +253,7 @@ export default function StorybookRsvp({
 
                 {!(variant === "ivory-veil" && invitee) && (
                   <div className="sb-field">
-                    <label htmlFor="sb-name">Your name</label>
+                    <label htmlFor="sb-name">{t.yourName}</label>
                     <input
                       id="sb-name"
                       className="sb-input"
@@ -257,7 +261,7 @@ export default function StorybookRsvp({
                       onChange={(e) => setName(e.target.value)}
                       maxLength={100}
                       autoComplete="name"
-                      placeholder="How should we call you?"
+                      placeholder={t.namePlaceholder}
                       aria-invalid={!!error && !name.trim()}
                       required
                     />
@@ -266,19 +270,22 @@ export default function StorybookRsvp({
 
                 {attending && (
                   <div className="sb-field">
-                    <label htmlFor="sb-guests">Number of guests</label>
-                    <select
-                      id="sb-guests"
-                      className="sb-select"
-                      value={Math.min(partySize, maxParty)}
-                      onChange={(e) => setPartySize(Number(e.target.value))}
-                    >
-                      {Array.from({ length: maxParty }, (_, i) => i + 1).map((n) => (
-                        <option key={n} value={n}>
-                          {partyLabel(n)}
-                        </option>
-                      ))}
-                    </select>
+                    <label htmlFor="sb-guests">{t.guests}</label>
+                    <div className="sb-select-wrap">
+                      <select
+                        id="sb-guests"
+                        className="sb-select"
+                        value={Math.min(partySize, maxParty)}
+                        onChange={(e) => setPartySize(Number(e.target.value))}
+                      >
+                        {Array.from({ length: maxParty }, (_, i) => i + 1).map((n) => (
+                          <option key={n} value={n}>
+                            {partyLabel(n, ui.lang)}
+                          </option>
+                        ))}
+                      </select>
+                      <svg className="sb-select-chevron" viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
+                    </div>
                   </div>
                 )}
 
@@ -303,10 +310,12 @@ export default function StorybookRsvp({
 
                 <button type="submit" className={editorial ? "sb-submit" : "sb-seal-button"} disabled={status === "sending"}>
                   {status === "sending" && <LoaderCircle size={14} className="animate-spin" aria-hidden />}
-                  {status === "sending" ? t.sending : editorial ? "Send reply" : attending ? "Seal & send" : t.sendLove}
+                  {status === "sending" ? t.sending : editorial ? (english ? "Send reply" : t.sendRsvp) : attending ? (english ? "Seal & send" : t.sendRsvp) : t.sendLove}
                 </button>
                 <p className="sb-rsvp-note">
-                  {demo ? "Design preview — no data is sent or stored." : "Your reply is private and shared only with the hosts."}
+                  {demo
+                    ? (english ? "Design preview — no data is sent or stored." : "Bản xem trước — không có dữ liệu nào được gửi.")
+                    : (english ? "Your reply is private and shared only with the hosts." : "Phản hồi của quý khách được bảo mật và chỉ chia sẻ với gia chủ.")}
                 </p>
               </form>
             </>

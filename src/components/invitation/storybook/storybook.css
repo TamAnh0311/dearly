@@ -413,7 +413,7 @@
   text-align: center;
 }
 .sb-section-head { position: relative; z-index: 1; }
-.sb-kicker { font-size: 0.54rem; letter-spacing: 0.42em; text-transform: uppercase; color: var(--sb-accent-deep); margin: 0 0 0.55rem; }
+.sb-kicker { font-size: 0.54rem; letter-spacing: 0.42em; text-transform: uppercase; color: var(--sb-accent-deep); margin: 0 0 0.55rem; text-indent: 0.42em; }
 .sb-title {
   font-family: var(--sb-display);
   font-weight: 400;
@@ -422,6 +422,7 @@
   text-transform: uppercase;
   margin: 0;
   line-height: 1.25;
+  text-indent: 0.16em;
 }
 .sb-ornament { position: relative; width: min(210px, 58%); height: 22px; margin: 1rem auto 0; }
 .sb-ornament::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: linear-gradient(to right, transparent, var(--sb-line), transparent); transform: scaleX(0); transition: transform 1.2s var(--sb-ease) 0.2s; }
@@ -516,7 +517,7 @@
 /* ─── Venue ───────────────────────────────────────────────────────────────── */
 .sb-venue-art { position: relative; height: clamp(220px, 38vw, 330px); width: calc(100% + var(--sb-pad, 2rem) * 2); margin: 2.2rem calc(var(--sb-pad, 2rem) * -1) 1.6rem; -webkit-mask-image: linear-gradient(to bottom, transparent, #000 10%, #000 90%, transparent); mask-image: linear-gradient(to bottom, transparent, #000 10%, #000 90%, transparent); }
 .sb-venue-art img { width: 100%; height: clamp(220px, 38vw, 330px); object-fit: cover; object-position: center 55%; }
-.sb-venue-name { font-family: var(--sb-display); font-weight: 400; font-size: clamp(1.5rem, 3.8vw, 1.9rem); letter-spacing: 0.08em; margin: 1.4rem auto 0.25rem; text-align: center; }
+.sb-venue-name { font-family: var(--sb-display); font-weight: 400; font-size: clamp(1.5rem, 3.8vw, 1.9rem); letter-spacing: 0.08em; margin: 1.4rem auto 0.25rem; text-align: center; text-indent: 0.08em; }
 .sb-venue-address { color: var(--sb-muted); font-size: 0.82rem; letter-spacing: 0.03em; max-width: 24rem; margin: 0 auto; text-align: center; text-wrap: balance; }
 .sb-venue-address span { display: block; }
 .sb-pill {

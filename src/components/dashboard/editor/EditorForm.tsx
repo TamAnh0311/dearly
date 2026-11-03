@@ -15,15 +15,21 @@ import SectionToggles from "@/components/invitation/SectionToggles";
 import ColorPicker from "./ColorPicker";
 import FontPicker from "./FontPicker";
 import LanguagePicker from "@/components/invitation/LanguagePicker";
+import HelpTip from "@/components/dashboard/HelpTip";
 import type { DressSwatch, GiftAccount, WeddingCustomization } from "@/types/database";
 import MusicPicker from "./MusicPicker";
 
-/** Section header used throughout the form. */
-function SectionHeading({ children }: { children: React.ReactNode }) {
+/** Section header with an optional contextual tip and guide link. */
+function SectionHeading({ children, tip, guide }: { children: React.ReactNode; tip?: string; guide?: string }) {
   return (
-    <h3 className="mb-3 text-xs font-semibold uppercase tracking-widest text-dearly-text-secondary">
-      {children}
-    </h3>
+    <div className="mb-3 flex items-center gap-1.5">
+      <h3 className="text-xs font-semibold uppercase tracking-widest text-dearly-text-secondary">{children}</h3>
+      {tip && (
+        <HelpTip label={typeof children === "string" ? children : "This section"} guide={guide}>
+          {tip}
+        </HelpTip>
+      )}
+    </div>
   );
 }
 
@@ -117,7 +123,7 @@ export default function EditorForm() {
       <div className="space-y-6 p-5">
         {/* ── Couple Info ── */}
         <section>
-          <SectionHeading>Couple Info</SectionHeading>
+          <SectionHeading tip="Use both names for a couple, or leave the second empty for a single-host event." guide="other-occasions">Couple Info</SectionHeading>
           <div className="space-y-3">
             <Field
               label="Partner 1 Name"
@@ -136,7 +142,7 @@ export default function EditorForm() {
 
         {/* ── Date & Venue ── */}
         <section>
-          <SectionHeading>Date &amp; Venue</SectionHeading>
+          <SectionHeading tip="This date drives the countdown and add-to-calendar. Set the event timezone in Settings." guide="content-story-venue-schedule">Date &amp; Venue</SectionHeading>
           <div className="space-y-3">
             <Field
               label="Wedding Date"
@@ -173,7 +179,7 @@ export default function EditorForm() {
 
         {/* ── Story ── */}
         <section>
-          <SectionHeading>Our Story</SectionHeading>
+          <SectionHeading tip="This text appears in the Our Story section. Two or three short paragraphs read best." guide="content-story-venue-schedule">Our Story</SectionHeading>
           <div className="space-y-1">
             <label className="text-xs font-medium text-dearly-text">Story Text</label>
             <textarea
@@ -188,7 +194,7 @@ export default function EditorForm() {
 
         {/* ── Background Music ── */}
         <section>
-          <SectionHeading>Background Music</SectionHeading>
+          <SectionHeading tip="Music starts on the guest's first tap because browsers block autoplay. A guest who pauses is remembered." guide="background-music">Background Music</SectionHeading>
           <MusicPicker
             selectedTrackId={wedding.music_track_id}
             customUrl={wedding.music_url ?? ""}
@@ -206,7 +212,7 @@ export default function EditorForm() {
 
         {/* ── Dress code (Storybook collection and any template with a palette) ── */}
         <section>
-          <SectionHeading>Dress Code</SectionHeading>
+          <SectionHeading tip="The note and up to five labelled colour swatches appear inside the invitation." guide="content-story-venue-schedule">Dress Code</SectionHeading>
           <div className="space-y-3">
             <div className="space-y-1">
               <label className="text-xs font-medium text-dearly-text">What should guests wear?</label>
@@ -265,7 +271,7 @@ export default function EditorForm() {
 
         {/* ── Families & gifts (popular on Chinese / Japanese / Korean / Vietnamese invitations) ── */}
         <section>
-          <SectionHeading>Families &amp; Gifts</SectionHeading>
+          <SectionHeading tip="Parents' names sit under the hero. Gift details are optional and QR links must start with https." guide="customise-your-design">Families &amp; Gifts</SectionHeading>
           <div className="space-y-3">
             <Field
               label={`${wedding.partner1_name || "Partner 1"}'s family (parents)`}
@@ -318,7 +324,7 @@ export default function EditorForm() {
 
         {/* ── Template ── */}
         <section>
-          <SectionHeading>Template</SectionHeading>
+          <SectionHeading tip="Changing the design keeps your content, guests, RSVPs and photos." guide="choose-a-template">Template</SectionHeading>
           <TemplatePicker
             activeTemplateId={wedding.template_id}
             onSelect={setTemplate}
@@ -327,7 +333,7 @@ export default function EditorForm() {
 
         {/* ── Colours ── */}
         <section>
-          <SectionHeading>Colours</SectionHeading>
+          <SectionHeading tip="Text colour is derived from the background so it stays readable on light and dark palettes." guide="customise-your-design">Colours</SectionHeading>
           <ColorPicker
             colors={customization.colors}
             onChange={(colors) => updateCustomization({ colors })}
@@ -336,7 +342,7 @@ export default function EditorForm() {
 
         {/* ── Fonts ── */}
         <section>
-          <SectionHeading>Fonts</SectionHeading>
+          <SectionHeading tip="Keep script fonts for names and short accents — use a body font for paragraphs." guide="customise-your-design">Fonts</SectionHeading>
           <FontPicker
             fonts={customization.fonts}
             onChange={(fonts) => updateCustomization({ fonts })}
@@ -345,7 +351,7 @@ export default function EditorForm() {
 
         {/* Sections — choose what guests see */}
         <section>
-          <SectionHeading>Sections</SectionHeading>
+          <SectionHeading tip="A section also hides itself when it has no content, so empty blocks never appear." guide="choose-sections">Sections</SectionHeading>
           <p className="mb-2 text-xs text-dearly-text-secondary">Choose which parts of your invitation guests see.</p>
           <SectionToggles
             sections={customization.sections}
@@ -356,7 +362,7 @@ export default function EditorForm() {
         </section>
         {/* ── Gallery Layout ── */}
         <section>
-          <SectionHeading>Gallery Layout</SectionHeading>
+          <SectionHeading tip="This controls how approved photos are arranged in the album." guide="photos-and-memories">Gallery Layout</SectionHeading>
           <div className="space-y-2">
             {GALLERY_LAYOUTS.map((layout) => (
               <label key={layout} className="flex cursor-pointer items-center gap-3">

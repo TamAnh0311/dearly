@@ -15,6 +15,7 @@ import { Check, Copy, Download, Mail, MessageCircle, Search, Trash2, UserCheck, 
 import { createClient } from "@/lib/supabase/client";
 import { useMyWedding } from "@/hooks/useWedding";
 import { guestListCsv, inviteUrl, parseGuestList, summarizeGuestList } from "@/lib/guest-list";
+import HelpTip from "@/components/dashboard/HelpTip";
 import { PLANS_ENABLED, planOf } from "@/lib/plans";
 import type { InviteeRow } from "@/types/database";
 
@@ -224,9 +225,15 @@ export default function GuestsPage() {
       {/* Add guests */}
       <div className="rounded-2xl border border-dearly-border bg-dearly-card p-5">
         <div className="mb-2 flex items-center justify-between">
-          <label htmlFor="guest-paste" className="flex items-center gap-2 text-sm font-semibold text-dearly-text">
-            <UserPlus size={16} /> Add guests — one per line
-          </label>
+          <div className="flex items-center gap-2">
+            <label htmlFor="guest-paste" className="flex items-center gap-2 text-sm font-semibold text-dearly-text">
+              <UserPlus size={16} /> Add guests — one per line
+            </label>
+            <HelpTip label="Adding guests" guide="guest-list">
+              Use +1 for a companion, or a comma and number for seats: “The Nguyen family, 4”.
+              Each line gets its own personal link.
+            </HelpTip>
+          </div>
           <span className="text-xs text-dearly-text-muted">
             {PLANS_ENABLED ? `${invitees.length}/${plan.maxInvitees} on the ${plan.name} plan` : `${invitees.length} guest${invitees.length === 1 ? "" : "s"}`}
           </span>

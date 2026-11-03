@@ -1,0 +1,4 @@
+[2026-11-03 12:50:36]
+CONTEXT: Dashboard help coverage was inconsistent, and the editor template chooser consumed most of the narrow sidebar.
+RESULT: Added an accessible HelpTip popover plus guide links across editor sections, Settings and Guest list; replaced the editor template grid with a collapsed current-design row that expands into a searchable compact list. Tests, type check, lint and build pass; compact picker screenshot-checked.
+---

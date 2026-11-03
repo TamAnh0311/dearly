@@ -9,6 +9,7 @@
 import { useEffect, useState } from "react";
 import { useMyWedding } from "@/hooks/useWedding";
 import MusicPicker from "@/components/dashboard/editor/MusicPicker";
+import HelpTip from "@/components/dashboard/HelpTip";
 import { isReservedSlug } from "@/lib/reserved-slugs";
 
 /**
@@ -102,9 +103,12 @@ export default function SettingsPage() {
       <div className="space-y-6 rounded-xl border border-dearly-border bg-dearly-card p-6">
         {/* Slug */}
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-dearly-text">
-            Wedding URL Slug
-          </label>
+          <div className="flex items-center gap-1.5">
+            <label className="text-sm font-medium text-dearly-text">Wedding URL Slug</label>
+            <HelpTip label="Wedding URL slug" guide="publish-and-share">
+              3–60 lowercase letters, numbers or hyphens. Old links stop working after a change.
+            </HelpTip>
+          </div>
           <div className="flex items-center gap-2 rounded-lg border border-dearly-border bg-dearly-cream px-3 py-2">
             <span className="text-sm text-dearly-text-secondary">dearly.app/</span>
             <input
@@ -132,7 +136,12 @@ export default function SettingsPage() {
         {/* Publish toggle */}
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-dearly-text">Published</p>
+            <p className="flex items-center gap-1.5 text-sm font-medium text-dearly-text">
+              Published
+              <HelpTip label="Published" guide="publish-and-share">
+                Drafts stay private. Preview still works while the page is unpublished.
+              </HelpTip>
+            </p>
             <p className="text-xs text-dearly-text-secondary">
               Make your wedding site visible to guests.
             </p>
@@ -156,7 +165,12 @@ export default function SettingsPage() {
         {/* Guest uploads toggle */}
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-dearly-text">Guest Photo Uploads</p>
+            <p className="flex items-center gap-1.5 text-sm font-medium text-dearly-text">
+              Guest Photo Uploads
+              <HelpTip label="Guest photo uploads" guide="photos-and-memories">
+                Adds Share your photos to the Moments section. You approve every upload before it appears.
+              </HelpTip>
+            </p>
             <p className="text-xs text-dearly-text-secondary">
               Allow guests to submit photos to your gallery.
             </p>
@@ -179,7 +193,12 @@ export default function SettingsPage() {
 
         {/* Event Timezone */}
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-dearly-text">Event Timezone</label>
+          <div className="flex items-center gap-1.5">
+            <label className="text-sm font-medium text-dearly-text">Event Timezone</label>
+            <HelpTip label="Event timezone" guide="content-story-venue-schedule">
+              Schedule times display in this timezone for every guest.
+            </HelpTip>
+          </div>
           <p className="text-xs text-dearly-text-secondary">
             Schedule times on your invitation display in this timezone.
           </p>
@@ -193,9 +212,12 @@ export default function SettingsPage() {
 
         {/* Background Music */}
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-dearly-text">
-            Background Music
-          </label>
+          <div className="flex items-center gap-1.5">
+            <label className="text-sm font-medium text-dearly-text">Background Music</label>
+            <HelpTip label="Background music" guide="background-music">
+              Music waits for the guest&apos;s first tap. A library track and a custom URL cannot both be active.
+            </HelpTip>
+          </div>
           <MusicPicker
             selectedTrackId={musicTrackId}
             customUrl={musicUrl}

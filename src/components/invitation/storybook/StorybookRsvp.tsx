@@ -264,7 +264,7 @@ export default function StorybookRsvp({
                   </div>
                 )}
 
-                {attending && !(variant === "ivory-veil" && invitee) && (
+                {attending && (
                   <div className="sb-field">
                     <label htmlFor="sb-guests">Number of guests</label>
                     <select

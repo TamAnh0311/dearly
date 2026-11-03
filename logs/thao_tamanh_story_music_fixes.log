@@ -1,0 +1,4 @@
+[2026-11-03 12:00:00]
+CONTEXT: Update thao-tamanh wedding: story text, guest count, subtext alignment, BGM.
+RESULT: Changed story text via migration, re-added guest count selector for ivory-veil invitees in StorybookRsvp.tsx, added text-wrap:balance to sb-lede/sb-venue-address in storybook.css, copied Taylor Swift Labyrinth MP3 to public/audio/, added music_tracks migration and copyright disclaimer in MusicPicker.
+---

@@ -182,6 +182,14 @@ export default function MusicPicker({
       {/* Library tab */}
       {tab === "library" && (
         <div className="space-y-3">
+          <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5">
+            <AlertTriangle size={14} className="mt-0.5 shrink-0 text-amber-600" />
+            <p className="text-xs leading-relaxed text-amber-700">
+              <strong>Copyright notice:</strong> Some tracks are copyrighted and included for
+              personal use only. By selecting them you acknowledge that you are responsible for
+              any licensing obligations.
+            </p>
+          </div>
           {/* Genre filter */}
           <div className="flex flex-wrap gap-1.5">
             {GENRES.map(({ value, label }) => (

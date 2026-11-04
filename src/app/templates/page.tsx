@@ -180,7 +180,7 @@ export default function TemplatesPage() {
         >
           <div className="inline-flex items-center gap-2 rounded-full bg-dearly-accent-soft px-3 py-1 text-xs font-medium text-dearly-accent mb-6">
             <Heart size={12} className="fill-current" />
-            {templates.length || 25} Templates · {FILTERS.length - 1} Design Styles
+            {templates.length ? `${templates.length} Templates · ` : ""}{FILTERS.length - 1} Design Styles
           </div>
           <h1 className="font-display text-5xl md:text-6xl font-bold text-dearly-text mb-5">
             Beautiful Templates for{" "}
@@ -188,7 +188,7 @@ export default function TemplatesPage() {
           </h1>
           <p className="text-lg text-dearly-text-secondary leading-relaxed">
             From timeless elegance to modern minimalism — browse our curated collection
-            of {templates.length || 25} wedding templates and find the perfect one for your love story.
+            of wedding templates and find the perfect one for your love story.
             No signup required to browse.
           </p>
         </motion.div>

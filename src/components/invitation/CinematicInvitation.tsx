@@ -159,7 +159,7 @@ export default function CinematicInvitation({
 
         {palette.style.texture !== "none" && <TextureOverlay kind={palette.style.texture} />}
         <TopNav names={names} links={links} palette={palette} topOffset={topOffset} showRsvp={showRsvp} />
-        <Hero wedding={wedding} palette={palette} photos={photos} />
+        <Hero wedding={wedding} palette={palette} photos={photos} personalInvite={Boolean(invitee) && !demo} />
         {families && <Families families={families} names={names} palette={palette} lang={lang} />}
         {/* Formal invitation card for East Asian templates (toggleable). */}
         {palette.style.culture && show.invitationCard && (

@@ -1,0 +1,4 @@
+[2026-11-04 16:18:26]
+CONTEXT: Implement the first high-impact fixes from the honest Dearly review: remove inconsistent template counts, add event context to interactive opening covers, persist openings per tab, and skip them for personal invitation links.
+RESULT: Added `useHeroOpening`, updated garden/balloon/confetti covers with names and dates, remembered reveals in sessionStorage, passed `personalInvite` through CinematicInvitation, and removed hard-coded "25/29 designs" copy. Tests (129), typecheck, lint, and production build pass; mobile screenshots saved in `.shots/review-fixes/`.
+---

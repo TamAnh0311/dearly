@@ -276,7 +276,7 @@ export default function LandingPage() {
                 Create your invitation — free
               </Link>
               <Link href="/templates" className="flex items-center gap-2 rounded-xl border border-dearly-border bg-dearly-card/70 px-6 py-4 text-base font-semibold transition hover:-translate-y-0.5">
-                <Search size={16} /> Browse 25 designs
+                <Search size={16} /> Browse all designs
               </Link>
             </motion.div>
             <div className="mt-10 flex items-center gap-4 text-sm text-dearly-text-secondary">
@@ -325,7 +325,7 @@ export default function LandingPage() {
           </div>
           <div className="mt-10 text-center">
             <Link href="/templates" className="text-sm font-semibold text-dearly-accent hover:underline">
-              See all 25 designs →
+              See all designs →
             </Link>
           </div>
         </div>
@@ -498,7 +498,7 @@ export default function LandingPage() {
           </Reveal>
           <div className="mt-14 grid gap-6 md:grid-cols-3">
             {[
-              { icon: Search, title: "Pick a design", body: "Search 25 designs by mood — garden, gold, stars, curtain — and preview each opening live." },
+              { icon: Search, title: "Pick a design", body: "Search every design by mood — garden, gold, stars, curtain — and preview each opening live." },
               { icon: Palette, title: "Make it yours", body: "Names, date, story and venue. Choose colours, fonts and which sections to show." },
               { icon: Gem, title: "Share one link", body: "Send by WhatsApp or email. RSVPs and blessings arrive in your dashboard in real time." },
             ].map((s, i) => (

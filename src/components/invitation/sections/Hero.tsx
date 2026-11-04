@@ -17,9 +17,10 @@
  * Content parallaxes and fades on scroll in every layout.
  */
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
+import { hostNames } from "@/lib/event-types";
 import type { WeddingRow } from "@/types/database";
 import { GrowingBud, GrowingFlower } from "../effects/Botanicals";
 import AmbientLayer from "../effects/Ambient";
@@ -32,12 +33,14 @@ import { AtelierHero } from "./HeroAtelier";
 import { ChateauHero } from "./HeroChateau";
 import { BalloonHero, ConfettiHero } from "./HeroParty";
 import { getArtCollection } from "../art";
+import { useHeroOpening } from "../use-hero-opening";
 import ArtSpray from "./ArtSpray";
 
 export interface HeroProps {
   wedding: WeddingRow;
   palette: InvitationPalette;
   photos: string[];
+  personalInvite?: boolean;
 }
 
 export interface LayoutProps extends HeroProps {
@@ -96,7 +99,17 @@ function GardenWreath({ palette }: { palette: InvitationPalette }) {
   );
 }
 
-function GardenCover({ palette, onOpen }: { palette: InvitationPalette; onOpen: () => void }) {
+function GardenCover({
+  palette,
+  title,
+  date,
+  onOpen,
+}: {
+  palette: InvitationPalette;
+  title: string;
+  date: string | null;
+  onOpen: () => void;
+}) {
   const paper = `repeating-linear-gradient(115deg, ${alpha(palette.primary, palette.isDark ? 0.05 : 0.035)} 0px, ${alpha(palette.primary, palette.isDark ? 0.05 : 0.035)} 1px, transparent 1px, transparent 11px)`;
   const panel = {
     backgroundColor: palette.surface,
@@ -131,6 +144,14 @@ function GardenCover({ palette, onOpen }: { palette: InvitationPalette; onOpen: 
         <p className="text-[10px] uppercase tracking-[0.42em]" style={{ color: palette.inkMuted }}>
           The garden is ready
         </p>
+        <h2 className="mt-3 max-w-[20ch] text-3xl font-light leading-tight sm:text-4xl" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
+          {title}
+        </h2>
+        {date && (
+          <p className="mt-3 text-[10px] uppercase tracking-[0.34em]" style={{ color: palette.inkMuted }}>
+            {date}
+          </p>
+        )}
         <motion.button
           type="button"
           aria-label="Open the garden invitation"
@@ -166,12 +187,15 @@ function GardenCover({ palette, onOpen }: { palette: InvitationPalette; onOpen: 
   );
 }
 
-function GardenHero({ wedding, palette, contentY, contentOpacity }: LayoutProps) {
+function GardenHero({ wedding, palette, personalInvite = false, contentY, contentOpacity }: LayoutProps) {
   const eyebrow = useEyebrow("Together with their families");
   const { copy, twoNames } = useEventCopy();
+  const ui = useInvitationCopy();
   const reduce = useReducedMotion();
-  const [opened, setOpened] = useState(false);
-  const revealed = reduce === true || opened;
+  const { revealed: openingRevealed, open } = useHeroOpening(`dearly-open-garden-${wedding.id}`, personalInvite);
+  const revealed = reduce === true || openingRevealed;
+  const title = wedding.event_title || hostNames(wedding);
+  const date = wedding.wedding_date ? formatLongDate(wedding.wedding_date, null, ui.dateLocale) : null;
   const art = getArtCollection(palette.style.art);
   const scene = art?.venue;
   const textShadow = palette.isDark ? "0 2px 26px rgba(0,0,0,0.55)" : "0 2px 24px rgba(255,255,255,0.82)";
@@ -297,7 +321,7 @@ function GardenHero({ wedding, palette, contentY, contentOpacity }: LayoutProps)
       </div>
 
       <AnimatePresence>
-        {!revealed && <GardenCover palette={palette} onOpen={() => setOpened(true)} />}
+        {!revealed && <GardenCover palette={palette} title={title} date={date} onOpen={open} />}
       </AnimatePresence>
     </>
   );
@@ -790,7 +814,7 @@ function PolaroidHero({ wedding, palette, photos, contentY, contentOpacity }: La
 
 /* ─── Dispatcher ──────────────────────────────────────────────────────────── */
 
-export default function Hero({ wedding, palette, photos }: HeroProps) {
+export default function Hero({ wedding, palette, photos, personalInvite = false }: HeroProps) {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const contentY = useTransform(scrollYProgress, [0, 1], [0, 160]);
@@ -804,7 +828,7 @@ export default function Hero({ wedding, palette, photos }: HeroProps) {
   if (layout === "atelier" && !palette.style.art) layout = "garden";
   if (layout === "chateau" && !palette.style.art) layout = "arch";
 
-  const props: LayoutProps = { wedding, palette, photos, contentY, contentOpacity };
+  const props: LayoutProps = { wedding, palette, photos, personalInvite, contentY, contentOpacity };
   const cueColor = layout === "celestial" || layout === "daynight" || layout === "poster" ? "rgba(244,241,234,0.75)" : palette.inkMuted;
 
   return (

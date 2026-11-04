@@ -9,12 +9,13 @@
  * the host name and the date are the artwork.
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { hostNames } from "@/lib/event-types";
 import AmbientLayer from "../effects/Ambient";
 import { EASE_OUT, alpha, formatLongDate, mix, seeded } from "../utils";
 import { DateLine, Eyebrow, useEventCopy, useEyebrow, useInvitationCopy } from "./HeroParts";
+import { useHeroOpening } from "../use-hero-opening";
 import type { LayoutProps } from "./Hero";
 
 function titleOf(wedding: LayoutProps["wedding"]): string {
@@ -98,11 +99,11 @@ function Balloon({
 }
 
 const POP_BALLOONS = [
-  { className: "left-[7%] top-[27%] w-[clamp(4rem,17vw,6.6rem)]", color: 0, rotate: -8 },
-  { className: "left-[36%] top-[24%] w-[clamp(3.4rem,14vw,5.4rem)]", color: 1, rotate: 5 },
-  { className: "right-[7%] top-[30%] w-[clamp(4.2rem,18vw,7rem)]", color: 2, rotate: 7 },
-  { className: "left-[17%] top-[58%] w-[clamp(3.8rem,16vw,6rem)]", color: 1, rotate: 6 },
-  { className: "right-[17%] top-[60%] w-[clamp(4rem,17vw,6.4rem)]", color: 0, rotate: -5 },
+  { className: "left-[7%] top-[34%] w-[clamp(4rem,17vw,6.6rem)]", color: 0, rotate: -8 },
+  { className: "left-[36%] top-[31%] w-[clamp(3.4rem,14vw,5.4rem)]", color: 1, rotate: 5 },
+  { className: "right-[7%] top-[36%] w-[clamp(4.2rem,18vw,7rem)]", color: 2, rotate: 7 },
+  { className: "left-[17%] top-[64%] w-[clamp(3.8rem,16vw,6rem)]", color: 1, rotate: 6 },
+  { className: "right-[17%] top-[66%] w-[clamp(4rem,17vw,6.4rem)]", color: 0, rotate: -5 },
 ] as const;
 
 /** A balloon that is also the opening button. */
@@ -174,11 +175,15 @@ function PoppingBalloon({
 
 function BalloonReveal({
   palette,
+  title,
+  date,
   popped,
   onPop,
   onSkip,
 }: {
   palette: LayoutProps["palette"];
+  title: string;
+  date: string | null;
   popped: number[];
   onPop: (index: number) => void;
   onSkip: () => void;
@@ -208,15 +213,23 @@ function BalloonReveal({
           Your invitation is waiting
         </motion.p>
         <motion.h2
-          className="mt-3 text-3xl font-medium sm:text-5xl"
+          className="mx-auto mt-3 max-w-[20ch] text-3xl font-medium text-balance sm:text-5xl"
           style={{ fontFamily: palette.displayFont, color: palette.ink, letterSpacing: "-0.02em" }}
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.1, ease: EASE_OUT }}
         >
-          Pop the balloons
+          {title}
         </motion.h2>
-        <p className="mt-3 text-xs" style={{ color: palette.inkMuted }} aria-live="polite">
+        {date && (
+          <p className="mt-2 text-[10px] uppercase tracking-[0.34em]" style={{ color: palette.inkMuted }}>
+            {date}
+          </p>
+        )}
+        <p className="mt-3 text-xs uppercase tracking-[0.24em]" style={{ color: palette.ink }}>
+          Pop the balloons to open
+        </p>
+        <p className="mt-2 text-xs" style={{ color: palette.inkMuted }} aria-live="polite">
           {popped.length} of {total} popped
         </p>
       </div>
@@ -256,15 +269,21 @@ const BALLOON_LAYOUT = [
   { className: "right-[-2%] top-[45%] w-[clamp(3rem,8vw,5.2rem)] hidden sm:block", color: 0, delay: 0.9, rotate: -6 },
 ] as const;
 
-export function BalloonHero({ wedding, palette, contentY, contentOpacity }: LayoutProps) {
+export function BalloonHero({ wedding, palette, personalInvite = false, contentY, contentOpacity }: LayoutProps) {
   const reduce = useReducedMotion();
   const { copy } = useEventCopy();
   const ui = useInvitationCopy();
   const eyebrow = useEyebrow("You're invited to celebrate");
   const title = titleOf(wedding);
+  const date = wedding.wedding_date ? formatLongDate(wedding.wedding_date, null, ui.dateLocale) : null;
   const balloonColors = [palette.primary, palette.accent, ...palette.petals];
   const [popped, setPopped] = useState<number[]>([]);
-  const revealed = reduce === true || popped.length === POP_BALLOONS.length;
+  const { revealed: openingRevealed, open } = useHeroOpening(`dearly-open-balloons-${wedding.id}`, personalInvite);
+  const revealed = reduce === true || openingRevealed;
+
+  useEffect(() => {
+    if (popped.length === POP_BALLOONS.length) open();
+  }, [popped.length, open]);
 
   return (
     <>
@@ -363,6 +382,8 @@ export function BalloonHero({ wedding, palette, contentY, contentOpacity }: Layo
         {!revealed && (
           <BalloonReveal
             palette={palette}
+            title={title}
+            date={date}
             popped={popped}
             onPop={(index) => setPopped((prev) => (prev.includes(index) ? prev : [...prev, index]))}
             onSkip={() => setPopped(POP_BALLOONS.map((_, index) => index))}
@@ -438,10 +459,14 @@ function PartyPopper({ palette }: { palette: LayoutProps["palette"] }) {
 
 function ConfettiReveal({
   palette,
+  title,
+  date,
   onOpen,
   onSkip,
 }: {
   palette: LayoutProps["palette"];
+  title: string;
+  date: string | null;
   onOpen: () => void;
   onSkip: () => void;
 }) {
@@ -477,14 +502,22 @@ function ConfettiReveal({
           A celebration is waiting
         </motion.p>
         <motion.h2
-          className="mt-3 text-3xl uppercase sm:text-5xl"
+          className="mx-auto mt-3 max-w-[20ch] text-3xl uppercase text-balance sm:text-5xl"
           style={{ fontFamily: palette.bodyFont, fontWeight: 600, color: palette.ink, letterSpacing: "-0.03em" }}
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.1, ease: EASE_OUT }}
         >
-          Pull the string
+          {title}
         </motion.h2>
+        {date && (
+          <p className="mt-2 text-[10px] uppercase tracking-[0.34em]" style={{ color: palette.inkMuted }}>
+            {date}
+          </p>
+        )}
+        <p className="mt-3 text-[10px] uppercase tracking-[0.24em]" style={{ color: palette.ink }}>
+          Pull the string to open
+        </p>
       </div>
 
       <motion.button
@@ -517,14 +550,16 @@ function ConfettiReveal({
   );
 }
 
-export function ConfettiHero({ wedding, palette, contentY, contentOpacity }: LayoutProps) {
+export function ConfettiHero({ wedding, palette, personalInvite = false, contentY, contentOpacity }: LayoutProps) {
   const reduce = useReducedMotion();
   const { copy } = useEventCopy();
+  const ui = useInvitationCopy();
   const eyebrow = useEyebrow("You're invited to celebrate");
   const title = titleOf(wedding);
+  const date = wedding.wedding_date ? formatLongDate(wedding.wedding_date, null, ui.dateLocale) : null;
   const confetti = [palette.primary, palette.accent, ...palette.petals];
-  const [opened, setOpened] = useState(false);
-  const revealed = reduce === true || opened;
+  const { revealed: openingRevealed, open } = useHeroOpening(`dearly-open-confetti-${wedding.id}`, personalInvite);
+  const revealed = reduce === true || openingRevealed;
 
   return (
     <>
@@ -631,7 +666,7 @@ export function ConfettiHero({ wedding, palette, contentY, contentOpacity }: Lay
 
       <AnimatePresence>
         {!revealed && (
-          <ConfettiReveal palette={palette} onOpen={() => setOpened(true)} onSkip={() => setOpened(true)} />
+          <ConfettiReveal palette={palette} title={title} date={date} onOpen={open} onSkip={open} />
         )}
       </AnimatePresence>
     </>

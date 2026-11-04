@@ -222,6 +222,7 @@ Every word in the query must match. Plurals are folded, so "butterflies" finds "
   - **Reactions:** batched (1 request/s, ≤ 20 per kind) with optimistic counts.
   - **`BlessingShower`:** shows blessings when the page loads, either as running text behind the hero (default) or floating up the screen, carried by the template's motif (butterfly, flower, star, heart, confetti). It must stay pointer-transparent and offer an on/off toggle.
 - **Scratch reveal:** must always offer the "tap here to reveal" fallback.
+- **Opening covers:** garden, balloon-bash and confetti-pop show the event names and date before the interaction, remember the reveal per tab, and skip it for personal invitation links.
 - **Demo mode** (`demo` prop): never call APIs. Simulate success locally.
 
 ### 4.8 Accessibility checklist

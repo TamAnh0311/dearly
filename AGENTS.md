@@ -49,7 +49,7 @@ src/components/invitation/
   utils.ts                  ← buildPalette(theme, slug) → colour + design tokens; date/link helpers
   TemplatePreview.tsx       ← public demo: colour-scheme picker + Sections popover (embed / bare modes)
   LayoutThumbnail.tsx       ← static miniature of each hero layout for gallery cards
-  sections/                 ← Hero (+ HeroCurtain, HeroSignature, HeroAsian, HeroAtelier, HeroParts), Countdown (+ CalendarCard),
+  sections/                 ← Hero (+ HeroCurtain, HeroSignature, HeroAsian, HeroAtelier, HeroParty, HeroParts), Countdown (+ CalendarCard),
                               ScratchReveal, Story, Schedule, VenueMoments, Extras (Families, Gift), RsvpSection,
                               Blessings, Chrome (nav/footer), ArtSpray
   art.ts                    ← curated artwork manifest (assets, LQIPs, credits) used via style.art
@@ -160,7 +160,7 @@ Every word in the query must match. Plurals are folded, so "butterflies" finds "
 
 | Token | Values | Meaning |
 | --- | --- | --- |
-| `hero` | `garden` `arch` `editorial` `split` `celestial` `polaroid` `curtain` `seal` `daynight` `stained` `doors` `poster` `enso` `shoji` `bojagi` `atelier` | Opening layout. The five before `atelier` are the East Asian collection (`HeroAsian.tsx`): lacquer doors with a 囍 medallion, photo poster with a shutter reveal, brush ensō + hanko seal (seigaiha waves when `ornament` is `wave`), sliding shoji screens onto a sakura branch, and a bojagi cloth that unfolds. `poster` needs a photo (falls back to `enso`). `atelier` is the painted collection (`HeroAtelier.tsx`): an arched watercolour print with botanical cut-outs; it needs `art` (falls back to `garden`). |
+| `hero` | `garden` `arch` `editorial` `split` `celestial` `polaroid` `curtain` `seal` `daynight` `stained` `doors` `poster` `enso` `shoji` `bojagi` `atelier` `chateau` `storybook` `balloons` `confetti` | Opening layout. The five East Asian heroes (`doors` `poster` `enso` `shoji` `bojagi`) live in `HeroAsian.tsx`: lacquer doors with a 囍 medallion, photo poster with a shutter reveal, brush ensō + hanko seal (seigaiha waves when `ornament` is `wave`), sliding shoji screens onto a sakura branch, and a bojagi cloth that unfolds. `poster` needs a photo (falls back to `enso`). `atelier` is the painted collection (`HeroAtelier.tsx`): an arched watercolour print with botanical cut-outs; it needs `art` (falls back to `garden`). `garden` now uses the same art kit as a full-bleed watercolour ceremony arch and opens behind a wreath-sealed garden gate. `balloons` and `confetti` are the celebration heroes (`HeroParty.tsx`), with a five-balloon pop or a popper-string pull before the invitation appears. All three include a skip control and reduced-motion final state. |
 | `ambient` | `butterflies` `petals` `leaves` `confetti` `snow` `gold-dust` `stars` `bokeh` `balloons` `lanterns` | Background effects. Also picks the BlessingShower carriers. |
 | `ornament` | `floral` `deco` `line` `leaf` `star` `wave` `cloud` | Section dividers, Story side decoration (`cloud` = auspicious xiangyun / gureum scroll) |
 | `corners` | `rounded` `sharp` `pill` `arch` | Radius of every card and button, via `palette.radius` |

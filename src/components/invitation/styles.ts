@@ -31,7 +31,10 @@ export type HeroLayout =
   | "atelier"
   | "chateau"
   // ── Storybook collection ──
-  | "storybook";
+  | "storybook"
+  // ── Celebration collection ──
+  | "balloons"
+  | "confetti";
 export type Ambient = "butterflies" | "petals" | "leaves" | "confetti" | "snow" | "gold-dust" | "stars" | "bokeh" | "balloons" | "lanterns";
 export type Ornament = "floral" | "deco" | "line" | "leaf" | "star" | "wave" | "cloud";
 /** Cultural tradition a template draws on (search keywords, copy accents). */
@@ -98,7 +101,7 @@ const STYLES: Record<string, Partial<InvitationStyle>> = {
   deco: { music: "orchestral", hero: "arch", ambient: ["gold-dust"], ornament: "deco", corners: "sharp", eyebrow: "caps", flowers: false },
   sunset: { music: "acoustic", hero: "split", ambient: ["petals", "bokeh"], ornament: "wave", corners: "rounded", flowers: false },
   noir: { hero: "editorial", ambient: ["gold-dust"], ornament: "line", corners: "sharp", eyebrow: "caps", flowers: false },
-  garden: { music: "acoustic", hero: "garden", art: "watercolour-garden", ambient: ["butterflies", "leaves", "bokeh"], ornament: "leaf", texture: "paper", calendar: true },
+  garden: { music: "acoustic", hero: "garden", art: "watercolour-garden", bodyFont: "Jost", ambient: ["butterflies", "leaves", "bokeh"], ornament: "leaf", texture: "paper", calendar: true },
   polaroid: { music: "acoustic", hero: "polaroid", ambient: ["confetti"], ornament: "line", corners: "sharp", eyebrow: "script", headingCase: "normal", flowers: false },
   glass: { music: "ambient", hero: "split", ambient: ["bokeh"], ornament: "line", corners: "pill", eyebrow: "caps", headingCase: "normal", flowers: false },
   luxe: { music: "orchestral", hero: "arch", ambient: ["gold-dust", "bokeh"], ornament: "deco", corners: "sharp", flowers: false },
@@ -117,8 +120,8 @@ const STYLES: Record<string, Partial<InvitationStyle>> = {
   "wax-seal": { music: "romantic", hero: "seal", ambient: ["petals"], ornament: "floral", corners: "rounded", texture: "paper", flowers: false, scratchReveal: true },
   dusk: { music: "ambient", hero: "daynight", ambient: ["stars"], ornament: "star", corners: "pill", headingCase: "normal", flowers: false },
   // ── Celebration collection (birthday / party / social) ──
-  "confetti-pop": { music: "musicbox", hero: "polaroid", ambient: ["confetti", "balloons"], ornament: "star", corners: "pill", headingCase: "normal", flowers: false, scratchReveal: true },
-  "balloon-bash": { music: "acoustic", hero: "garden", ambient: ["balloons", "confetti", "bokeh"], ornament: "star", corners: "pill", headingCase: "normal", flowers: true },
+  "confetti-pop": { music: "musicbox", hero: "confetti", ambient: ["confetti"], ornament: "star", corners: "pill", headingCase: "normal", flowers: false, scratchReveal: true },
+  "balloon-bash": { music: "acoustic", hero: "balloons", ambient: ["bokeh"], ornament: "star", corners: "pill", headingCase: "normal", flowers: false },
   "neon-night": { music: "ambient", hero: "editorial", ambient: ["gold-dust", "confetti"], ornament: "line", corners: "sharp", eyebrow: "caps", flowers: false },
   soiree: { music: "romantic", hero: "arch", ambient: ["bokeh", "gold-dust"], ornament: "deco", corners: "arch", flowers: false },
   rosewindow: { music: "orchestral", hero: "stained", ambient: ["bokeh"], ornament: "deco", corners: "arch", flowers: false, scratchReveal: true },
@@ -178,6 +181,8 @@ export const LAYOUT_LABEL: Record<HeroLayout, string> = {
   atelier: "Watercolour",
   chateau: "Grand Estate",
   storybook: "Storybook",
+  balloons: "Balloon Party",
+  confetti: "Confetti Pop",
 };
 
 /* ─── Colour schemes ──────────────────────────────────────────────────────── */

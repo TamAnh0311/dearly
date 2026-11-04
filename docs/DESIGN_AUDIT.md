@@ -28,6 +28,14 @@ references as the benchmark.
 Evidence: `.shots/audit/*-hero.png`, `.shots/audit/*-rsvp.png`,
 `.shots/audit/sheet-1..7.jpg`.
 
+> **Update (2026-11-03):** `garden`, `balloon-bash` and `confetti-pop` have
+> been reworked. `garden` now uses the full-bleed watercolour ceremony arch;
+> the celebration pair has dedicated balloon and confetti heroes
+> (`HeroParty.tsx`) instead of wedding flowers or a polaroid stack.
+> All three now open with an interactive moment: a garden gate, five
+> balloons to pop, or a popper string to pull. Each has a skip control and
+> a reduced-motion final state.
+
 ## 2. Results by tier
 
 ### A — strongest identities (8)

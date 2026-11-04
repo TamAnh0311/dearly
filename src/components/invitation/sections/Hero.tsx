@@ -4,7 +4,7 @@
  * Hero — full-viewport cinematic opening. The layout is chosen by the
  * template's design language (palette.style.hero):
  *
- *  - garden     flowers grow from the bottom corners, butterflies drift by
+ *  - garden     a watercolour ceremony arch frames the names (painted family)
  *  - arch       names framed in a self-drawing arch (classic / deco / boho)
  *  - editorial  oversized magazine typography with a date marquee (modern)
  *  - split      half-screen photo revealed with a curtain wipe (destination)
@@ -12,13 +12,14 @@
  *  - polaroid   instant photos tumble onto the page around the names
  *  - curtain / seal / daynight / stained — signature layouts (HeroSignature.tsx)
  *  - doors / poster / enso / shoji / bojagi — East Asian collection (HeroAsian.tsx)
+ *  - balloons / confetti — celebration collection (HeroParty.tsx)
  *
  * Content parallaxes and fades on scroll in every layout.
  */
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
-import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
 import type { WeddingRow } from "@/types/database";
 import { GrowingBud, GrowingFlower } from "../effects/Botanicals";
 import AmbientLayer from "../effects/Ambient";
@@ -29,6 +30,7 @@ import { CurtainHero } from "./HeroCurtain";
 import { BojagiHero, DoorsHero, EnsoHero, PosterHero, ShojiHero } from "./HeroAsian";
 import { AtelierHero } from "./HeroAtelier";
 import { ChateauHero } from "./HeroChateau";
+import { BalloonHero, ConfettiHero } from "./HeroParty";
 import { getArtCollection } from "../art";
 import ArtSpray from "./ArtSpray";
 
@@ -68,82 +70,235 @@ function FlowerCluster({ palette, side, scale = 1 }: { palette: InvitationPalett
 
 /* ─── Layout: Garden ──────────────────────────────────────────────────────── */
 
+function GardenWreath({ palette }: { palette: InvitationPalette }) {
+  return (
+    <svg viewBox="0 0 160 160" className="absolute inset-0 h-full w-full" aria-hidden>
+      {Array.from({ length: 22 }, (_, i) => {
+        const angle = (i / 22) * 360;
+        const petal = i % 5 === 0;
+        return (
+          <ellipse
+            key={i}
+            cx="80"
+            cy="18"
+            rx={petal ? 5 : 4}
+            ry={petal ? 12 : 10}
+            fill={petal ? palette.petals[i % palette.petals.length] : palette.leaf}
+            opacity={petal ? 0.9 : 0.72}
+            transform={`rotate(${angle} 80 80)`}
+          />
+        );
+      })}
+      <circle cx="80" cy="80" r="46" fill={alpha(palette.background, 0.86)} />
+      <circle cx="80" cy="80" r="46" fill="none" stroke={alpha(palette.primary, 0.38)} strokeWidth="0.8" />
+      <circle cx="80" cy="80" r="51" fill="none" stroke={alpha(palette.leaf, 0.34)} strokeWidth="0.7" strokeDasharray="1 4" />
+    </svg>
+  );
+}
+
+function GardenCover({ palette, onOpen }: { palette: InvitationPalette; onOpen: () => void }) {
+  const paper = `repeating-linear-gradient(115deg, ${alpha(palette.primary, palette.isDark ? 0.05 : 0.035)} 0px, ${alpha(palette.primary, palette.isDark ? 0.05 : 0.035)} 1px, transparent 1px, transparent 11px)`;
+  const panel = {
+    backgroundColor: palette.surface,
+    backgroundImage: paper,
+    borderColor: alpha(palette.primary, palette.isDark ? 0.25 : 0.18),
+  };
+  return (
+    <motion.div
+      className="absolute inset-0 z-30 overflow-hidden"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, transition: { duration: 0.45, delay: 0.65 } }}
+      style={{ backgroundColor: palette.background }}
+    >
+      <motion.div
+        className="absolute inset-y-0 left-0 w-[calc(50%+1px)] border-r"
+        style={panel}
+        exit={{ x: "-102%", rotate: -1.5, transition: { duration: 1.05, ease: EASE_OUT } }}
+      />
+      <motion.div
+        className="absolute inset-y-0 right-0 w-[calc(50%+1px)] border-l"
+        style={panel}
+        exit={{ x: "102%", rotate: 1.5, transition: { duration: 1.05, ease: EASE_OUT } }}
+      />
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-[16%] h-px" style={{ backgroundColor: alpha(palette.primary, 0.22) }} />
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-[16%] h-px" style={{ backgroundColor: alpha(palette.primary, 0.22) }} />
+
+      <motion.div
+        className="absolute inset-0 flex flex-col items-center justify-center px-8 text-center"
+        exit={{ opacity: 0, scale: 1.14, transition: { duration: 0.55, ease: EASE_OUT } }}
+      >
+        <p className="text-[10px] uppercase tracking-[0.42em]" style={{ color: palette.inkMuted }}>
+          The garden is ready
+        </p>
+        <motion.button
+          type="button"
+          aria-label="Open the garden invitation"
+          onClick={onOpen}
+          className="relative mt-7 flex h-36 w-36 items-center justify-center rounded-full transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-8"
+          style={{ outlineColor: palette.ink }}
+          whileTap={{ scale: 0.94 }}
+        >
+          <GardenWreath palette={palette} />
+          <span
+            className="relative z-10 text-xl"
+            style={{ fontFamily: palette.scriptFont, color: palette.primary, fontSize: "1.7rem" }}
+          >
+            open
+          </span>
+        </motion.button>
+        <p className="mt-7 text-sm" style={{ color: palette.ink, fontFamily: palette.bodyFont }}>
+          Tap to open the garden
+        </p>
+        <p className="mt-2 text-[10px] uppercase tracking-[0.32em]" style={{ color: palette.inkMuted }}>
+          and step inside
+        </p>
+        <button
+          type="button"
+          onClick={onOpen}
+          className="absolute bottom-7 left-1/2 -translate-x-1/2 border-b px-1 py-1 text-[10px] uppercase tracking-[0.32em] transition-opacity hover:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4"
+          style={{ borderColor: alpha(palette.ink, 0.35), color: palette.inkMuted, outlineColor: palette.ink }}
+        >
+          Skip opening
+        </button>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 function GardenHero({ wedding, palette, contentY, contentOpacity }: LayoutProps) {
   const eyebrow = useEyebrow("Together with their families");
-  const { copy } = useEventCopy();
+  const { copy, twoNames } = useEventCopy();
+  const reduce = useReducedMotion();
+  const [opened, setOpened] = useState(false);
+  const revealed = reduce === true || opened;
   const art = getArtCollection(palette.style.art);
+  const scene = art?.venue;
+  const textShadow = palette.isDark ? "0 2px 26px rgba(0,0,0,0.55)" : "0 2px 24px rgba(255,255,255,0.82)";
+  const scriptInk = palette.isDark ? mix(palette.primary, "#ffffff", 0.3) : mix(palette.primary, palette.ink, 0.45);
+
   return (
     <>
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background: `radial-gradient(ellipse 70% 55% at 50% 42%, ${alpha(palette.primary, palette.isDark ? 0.22 : 0.14)} 0%, transparent 70%),
-                       radial-gradient(ellipse 60% 40% at 50% 100%, ${alpha(palette.leaf, 0.18)} 0%, transparent 70%)`,
-        }}
-      />
-      {art ? (
-        <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-[42svh] overflow-hidden">
+      <div className="absolute inset-0" aria-hidden={!revealed} {...(!revealed ? { inert: true } : {})}>
+      {scene ? (
+        <motion.div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 overflow-hidden"
+          initial={reduce ? false : { opacity: 0, scale: 1.06 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.9, ease: EASE_OUT }}
+        >
           <Image
-            src={art.venue.src}
+            src={scene.src}
             alt=""
             fill
             priority
             sizes="100vw"
             placeholder="blur"
-            blurDataURL={art.venue.blurDataURL}
+            blurDataURL={scene.blurDataURL}
             className="object-cover"
-            style={{ objectPosition: "50% 52%", filter: palette.isDark ? "brightness(0.74) saturate(0.9)" : "saturate(1.02)" }}
+            style={{ objectPosition: "50% 52%", filter: palette.isDark ? "brightness(0.62) saturate(0.9)" : "saturate(1.03) contrast(1.02)" }}
           />
-          <div className="absolute inset-x-0 top-0 h-[32%]" style={{ background: `linear-gradient(180deg, ${palette.background} 0%, ${alpha(palette.background, 0.65)} 45%, transparent 100%)` }} />
-          <div className="absolute inset-x-0 bottom-0 h-20" style={{ background: `linear-gradient(0deg, ${alpha(palette.background, 0.55)} 0%, transparent 100%)` }} />
-        </div>
+          {/* Vellum scrim: keeps the painting visible while names stay readable. */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `radial-gradient(ellipse 58% 46% at 50% 42%, ${alpha(palette.background, palette.isDark ? 0.6 : 0.72)} 0%, ${alpha(palette.background, palette.isDark ? 0.32 : 0.38)} 58%, ${alpha(palette.background, 0.08)} 78%, transparent 100%)`,
+            }}
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `linear-gradient(180deg, ${alpha(palette.background, 0.92)} 0%, ${alpha(palette.background, 0.48)} 20%, transparent 44%, transparent 70%, ${alpha(palette.background, 0.58)} 100%)`,
+            }}
+          />
+        </motion.div>
       ) : (
-        <div className="pointer-events-none absolute inset-0">
-          <FlowerCluster palette={palette} side="left" />
-          <FlowerCluster palette={palette} side="right" />
-        </div>
+        <>
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background: `radial-gradient(ellipse 70% 55% at 50% 42%, ${alpha(palette.primary, palette.isDark ? 0.22 : 0.14)} 0%, transparent 70%),
+                           radial-gradient(ellipse 60% 40% at 50% 100%, ${alpha(palette.leaf, 0.18)} 0%, transparent 70%)`,
+            }}
+          />
+          <div className="pointer-events-none absolute inset-0">
+            <FlowerCluster palette={palette} side="left" />
+            <FlowerCluster palette={palette} side="right" />
+          </div>
+        </>
       )}
-      <AmbientLayer palette={palette} />
+
+      <AmbientLayer palette={palette} intensity={0.8} />
+
+      {/* Fine printed frame, borrowed from the painted-card language. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-3 z-20 border md:inset-5"
+        style={{ borderColor: alpha(palette.primary, palette.isDark ? 0.36 : 0.24) }}
+      />
+
+      {art && (
+        <>
+          <ArtSpray palette={palette} asset="eucalyptus" className="-left-8 top-[7%] w-24 opacity-80 md:left-0 md:w-36" rotate={10} />
+          <ArtSpray palette={palette} asset="roses" className="-right-9 top-[11%] w-28 opacity-80 md:right-0 md:w-40" rotate={-11} />
+          <ArtSpray palette={palette} asset="peonyTall" className="-bottom-8 left-[3%] w-20 opacity-75 md:bottom-0 md:left-[8%] md:w-28" rotate={12} />
+          <ArtSpray palette={palette} asset="cherry" className="-bottom-6 right-[2%] w-24 opacity-75 md:right-[6%] md:w-32" rotate={-7} />
+        </>
+      )}
+
       <motion.div
-        className={`relative z-10 flex min-h-[100svh] w-full flex-col items-center justify-center px-6 pt-20 text-center ${art ? "pb-[42svh]" : "pb-24"}`}
+        className="relative z-10 flex min-h-[100svh] w-full flex-col items-center justify-center px-7 pb-28 pt-24 text-center"
         style={{ y: contentY, opacity: contentOpacity }}
       >
-        <Eyebrow text={eyebrow} color={palette.inkMuted} />
-        <h1 className="mt-7 flex flex-col items-center font-light leading-[0.95]" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
+        <Eyebrow text={eyebrow} color={alpha(palette.ink, 0.78)} delay={0.5} />
+        <h1
+          className="mt-7 flex flex-col items-center font-light leading-[0.95]"
+          style={{ fontFamily: palette.displayFont, color: palette.ink, textShadow }}
+        >
           <span className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl">
-            <RisingText text={wedding.partner1_name} delay={0.5} />
+            <RisingText text={wedding.partner1_name} delay={0.8} />
           </span>
-          <Ampersand palette={palette} delay={1.1} className="my-1 text-5xl md:my-2 md:text-8xl" />
-          <span className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl">
-            <RisingText text={wedding.partner2_name} delay={1.3} />
-          </span>
+          {twoNames && (
+            <>
+              <Ampersand palette={palette} delay={1.4} className="my-1 text-5xl md:my-2 md:text-8xl" />
+              <span className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl">
+                <RisingText text={wedding.partner2_name} delay={1.6} />
+              </span>
+            </>
+          )}
         </h1>
         <motion.p
           className="mt-7 text-2xl md:text-3xl"
-          style={{ fontFamily: palette.scriptFont, color: palette.primary }}
-          initial={{ opacity: 0, y: 12 }}
+          style={{ fontFamily: palette.scriptFont, color: scriptInk, textShadow }}
+          initial={reduce ? false : { opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 2.1, ease: EASE_OUT }}
+          transition={{ duration: 1, delay: 2.3, ease: EASE_OUT }}
         >
           {wedding.event_title || copy.tagline(wedding.partner1_name)}
         </motion.p>
         {wedding.wedding_date && (
           <div className="mt-5">
-            <DateLine date={wedding.wedding_date} palette={palette} delay={2.4} />
+            <DateLine date={wedding.wedding_date} palette={palette} delay={2.6} />
           </div>
         )}
         {wedding.venue_name && (
-          <motion.p className="mt-4 text-xs uppercase tracking-[0.3em]" style={{ color: palette.inkMuted }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.7 }}>
+          <motion.p
+            className="mt-4 text-xs uppercase tracking-[0.3em]"
+            style={{ color: alpha(palette.ink, 0.75), textShadow }}
+            initial={reduce ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 2.9 }}
+          >
             {wedding.venue_name}
           </motion.p>
         )}
       </motion.div>
-      {art && (
-        <>
-          <ArtSpray palette={palette} asset="roses" className="-left-8 bottom-[20svh] w-24 opacity-70 md:left-2 md:w-32" rotate={-14} />
-          <ArtSpray palette={palette} asset="peony" className="-right-10 bottom-[16svh] w-28 opacity-70 md:right-0 md:w-36" rotate={12} />
-        </>
-      )}
+      </div>
+
+      <AnimatePresence>
+        {!revealed && <GardenCover palette={palette} onOpen={() => setOpened(true)} />}
+      </AnimatePresence>
     </>
   );
 }
@@ -678,6 +833,8 @@ export default function Hero({ wedding, palette, photos }: HeroProps) {
       {layout === "bojagi" && <BojagiHero {...props} />}
       {layout === "atelier" && <AtelierHero {...props} />}
       {layout === "chateau" && <ChateauHero {...props} />}
+      {layout === "balloons" && <BalloonHero {...props} />}
+      {layout === "confetti" && <ConfettiHero {...props} />}
       {layout !== "editorial" && <ScrollCue color={cueColor} />}
       {/* "Dear {name}" greeting now rendered inside the Eyebrow component of each layout. */}
     </section>

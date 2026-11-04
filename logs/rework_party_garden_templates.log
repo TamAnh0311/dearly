@@ -1,0 +1,8 @@
+[2026-11-03 13:51:19]
+CONTEXT: Select and rework the weakest Dearly invitation templates. Chosen: garden, balloon-bash and confetti-pop.
+RESULT: Added dedicated balloon/confetti celebration heroes, rebuilt garden around the watercolour venue art, updated gallery thumbnails/styles/tests, and verified with mobile/desktop screenshots, Vitest (129), tsc, lint and production build.
+---
+[2026-11-04 15:12:25]
+CONTEXT: Make the reworked garden, balloon-bash and confetti-pop heroes less static with interactive openings.
+RESULT: Added a split garden gate with wreath button, five balloon-pop reveal, and confetti popper pull-to-open; all have skip, keyboard support, inert background content, and reduced-motion fallbacks. Re-verified mobile/desktop screenshots, dark schemes, reduced motion, Vitest (129), tsc, lint and production build.
+---

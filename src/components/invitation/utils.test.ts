@@ -86,6 +86,9 @@ describe("design styles", () => {
     expect(getInvitationStyle("celestial").hero).toBe("celestial");
     expect(getInvitationStyle("polaroid").hero).toBe("polaroid");
     expect(getInvitationStyle("sunset").hero).toBe("split");
+    expect(getInvitationStyle("balloon-bash").hero).toBe("balloons");
+    expect(getInvitationStyle("confetti-pop").hero).toBe("confetti");
+    expect(getInvitationStyle("garden")).toMatchObject({ hero: "garden", bodyFont: "Jost", art: "watercolour-garden" });
   });
 
   it("maps the signature collection to its theatrical heroes", () => {

@@ -1,8 +1,8 @@
 /**
  * LayoutThumbnail — a miniature, static rendering of a template's hero
- * layout (garden, arch, editorial, split, celestial, polaroid, curtain,
- * seal, daynight, stained) in its
- * colours, so gallery cards show what the invitation actually looks like.
+ * layout in its colours, so gallery cards show what the invitation actually
+ * looks like. The garden and celebration cards use the same art and props as
+ * their full-size heroes rather than a generic centre crop.
  */
 
 import Image from "next/image";
@@ -422,8 +422,98 @@ export default function LayoutThumbnail({ slug, colors, fonts, photo, names = ["
       );
     }
 
+    case "balloons": {
+      const balloons = [primary, accent, mix(primary, "#ffffff", 0.35), mix(accent, "#ffffff", 0.3)];
+      return (
+        <div className="relative flex h-full items-center justify-center overflow-hidden" style={{ background: `radial-gradient(ellipse at 50% 38%, ${alpha(primary, 0.16)}, ${secondary} 72%)` }}>
+          {[
+            { l: "-4%", t: "6%", s: 34, c: 0, r: -8 },
+            { l: "18%", t: "-2%", s: 24, c: 1, r: 6 },
+            { l: "66%", t: "-1%", s: 26, c: 2, r: -5 },
+            { l: "82%", t: "8%", s: 36, c: 3, r: 8 },
+          ].map((b, i) => (
+            <span
+              key={i}
+              className="absolute"
+              style={{
+                left: b.l,
+                top: b.t,
+                width: b.s,
+                height: b.s * 1.22,
+                borderRadius: "50% 50% 47% 47% / 52% 52% 48% 48%",
+                background: `radial-gradient(circle at 32% 26%, ${mix(balloons[b.c], "#ffffff", 0.55)} 0%, ${balloons[b.c]} 45%, ${mix(balloons[b.c], "#000000", 0.28)} 100%)`,
+                transform: `rotate(${b.r}deg)`,
+                boxShadow: `inset -5px -6px 12px ${alpha(mix(balloons[b.c], "#000000", 0.3), 0.3)}`,
+              }}
+            />
+          ))}
+          <div className="relative text-center" style={{ fontFamily: display, color: ink }}>
+            <p className="text-[6px] uppercase tracking-[0.32em]" style={{ color: alpha(ink, 0.6) }}>
+              You&apos;re invited
+            </p>
+            <p className="mt-1 max-w-[9ch] text-2xl leading-[0.92] text-balance">{names[0]}</p>
+            <p className="mt-2 text-[6px] uppercase tracking-[0.3em]" style={{ color: alpha(ink, 0.55) }}>
+              15 · 06 · 2027
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    case "confetti": {
+      const confetti = [primary, accent, mix(primary, "#ffffff", 0.4), mix(accent, "#ffffff", 0.35)];
+      return (
+        <div className="relative flex h-full items-center justify-center overflow-hidden" style={{ background: `linear-gradient(145deg, ${mix(secondary, primary, 0.08)}, ${secondary} 45%, ${mix(secondary, accent, 0.08)})` }}>
+          {Array.from({ length: 18 }, (_, i) => (
+            <span
+              key={i}
+              className="absolute block rounded-[1px]"
+              style={{
+                left: `${(i * 43) % 100}%`,
+                top: `${(i * 31) % 100}%`,
+                width: 3 + (i % 3),
+                height: 7 + (i % 4) * 2,
+                background: confetti[i % confetti.length],
+                transform: `rotate(${i * 37}deg)`,
+                opacity: 0.7,
+              }}
+            />
+          ))}
+          <div className="relative w-[76%] px-3 py-4 text-center shadow-lg" style={{ background: secondary, border: `1px solid ${alpha(ink, 0.18)}`, boxShadow: `5px 6px 0 ${alpha(primary, 0.25)}` }}>
+            <p className="text-[6px] uppercase tracking-[0.32em]" style={{ color: alpha(ink, 0.55) }}>
+              You&apos;re invited
+            </p>
+            <p className="mt-1 max-w-[10ch] text-xl leading-[0.95] text-balance" style={{ fontFamily: display, color: ink }}>
+              {names[0]}
+            </p>
+            <p className="mt-2 border-t border-dashed pt-1.5 text-[6px] uppercase tracking-[0.3em]" style={{ borderColor: alpha(ink, 0.2), color: alpha(ink, 0.55) }}>
+              15 · 06 · 2027
+            </p>
+          </div>
+        </div>
+      );
+    }
+
     default: {
       // garden
+      const art = getArtCollection(style.art);
+      if (art) {
+        return (
+          <div className="relative flex h-full items-center justify-center overflow-hidden" style={{ background: secondary }}>
+            <Image src={art.venue.src} alt="" fill sizes="240px" className="object-cover" style={{ objectPosition: "50% 52%" }} />
+            <div
+              className="absolute inset-0"
+              style={{ background: `radial-gradient(ellipse at 50% 45%, ${alpha(secondary, dark ? 0.58 : 0.72)} 0%, ${alpha(secondary, dark ? 0.34 : 0.4)} 55%, transparent 82%)` }}
+            />
+            <div className="relative text-center" style={{ fontFamily: display, color: ink }}>
+              {nameBlock("text-2xl")}
+              <p className="mt-2 text-[6px] uppercase tracking-[0.3em]" style={{ color: alpha(ink, 0.6) }}>
+                15 · 06 · 2027
+              </p>
+            </div>
+          </div>
+        );
+      }
       const petals = [mix(primary, "#ffffff", 0.35), mix(accent, "#ffffff", 0.45), mix(primary, "#f6c6cf", 0.5)];
       return (
         <div className="relative flex h-full items-center justify-center overflow-hidden" style={{ background: `radial-gradient(ellipse at 50% 40%, ${alpha(primary, 0.14)}, ${secondary} 70%)` }}>

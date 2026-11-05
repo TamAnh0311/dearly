@@ -23,8 +23,10 @@ import {
   Globe,
   CalendarDays,
   Link as LinkIcon,
+  Plus,
   Sparkles,
   Eye,
+  ArrowLeft,
   X,
 } from "lucide-react";
 import { useMyWedding } from "@/hooks/useWedding";
@@ -249,6 +251,7 @@ function TemplatePreviewModal({
 export default function DashboardPage() {
   const { wedding, allWeddings, loading: weddingLoading, createWedding, switchWedding } = useMyWedding();
   const router = useRouter();
+  const [creatingNew, setCreatingNew] = useState(false);
 
   // Template picker state
   const [templates, setTemplates] = useState<TemplateRow[]>([]);
@@ -383,6 +386,7 @@ export default function DashboardPage() {
         ...(customization ? { customization } : {}),
       });
       clearPendingDesign();
+      setCreatingNew(false);
       router.push("/dashboard/editor");
     } catch (err: unknown) {
       setSubmitError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
@@ -413,7 +417,7 @@ export default function DashboardPage() {
   // Render: Dashboard Overview (wedding exists)
   // ---------------------------------------------------------------------------
 
-  if (wedding) {
+  if (wedding && !creatingNew) {
     const multi = allWeddings.length > 1;
 
     return (
@@ -547,6 +551,18 @@ export default function DashboardPage() {
               </motion.div>
             );
           })}
+
+          {/* Create new invitation card */}
+          <motion.button
+            type="button"
+            onClick={() => setCreatingNew(true)}
+            variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.35 } } }}
+            whileHover={{ y: -2 }}
+            className="flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-dearly-border bg-dearly-card/50 px-5 py-6 text-sm font-semibold text-dearly-text-secondary transition hover:border-dearly-accent/50 hover:text-dearly-accent hover:bg-dearly-accent-soft/30"
+          >
+            <Plus size={18} />
+            Create new invitation
+          </motion.button>
         </motion.div>
       </div>
     );
@@ -562,6 +578,17 @@ export default function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-5xl pb-12">
+      {/* Back button when creating an additional invitation */}
+      {creatingNew && (
+        <button
+          type="button"
+          onClick={() => setCreatingNew(false)}
+          className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-dearly-text-secondary transition hover:text-dearly-accent"
+        >
+          <ArrowLeft size={14} /> Back to dashboard
+        </button>
+      )}
+
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -12 }}
@@ -571,7 +598,7 @@ export default function DashboardPage() {
       >
         <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-dearly-accent-soft px-3 py-1 text-xs font-medium text-dearly-accent">
           <Sparkles size={12} />
-          Let&apos;s get started
+          {creatingNew ? "New invitation" : "Let\u2019s get started"}
         </div>
         <h1 className="font-display text-4xl font-bold text-dearly-text">
           {eventType === "wedding"

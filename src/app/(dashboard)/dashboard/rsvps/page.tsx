@@ -50,7 +50,7 @@ export default function RsvpsPage() {
     return <p className="text-sm text-dearly-text-secondary">Loading…</p>;
   }
   if (!wedding) {
-    return <p className="text-sm text-dearly-text-secondary">No wedding found. Set one up in the Editor first.</p>;
+    return <p className="text-sm text-dearly-text-secondary">No event found. Set one up in the Editor first.</p>;
   }
 
   const attending = rsvps.filter((r) => r.attending);

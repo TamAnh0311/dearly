@@ -49,7 +49,7 @@ export default function GalleryPage() {
   if (!wedding) {
     return (
       <p className="text-sm text-dearly-text-secondary">
-        No wedding found. Set one up in the Editor first.
+        No event found. Set one up in the Editor first.
       </p>
     );
   }

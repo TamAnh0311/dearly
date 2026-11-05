@@ -30,8 +30,33 @@ export default function AccountPage() {
   const [passwordError, setPasswordError] = useState<string | null>(null);
 
   const [deleteConfirm, setDeleteConfirm] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const isAdmin = user?.app_metadata?.role === "admin";
+
+  /** Permanently deletes the user's account and all associated data. */
+  async function handleDeleteAccount() {
+    if (deleteConfirm !== "DELETE") return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      const res = await fetch("/api/user/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ confirm: "DELETE" }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? "Deletion failed.");
+      }
+      // Account deleted — redirect to home
+      router.push("/");
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setDeleting(false);
+    }
+  }
 
   /** Updates display name in Supabase user metadata. */
   async function handleProfileSave(e: FormEvent) {
@@ -243,7 +268,7 @@ export default function AccountPage() {
           <h2 className="font-display text-lg font-semibold text-red-700">Danger Zone</h2>
         </div>
         <p className="mb-4 text-sm text-red-600/80">
-          Deleting your account will permanently remove your wedding site, photos, and all data. This cannot be undone.
+          Deleting your account will permanently remove your event page, photos, and all data. This cannot be undone.
         </p>
         <div className="flex items-end gap-3">
           <div className="flex-1">
@@ -259,12 +284,16 @@ export default function AccountPage() {
             />
           </div>
           <button
-            disabled={deleteConfirm !== "DELETE"}
+            onClick={handleDeleteAccount}
+            disabled={deleteConfirm !== "DELETE" || deleting}
             className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-30 disabled:cursor-not-allowed"
           >
-            Delete Account
+            {deleting ? "Deleting…" : "Delete Account"}
           </button>
         </div>
+        {deleteError && (
+          <p className="mt-3 text-sm text-red-600">{deleteError}</p>
+        )}
       </motion.div>
     </div>
   );

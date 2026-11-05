@@ -493,6 +493,15 @@ export default function RsvpSection({
                         )}
                         {status === "sending" ? t.sending : attending ? t.sendRsvp : t.sendLove}
                       </motion.button>
+                      {!demo && (
+                        <p className="mt-3 text-center text-[11px]" style={{ color: palette.inkMuted }}>
+                          {ui.lang === "vi" ? (
+                            <>Khi gửi, quý khách đồng ý với <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline" }}>Chính sách bảo mật</a>.</>
+                          ) : (
+                            <>By submitting, you agree to our <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline" }}>Privacy Policy</a>.</>
+                          )}
+                        </p>
+                      )}
                     </div>
                   </motion.div>
                 )}

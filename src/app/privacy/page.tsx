@@ -38,7 +38,7 @@ export default function PrivacyPage() {
         <section>
           <h2 className="mb-2 font-display text-lg font-semibold text-dearly-text">1. Who we are</h2>
           <p>
-            Dearly (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) is a wedding and event invitation platform. This policy explains how we collect, use, store, and protect personal data when you use our website and services.
+            Dearly (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) is an event invitation and management platform. This policy explains how we collect, use, store, and protect personal data when you use our website and services.
           </p>
         </section>
 
@@ -47,7 +47,7 @@ export default function PrivacyPage() {
           <p className="mb-2">We collect the following categories of personal data:</p>
           <ul className="list-disc space-y-1 pl-5">
             <li><strong>Account data:</strong> email address, display name, and hashed password when you sign up.</li>
-            <li><strong>Event data:</strong> partner names, wedding date, venue name and address, story text, and customisation preferences you enter in the editor.</li>
+            <li><strong>Event data:</strong> host names, event date, venue name and address, story text, and customisation preferences you enter in the editor.</li>
             <li><strong>Guest data:</strong> names, RSVP responses, party size, and optional messages submitted by guests through your invitation page.</li>
             <li><strong>Photos:</strong> images uploaded by you or your guests, along with the uploader&apos;s name if provided.</li>
             <li><strong>Technical data:</strong> IP address (for rate limiting only, not stored long-term), browser type, and session cookies required for authentication.</li>

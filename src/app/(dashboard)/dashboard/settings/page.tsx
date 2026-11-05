@@ -57,7 +57,7 @@ export default function SettingsPage() {
   if (!wedding) {
     return (
       <p className="text-sm text-dearly-text-secondary">
-        No wedding found. Set one up in the Editor first.
+        No event found. Set one up in the Editor first.
       </p>
     );
   }
@@ -96,7 +96,7 @@ export default function SettingsPage() {
       <div>
         <h1 className="text-2xl font-bold text-dearly-text">Settings</h1>
         <p className="mt-1 text-sm text-dearly-text-secondary">
-          Configure your wedding site URL and visibility.
+          Configure your event page URL and visibility.
         </p>
       </div>
 
@@ -104,8 +104,8 @@ export default function SettingsPage() {
         {/* Slug */}
         <div className="space-y-1.5">
           <div className="flex items-center gap-1.5">
-            <label className="text-sm font-medium text-dearly-text">Wedding URL Slug</label>
-            <HelpTip label="Wedding URL slug" guide="publish-and-share">
+            <label className="text-sm font-medium text-dearly-text">Event URL Slug</label>
+            <HelpTip label="Event URL slug" guide="publish-and-share">
               3–60 lowercase letters, numbers or hyphens. Old links stop working after a change.
             </HelpTip>
           </div>
@@ -143,7 +143,7 @@ export default function SettingsPage() {
               </HelpTip>
             </p>
             <p className="text-xs text-dearly-text-secondary">
-              Make your wedding site visible to guests.
+              Make your event page visible to guests.
             </p>
           </div>
           <button

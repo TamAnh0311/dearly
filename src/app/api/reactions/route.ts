@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
   }
   const { weddingId, kind, amount } = parsed.data;
 
-  const wait = checkRateLimit(`react:${clientIp(request)}:${weddingId}`, 30, 60 * 1000);
+  const wait = await checkRateLimit(`react:${clientIp(request)}:${weddingId}`, 30, 60 * 1000);
   if (wait > 0) {
     return NextResponse.json({ error: "So much love! Please slow down a little." }, { status: 429 });
   }

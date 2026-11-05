@@ -32,7 +32,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: { default: `${SITE_NAME} — Wedding Invitations, RSVP & Memory Book`, template: `%s | ${SITE_NAME}` },
+  title: { default: `${SITE_NAME} — Event Invitations, RSVP & Guest Management`, template: `%s | ${SITE_NAME}` },
   description: SITE_DESCRIPTION,
   keywords: SITE_KEYWORDS,
   applicationName: SITE_NAME,
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
   },
   twitter: { card: "summary_large_image", title: `${SITE_NAME} — ${SITE_TAGLINE}`, description: SITE_DESCRIPTION },
   robots: { index: true, follow: true },
-  category: "wedding",
+  category: "events",
 };
 
 /** Organization + WebSite structured data for search engines. */

@@ -28,7 +28,7 @@ export default function TimelinePage() {
   if (!wedding) {
     return (
       <p className="text-sm text-dearly-text-secondary">
-        No wedding found. Set one up in the Editor first.
+        No event found. Set one up in the Editor first.
       </p>
     );
   }
@@ -38,7 +38,7 @@ export default function TimelinePage() {
       <div>
         <h1 className="text-2xl font-bold text-dearly-text">Timeline</h1>
         <p className="mt-1 text-sm text-dearly-text-secondary">
-          Manage the schedule of events for your wedding day.
+          Manage the schedule of events for your event.
         </p>
       </div>
 

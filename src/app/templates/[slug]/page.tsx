@@ -353,8 +353,8 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
   const { data } = await supabase.from("templates").select("name, description, slug").eq("slug", params.slug).maybeSingle();
   if (!data) return { title: "Template not found", robots: { index: false } };
   const label = LAYOUT_LABEL[getInvitationStyle(data.slug).hero];
-  const title = `${data.name} — ${label} invitation template`;
-  const description = `${data.description}. Live animated demo with RSVP, blessings and a photo album — try every colour scheme free.`;
+  const title = `${data.name} — ${label} event invitation template`;
+  const description = `${data.description}. Live animated event demo with RSVP, blessings and a photo album — try every colour scheme free.`;
   const embedded = searchParams?.embed === "1";
   const url = absoluteUrl(`/templates/${data.slug}`);
   return {

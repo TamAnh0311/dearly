@@ -70,7 +70,7 @@ export const GUIDES: Guide[] = [
       {
         heading: "2. Choose the occasion",
         body: [
-          "Weddings are the flagship, but the same tools work for birthdays, parties, engagements, anniversaries, baby showers and other social events.",
+          "The same tools work for weddings, birthdays, dinner parties, engagements, anniversaries, baby showers and other celebrations.",
           "For a single-host event such as a birthday, leave the second name empty. Add an optional event title (for example “Mia turns 30”).",
         ],
       },
@@ -493,16 +493,16 @@ export const GUIDES: Guide[] = [
   },
   {
     slug: "other-occasions",
-    title: "Birthdays, parties and other occasions",
-    summary: "The same invitation engine works for every celebration, with single-host support.",
+    title: "Weddings, birthdays, dinners and other occasions",
+    summary: "One invitation engine for every celebration, with single-host support.",
     category: "occasions",
-    keywords: ["birthday", "party", "social", "engagement", "anniversary", "baby shower", "single host", "event title", "occasion"],
+    keywords: ["wedding", "birthday", "party", "dinner", "social", "engagement", "anniversary", "baby shower", "single host", "event title", "occasion"],
     minutes: 3,
     sections: [
       {
         heading: "Choose the occasion",
         body: [
-          "Onboarding shows Wedding as the main choice, with the other occasions as smaller chips. The occasion decides which templates are offered and the labels used across the page.",
+          "Onboarding shows every occasion as an equal choice — wedding, birthday, party, dinner and social, engagement, anniversary and baby shower. The occasion decides which templates are offered and the labels used across the page.",
         ],
       },
       {

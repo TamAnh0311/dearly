@@ -315,7 +315,9 @@ export default function StorybookRsvp({
                 <p className="sb-rsvp-note">
                   {demo
                     ? (english ? "Design preview — no data is sent or stored." : "Bản xem trước — không có dữ liệu nào được gửi.")
-                    : (english ? "Your reply is private and shared only with the hosts." : "Phản hồi của quý khách được bảo mật và chỉ chia sẻ với gia chủ.")}
+                    : (english
+                      ? <>By submitting, you agree to our <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline" }}>Privacy Policy</a>. Your reply is shared only with the hosts.</>
+                      : <>Khi gửi, quý khách đồng ý với <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline" }}>Chính sách bảo mật</a>. Phản hồi chỉ được chia sẻ với gia chủ.</>)}
                 </p>
               </form>
             </>

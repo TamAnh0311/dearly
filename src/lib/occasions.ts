@@ -1,7 +1,7 @@
 /**
- * SEO landing pages per occasion (/invitations/<type>). Wedding is the
- * flagship and listed first. Each page targets its own search intent with a
- * unique title, description, H1, feature list and FAQ (FAQPage JSON-LD).
+ * SEO landing pages per occasion (/invitations/<type>). Every occasion is
+ * presented as a first-class use case. Each page targets its own search intent
+ * with a unique title, description, H1, feature list and FAQ (FAQPage JSON-LD).
  */
 
 import type { EventType } from "@/types/database";
@@ -84,6 +84,28 @@ export const OCCASIONS: OccasionPage[] = [
       { q: "Can I export the guest list?", a: "Yes — download a CSV with every guest's status, companions and personal link." },
     ],
     cta: { label: "Create a party invitation", href: "/signup?event=party" },
+  },
+  {
+    slug: "dinner",
+    eventTypes: ["social", "party"],
+    navLabel: "Dinner party invitations",
+    title: "Dinner Party Invitations with RSVP & Guest List",
+    description:
+      "Elegant online dinner invitations with RSVP, personal guest links, menu and venue details, and a shared photo album. Made for dinner parties, supper clubs and private dining.",
+    h1: "Dinner invitations with a seat for everyone",
+    intro:
+      "Set the table before the first guest arrives. Share one elegant link with the time, venue, menu and dress code, collect RSVPs and keep the evening's photos together.",
+    features: [
+      { title: "A seat for every guest", body: "Personal links, party size and a live guest list keep your table plan accurate." },
+      { title: "Menu & evening details", body: "Add the schedule, venue, directions and what to wear in one place." },
+      { title: "Replies without the group chat", body: "Guests RSVP in two taps; you see who is coming and who needs a reminder." },
+      { title: "The after-dinner album", body: "Guests add photos and messages, and the page becomes a memory of the night." },
+    ],
+    faq: [
+      { q: "Can I use Dearly for a private dinner or supper club?", a: "Yes. Choose the Dinner & social occasion and a refined design, then add the menu, venue and dress code to the invitation." },
+      { q: "Can I limit replies to invited guests?", a: "Yes. Create a guest list and share each personal link; replies are capped at the party size you set." },
+    ],
+    cta: { label: "Create a dinner invitation", href: "/signup?event=social" },
   },
   {
     slug: "social-event",

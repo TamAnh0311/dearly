@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
   }
   const { weddingId, guestName, attending, partySize, message, inviteeToken } = parsed.data;
 
-  const wait = checkRateLimit(`rsvp:${clientIp(request)}:${weddingId}`, 3, 10 * 60 * 1000);
+  const wait = await checkRateLimit(`rsvp:${clientIp(request)}:${weddingId}`, 3, 10 * 60 * 1000);
   if (wait > 0) {
     return NextResponse.json(
       { error: `You've already responded a few times. Please try again in ${Math.ceil(wait / 60)} minute(s).` },

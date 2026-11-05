@@ -1,7 +1,8 @@
 /**
  * Event types — copy and defaults that adapt the shared invitation to
- * weddings, birthdays, parties and social events. Wedding is the flagship
- * and the default everywhere (older rows have no event_type).
+ * weddings, birthdays, dinners, parties and social events. Wedding remains the
+ * default for older rows with no event_type, but every occasion is equal in
+ * onboarding and navigation.
  */
 
 import type { EventType, WeddingRow } from "@/types/database";
@@ -103,7 +104,7 @@ export const EVENT_COPY: Record<EventType, EventCopy> = {
     seoPath: "/invitations/party",
   },
   social: {
-    label: "Social event",
+    label: "Dinner & social",
     blurb: "Elegant invitations for dinners, galas, reunions and gatherings.",
     eyebrow: "The pleasure of your company is requested",
     tagline: () => "invites you",
@@ -205,7 +206,7 @@ const EVENT_COPY_VI: Record<EventType, EventCopy> = {
     seoPath: "/invitations/party",
   },
   social: {
-    label: "Sự kiện xã hội",
+    label: "Tiệc tối & sự kiện",
     blurb: "Thiệp mời trang trọng cho bữa tối, dạ tiệc, họp mặt và gặp gỡ.",
     eyebrow: "Trân trọng kính mời quý khách",
     tagline: () => "trân trọng kính mời",
@@ -241,7 +242,7 @@ export function getEventCopy(eventType: EventType, lang?: string): EventCopy {
 }
 
 /** Event types offered in onboarding, flagship first. */
-export const EVENT_TYPE_ORDER: EventType[] = ["wedding", "engagement", "birthday", "party", "social", "anniversary", "baby-shower"];
+export const EVENT_TYPE_ORDER: EventType[] = ["wedding", "birthday", "party", "social", "engagement", "anniversary", "baby-shower"];
 
 /** Resolves an event's type (older rows default to wedding). */
 export function eventTypeOf(event: Pick<WeddingRow, "event_type"> | null | undefined): EventType {

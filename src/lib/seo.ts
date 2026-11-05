@@ -6,9 +6,9 @@
 
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://dearly-self.vercel.app").replace(/\/$/, "");
 export const SITE_NAME = "Dearly";
-export const SITE_TAGLINE = "Cinematic wedding & event invitations that become your memory book";
+export const SITE_TAGLINE = "Invitations, RSVPs and guest management for every celebration";
 export const SITE_DESCRIPTION =
-  "Create animated wedding invitations with RSVP, a personalised guest list, live blessings and a shared photo album — plus birthday, party and social event invitations. Free.";
+  "Create cinematic invitations for weddings, birthdays, dinners and parties — with RSVP, personal guest links, a schedule, blessings and a shared photo album. Free during early access.";
 
 export const SITE_KEYWORDS = [
   "digital wedding invitation",
@@ -20,7 +20,11 @@ export const SITE_KEYWORDS = [
   "wedding photo sharing",
   "birthday invitation online",
   "party invitation online",
+  "dinner party invitation",
+  "event invitation",
   "event RSVP",
+  "event guest list",
+  "event management",
   "proposal website",
   "date night invitation",
 ];

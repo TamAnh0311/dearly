@@ -45,7 +45,7 @@ export default function TermsPage() {
         <section>
           <h2 className="mb-2 font-display text-lg font-semibold text-dearly-text">2. The Service</h2>
           <p>
-            Dearly provides a platform for creating and sharing digital invitations for weddings and events. You can customise designs, collect RSVPs, share photos, and receive guest messages through your personalised event page.
+            Dearly provides a platform for creating and sharing digital invitations and event pages for weddings, birthdays, dinners, parties and other celebrations. You can customise designs, collect RSVPs, share photos, and receive guest messages through your personalised event page.
           </p>
         </section>
 

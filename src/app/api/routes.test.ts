@@ -14,6 +14,9 @@ const state = {
   rpcError: null as { message: string; code?: string } | null,
 };
 
+/** Tracks rate-limit hits per key so the mock can enforce limits. */
+const rateLimitHits: Record<string, number> = {};
+
 /** Chainable query builder that records inserts and resolves wedding lookups. */
 function table(name: string) {
   const q = {
@@ -32,7 +35,15 @@ function table(name: string) {
 vi.mock("@/lib/supabase/server", () => ({
   createServiceRoleClient: () => ({
     from: (name: string) => table(name),
-    rpc: async () => (state.rpcError ? { data: null, error: state.rpcError } : { data: 42, error: null }),
+    rpc: async (fn: string, params?: Record<string, unknown>) => {
+      if (fn === "check_rate_limit") {
+        const key = params?.p_key as string;
+        const limit = params?.p_limit as number;
+        rateLimitHits[key] = (rateLimitHits[key] ?? 0) + 1;
+        return { data: rateLimitHits[key] > limit ? 60 : 0, error: null };
+      }
+      return state.rpcError ? { data: null, error: state.rpcError } : { data: 42, error: null };
+    },
   }),
 }));
 
@@ -52,6 +63,7 @@ beforeEach(() => {
   state.published = true;
   state.inserts = [];
   state.rpcError = null;
+  for (const k of Object.keys(rateLimitHits)) delete rateLimitHits[k];
   vi.spyOn(console, "info").mockImplementation(() => {});
   vi.spyOn(console, "warn").mockImplementation(() => {});
   vi.spyOn(console, "error").mockImplementation(() => {});

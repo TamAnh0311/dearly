@@ -5,9 +5,9 @@
 import type { Metadata } from "next";
 import { absoluteUrl } from "@/lib/seo";
 
-const TITLE = "Invitation Templates — Wedding, Birthday & Party Designs";
+const TITLE = "Invitation Templates — Weddings, Birthdays, Dinners & Parties";
 const DESCRIPTION =
-  "Browse animated invitation designs: curtain reveals, wax seals, garden gates, stained glass, confetti and more. Live demos with RSVP and any colour scheme.";
+  "Browse animated invitation designs for weddings, birthdays, dinners and parties: curtain reveals, wax seals, garden gates, stained glass, confetti and more. Live demos with RSVP and any colour scheme.";
 
 export const metadata: Metadata = {
   title: TITLE,

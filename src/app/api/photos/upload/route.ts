@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
   }
 
   const isGuestUpload = !!guestName;
-  if (isGuestUpload && checkRateLimit(`upload:${clientIp(request)}:${weddingId}`, 5, 10 * 60 * 1000) > 0) {
+  if (isGuestUpload && (await checkRateLimit(`upload:${clientIp(request)}:${weddingId}`, 5, 10 * 60 * 1000)) > 0) {
     return NextResponse.json({ error: "Too many uploads — please wait a few minutes and try again." }, { status: 429 });
   }
 

@@ -47,7 +47,7 @@ export default function EditorPage() {
       <div className="flex h-full items-center justify-center">
         <div className="text-center">
           <p className="text-sm text-dearly-text-secondary">
-            No wedding found. Please create one to continue.
+            No event found. Please create one to continue.
           </p>
         </div>
       </div>

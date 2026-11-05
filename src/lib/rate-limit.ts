@@ -1,35 +1,36 @@
 /**
- * Minimal in-memory sliding-window rate limiter for API routes.
- * Note: state is per server instance — good enough for abuse dampening,
- * not a security boundary.
+ * Supabase-backed sliding-window rate limiter for API routes.
+ * Calls a Postgres RPC so limits survive serverless cold starts
+ * and work consistently across all function instances.
  */
 
 import type { NextRequest } from "next/server";
-
-interface Bucket {
-  hits: number[];
-}
-
-const buckets = new Map<string, Bucket>();
-const MAX_KEYS = 10_000;
+import { createServiceRoleClient } from "@/lib/supabase/server";
 
 /**
  * Records a hit for `key` and returns how many seconds the caller must wait,
- * or 0 if the request is allowed.
+ * or 0 if the request is allowed. Fails open on database errors so a broken
+ * rate limiter never blocks legitimate traffic.
  */
-export function checkRateLimit(key: string, limit: number, windowMs: number): number {
-  const now = Date.now();
-  const bucket = buckets.get(key) ?? { hits: [] };
-  bucket.hits = bucket.hits.filter((t) => now - t < windowMs);
+export async function checkRateLimit(key: string, limit: number, windowMs: number): Promise<number> {
+  try {
+    const supabase = createServiceRoleClient();
+    const { data, error } = await supabase.rpc("check_rate_limit", {
+      p_key: key,
+      p_limit: limit,
+      p_window_ms: windowMs,
+    });
 
-  if (bucket.hits.length >= limit) {
-    return Math.ceil((windowMs - (now - bucket.hits[0])) / 1000);
+    if (error) {
+      console.error("[ERROR] rate limit RPC failed", { key, code: error.code });
+      return 0;
+    }
+
+    return typeof data === "number" ? data : 0;
+  } catch (err) {
+    console.error("[ERROR] rate limit check threw", { key, err });
+    return 0;
   }
-
-  bucket.hits.push(now);
-  if (buckets.size >= MAX_KEYS && !buckets.has(key)) buckets.clear();
-  buckets.set(key, bucket);
-  return 0;
 }
 
 /** Best-effort client IP from proxy headers. */

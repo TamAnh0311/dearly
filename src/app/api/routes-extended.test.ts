@@ -87,7 +87,7 @@ vi.mock("@/lib/supabase/server", () => ({
 }));
 
 vi.mock("@/lib/rate-limit", () => ({
-  checkRateLimit: () => 0,
+  checkRateLimit: async () => 0,
   clientIp: () => "127.0.0.1",
 }));
 
@@ -142,7 +142,7 @@ describe("POST /api/guestbook", async () => {
   it("rejects requests with missing required fields", async () => {
     const res = await POST(post("http://x/api/guestbook", { weddingId: WEDDING }));
     expect(res.status).toBe(400);
-    expect((await res.json()).error).toMatch(/missing/i);
+    expect((await res.json()).error).toMatch(/name/i);
   });
 
   it("rejects guest name longer than 100 characters", async () => {

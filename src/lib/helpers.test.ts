@@ -1,10 +1,17 @@
 /**
- * Unit tests for the in-memory rate limiter and pending-design storage.
+ * Unit tests for the Supabase-backed rate limiter and pending-design storage.
  */
 
-import { afterEach, describe, expect, it, vi } from "vitest";
-import { checkRateLimit } from "./rate-limit";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { capturePendingDesign, clearPendingDesign, readPendingDesign, schemeColors } from "./pending-design";
+
+/* ─── Supabase mock for the rate limiter ─────────────────────────────────── */
+
+const mockRpc = vi.fn();
+
+vi.mock("@/lib/supabase/server", () => ({
+  createServiceRoleClient: () => ({ rpc: mockRpc }),
+}));
 
 /** Minimal in-memory Storage for tests. */
 function memoryStorage(): Storage {
@@ -22,25 +29,37 @@ function memoryStorage(): Storage {
 }
 
 describe("checkRateLimit", () => {
-  afterEach(() => vi.useRealTimers());
+  let checkRateLimit: typeof import("./rate-limit").checkRateLimit;
 
-  it("allows up to the limit, then reports a wait, then recovers", () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(0);
-    const key = `test-${Math.random()}`;
-    expect(checkRateLimit(key, 2, 10_000)).toBe(0);
-    expect(checkRateLimit(key, 2, 10_000)).toBe(0);
-    expect(checkRateLimit(key, 2, 10_000)).toBe(10);
-    vi.setSystemTime(10_001);
-    expect(checkRateLimit(key, 2, 10_000)).toBe(0);
+  beforeEach(async () => {
+    mockRpc.mockReset();
+    ({ checkRateLimit } = await import("./rate-limit"));
+  });
+  afterEach(() => vi.restoreAllMocks());
+
+  it("returns 0 when the RPC allows the request", async () => {
+    mockRpc.mockResolvedValueOnce({ data: 0, error: null });
+    expect(await checkRateLimit("test-key", 3, 10_000)).toBe(0);
+    expect(mockRpc).toHaveBeenCalledWith("check_rate_limit", {
+      p_key: "test-key",
+      p_limit: 3,
+      p_window_ms: 10_000,
+    });
   });
 
-  it("tracks keys independently", () => {
-    const a = `a-${Math.random()}`;
-    const b = `b-${Math.random()}`;
-    expect(checkRateLimit(a, 1, 60_000)).toBe(0);
-    expect(checkRateLimit(a, 1, 60_000)).toBeGreaterThan(0);
-    expect(checkRateLimit(b, 1, 60_000)).toBe(0);
+  it("returns wait seconds when rate limited", async () => {
+    mockRpc.mockResolvedValueOnce({ data: 42, error: null });
+    expect(await checkRateLimit("test-key", 3, 10_000)).toBe(42);
+  });
+
+  it("fails open on RPC error", async () => {
+    mockRpc.mockResolvedValueOnce({ data: null, error: { code: "42P01", message: "relation not found" } });
+    expect(await checkRateLimit("test-key", 3, 10_000)).toBe(0);
+  });
+
+  it("fails open on thrown error", async () => {
+    mockRpc.mockRejectedValueOnce(new Error("connection refused"));
+    expect(await checkRateLimit("test-key", 3, 10_000)).toBe(0);
   });
 });
 

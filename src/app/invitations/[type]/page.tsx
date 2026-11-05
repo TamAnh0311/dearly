@@ -81,19 +81,13 @@ export default async function OccasionPage({ params }: PageProps) {
           <Link href="/" className="font-display text-2xl font-bold text-dearly-accent">
             Dearly
           </Link>
-          {/* Weddings lead; other occasions sit in a quieter "also for" group. */}
-          <div className="hidden items-center gap-6 md:flex">
-            <Link href="/invitations/wedding" className={`text-sm font-semibold ${o.slug === "wedding" ? "text-dearly-accent" : "text-dearly-text hover:text-dearly-accent"}`}>
-              Weddings
-            </Link>
-            <div className="flex items-center gap-4 text-xs text-dearly-text-muted">
-              <span className="uppercase tracking-[0.2em]">Also for</span>
-              {OCCASIONS.filter((x) => x.slug !== "wedding").map((x) => (
-                <Link key={x.slug} href={`/invitations/${x.slug}`} className={x.slug === o.slug ? "font-semibold text-dearly-accent" : "hover:text-dearly-text-secondary"}>
-                  {x.navLabel.replace(" invitations", "").replace(" cards", "")}
-                </Link>
-              ))}
-            </div>
+          <div className="hidden items-center gap-4 text-xs text-dearly-text-muted md:flex">
+            <span className="uppercase tracking-[0.2em]">Occasions</span>
+            {OCCASIONS.map((x) => (
+              <Link key={x.slug} href={`/invitations/${x.slug}`} className={x.slug === o.slug ? "font-semibold text-dearly-accent" : "hover:text-dearly-text-secondary"}>
+                {x.navLabel.replace(" invitations", "").replace(" cards", "")}
+              </Link>
+            ))}
           </div>
           <Link href={o.cta.href} className="rounded-lg bg-dearly-accent px-4 py-2 text-sm font-semibold text-white">
             Start free

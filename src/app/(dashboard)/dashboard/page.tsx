@@ -21,7 +21,6 @@ import {
   Clock,
   ExternalLink,
   Globe,
-  Heart,
   CalendarDays,
   Link as LinkIcon,
   Sparkles,
@@ -50,7 +49,7 @@ const QUICK_LINKS = [
   {
     href: "/dashboard/editor",
     label: "Editor",
-    description: "Customise your wedding site design",
+    description: "Customise your event page design",
     Icon: Palette,
     colour: "from-rose-50 to-pink-50 text-rose-600 border-rose-100",
     iconBg: "bg-rose-100",
@@ -74,7 +73,7 @@ const QUICK_LINKS = [
   {
     href: "/dashboard/timeline",
     label: "Timeline",
-    description: "Plan your wedding day schedule",
+    description: "Plan your event schedule",
     Icon: Clock,
     colour: "from-amber-50 to-yellow-50 text-amber-600 border-amber-100",
     iconBg: "bg-amber-100",
@@ -429,7 +428,7 @@ export default function DashboardPage() {
           <p className="mt-1 text-dearly-text-secondary">
             {multi
               ? `You have ${allWeddings.length} invitations. Tap one to manage it.`
-              : "Here\u2019s an overview of your wedding site."}
+              : "Here\u2019s an overview of your event page."}
           </p>
         </motion.div>
 
@@ -575,50 +574,39 @@ export default function DashboardPage() {
           Let&apos;s get started
         </div>
         <h1 className="font-display text-4xl font-bold text-dearly-text">
-          {eventType === "wedding" ? "Let\u2019s create your wedding invitation" : `Let\u2019s create your ${copy.label.toLowerCase()} invitation`}
+          {eventType === "wedding"
+            ? "Let\u2019s create your wedding invitation"
+            : eventType === "social"
+              ? "Let\u2019s create your dinner or event invitation"
+              : `Let\u2019s create your ${copy.label.toLowerCase()} invitation`}
         </h1>
         <p className="mt-2 text-dearly-text-secondary">
           Pick a design — you can customise everything later.
         </p>
-        {/* Weddings are the flagship; other occasions are a quieter secondary row. */}
-        <div className="mx-auto mt-6 flex max-w-3xl flex-col items-center gap-3" role="radiogroup" aria-label="Event type">
-          <button
-            type="button"
-            role="radio"
-            aria-checked={eventType === "wedding"}
-            onClick={() => {
-              setEventType("wedding");
-              setSelectedTemplateId(null);
-            }}
-            className={`inline-flex items-center gap-2 rounded-full px-7 py-3 text-base font-semibold transition ${
-              eventType === "wedding" ? "bg-dearly-accent text-white shadow-soft" : "border-2 border-dearly-accent/40 bg-dearly-card text-dearly-accent hover:border-dearly-accent"
-            }`}
-          >
-            <Heart size={16} /> Wedding
-          </button>
-          <div className="flex flex-wrap items-center justify-center gap-1.5 text-xs">
-            <span className="mr-1 text-dearly-text-muted">Planning something else?</span>
-            {EVENT_TYPE_ORDER.filter((t) => t !== "wedding").map((t) => (
-              <button
-                key={t}
-                type="button"
-                role="radio"
-                aria-checked={eventType === t}
-                onClick={() => {
-                  setEventType(t);
-                  setSelectedTemplateId(null);
-                }}
-                className={`rounded-full px-3 py-1 font-medium transition ${
-                  eventType === t ? "bg-dearly-text text-white" : "text-dearly-text-secondary hover:bg-dearly-accent-soft hover:text-dearly-accent"
-                }`}
-              >
-                {EVENT_COPY[t].label}
-              </button>
-            ))}
-            <a href="/dashboard/questions" className="rounded-full px-3 py-1 font-medium text-dearly-rose hover:bg-dearly-rose-soft">
-              Ask card →
-            </a>
-          </div>
+        <p className="mt-5 text-xs font-semibold uppercase tracking-[0.24em] text-dearly-text-muted">What are you celebrating?</p>
+        <div className="mx-auto mt-3 flex max-w-3xl flex-wrap items-center justify-center gap-2" role="radiogroup" aria-label="Event type">
+          {EVENT_TYPE_ORDER.map((t) => (
+            <button
+              key={t}
+              type="button"
+              role="radio"
+              aria-checked={eventType === t}
+              onClick={() => {
+                setEventType(t);
+                setSelectedTemplateId(null);
+              }}
+              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                eventType === t
+                  ? "bg-dearly-accent text-white shadow-soft"
+                  : "border border-dearly-border bg-dearly-card text-dearly-text-secondary hover:border-dearly-accent/50 hover:text-dearly-accent"
+              }`}
+            >
+              {EVENT_COPY[t].label}
+            </button>
+          ))}
+          <a href="/dashboard/questions" className="rounded-full border border-dearly-rose/30 px-4 py-2 text-sm font-semibold text-dearly-rose hover:bg-dearly-rose-soft">
+            Ask card →
+          </a>
         </div>
         <TemplateSearchInput value={templateQuery} onChange={setTemplateQuery} className="mx-auto mt-6 max-w-md" />
       </motion.div>

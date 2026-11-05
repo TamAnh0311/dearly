@@ -1,0 +1,4 @@
+[2026-11-05 17:30:00]
+CONTEXT: Replace in-memory rate limiting with Supabase-backed Postgres implementation so limits survive serverless cold starts and work across all function instances. Also fix remaining issues: TemplatesGallery syntax error, guestbook route missing Zod validation and published-wedding check.
+RESULT: Created migration 00030_add_rate_limit_table.sql (rate_limit_hits table + check_rate_limit RPC with advisory locks and probabilistic cleanup). Rewrote src/lib/rate-limit.ts to call the RPC (async, fail-open). Added await to all callers (rsvp, photos/upload, reactions). Replaced guestbook's separate inline rate limiter with the shared module, added Zod schema validation and published-wedding gate. Fixed TemplatesGallery.tsx missing bracket (]) from de-wedding diff. Updated all 3 test files — 131 tests pass, 0 TS errors.
+---

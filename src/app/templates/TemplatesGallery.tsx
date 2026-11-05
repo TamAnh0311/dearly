@@ -26,13 +26,9 @@ type DesignFilter = (typeof FILTERS)[number];
 
 const SPRING = { type: "spring", damping: 25, stiffness: 120 } as const;
 
-/** Occasion filter: weddings first (the flagship), then other celebrations. */
+/** Occasion filters for the shared design collection. */
 type Occasion = "all" | "wedding" | "birthday" | "party" | "social";
-const OCCASION_LABEL: Record<Occasion, string> = { all: "All occasions", wedding: "Wedding", birthday: "Birthday", party: "Party", social: "Social" };
-/** Wedding designs are the flagship, so they sort ahead of party/social ones. */
-function isWeddingTemplate(t: { event_types?: string[] | null }): boolean {
-  return (t.event_types ?? ["wedding"]).includes("wedding");
-}
+const OCCASION_LABEL: Record<Occasion, string> = { all: "All occasions", wedding: "Wedding", birthday: "Birthday", party: "Party", social: "Dinner & social" };
 const OCCASION_TYPES: Record<Exclude<Occasion, "all">, string[]> = {
   wedding: ["wedding", "engagement", "anniversary"],
   birthday: ["birthday", "baby-shower"],
@@ -76,7 +72,7 @@ export default function TemplatesGallery({ initialTemplates }: { initialTemplate
           (t) => occasion === "all" || (t.event_types ?? ["wedding"]).some((e) => OCCASION_TYPES[occasion].includes(e))
         ),
         query
-      )].sort((a, b) => Number(!isWeddingTemplate(a)) - Number(!isWeddingTemplate(b))),
+      )],
     [templates, activeFilter, query, occasion]
   );
   const fontsHref = useMemo(() => (templates.length ? galleryFontsUrl(templates) : null), [templates]);
@@ -149,11 +145,11 @@ export default function TemplatesGallery({ initialTemplates }: { initialTemplate
           </div>
           <h1 className="font-display text-5xl md:text-6xl font-bold text-dearly-text mb-5">
             Beautiful Templates for{" "}
-            <span className="text-dearly-accent">Every Style</span>
+            <span className="text-dearly-accent">Every Celebration</span>
           </h1>
           <p className="text-lg text-dearly-text-secondary leading-relaxed">
-            From timeless elegance to modern minimalism — browse our curated collection
-            of wedding templates and find the perfect one for your love story.
+            From intimate dinners and milestone birthdays to weddings and rooftop parties —
+            browse animated designs and find the one that fits your event.
             No signup required to browse.
           </p>
         </motion.div>
@@ -315,8 +311,8 @@ export default function TemplatesGallery({ initialTemplates }: { initialTemplate
             Found your perfect template?
           </h2>
           <p className="text-dearly-text-secondary mb-8">
-            Create your free account and start building your wedding site in minutes.
-            No design skills needed — just your love story.
+            Create your free account and start building your event page in minutes.
+            No design skills needed — just the details of your celebration.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link

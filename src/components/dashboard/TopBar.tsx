@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { ExternalLink, LogOut, Menu } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useMyWedding } from "@/hooks/useWedding";
+import { hostNames } from "@/lib/event-types";
 import { useSidebarDrawer } from "./Sidebar";
 
 export default function TopBar() {
@@ -30,7 +31,7 @@ export default function TopBar() {
         </button>
         {wedding ? (
           <span className="truncate">
-            {wedding.partner1_name || "Partner 1"} &amp; {wedding.partner2_name || "Partner 2"}
+            {wedding.event_title || hostNames(wedding) || "Your event"}
           </span>
         ) : (
           <span>Loading...</span>

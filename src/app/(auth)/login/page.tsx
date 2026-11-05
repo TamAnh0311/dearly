@@ -2,9 +2,15 @@
  * Login page — renders the LoginForm centered on screen.
  */
 
+import type { Metadata } from "next";
 import LoginForm from "@/components/auth/LoginForm";
+import { absoluteUrl } from "@/lib/seo";
 
-export const metadata = { title: "Sign in" };
+export const metadata: Metadata = {
+  title: "Sign in",
+  alternates: { canonical: absoluteUrl("/login") },
+  robots: { index: false, follow: false },
+};
 
 export default function LoginPage() {
   return (

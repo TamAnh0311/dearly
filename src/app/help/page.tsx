@@ -11,7 +11,7 @@ import { GUIDES } from "@/lib/guides";
 import { absoluteUrl } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Help & Guides — Dearly",
+  title: "Help & Guides",
   description:
     "Step-by-step Dearly guides: create an invitation, choose a design, build a guest list, collect RSVPs and photos, add music, publish and share.",
   alternates: { canonical: absoluteUrl("/help") },
@@ -19,6 +19,11 @@ export const metadata: Metadata = {
     title: "Dearly Help & Guides",
     description: "Everything you need to build, share and keep your Dearly invitation.",
     url: absoluteUrl("/help"),
+  },
+  twitter: {
+    card: "summary",
+    title: "Dearly Help & Guides",
+    description: "Everything you need to build, share and keep your Dearly invitation.",
   },
 };
 

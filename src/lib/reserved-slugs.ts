@@ -5,7 +5,7 @@
 const RESERVED = new Set([
   "api", "auth", "c", "q", "cards", "dashboard", "fonts", "invitations", "login",
   "signup", "preview", "pricing", "templates", "sitemap", "robots", "opengraph-image",
-  "favicon", "admin", "about", "help", "terms", "privacy", "blog",
+  "favicon", "admin", "about", "help", "terms", "privacy", "contact", "blog",
 ]);
 
 /** True when the slug would collide with a built-in Dearly page. */

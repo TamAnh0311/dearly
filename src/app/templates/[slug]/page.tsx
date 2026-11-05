@@ -11,7 +11,7 @@ import { notFound } from "next/navigation";
 import { absoluteUrl } from "@/lib/seo";
 import { LAYOUT_LABEL, getInvitationStyle } from "@/components/invitation/styles";
 import Link from "next/link";
-import { createCookieClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import { getTemplate } from "@/components/templates/registry";
 import { resolveTheme } from "@/components/templates/types";
 import ScrollProgress from "@/components/ui/ScrollProgress";
@@ -348,19 +348,28 @@ const DEMO_BLESSINGS: GuestbookEntryRow[] = [
 
 /** SEO: each template demo is an indexable landing page (embedded modes are not). */
 export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
-  const supabase = createCookieClient();
+  const supabase = createPublicClient();
+  if (!supabase) return { title: "Template not found", robots: { index: false } };
   const { data } = await supabase.from("templates").select("name, description, slug").eq("slug", params.slug).maybeSingle();
   if (!data) return { title: "Template not found", robots: { index: false } };
   const label = LAYOUT_LABEL[getInvitationStyle(data.slug).hero];
   const title = `${data.name} — ${label} invitation template`;
   const description = `${data.description}. Live animated demo with RSVP, blessings and a photo album — try every colour scheme free.`;
   const embedded = searchParams?.embed === "1";
+  const url = absoluteUrl(`/templates/${data.slug}`);
   return {
-    title,
+    title: { absolute: `${title} | Dearly` },
     description,
-    alternates: { canonical: absoluteUrl(`/templates/${data.slug}`) },
+    alternates: { canonical: url },
     robots: embedded ? { index: false, follow: false } : { index: true, follow: true },
-    openGraph: { title, description, url: absoluteUrl(`/templates/${data.slug}`) },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: "website",
+      images: [{ url: absoluteUrl(`/templates/${data.slug}/opengraph-image`), width: 1200, height: 630, alt: title }],
+    },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 
@@ -369,7 +378,8 @@ export default async function TemplatePreviewPage({ params, searchParams }: Page
   const bare = embedded && searchParams?.bare === "1";
   const initialScheme = typeof searchParams?.scheme === "string" ? searchParams.scheme.slice(0, 40) : "original";
   const initialLanguage = isInvitationLang(searchParams?.language) ? searchParams.language : undefined;
-  const supabase = createCookieClient();
+  const supabase = createPublicClient();
+  if (!supabase) notFound();
 
   const { data: templateData } = await supabase
     .from("templates")
@@ -386,6 +396,7 @@ export default async function TemplatePreviewPage({ params, searchParams }: Page
   const mockWedding = buildMockWedding(template);
   const theme = resolveTheme(template.default_config, mockWedding.customization);
   const style = getInvitationStyle(template.slug);
+  const layoutLabel = LAYOUT_LABEL[style.hero];
   const culture = style.culture;
   const demoEvents = style.storybook ? storybookEvents(style.storybook) : culture === "vietnamese" ? VIETNAMESE_EVENTS : MOCK_EVENTS;
 
@@ -416,10 +427,14 @@ export default async function TemplatePreviewPage({ params, searchParams }: Page
       {/* ── Bottom CTA (hidden when embedded in the dashboard) ── */}
       {!embedded && (
       <div className="relative z-10 flex flex-col items-center gap-4 border-t bg-white px-6 py-16 text-center">
-        <p className="text-lg font-bold text-gray-900">Love what you see?</p>
-        <p className="max-w-md text-sm text-gray-500">
-          Create your free account and use the <strong>{template.name}</strong> design for your own wedding site.
-          Pick any colour scheme — your colours, your story, your day.
+        <h2 className="text-lg font-bold text-gray-900">Love what you see?</h2>
+        <p className="max-w-xl text-sm leading-relaxed text-gray-500">
+          <strong>{template.name}</strong> is a {layoutLabel.toLowerCase()} invitation design. {template.description}
+          {" "}Try any colour scheme above, hide the sections you do not need, then make it yours with your names, date,
+          story and venue.
+        </p>
+        <p className="max-w-xl text-xs text-gray-400">
+          Free during early access · RSVP, blessings and photo album included · no card required
         </p>
         <div className="flex flex-col items-center gap-3 sm:flex-row">
           <Link

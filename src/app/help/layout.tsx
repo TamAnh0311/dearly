@@ -43,6 +43,9 @@ export default function HelpLayout({ children }: { children: React.ReactNode }) 
             <Link href="/templates" className="hover:text-dearly-text-secondary">Templates</Link>
             <Link href="/invitations/wedding" className="hover:text-dearly-text-secondary">Wedding invitations</Link>
             <Link href="/invitations/birthday" className="hover:text-dearly-text-secondary">Birthday invitations</Link>
+            <Link href="/privacy" className="hover:text-dearly-text-secondary">Privacy</Link>
+            <Link href="/terms" className="hover:text-dearly-text-secondary">Terms</Link>
+            <Link href="/contact" className="hover:text-dearly-text-secondary">Contact</Link>
             <Link href="/login" className="hover:text-dearly-text-secondary">Sign in</Link>
           </div>
           <p>&copy; {new Date().getFullYear()} Dearly. Made with love.</p>

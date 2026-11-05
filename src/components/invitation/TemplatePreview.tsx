@@ -21,7 +21,7 @@ import type { ResolvedTheme } from "@/components/templates/types";
 import type { GuestbookEntryRow, WeddingEventRow, WeddingRow } from "@/types/database";
 import CinematicInvitation from "./CinematicInvitation";
 import type { ReactionCounts } from "./sections/Blessings";
-import { COLOR_SCHEMES, getInvitationStyle, type ColorScheme } from "./styles";
+import { COLOR_SCHEMES, LAYOUT_LABEL, getInvitationStyle, type ColorScheme } from "./styles";
 import SectionToggles from "./SectionToggles";
 import { resolveBlessingStyle, type BlessingStyle } from "./sections-config";
 import type { WeddingCustomization } from "@/types/database";
@@ -107,7 +107,8 @@ export default function TemplatePreview({
   const [sections, setSections] = useState<WeddingCustomization["sections"]>(wedding.customization.sections);
   const [sectionsOpen, setSectionsOpen] = useState(false);
   const [blessingStyle, setBlessingStyle] = useState<BlessingStyle>(resolveBlessingStyle(wedding.customization.blessingStyle));
-  const culture = getInvitationStyle(templateSlug).culture;
+  const invitationStyle = getInvitationStyle(templateSlug);
+  const culture = invitationStyle.culture;
   const defaultLang: InvitationLang = wedding.customization.language ?? (culture === "vietnamese" ? "vi" : "en");
   const [lang, setLang] = useState<InvitationLang>(isInvitationLang(initialLanguage) ? initialLanguage : defaultLang);
 
@@ -146,6 +147,9 @@ export default function TemplatePreview({
         className="fixed inset-x-0 top-0 z-50 flex items-center gap-3 px-3 text-sm shadow-lg md:gap-5 md:px-5"
         style={{ height: BANNER_HEIGHT, backgroundColor: "rgba(20,18,16,0.92)", backdropFilter: "blur(10px)" }}
       >
+        <h1 className="sr-only">
+          {templateName} — {LAYOUT_LABEL[invitationStyle.hero]} invitation template
+        </h1>
         <div className="hidden min-w-0 shrink-0 lg:block">
           <p className="truncate font-semibold text-white">{templateName}</p>
           <p className="text-[11px] text-white/60">Live preview · demo content</p>

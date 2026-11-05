@@ -13,22 +13,20 @@ import { createPublicClient } from "@/lib/supabase/public";
 export const revalidate = 86400;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const now = new Date();
   const staticPages: MetadataRoute.Sitemap = [
-    { url: absoluteUrl("/"), lastModified: now, changeFrequency: "weekly", priority: 1 },
-    { url: absoluteUrl("/templates"), lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-    ...(PLANS_ENABLED ? [{ url: absoluteUrl("/pricing"), lastModified: now, changeFrequency: "monthly" as const, priority: 0.7 }] : []),
-    { url: absoluteUrl("/cards"), lastModified: now, changeFrequency: "monthly", priority: 0.5 },
-    { url: absoluteUrl("/help"), lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: absoluteUrl("/"), changeFrequency: "weekly", priority: 1 },
+    { url: absoluteUrl("/templates"), changeFrequency: "weekly", priority: 0.9 },
+    ...(PLANS_ENABLED ? [{ url: absoluteUrl("/pricing"), changeFrequency: "monthly" as const, priority: 0.7 }] : []),
+    { url: absoluteUrl("/cards"), changeFrequency: "monthly", priority: 0.5 },
+    { url: absoluteUrl("/contact"), changeFrequency: "yearly", priority: 0.3 },
+    { url: absoluteUrl("/help"), changeFrequency: "monthly", priority: 0.7 },
     ...GUIDES.map((guide) => ({
       url: absoluteUrl(`/help/${guide.slug}`),
-      lastModified: now,
       changeFrequency: "monthly" as const,
       priority: 0.6,
     })),
     ...OCCASIONS.map((o) => ({
       url: absoluteUrl(`/invitations/${o.slug}`),
-      lastModified: now,
       changeFrequency: "monthly" as const,
       priority: o.slug === "wedding" ? 0.95 : 0.6,
     })),

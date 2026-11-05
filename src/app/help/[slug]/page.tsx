@@ -24,7 +24,7 @@ export function generateMetadata({ params }: GuidePageProps): Metadata {
   const guide = getGuide(params.slug);
   if (!guide) return { title: "Guide not found", robots: { index: false, follow: false } };
   return {
-    title: `${guide.title} — Dearly Help`,
+    title: `${guide.title} — Help`,
     description: guide.summary,
     alternates: { canonical: absoluteUrl(`/help/${guide.slug}`) },
     openGraph: {
@@ -33,6 +33,7 @@ export function generateMetadata({ params }: GuidePageProps): Metadata {
       url: absoluteUrl(`/help/${guide.slug}`),
       type: "article",
     },
+    twitter: { card: "summary", title: guide.title, description: guide.summary },
   };
 }
 
@@ -43,6 +44,8 @@ export default function GuidePage({ params }: GuidePageProps) {
 
   const category = GUIDE_CATEGORIES.find((c) => c.id === guide.category);
   const related = relatedGuides(guide, 3);
+  const url = absoluteUrl(`/help/${guide.slug}`);
+  const lastReviewed = "2026-11-04";
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -50,8 +53,25 @@ export default function GuidePage({ params }: GuidePageProps) {
         "@type": "Article",
         headline: guide.title,
         description: guide.summary,
-        url: absoluteUrl(`/help/${guide.slug}`),
-        publisher: { "@type": "Organization", name: "Dearly", url: absoluteUrl("/") },
+        url,
+        mainEntityOfPage: url,
+        datePublished: lastReviewed,
+        dateModified: lastReviewed,
+        author: { "@type": "Organization", name: "Dearly", url: absoluteUrl("/") },
+        publisher: {
+          "@type": "Organization",
+          name: "Dearly",
+          url: absoluteUrl("/"),
+          logo: { "@type": "ImageObject", url: absoluteUrl("/logo.svg"), width: 512, height: 512 },
+        },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Dearly", item: absoluteUrl("/") },
+          { "@type": "ListItem", position: 2, name: "Help", item: absoluteUrl("/help") },
+          { "@type": "ListItem", position: 3, name: guide.title, item: url },
+        ],
       },
       ...(guide.faq?.length
         ? [

@@ -136,7 +136,7 @@ Every word in the query must match. Plurals are folded, so "butterflies" finds "
 
 **Slugs:** event slugs live at the site root, so `isReservedSlug()` (`src/lib/reserved-slugs.ts`) rejects names of app routes. Add new top-level routes there.
 
-**SEO** (`src/lib/seo.ts`, `SITE_URL` from `NEXT_PUBLIC_SITE_URL`): indexable pages are `/`, `/templates`, `/templates/<slug>`, `/invitations/<occasion>` (`src/lib/occasions.ts`), `/help` + `/help/<slug>` and `/pricing` (only while plans are on); they are listed in `sitemap.ts`. Guest event pages, `/q/*` and `?embed=1` previews are `noindex`.
+**SEO** (`src/lib/seo.ts`, `SITE_URL` from `NEXT_PUBLIC_SITE_URL`): indexable pages are `/`, `/templates`, `/templates/<slug>`, `/invitations/<occasion>` (`src/lib/occasions.ts`), `/help` + `/help/<slug>`, `/cards`, `/contact`, `/privacy`, `/terms` and `/pricing` (only while plans are on); they are listed in `sitemap.ts`. The `/templates` list is server-rendered so template names and links appear in the initial HTML. Guest event pages, `/c/*` personal cards, `/q/*`, `/login`, `/signup` and `?embed=1` previews are `noindex`.
 
 **Help Center** (`/help`, `src/lib/guides.ts`, `src/components/help/HelpCenter.tsx`):
 - Every guide is static data in `GUIDES` (`slug`, category, summary, keywords, sections, optional FAQ). No database or route change is needed to add one.

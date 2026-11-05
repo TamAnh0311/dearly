@@ -4,8 +4,9 @@
  * then renders CardView for a full-viewport display.
  */
 
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { createCookieClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import type { CardRow, CardTemplateRow } from "@/types/database";
 import CardView from "@/components/cards/CardView";
 
@@ -13,8 +14,17 @@ interface PageProps {
   params: { slug: string };
 }
 
+export const revalidate = 300;
+
+/** Personal cards are private-by-default in search: never index a recipient's card. */
+export const metadata: Metadata = {
+  title: "A card from Dearly",
+  robots: { index: false, follow: false },
+};
+
 export default async function CardPage({ params }: PageProps) {
-  const supabase = createCookieClient();
+  const supabase = createPublicClient();
+  if (!supabase) notFound();
 
   const { data: card } = await supabase
     .from("cards")

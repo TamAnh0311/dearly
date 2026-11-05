@@ -1,13 +1,13 @@
 /**
  * Root layout — applied to every route.
- * Loads display + body fonts, imports Tailwind, wraps in AuthProvider, and sets
- * site-wide SEO metadata + structured data (see src/lib/seo.ts).
+ * Loads display + body fonts, imports Tailwind, and sets site-wide SEO
+ * metadata + structured data (see src/lib/seo.ts). Auth is scoped to the
+ * dashboard and auth route groups so public pages stay lighter.
  */
 
 import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Lato } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from "@/context/AuthContext";
 import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/seo";
 
 const playfair = Playfair_Display({
@@ -53,7 +53,17 @@ export const metadata: Metadata = {
 const JSON_LD = {
   "@context": "https://schema.org",
   "@graph": [
-    { "@type": "Organization", name: SITE_NAME, url: SITE_URL, logo: `${SITE_URL}/favicon.ico` },
+    {
+      "@type": "Organization",
+      name: SITE_NAME,
+      url: SITE_URL,
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE_URL}/logo.svg`,
+        width: 512,
+        height: 512,
+      },
+    },
     { "@type": "WebSite", name: SITE_NAME, url: SITE_URL, description: SITE_DESCRIPTION },
     {
       "@type": "SoftwareApplication",
@@ -70,7 +80,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${playfair.variable} ${lato.variable}`}>
       <body className="font-body bg-dearly-cream text-dearly-text antialiased">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }} />
-        <AuthProvider>{children}</AuthProvider>
+        {children}
       </body>
     </html>
   );

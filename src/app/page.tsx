@@ -13,7 +13,7 @@
  */
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Check,
@@ -74,22 +74,43 @@ const FEATURES = [
   { icon: Music, title: "Background music", body: "A soft score matched to your design starts with the guest's first tap — or use your own song." },
 ];
 
-const COMPARISON: { label: string; dearly: string | boolean; studio: string | boolean }[] = [
-  { label: "See your invitation", dearly: "Instantly, free", studio: "After a 7–14 day design round" },
-  { label: "Edit names, date, story", dearly: "Any time, live", studio: "Request a revision" },
-  { label: "Try every colour scheme yourself", dearly: true, studio: "Usually one proof" },
-  { label: "RSVP inside the invitation", dearly: true, studio: true },
-  { label: "Live blessing wall + floating wishes", dearly: true, studio: "Rarely" },
-  { label: "Guest reactions", dearly: true, studio: "Rarely" },
-  { label: "Scratch-to-reveal & signature openings", dearly: true, studio: true },
-  { label: "Choose which sections show", dearly: true, studio: "Via your designer" },
-  { label: "Photo album guests add to after the wedding", dearly: true, studio: "Rarely" },
+const FAQS = [
+  {
+    q: "What is a digital wedding invitation?",
+    a: "A digital wedding invitation is a private web page that holds your names, date, venue, schedule and RSVP. Guests open one link on their phone instead of receiving a printed card. On Dearly it can also collect blessings, reactions and photos after the wedding.",
+  },
+  {
+    q: "Can guests RSVP inside the invitation?",
+    a: "Yes. Guests tap “I'll be there” or “Can't make it”, add their name and party size, and can leave a blessing. Replies appear in your dashboard and can be exported as a CSV for seating or check-in.",
+  },
+  {
+    q: "Is Dearly free?",
+    a: "Dearly is free during early access. Every design and feature is unlocked, with no trial timer and no card required. We will give hosts plenty of notice before any paid plan is introduced.",
+  },
+  {
+    q: "Can we use our own photos and colours?",
+    a: "Yes. Add your own photos to the invitation and memory album, then choose any curated colour scheme or set your own colours and fonts. You can also hide the sections you do not need.",
+  },
+  {
+    q: "Does it work for birthdays and other parties?",
+    a: "Yes. Dearly is built for weddings first, but the same invitation, RSVP and photo features work for birthdays, engagements, anniversaries, parties and other social events.",
+  },
+  {
+    q: "What happens after the wedding?",
+    a: "The page becomes a memory book. RSVP steps aside, while blessings and photos remain. Guests can upload photos from their phones, and you approve each one before it appears.",
+  },
 ];
 
-const TESTIMONIALS = [
-  { quote: "Our guests watched the curtain open three times before they even scrolled. Then they RSVP'd in seconds.", couple: "Sophie & James" },
-  { quote: "The blessings floating up as butterflies made my grandma cry. Everyone wanted to know who designed it.", couple: "Mia & Carlos" },
-  { quote: "I tried every colour scheme in five minutes and turned off the sections we didn't need. Zero stress.", couple: "Priya & Liam" },
+const COMPARISON: { label: string; dearly: string | boolean; studio: string | boolean }[] = [
+  { label: "See your invitation", dearly: "Instantly, free", studio: "Often a 1–2 week design round" },
+  { label: "Edit names, date, story", dearly: "Any time, live", studio: "Request a revision" },
+  { label: "Try colour schemes yourself", dearly: true, studio: "Usually one proof" },
+  { label: "RSVP inside the invitation", dearly: true, studio: true },
+  { label: "Live blessing wall + floating wishes", dearly: true, studio: "Sometimes" },
+  { label: "Guest reactions", dearly: true, studio: "Sometimes" },
+  { label: "Scratch-to-reveal & signature openings", dearly: true, studio: true },
+  { label: "Choose which sections show", dearly: true, studio: "Via your designer" },
+  { label: "Photo album guests add to after the wedding", dearly: true, studio: "Sometimes" },
 ];
 
 /** Google Fonts stylesheet for the showcase thumbnails. */
@@ -118,7 +139,14 @@ function Reveal({ children, delay = 0, className = "" }: { children: React.React
 function LivePhone() {
   const [slug, setSlug] = useState<(typeof DEMO_SLUGS)[number]>("velvet");
   const [nonce, setNonce] = useState(0);
+  const [ready, setReady] = useState(false);
   const current = SHOWCASE.find((s) => s.slug === slug)!;
+
+  // Let the hero text and CTA paint first; the live iframe is heavy.
+  useEffect(() => {
+    const id = window.setTimeout(() => setReady(true), 2200);
+    return () => window.clearTimeout(id);
+  }, []);
 
   return (
     <div className="flex flex-col items-center">
@@ -126,13 +154,30 @@ function LivePhone() {
         <div aria-hidden className="absolute -inset-10 rounded-[4rem] bg-gradient-to-br from-dearly-rose/30 via-dearly-gold/20 to-dearly-accent/30 blur-3xl" />
         <div className="relative h-[620px] w-[min(300px,88vw)] overflow-hidden rounded-[3rem] border-[10px] border-[#1b1714] bg-[#1b1714] shadow-2xl md:h-[680px] md:w-[330px]">
           <div aria-hidden className="absolute left-1/2 top-2 z-20 h-6 w-28 -translate-x-1/2 rounded-full bg-[#1b1714]" />
-          <iframe
-            key={`${slug}-${nonce}`}
-            src={`/templates/${slug}?embed=1&bare=1`}
-            title={`${current.name} live demo`}
-            className="h-full w-full rounded-[2.3rem] border-0 bg-white"
-            loading="lazy"
-          />
+          {ready ? (
+            <iframe
+              key={`${slug}-${nonce}`}
+              src={`/templates/${slug}?embed=1&bare=1`}
+              title={`${current.name} live demo`}
+              className="h-full w-full rounded-[2.3rem] border-0 bg-white"
+              loading="lazy"
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => setReady(true)}
+              className="relative h-full w-full overflow-hidden rounded-[2.3rem] bg-white text-left"
+              aria-label={`Play the ${current.name} live demo`}
+            >
+              <LayoutThumbnail slug={slug} colors={current.colors} fonts={current.fonts} photo={PLACEHOLDER_IMAGES.couple[0]} />
+              <span className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/25 text-white">
+                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/95 text-dearly-accent shadow-xl">
+                  <Eye size={22} />
+                </span>
+                <span className="text-xs font-semibold uppercase tracking-[0.2em]">Play live demo</span>
+              </span>
+            </button>
+          )}
         </div>
       </div>
       <div className="mt-6 flex flex-wrap justify-center gap-2" role="group" aria-label="Choose a demo">
@@ -194,7 +239,20 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-dearly-cream text-dearly-text">
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-      <link rel="stylesheet" href={FONTS_HREF} />
+      <link rel="preload" as="style" href={FONTS_HREF} />
+      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+      <link
+        rel="stylesheet"
+        href={FONTS_HREF}
+        media="print"
+        onLoad={(event) => {
+          event.currentTarget.media = "all";
+        }}
+      />
+      <noscript>
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        <link rel="stylesheet" href={FONTS_HREF} />
+      </noscript>
 
       {/* ── Nav ── */}
       <nav className="fixed inset-x-0 top-0 z-50 border-b border-dearly-border/50 bg-dearly-cream/80 backdrop-blur-md">
@@ -241,37 +299,36 @@ export default function LandingPage() {
           <div>
             <motion.p
               className="inline-flex items-center gap-2 rounded-full bg-dearly-accent-soft px-3 py-1 text-xs font-semibold text-dearly-accent"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ y: 10 }}
+              animate={{ y: 0 }}
               transition={{ duration: 0.6 }}
             >
               <Sparkles size={13} /> Invitations · RSVPs · Blessings · Wedding memories
             </motion.p>
             <motion.h1
               className="mt-6 font-display text-5xl font-bold leading-[1.05] md:text-7xl"
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ y: 20 }}
+              animate={{ y: 0 }}
               transition={{ duration: 1, delay: 0.1, ease: EASE }}
             >
               Wedding invitations that{" "}
               <span className="relative inline-block text-dearly-accent">
-                open like a film
+                open like a film.
                 <motion.svg viewBox="0 0 300 20" preserveAspectRatio="none" className="absolute -bottom-3 left-0 h-3 w-full md:h-4" aria-hidden>
                   <motion.path d="M4 14 C 80 2, 200 2, 296 12" stroke="currentColor" strokeWidth="4" fill="none" strokeLinecap="round" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.9, duration: 1.2 }} />
                 </motion.svg>
               </span>
-              .
             </motion.h1>
             <motion.p
               className="mt-8 max-w-xl text-lg leading-relaxed text-dearly-text-secondary"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              initial={{ y: 8 }}
+              animate={{ y: 0 }}
               transition={{ delay: 0.5, duration: 1 }}
             >
               Curtains part, wax seals crack, flowers bloom. Send one link — guests RSVP inside the invitation, leave blessings and
               reactions, and after the big day share their photos into your memory album. Designed in minutes, not weeks.
             </motion.p>
-            <motion.div className="mt-10 flex flex-wrap items-center gap-4" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}>
+            <motion.div className="mt-10 flex flex-wrap items-center gap-4" initial={{ y: 12 }} animate={{ y: 0 }} transition={{ delay: 0.7 }}>
               <Link href="/signup" className="rounded-xl bg-dearly-accent px-7 py-4 text-base font-semibold text-white shadow-card transition hover:-translate-y-0.5 hover:shadow-card-hover">
                 Create your invitation — free
               </Link>
@@ -453,7 +510,7 @@ export default function LandingPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-dearly-accent">Why Dearly</p>
             <h2 className="mt-3 font-display text-4xl font-bold md:text-5xl">Studio-quality, without the wait</h2>
             <p className="mx-auto mt-4 max-w-xl text-dearly-text-secondary">
-              Hand-made invitation studios are beautiful — and slow. Dearly gives you the same cinematic feel with live editing and features they don&apos;t offer.
+              Hand-made invitation studios are beautiful — and often slow. Dearly gives you a cinematic feel with live editing and features that are usually bespoke add-ons.
             </p>
           </Reveal>
           <Reveal delay={0.1} className="mt-12 overflow-hidden rounded-2xl border border-dearly-border bg-dearly-card shadow-card">
@@ -463,7 +520,7 @@ export default function LandingPage() {
                 <tr className="border-b border-dearly-border bg-dearly-cream/60">
                   <th className="px-5 py-4 font-semibold text-dearly-text-secondary" scope="col">&nbsp;</th>
                   <th className="px-5 py-4 font-bold text-dearly-accent" scope="col">Dearly</th>
-                  <th className="px-5 py-4 font-semibold text-dearly-text-secondary" scope="col">Typical design studio</th>
+                  <th className="px-5 py-4 font-semibold text-dearly-text-secondary" scope="col">Hand-made studio (typical)</th>
                 </tr>
               </thead>
               <tbody>
@@ -486,6 +543,9 @@ export default function LandingPage() {
               </tbody>
             </table>
             </div>
+            <p className="border-t border-dearly-border/60 px-5 py-4 text-xs text-dearly-text-muted">
+              Studio comparison is illustrative; every studio and package is different. Check what is included before you book.
+            </p>
           </Reveal>
         </div>
       </section>
@@ -515,24 +575,81 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Testimonials ── */}
+      {/* ── Early access / trust ── */}
       <section className="bg-dearly-card/50 px-6 py-24">
-        <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-3">
-          {TESTIMONIALS.map((t, i) => (
-            <Reveal key={t.couple} delay={i * 0.1}>
-              <figure className="h-full rounded-2xl border border-dearly-border bg-dearly-card p-7 shadow-card">
-                <div className="flex gap-0.5 text-dearly-gold" aria-label="5 stars">
-                  {Array.from({ length: 5 }, (_, k) => (
-                    <Heart key={k} size={14} fill="currentColor" />
-                  ))}
+        <div className="mx-auto max-w-5xl">
+          <Reveal className="mx-auto max-w-2xl text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-dearly-accent">Early access</p>
+            <h2 className="mt-3 font-display text-4xl font-bold md:text-5xl">A small product, built with real hosts</h2>
+            <p className="mt-4 text-dearly-text-secondary">
+              Dearly is in early access. Every design and feature is free while we learn from the first weddings and parties.
+              No invented reviews — if you want to help shape what comes next, talk to us.
+            </p>
+          </Reveal>
+          <div className="mt-12 grid gap-5 md:grid-cols-3">
+            {[
+              { icon: Sparkles, title: "Every design unlocked", body: "No locked templates, no trial timer and no card required while Dearly is in early access." },
+              { icon: Heart, title: "A direct line to us", body: "Questions, bugs or a feature you need for your day? Email us and a real person replies." },
+              { icon: Gem, title: "Your data stays yours", body: "No tracking cookies and no adverts. Read exactly what we store in the Privacy Policy." },
+            ].map((item, i) => (
+              <Reveal key={item.title} delay={i * 0.1}>
+                <div className="h-full rounded-2xl border border-dearly-border bg-dearly-card p-7 shadow-card">
+                  <item.icon size={20} className="text-dearly-accent" aria-hidden />
+                  <h3 className="mt-4 text-lg font-bold">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-dearly-text-secondary">{item.body}</p>
                 </div>
-                <blockquote className="mt-4 leading-relaxed">&ldquo;{t.quote}&rdquo;</blockquote>
-                <figcaption className="mt-5 text-2xl text-dearly-accent" style={{ fontFamily: "'Great Vibes', cursive" }}>
-                  {t.couple}
-                </figcaption>
-              </figure>
-            </Reveal>
-          ))}
+              </Reveal>
+            ))}
+          </div>
+          <Reveal className="mt-8 text-center">
+            <Link href="/contact" className="text-sm font-semibold text-dearly-accent hover:underline">
+              Tell us what you need →
+            </Link>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ── FAQ ── */}
+      <section id="faq" className="px-6 py-24">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: FAQS.map((item) => ({
+                "@type": "Question",
+                name: item.q,
+                acceptedAnswer: { "@type": "Answer", text: item.a },
+              })),
+            }),
+          }}
+        />
+        <div className="mx-auto max-w-3xl">
+          <Reveal className="text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-dearly-accent">Questions</p>
+            <h2 className="mt-3 font-display text-4xl font-bold md:text-5xl">Before you send the link</h2>
+          </Reveal>
+          <div className="mt-10 space-y-3">
+            {FAQS.map((item, i) => (
+              <Reveal key={item.q} delay={(i % 3) * 0.05}>
+                <details className="group rounded-xl border border-dearly-border bg-dearly-card p-5 open:shadow-card">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold">
+                    {item.q}
+                    <span className="text-dearly-accent transition group-open:rotate-45" aria-hidden>+</span>
+                  </summary>
+                  <p className="mt-3 text-sm leading-relaxed text-dearly-text-secondary">{item.a}</p>
+                </details>
+              </Reveal>
+            ))}
+          </div>
+          <p className="mt-6 text-center text-sm text-dearly-text-secondary">
+            More detail in the{" "}
+            <Link href="/help" className="font-semibold text-dearly-accent hover:underline">
+              Help Center
+            </Link>
+            .
+          </p>
         </div>
       </section>
 
@@ -541,7 +658,7 @@ export default function LandingPage() {
         <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_50%_60%_at_50%_50%,rgb(var(--dearly-rose-soft))_0%,transparent_70%)]" />
         <Reveal className="relative mx-auto max-w-2xl">
           <h2 className="font-display text-4xl font-bold md:text-6xl">Your love story deserves an entrance.</h2>
-          <p className="mt-5 text-lg text-dearly-text-secondary">Free to create. Preview every design. Share when it feels perfect.</p>
+          <p className="mt-5 text-lg text-dearly-text-secondary">Free during early access. Preview every design. Share when it feels perfect.</p>
           <div className="mt-10 flex flex-wrap justify-center gap-4">
             <Link href="/signup" className="rounded-xl bg-dearly-accent px-8 py-4 text-base font-semibold text-white shadow-card transition hover:-translate-y-0.5 hover:shadow-card-hover">
               Start my invitation
@@ -550,6 +667,10 @@ export default function LandingPage() {
               Watch a demo
             </Link>
           </div>
+          <p className="mt-5 text-xs text-dearly-text-muted">
+            No card required · <Link href="/privacy" className="underline hover:text-dearly-text-secondary">Privacy</Link> ·{" "}
+            <Link href="/terms" className="underline hover:text-dearly-text-secondary">Terms</Link>
+          </p>
         </Reveal>
       </section>
 
@@ -564,8 +685,12 @@ export default function LandingPage() {
             <Link href="/invitations/social-event" className="hover:text-dearly-text-secondary">Event invitations</Link>
             <Link href="/invitations/date-night" className="hover:text-dearly-text-secondary">Date night & proposals</Link>
             <Link href="/templates" className="hover:text-dearly-text-secondary">Templates</Link>
+            <Link href="/cards" className="hover:text-dearly-text-secondary">Cards</Link>
             <Link href="/help" className="hover:text-dearly-text-secondary">Help center</Link>
             <Link href="/login" className="hover:text-dearly-text-secondary">Sign in</Link>
+            <Link href="/privacy" className="hover:text-dearly-text-secondary">Privacy</Link>
+            <Link href="/terms" className="hover:text-dearly-text-secondary">Terms</Link>
+            <Link href="/contact" className="hover:text-dearly-text-secondary">Contact</Link>
           </div>
           <p className="text-sm text-dearly-text-muted">&copy; {new Date().getFullYear()} Dearly. Made with love.</p>
         </div>

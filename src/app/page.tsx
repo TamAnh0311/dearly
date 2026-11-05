@@ -15,6 +15,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { createClient } from "@/lib/supabase/client";
 import {
   Check,
   Eye,
@@ -235,6 +236,13 @@ function SchemeStrip() {
 
 export default function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    createClient().auth.getSession().then(({ data }) => {
+      setLoggedIn(!!data.session);
+    });
+  }, []);
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-dearly-cream text-dearly-text">
@@ -269,10 +277,18 @@ export default function LandingPage() {
             <Link href="/templates" className="hover:text-dearly-text">Templates</Link>
           </div>
           <div className="hidden items-center gap-3 md:flex">
-            <Link href="/login" className="text-sm font-medium text-dearly-text-secondary hover:text-dearly-text">Sign in</Link>
-            <Link href="/signup" className="rounded-lg bg-dearly-accent px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:opacity-90">
-              Start free
-            </Link>
+            {loggedIn ? (
+              <Link href="/dashboard" className="rounded-lg bg-dearly-accent px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:opacity-90">
+                Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link href="/login" className="text-sm font-medium text-dearly-text-secondary hover:text-dearly-text">Sign in</Link>
+                <Link href="/signup" className="rounded-lg bg-dearly-accent px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:opacity-90">
+                  Start free
+                </Link>
+              </>
+            )}
           </div>
           <button type="button" className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg md:hidden" aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen} onClick={() => setMenuOpen((v) => !v)}>
             {menuOpen ? <X size={20} /> : <LayoutList size={20} />}
@@ -282,7 +298,10 @@ export default function LandingPage() {
           {menuOpen && (
             <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden border-t border-dearly-border md:hidden">
               <div className="flex flex-col gap-1 px-6 py-3 text-sm font-medium">
-                {[["#openings", "Openings"], ["#features", "Features"], ["#occasions", "Occasions"], ["#memories", "Memories"], ["#compare", "Why Dearly"], ["/templates", "Templates"], ["/login", "Sign in"], ["/signup", "Start free"]].map(([href, label]) => (
+                {[
+                  ["#openings", "Openings"], ["#features", "Features"], ["#occasions", "Occasions"], ["#memories", "Memories"], ["#compare", "Why Dearly"], ["/templates", "Templates"],
+                  ...(loggedIn ? [["/dashboard", "Dashboard"]] : [["/login", "Sign in"], ["/signup", "Start free"]]),
+                ].map(([href, label]) => (
                   <a key={href} href={href} onClick={() => setMenuOpen(false)} className="rounded-lg px-2 py-3 hover:bg-dearly-accent-soft">
                     {label}
                   </a>
@@ -330,8 +349,8 @@ export default function LandingPage() {
               and photos, and you manage the guest list from one dashboard. Designed in minutes, not weeks.
             </motion.p>
             <motion.div className="mt-10 flex flex-wrap items-center gap-4" initial={{ y: 12 }} animate={{ y: 0 }} transition={{ delay: 0.7 }}>
-              <Link href="/signup" className="rounded-xl bg-dearly-accent px-7 py-4 text-base font-semibold text-white shadow-card transition hover:-translate-y-0.5 hover:shadow-card-hover">
-                Create your event — free
+              <Link href={loggedIn ? "/dashboard" : "/signup"} className="rounded-xl bg-dearly-accent px-7 py-4 text-base font-semibold text-white shadow-card transition hover:-translate-y-0.5 hover:shadow-card-hover">
+                {loggedIn ? "Go to dashboard" : "Create your event — free"}
               </Link>
               <Link href="/templates" className="flex items-center gap-2 rounded-xl border border-dearly-border bg-dearly-card/70 px-6 py-4 text-base font-semibold transition hover:-translate-y-0.5">
                 <Search size={16} /> Browse all designs
@@ -663,8 +682,8 @@ export default function LandingPage() {
           <h2 className="font-display text-4xl font-bold md:text-6xl">Every celebration deserves an entrance.</h2>
           <p className="mt-5 text-lg text-dearly-text-secondary">Free during early access. Preview every design. Share when it feels perfect.</p>
           <div className="mt-10 flex flex-wrap justify-center gap-4">
-            <Link href="/signup" className="rounded-xl bg-dearly-accent px-8 py-4 text-base font-semibold text-white shadow-card transition hover:-translate-y-0.5 hover:shadow-card-hover">
-              Start your event
+            <Link href={loggedIn ? "/dashboard" : "/signup"} className="rounded-xl bg-dearly-accent px-8 py-4 text-base font-semibold text-white shadow-card transition hover:-translate-y-0.5 hover:shadow-card-hover">
+              {loggedIn ? "Go to dashboard" : "Start your event"}
             </Link>
             <Link href="/templates/velvet" className="rounded-xl border border-dearly-border bg-dearly-card/70 px-8 py-4 text-base font-semibold transition hover:-translate-y-0.5">
               Watch a demo
@@ -691,7 +710,7 @@ export default function LandingPage() {
             <Link href="/templates" className="hover:text-dearly-text-secondary">Templates</Link>
             <Link href="/cards" className="hover:text-dearly-text-secondary">Cards</Link>
             <Link href="/help" className="hover:text-dearly-text-secondary">Help center</Link>
-            <Link href="/login" className="hover:text-dearly-text-secondary">Sign in</Link>
+            <Link href={loggedIn ? "/dashboard" : "/login"} className="hover:text-dearly-text-secondary">{loggedIn ? "Dashboard" : "Sign in"}</Link>
             <Link href="/privacy" className="hover:text-dearly-text-secondary">Privacy</Link>
             <Link href="/terms" className="hover:text-dearly-text-secondary">Terms</Link>
             <Link href="/contact" className="hover:text-dearly-text-secondary">Contact</Link>

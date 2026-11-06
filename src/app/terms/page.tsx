@@ -32,7 +32,7 @@ export default function TermsPage() {
       </Link>
 
       <h1 className="mt-8 font-display text-3xl font-bold text-dearly-text">Terms of Service</h1>
-      <p className="mt-2 text-sm text-dearly-text-muted">Last updated: 3 November {year()}</p>
+      <p className="mt-2 text-sm text-dearly-text-muted">Last updated: 6 November {year()}</p>
 
       <div className="mt-8 space-y-8 text-sm leading-relaxed text-dearly-text-secondary">
         <section>
@@ -106,28 +106,40 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="mb-2 font-display text-lg font-semibold text-dearly-text">9. Limitation of liability</h2>
+          <h2 className="mb-2 font-display text-lg font-semibold text-dearly-text">9. Disclaimers</h2>
+          <ul className="list-disc space-y-1 pl-5">
+            <li><strong>No warranty:</strong> Dearly is provided &quot;as is&quot; and &quot;as available&quot; without warranties of any kind, whether express, implied or statutory, including but not limited to warranties of merchantability, fitness for a particular purpose, and non-infringement.</li>
+            <li><strong>Event accuracy:</strong> Dearly displays information entered by hosts (names, dates, venues, directions, schedules). We do not verify this information and are not responsible for errors, outdated details, or changes made after an invitation is shared.</li>
+            <li><strong>Availability:</strong> We do not guarantee uninterrupted or error-free access to the Service. Planned maintenance, infrastructure issues, or third-party outages may temporarily affect availability. We are not liable for any event disruption caused by service downtime.</li>
+            <li><strong>Guest data:</strong> Hosts collect personal data from their guests (names, RSVP responses, messages, photos) through their event page. The host is the data controller for guest data and is responsible for handling it lawfully. Dearly acts as a data processor on behalf of the host.</li>
+            <li><strong>Music and media:</strong> Dearly provides royalty-free generative background music. If you upload, link, or select copyrighted music, photos, or other media, you are solely responsible for securing the necessary rights and licences. Dearly is not liable for any intellectual property claims arising from user-supplied content.</li>
+            <li><strong>Third-party services:</strong> The Service relies on third-party providers (Supabase, Vercel, Google Fonts). We are not responsible for the availability, performance, or privacy practices of these providers.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 className="mb-2 font-display text-lg font-semibold text-dearly-text">10. Limitation of liability</h2>
           <p>
-            Dearly is provided &quot;as is&quot; without warranties of any kind. To the maximum extent permitted by law, we are not liable for any indirect, incidental, or consequential damages arising from your use of the Service, including loss of data, loss of revenue, or interruption of service.
+            To the maximum extent permitted by applicable law, Dearly and its operators shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from or related to your use of or inability to use the Service, including but not limited to loss of data, loss of revenue, loss of goodwill, event disruption, or personal embarrassment, even if we have been advised of the possibility of such damages. Our total aggregate liability for any claim arising from the Service shall not exceed the amount you have paid us in the twelve (12) months preceding the claim, or fifty Australian dollars (AUD 50), whichever is greater.
           </p>
         </section>
 
         <section>
-          <h2 className="mb-2 font-display text-lg font-semibold text-dearly-text">10. Intellectual property</h2>
+          <h2 className="mb-2 font-display text-lg font-semibold text-dearly-text">11. Intellectual property</h2>
           <p>
             The Dearly platform, including its designs, templates, artwork, and code, is owned by Dearly. Template artwork is credited to its respective artists and used under open-source licences (CC BY 4.0, CC0). You may not resell, redistribute, or claim ownership of Dearly&apos;s templates or artwork.
           </p>
         </section>
 
         <section>
-          <h2 className="mb-2 font-display text-lg font-semibold text-dearly-text">11. Changes to Terms</h2>
+          <h2 className="mb-2 font-display text-lg font-semibold text-dearly-text">12. Changes to Terms</h2>
           <p>
             We may update these Terms from time to time. Material changes will be communicated by updating the &quot;Last updated&quot; date. Continued use after changes constitutes acceptance.
           </p>
         </section>
 
         <section>
-          <h2 className="mb-2 font-display text-lg font-semibold text-dearly-text">12. Contact</h2>
+          <h2 className="mb-2 font-display text-lg font-semibold text-dearly-text">13. Contact</h2>
           <p>
             For questions about these Terms, email{" "}
             <a href="mailto:hello@dearly.app" className="underline">hello@dearly.app</a>.

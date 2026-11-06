@@ -109,7 +109,10 @@ describe("design styles", () => {
     expect(getInvitationStyle("seigaiha")).toMatchObject({ hero: "enso", ornament: "wave" });
     expect(getInvitationStyle("hanbok")).toMatchObject({ hero: "bojagi", ornament: "cloud" });
     expect(getInvitationStyle("lantern-night").ambient).toContain("lanterns");
+    expect(getInvitationStyle("lantern-night").countdown).toBe("rings");
     expect(getInvitationStyle("bloom").calendar).toBe(true);
+    expect(getInvitationStyle("celestial").countdown).toBe("rings");
+    expect(getInvitationStyle("velvet").countdown).toBe("tiles");
   });
 
   it("maps the Storybook collection to its paper variants", () => {

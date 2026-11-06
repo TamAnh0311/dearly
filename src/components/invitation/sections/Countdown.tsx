@@ -6,7 +6,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Reveal, SectionHeading } from "./Primitives";
 import { alpha, calendarUrl, formatLongDate, parseWeddingDate, type InvitationPalette } from "../utils";
 import { CalendarPlus } from "lucide-react";
@@ -14,6 +14,8 @@ import ScratchReveal from "./ScratchReveal";
 import CalendarCard from "./CalendarCard";
 import { useEventCopy, useUI } from "./HeroParts";
 import { ChateauCorners, ChateauDivider } from "./ChateauDecor";
+import type { CountdownStyle } from "../styles";
+import type { InvitationCopy } from "../i18n";
 
 interface Parts {
   days: number;
@@ -68,16 +70,116 @@ function Tile({ value, label, palette }: { value: number; label: string; palette
   );
 }
 
+const RING_RADIUS = 44;
+const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
+
+/** One orbit ring: a circular progress track with the value in the middle. */
+function Ring({
+  value,
+  max,
+  label,
+  palette,
+  reduce,
+}: {
+  value: number;
+  max: number;
+  label: string;
+  palette: InvitationPalette;
+  reduce: boolean | null;
+}) {
+  const offset = RING_CIRCUMFERENCE * (1 - Math.min(1, Math.max(0, value / max)));
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <div className="relative h-[4.5rem] w-[4.5rem] sm:h-20 sm:w-20 md:h-28 md:w-28">
+        <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90" aria-hidden>
+          <circle
+            cx="50"
+            cy="50"
+            r={RING_RADIUS}
+            fill="none"
+            stroke={alpha(palette.primary, palette.isDark ? 0.22 : 0.14)}
+            strokeWidth={3}
+          />
+          <motion.circle
+            cx="50"
+            cy="50"
+            r={RING_RADIUS}
+            fill="none"
+            stroke={palette.primary}
+            strokeWidth={3}
+            strokeLinecap="round"
+            strokeDasharray={RING_CIRCUMFERENCE}
+            initial={false}
+            animate={{ strokeDashoffset: offset }}
+            transition={reduce ? { duration: 0 } : { duration: 0.9, ease: "linear" }}
+          />
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span
+            className="text-xl font-light tabular-nums sm:text-2xl md:text-4xl"
+            style={{ fontFamily: palette.displayFont, color: palette.ink }}
+          >
+            {String(value).padStart(2, "0")}
+          </span>
+        </div>
+      </div>
+      <span className="text-[10px] uppercase tracking-[0.25em] md:text-xs" style={{ color: palette.inkMuted }}>
+        {label}
+      </span>
+    </div>
+  );
+}
+
+/** The live countdown face, drawn as sliding tiles or orbit rings. */
+function CountdownFace({
+  parts,
+  palette,
+  style,
+  labels,
+}: {
+  parts: Parts | null;
+  palette: InvitationPalette;
+  style: CountdownStyle;
+  labels: Pick<InvitationCopy, "days" | "hours" | "minutes" | "seconds">;
+}) {
+  const reduce = useReducedMotion();
+
+  if (!parts) return <div className="h-[7.5rem] md:h-[10rem]" />;
+
+  if (style === "rings") {
+    return (
+      <>
+        <Ring value={parts.days} max={365} label={labels.days} palette={palette} reduce={reduce} />
+        <Ring value={parts.hours} max={24} label={labels.hours} palette={palette} reduce={reduce} />
+        <Ring value={parts.minutes} max={60} label={labels.minutes} palette={palette} reduce={reduce} />
+        <Ring value={parts.seconds} max={60} label={labels.seconds} palette={palette} reduce={reduce} />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Tile value={parts.days} label={labels.days} palette={palette} />
+      <Tile value={parts.hours} label={labels.hours} palette={palette} />
+      <Tile value={parts.minutes} label={labels.minutes} palette={palette} />
+      <Tile value={parts.seconds} label={labels.seconds} palette={palette} />
+    </>
+  );
+}
+
 export default function Countdown({
   date,
   title,
   venue,
   palette,
+  styleOverride,
 }: {
   date: string;
   title: string;
   venue?: string | null;
   palette: InvitationPalette;
+  /** Host's countdown style choice; falls back to the template's design language. */
+  styleOverride?: CountdownStyle;
 }) {
   const [parts, setParts] = useState<Parts | null>(null);
 
@@ -95,7 +197,13 @@ export default function Countdown({
   const dateLocale = lang === "vi" ? "vi-VN" : undefined;
   const atelier = palette.style.hero === "atelier";
   const chateau = palette.style.hero === "chateau";
+  const countdownStyle = styleOverride ?? palette.style.countdown;
   const daysLeft = parts && !isPast ? parts.days + (parts.hours + parts.minutes + parts.seconds > 0 ? 1 : 0) : null;
+  const face = (
+    <Reveal className={`flex justify-center ${countdownStyle === "rings" ? "gap-4 sm:gap-6 md:gap-10" : "gap-3 md:gap-6"}`}>
+      <CountdownFace parts={parts} palette={palette} style={countdownStyle} labels={ui} />
+    </Reveal>
+  );
 
   return (
     <section id="celebrate" className="relative overflow-hidden px-6 py-28 md:py-36" style={{ backgroundColor: palette.surface }}>
@@ -123,34 +231,27 @@ export default function Countdown({
         </Reveal>
       )}
       {atelier ? (
-        !isPast && (
-          <Reveal delay={0.2} className="flex justify-center">
-            <a
-              href={calendarUrl(title, date, venue)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 border-b px-1 py-2 text-[11px] uppercase tracking-[0.3em] transition hover:opacity-70"
-              style={{ borderColor: alpha(palette.primary, 0.4), color: palette.primary }}
-            >
-              <CalendarPlus size={14} /> {ui.addToCalendar}
-            </a>
-          </Reveal>
-        )
+        <>
+          {/* Atelier keeps the page minimal; the orbit rings are opt-in there. */}
+          {countdownStyle === "rings" && face}
+          {!isPast && (
+            <Reveal delay={0.2} className="flex justify-center">
+              <a
+                href={calendarUrl(title, date, venue)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 border-b px-1 py-2 text-[11px] uppercase tracking-[0.3em] transition hover:opacity-70"
+                style={{ borderColor: alpha(palette.primary, 0.4), color: palette.primary }}
+              >
+                <CalendarPlus size={14} /> {ui.addToCalendar}
+              </a>
+            </Reveal>
+          )}
+        </>
       ) : chateau ? (
         <>
-          {/* Chateau: show countdown tiles with ornate divider before CTA */}
-          <Reveal className="flex justify-center gap-3 md:gap-6">
-            {parts ? (
-              <>
-                <Tile value={parts.days} label={ui.days} palette={palette} />
-                <Tile value={parts.hours} label={ui.hours} palette={palette} />
-                <Tile value={parts.minutes} label={ui.minutes} palette={palette} />
-                <Tile value={parts.seconds} label={ui.seconds} palette={palette} />
-              </>
-            ) : (
-              <div className="h-[7.5rem] md:h-[10rem]" />
-            )}
-          </Reveal>
+          {/* Chateau: countdown with ornate divider before the CTA */}
+          {face}
           {!isPast && (
             <>
               <ChateauDivider palette={palette} />
@@ -170,18 +271,7 @@ export default function Countdown({
         </>
       ) : (
         <>
-          <Reveal className="flex justify-center gap-3 md:gap-6">
-            {parts ? (
-              <>
-                <Tile value={parts.days} label={ui.days} palette={palette} />
-                <Tile value={parts.hours} label={ui.hours} palette={palette} />
-                <Tile value={parts.minutes} label={ui.minutes} palette={palette} />
-                <Tile value={parts.seconds} label={ui.seconds} palette={palette} />
-              </>
-            ) : (
-              <div className="h-[7.5rem] md:h-[10rem]" />
-            )}
-          </Reveal>
+          {face}
           {!isPast && (
             <Reveal delay={0.2} className="mt-12 flex justify-center">
               <a

@@ -128,6 +128,8 @@ export interface WeddingCustomization {
   rsvpDeadline?: string;
   /** Whether to show ambient particle effects (petals, bokeh, butterflies etc.). Defaults to true. */
   ambientEffects?: boolean;
+  /** Countdown display style. Falls back to the template's design language. */
+  countdownStyle?: "tiles" | "rings";
 }
 
 /** One suggested dress-code colour. */

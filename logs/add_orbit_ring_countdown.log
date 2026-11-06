@@ -1,0 +1,4 @@
+[2026-11-06 12:39:46]
+CONTEXT: Add a new visual style for the event countdown while keeping the existing sliding-tile countdown.
+RESULT: Added an "Orbit rings" countdown with animated circular progress for days/hours/minutes/seconds, made it the default on Celestial, Lantern Night, Enso and Minimal, and added a Countdown Style picker in the dashboard editor. Updated docs, tests and Help Center copy; screenshots checked on mobile.
+---

@@ -170,6 +170,7 @@ Every word in the query must match. Plurals are folded, so "butterflies" finds "
 | `flowers` | boolean | Growing flowers in the hero / venue |
 | `curtain` | `velvet` `ivy` | Material for the `curtain` hero (`HeroCurtain.tsx`). `velvet` is a theatre with swags, fringe, tie-backs and footlights. `ivy` is a garden: a heart lock turns, light spills through, iron gates swing open, petals and butterflies burst out and a floral arch grows. |
 | `scratchReveal` | boolean | Date hidden under a scratch card |
+| `countdown` | `tiles` `rings` | Countdown display: classic sliding tiles (default) or orbit progress rings. Hosts can override it under "Countdown Style" in the editor. |
 | `calendar` | boolean | Month calendar with the day marked by a heart, plus a D-day count (shown in the countdown section unless `scratchReveal` is on) |
 | `culture` | `chinese` `japanese` `korean` `vietnamese` | Tradition the design draws on: adds search keywords and culture-matched demo names/families on previews |
 | `art` | art collection id (`watercolour-garden`) | Curated artwork the template composes into its hero and sections (manifest in `src/components/invitation/art.ts`, guide in `docs/ART_KIT.md`). Falls back to `garden` when missing. |

@@ -136,9 +136,9 @@ export const GUIDES: Guide[] = [
   {
     slug: "customise-your-design",
     title: "Customise colours, fonts and layout",
-    summary: "Make the design yours with palette controls, fonts, template swaps, dress code and gallery layout.",
+    summary: "Make the design yours with palette controls, fonts, template swaps, countdown style, dress code and gallery layout.",
     category: "design",
-    keywords: ["editor", "colours", "colors", "fonts", "palette", "dress code", "gallery layout", "template", "language"],
+    keywords: ["editor", "colours", "colors", "fonts", "palette", "countdown", "timer", "rings", "dress code", "gallery layout", "template", "language"],
     minutes: 4,
     sections: [
       {
@@ -159,6 +159,7 @@ export const GUIDES: Guide[] = [
         heading: "Template, dress code and gallery",
         steps: [
           "Design → Template: switch the whole design language at any time.",
+          "Countdown Style: choose classic number tiles or orbit progress rings.",
           "Dress Code: add a short note and up to five colour swatches.",
           "Families & Gifts: add parents’ names, gift accounts and payment QR links.",
           "Gallery Layout: choose masonry, carousel or timeline for the photo album.",

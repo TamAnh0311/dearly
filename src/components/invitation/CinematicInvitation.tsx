@@ -185,6 +185,7 @@ export default function CinematicInvitation({
             title={copy.calendarTitle(hostNames(wedding))}
             venue={[wedding.venue_name, wedding.venue_address].filter(Boolean).join(", ") || null}
             palette={palette}
+            styleOverride={wedding.customization?.countdownStyle}
           />
         )}
         {showStory && <Story text={wedding.story_text!} palette={palette} title={copy.storyTitle} />}

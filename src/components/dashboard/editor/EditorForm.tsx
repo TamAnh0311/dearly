@@ -16,6 +16,7 @@ import ColorPicker from "./ColorPicker";
 import FontPicker from "./FontPicker";
 import LanguagePicker from "@/components/invitation/LanguagePicker";
 import HelpTip from "@/components/dashboard/HelpTip";
+import { getInvitationStyle } from "@/components/invitation/styles";
 import type { DressSwatch, GiftAccount, WeddingCustomization } from "@/types/database";
 import MusicPicker from "./MusicPicker";
 
@@ -67,11 +68,16 @@ const GALLERY_LAYOUTS: WeddingCustomization["galleryLayout"][] = [
   "timeline",
 ];
 
+const COUNTDOWN_STYLES: { id: NonNullable<WeddingCustomization["countdownStyle"]>; name: string; hint: string }[] = [
+  { id: "tiles", name: "Classic tiles", hint: "Animated number cards." },
+  { id: "rings", name: "Orbit rings", hint: "Circular progress around each number." },
+];
+
 /**
  * Left-panel editor form.
  */
 export default function EditorForm() {
-  const { wedding, updateField, updateCustomization, setTemplate } = useEditorStore();
+  const { wedding, template, updateField, updateCustomization, setTemplate } = useEditorStore();
   const { saveWedding } = useMyWedding();
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -117,6 +123,8 @@ export default function EditorForm() {
     sections: { timeline: true, gallery: true, guestbook: true },
     galleryLayout: "masonry",
   };
+  const templateCountdown = getInvitationStyle(template?.slug).countdown;
+  const activeCountdown = customization.countdownStyle ?? templateCountdown;
 
   return (
     <div className="flex h-full flex-col overflow-y-auto">
@@ -361,6 +369,36 @@ export default function EditorForm() {
             ambientEffects={customization.ambientEffects}
             onAmbientEffects={(on) => updateCustomization({ ambientEffects: on })}
           />
+        </section>
+        {/* ── Countdown Style ── */}
+        <section>
+          <SectionHeading tip="This only changes how the countdown looks. The template picks a default, and you can switch it at any time." guide="customise-your-design">Countdown Style</SectionHeading>
+          <div className="grid grid-cols-2 gap-2">
+            {COUNTDOWN_STYLES.map((option) => {
+              const active = activeCountdown === option.id;
+              return (
+                <label
+                  key={option.id}
+                  className={`cursor-pointer rounded-xl border p-3 transition ${
+                    active
+                      ? "border-dearly-accent bg-dearly-accent-soft"
+                      : "border-dearly-border bg-dearly-card hover:border-dearly-accent/40"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="countdownStyle"
+                    value={option.id}
+                    checked={active}
+                    onChange={() => updateCustomization({ countdownStyle: option.id })}
+                    className="sr-only"
+                  />
+                  <span className="block text-xs font-semibold text-dearly-text">{option.name}</span>
+                  <span className="mt-1 block text-[10px] leading-snug text-dearly-text-secondary">{option.hint}</span>
+                </label>
+              );
+            })}
+          </div>
         </section>
         {/* ── Gallery Layout ── */}
         <section>

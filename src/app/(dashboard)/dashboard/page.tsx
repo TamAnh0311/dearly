@@ -252,6 +252,7 @@ export default function DashboardPage() {
   const { wedding, allWeddings, loading: weddingLoading, createWedding, switchWedding } = useMyWedding();
   const router = useRouter();
   const [creatingNew, setCreatingNew] = useState(false);
+  const [wizardStep, setWizardStep] = useState<1 | 2 | 3>(1);
 
   // Template picker state
   const [templates, setTemplates] = useState<TemplateRow[]>([]);
@@ -578,370 +579,283 @@ export default function DashboardPage() {
   const forType = designTemplates.filter((t) => (t.event_types ?? ["wedding", "engagement", "anniversary"]).includes(eventType));
   const shownTemplates = searchTemplates(forType.length > 0 ? forType : designTemplates, templateQuery);
 
+  const WIZARD_STEPS = [
+    { num: 1 as const, label: "Occasion" },
+    { num: 2 as const, label: "Design" },
+    { num: 3 as const, label: "Details" },
+  ];
+
+  const inputClass = "rounded-xl border border-dearly-border bg-dearly-cream px-3 py-2.5 text-sm text-dearly-text placeholder:text-dearly-text-muted outline-none focus:border-dearly-accent focus:ring-2 focus:ring-dearly-accent/20 transition";
+
   return (
     <div className="mx-auto max-w-5xl pb-12">
       {/* Back button when creating an additional invitation */}
       {creatingNew && (
         <button
           type="button"
-          onClick={() => setCreatingNew(false)}
+          onClick={() => { setCreatingNew(false); setWizardStep(1); }}
           className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-dearly-text-secondary transition hover:text-dearly-accent"
         >
           <ArrowLeft size={14} /> Back to dashboard
         </button>
       )}
 
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45 }}
-        className="mb-8 text-center"
-      >
-        <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-dearly-accent-soft px-3 py-1 text-xs font-medium text-dearly-accent">
-          <Sparkles size={12} />
-          {creatingNew ? "New invitation" : "Let\u2019s get started"}
-        </div>
-        <h1 className="font-display text-4xl font-bold text-dearly-text">
-          {eventType === "wedding"
-            ? "Let\u2019s create your wedding invitation"
-            : eventType === "social"
-              ? "Let\u2019s create your dinner or event invitation"
-              : `Let\u2019s create your ${copy.label.toLowerCase()} invitation`}
-        </h1>
-        <p className="mt-2 text-dearly-text-secondary">
-          Pick a design — you can customise everything later.
-        </p>
-        <p className="mt-5 text-xs font-semibold uppercase tracking-[0.24em] text-dearly-text-muted">What are you celebrating?</p>
-        <div className="mx-auto mt-3 flex max-w-3xl flex-wrap items-center justify-center gap-2" role="radiogroup" aria-label="Event type">
-          {EVENT_TYPE_ORDER.map((t) => (
+      {/* ── Progress bar ── */}
+      <div className="mb-8 flex items-center justify-center gap-1">
+        {WIZARD_STEPS.map((s, idx) => (
+          <div key={s.num} className="flex items-center gap-1">
             <button
-              key={t}
               type="button"
-              role="radio"
-              aria-checked={eventType === t}
-              onClick={() => {
-                setEventType(t);
-                setSelectedTemplateId(null);
-              }}
-              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-                eventType === t
+              onClick={() => { if (s.num < wizardStep) setWizardStep(s.num); }}
+              disabled={s.num > wizardStep}
+              className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+                s.num === wizardStep
                   ? "bg-dearly-accent text-white shadow-soft"
-                  : "border border-dearly-border bg-dearly-card text-dearly-text-secondary hover:border-dearly-accent/50 hover:text-dearly-accent"
+                  : s.num < wizardStep
+                    ? "bg-dearly-accent-soft text-dearly-accent cursor-pointer hover:bg-dearly-accent/20"
+                    : "bg-dearly-card text-dearly-text-muted border border-dearly-border"
               }`}
             >
-              {EVENT_COPY[t].label}
+              {s.num < wizardStep ? <CheckCircle2 size={12} /> : <span className="flex h-4 w-4 items-center justify-center rounded-full bg-current/10 text-[10px]">{s.num}</span>}
+              <span className="hidden sm:inline">{s.label}</span>
             </button>
-          ))}
-          <a href="/dashboard/questions" className="rounded-full border border-dearly-rose/30 px-4 py-2 text-sm font-semibold text-dearly-rose hover:bg-dearly-rose-soft">
-            Ask card →
-          </a>
-        </div>
-        <TemplateSearchInput value={templateQuery} onChange={setTemplateQuery} className="mx-auto mt-6 max-w-md" />
-      </motion.div>
+            {idx < WIZARD_STEPS.length - 1 && <div className={`h-px w-6 sm:w-10 ${s.num < wizardStep ? "bg-dearly-accent" : "bg-dearly-border"}`} />}
+          </div>
+        ))}
+      </div>
 
-      {/* Blank canvas option */}
-      {!templatesLoading && (() => {
-        const blank = templates.find((t) => t.slug === "blank");
-        if (!blank) return null;
-        const isBlankSelected = selectedTemplateId === blank.id;
-        return (
-          <motion.button
-            type="button"
-            onClick={() => {
-              setSelectedTemplateId(blank.id);
-              setSelectedScheme("original");
-            }}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35 }}
-            className={`mb-6 flex w-full items-center gap-4 rounded-2xl border-2 border-dashed px-5 py-4 text-left transition ${
-              isBlankSelected
-                ? "border-dearly-accent bg-dearly-accent-soft/40"
-                : "border-dearly-border bg-dearly-card/50 hover:border-dearly-accent/50 hover:bg-dearly-accent-soft/20"
-            }`}
-          >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-dearly-cream text-dearly-text-secondary">
-              <Palette size={20} />
+      {/* ── Step 1: Occasion ── */}
+      <AnimatePresence mode="wait">
+        {wizardStep === 1 && (
+          <motion.div key="step-1" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.25 }} className="text-center">
+            <Sparkles size={28} className="mx-auto mb-3 text-dearly-accent" />
+            <h1 className="font-display text-3xl font-bold text-dearly-text sm:text-4xl">What are you celebrating?</h1>
+            <p className="mt-2 text-dearly-text-secondary">Pick the occasion — this shapes the copy and templates we suggest.</p>
+            <div className="mx-auto mt-8 flex max-w-2xl flex-wrap items-center justify-center gap-3" role="radiogroup" aria-label="Event type">
+              {EVENT_TYPE_ORDER.map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  role="radio"
+                  aria-checked={eventType === t}
+                  onClick={() => { setEventType(t); setSelectedTemplateId(null); }}
+                  className={`rounded-xl px-5 py-3 text-sm font-semibold transition ${
+                    eventType === t
+                      ? "bg-dearly-accent text-white shadow-soft"
+                      : "border border-dearly-border bg-dearly-card text-dearly-text-secondary hover:border-dearly-accent/50 hover:text-dearly-accent"
+                  }`}
+                >
+                  {EVENT_COPY[t].label}
+                </button>
+              ))}
             </div>
-            <div className="min-w-0">
-              <p className={`text-sm font-bold ${isBlankSelected ? "text-dearly-accent" : "text-dearly-text"}`}>Start from scratch</p>
-              <p className="text-xs text-dearly-text-secondary">No preset design — pick your own colours, fonts and sections.</p>
+            <button
+              type="button"
+              onClick={() => setWizardStep(2)}
+              className="mt-10 rounded-xl bg-dearly-accent px-8 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
+            >
+              Next — choose a design
+            </button>
+          </motion.div>
+        )}
+
+        {/* ── Step 2: Design ── */}
+        {wizardStep === 2 && (
+          <motion.div key="step-2" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.25 }}>
+            <div className="mb-6 text-center">
+              <h1 className="font-display text-3xl font-bold text-dearly-text sm:text-4xl">Choose a design</h1>
+              <p className="mt-2 text-dearly-text-secondary">Pick a template or start from scratch. You can customise everything later.</p>
+              <TemplateSearchInput value={templateQuery} onChange={setTemplateQuery} className="mx-auto mt-5 max-w-md" />
             </div>
-            {isBlankSelected && (
-              <span className="ml-auto shrink-0 rounded-full bg-dearly-accent px-2.5 py-0.5 text-[10px] font-semibold text-white">Selected</span>
-            )}
-          </motion.button>
-        );
-      })()}
 
-      {/* Template Grid */}
-      {templatesLoading ? (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {Array.from({ length: 10 }).map((_, i) => <TemplateCardSkeleton key={i} />)}
-        </div>
-      ) : templates.length === 0 ? (
-        <p className="text-center text-sm text-dearly-text-secondary">
-          No templates found. Please contact support.
-        </p>
-      ) : (
-        <motion.div
-          className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-          initial="hidden"
-          animate="visible"
-          variants={{
-            hidden: {},
-            visible: { transition: { staggerChildren: 0.06 } },
-          }}
-        >
-          {shownTemplates.map((template, index) => {
-            const isSelected = template.id === selectedTemplateId;
-            const colors = template.default_config?.colors ?? DEFAULT_COLORS;
-            const fonts = template.default_config?.fonts ?? DEFAULT_FONTS;
-            const label = LAYOUT_LABEL[getInvitationStyle(template.slug).hero];
-
-            return (
-              <motion.div
-                key={template.id}
-                variants={{
-                  hidden: { opacity: 0, y: 16 },
-                  visible: { opacity: 1, y: 0, transition: { duration: 0.35 } },
-                }}
-                whileHover={{ y: -3 }}
-                transition={{ type: "spring", stiffness: 380, damping: 28 }}
-                className={`relative flex flex-col overflow-hidden rounded-2xl border-2 bg-dearly-card shadow-card transition ${
-                  isSelected ? "border-dearly-accent shadow-card-hover" : "border-dearly-border hover:border-dearly-accent/40 hover:shadow-card-hover"
-                }`}
-              >
-                {/* Selected checkmark badge */}
-                <AnimatePresence>
-                  {isSelected && (
-                    <motion.div
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0, opacity: 0 }}
-                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                      className="pointer-events-none absolute right-2 top-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-dearly-accent"
-                    >
-                      <CheckCircle2 size={14} className="text-white" strokeWidth={2.5} />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                {/* Thumbnail — click to select */}
+            {/* Blank canvas */}
+            {!templatesLoading && (() => {
+              const blank = templates.find((t) => t.slug === "blank");
+              if (!blank) return null;
+              const isBlankSelected = selectedTemplateId === blank.id;
+              return (
                 <button
                   type="button"
-                  onClick={() => {
-                    setSelectedTemplateId(template.id);
-                    setSelectedScheme("original");
-                  }}
-                  aria-pressed={isSelected}
-                  aria-label={`Select ${template.name}`}
-                  className="block h-36 w-full overflow-hidden text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-dearly-accent"
+                  onClick={() => { setSelectedTemplateId(blank.id); setSelectedScheme("original"); }}
+                  className={`mb-6 flex w-full items-center gap-4 rounded-2xl border-2 border-dashed px-5 py-4 text-left transition ${
+                    isBlankSelected
+                      ? "border-dearly-accent bg-dearly-accent-soft/40"
+                      : "border-dearly-border bg-dearly-card/50 hover:border-dearly-accent/50 hover:bg-dearly-accent-soft/20"
+                  }`}
                 >
-                  <LayoutThumbnail slug={template.slug} colors={colors} fonts={fonts} photo={getTemplateImage(index)} />
-                </button>
-
-                <div className="flex flex-1 flex-col gap-1 p-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="truncate text-sm font-bold leading-tight text-dearly-text">{template.name}</p>
-                    <span className="flex shrink-0 items-center gap-1">
-                      {PLANS_ENABLED && template.is_premium && (
-                        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800" title="Premium design">Premium</span>
-                      )}
-                      <span className="rounded-full bg-dearly-accent-soft px-2 py-0.5 text-[10px] font-semibold text-dearly-accent">{label}</span>
-                    </span>
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-dearly-cream text-dearly-text-secondary">
+                    <Palette size={20} />
                   </div>
-                  {template.description && (
-                    <p className="line-clamp-2 text-xs leading-relaxed text-dearly-text-secondary">{template.description}</p>
-                  )}
+                  <div className="min-w-0">
+                    <p className={`text-sm font-bold ${isBlankSelected ? "text-dearly-accent" : "text-dearly-text"}`}>Start from scratch</p>
+                    <p className="text-xs text-dearly-text-secondary">No preset design — pick your own colours, fonts and sections.</p>
+                  </div>
+                  {isBlankSelected && <span className="ml-auto shrink-0 rounded-full bg-dearly-accent px-2.5 py-0.5 text-[10px] font-semibold text-white">Selected</span>}
+                </button>
+              );
+            })()}
 
-                  {/* Actions — siblings, not nested buttons */}
-                  <div className="mt-auto grid grid-cols-2 gap-2 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => setPreviewTemplate(template)}
-                      className="flex h-8 items-center justify-center gap-1 rounded-lg border border-dearly-border text-xs font-semibold text-dearly-text-secondary transition hover:border-dearly-accent/50 hover:text-dearly-accent"
-                    >
-                      <Eye size={12} />
-                      Preview
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedTemplateId(template.id);
-                        setSelectedScheme("original");
-                      }}
-                      className={`flex h-8 items-center justify-center rounded-lg text-xs font-semibold transition ${
-                        isSelected ? "bg-dearly-accent text-white" : "bg-dearly-accent-soft text-dearly-accent hover:bg-dearly-accent hover:text-white"
+            {/* Template Grid */}
+            {templatesLoading ? (
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {Array.from({ length: 10 }).map((_, i) => <TemplateCardSkeleton key={i} />)}
+              </div>
+            ) : templates.length === 0 ? (
+              <p className="text-center text-sm text-dearly-text-secondary">No templates found.</p>
+            ) : (
+              <motion.div
+                className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                initial="hidden" animate="visible"
+                variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.06 } } }}
+              >
+                {shownTemplates.map((template, index) => {
+                  const isSelected = template.id === selectedTemplateId;
+                  const colors = template.default_config?.colors ?? DEFAULT_COLORS;
+                  const fonts = template.default_config?.fonts ?? DEFAULT_FONTS;
+                  const label = LAYOUT_LABEL[getInvitationStyle(template.slug).hero];
+                  return (
+                    <motion.div
+                      key={template.id}
+                      variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.35 } } }}
+                      whileHover={{ y: -3 }}
+                      transition={{ type: "spring", stiffness: 380, damping: 28 }}
+                      className={`relative flex flex-col overflow-hidden rounded-2xl border-2 bg-dearly-card shadow-card transition ${
+                        isSelected ? "border-dearly-accent shadow-card-hover" : "border-dearly-border hover:border-dearly-accent/40 hover:shadow-card-hover"
                       }`}
                     >
-                      {isSelected ? "Selected" : "Select"}
-                    </button>
-                  </div>
-                </div>
+                      <AnimatePresence>
+                        {isSelected && (
+                          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ type: "spring", stiffness: 500, damping: 30 }} className="pointer-events-none absolute right-2 top-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-dearly-accent">
+                            <CheckCircle2 size={14} className="text-white" strokeWidth={2.5} />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                      <button type="button" onClick={() => { setSelectedTemplateId(template.id); setSelectedScheme("original"); }} aria-pressed={isSelected} aria-label={`Select ${template.name}`} className="block h-36 w-full overflow-hidden text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-dearly-accent">
+                        <LayoutThumbnail slug={template.slug} colors={colors} fonts={fonts} photo={getTemplateImage(index)} />
+                      </button>
+                      <div className="flex flex-1 flex-col gap-1 p-3">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="truncate text-sm font-bold leading-tight text-dearly-text">{template.name}</p>
+                          <span className="flex shrink-0 items-center gap-1">
+                            {PLANS_ENABLED && template.is_premium && <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800">Premium</span>}
+                            <span className="rounded-full bg-dearly-accent-soft px-2 py-0.5 text-[10px] font-semibold text-dearly-accent">{label}</span>
+                          </span>
+                        </div>
+                        {template.description && <p className="line-clamp-2 text-xs leading-relaxed text-dearly-text-secondary">{template.description}</p>}
+                        <div className="mt-auto grid grid-cols-2 gap-2 pt-2">
+                          <button type="button" onClick={() => setPreviewTemplate(template)} className="flex h-8 items-center justify-center gap-1 rounded-lg border border-dearly-border text-xs font-semibold text-dearly-text-secondary transition hover:border-dearly-accent/50 hover:text-dearly-accent">
+                            <Eye size={12} /> Preview
+                          </button>
+                          <button type="button" onClick={() => { setSelectedTemplateId(template.id); setSelectedScheme("original"); }} className={`flex h-8 items-center justify-center rounded-lg text-xs font-semibold transition ${isSelected ? "bg-dearly-accent text-white" : "bg-dearly-accent-soft text-dearly-accent hover:bg-dearly-accent hover:text-white"}`}>
+                            {isSelected ? "Selected" : "Select"}
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </motion.div>
-            );
-          })}        </motion.div>
-      )}
+            )}
 
-      {!templatesLoading && templates.length > 0 && shownTemplates.length === 0 && (
-        <p className="mt-6 text-center text-sm text-dearly-text-secondary">
-          No templates match &ldquo;{templateQuery}&rdquo;. Try &ldquo;garden&rdquo;, &ldquo;gold&rdquo; or &ldquo;stars&rdquo;.
-        </p>
-      )}
+            {!templatesLoading && templates.length > 0 && shownTemplates.length === 0 && (
+              <p className="mt-6 text-center text-sm text-dearly-text-secondary">
+                No templates match &ldquo;{templateQuery}&rdquo;. Try &ldquo;garden&rdquo;, &ldquo;gold&rdquo; or &ldquo;stars&rdquo;.
+              </p>
+            )}
 
-      {/* Step 2: Basic Info Form — slides in when a template is selected */}
-      <AnimatePresence>
-        {selectedTemplateId && (
-          <motion.div
-            key="basic-info-form"
-            initial={{ opacity: 0, y: 24, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 16, scale: 0.98 }}
-            transition={{ type: "spring", stiffness: 260, damping: 28 }}
-            className="mt-10"
-          >
-            {/* Divider with label */}
-            <div className="mb-6 flex items-center gap-4">
-              <div className="h-px flex-1 bg-dearly-border" />
-              <div className="flex items-center gap-2 rounded-full border border-dearly-border bg-dearly-card px-3 py-1 text-xs text-dearly-text-secondary">
-                {selectedTemplate && (
-                  <>
-                    <span
-                      className="inline-block h-2 w-2 rounded-full"
-                      style={{ background: selectedTemplate.default_config?.colors?.accent ?? "#b08060" }}
-                    />
-                    {selectedTemplate.name} · {schemeName(selectedScheme, selectedTemplate.name)}
-                  </>
-                )}
-              </div>
-              <div className="h-px flex-1 bg-dearly-border" />
+            {/* Navigation */}
+            <div className="mt-8 flex items-center justify-between">
+              <button type="button" onClick={() => setWizardStep(1)} className="flex items-center gap-1.5 text-sm font-medium text-dearly-text-secondary hover:text-dearly-accent">
+                <ArrowLeft size={14} /> Back
+              </button>
+              <button
+                type="button"
+                onClick={() => { if (selectedTemplateId) setWizardStep(3); else setSubmitError("Please select a template first."); }}
+                disabled={!selectedTemplateId}
+                className="rounded-xl bg-dearly-accent px-8 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Next — add your details
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* ── Step 3: Details ── */}
+        {wizardStep === 3 && (
+          <motion.div key="step-3" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.25 }}>
+            <div className="mb-6 text-center">
+              <h1 className="font-display text-3xl font-bold text-dearly-text sm:text-4xl">Almost there</h1>
+              <p className="mt-2 text-dearly-text-secondary">Just a few details to set up your {copy.label.toLowerCase()} page.</p>
+              {selectedTemplate && (
+                <p className="mt-3 inline-flex items-center gap-2 rounded-full border border-dearly-border bg-dearly-card px-3 py-1 text-xs text-dearly-text-secondary">
+                  <span className="inline-block h-2 w-2 rounded-full" style={{ background: selectedTemplate.default_config?.colors?.accent ?? "#b08060" }} />
+                  {selectedTemplate.name}
+                  <button type="button" onClick={() => setWizardStep(2)} className="text-dearly-accent hover:underline">change</button>
+                </p>
+              )}
             </div>
 
-            <form
-              onSubmit={handleCreate}
-              className="mx-auto max-w-xl rounded-2.5xl border border-dearly-border bg-dearly-card p-6 shadow-card space-y-5"
-            >
-              <div>
-                <h2 className="font-display text-xl font-bold text-dearly-text">Tell us about you</h2>
-                <p className="mt-1 text-sm text-dearly-text-secondary">
-                  Just a few details to set up your {copy.label.toLowerCase()} page.
-                </p>
-              </div>
-
+            <form onSubmit={handleCreate} className="mx-auto max-w-xl rounded-2.5xl border border-dearly-border bg-dearly-card p-6 shadow-card space-y-5">
               {/* Partner names */}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-dearly-text" htmlFor="partner1">
-                    {copy.hostLabel[0]} <span className="text-dearly-rose">*</span>
-                  </label>
-                  <input
-                    id="partner1"
-                    type="text"
-                    required
-                    value={partner1}
-                    onChange={(e) => setPartner1(e.target.value)}
-                    placeholder="e.g. Emma"
-                    className="rounded-xl border border-dearly-border bg-dearly-cream px-3 py-2.5 text-sm text-dearly-text placeholder:text-dearly-text-muted outline-none focus:border-dearly-accent focus:ring-2 focus:ring-dearly-accent/20 transition"
-                  />
+                  <label className="text-xs font-semibold text-dearly-text" htmlFor="partner1">{copy.hostLabel[0]} <span className="text-dearly-rose">*</span></label>
+                  <input id="partner1" type="text" required value={partner1} onChange={(e) => setPartner1(e.target.value)} placeholder="e.g. Emma" className={inputClass} />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-dearly-text" htmlFor="partner2">
-                    {copy.hostLabel[1] ?? "Second name (optional)"} {twoHostsRequired && <span className="text-dearly-rose">*</span>}
-                  </label>
-                  <input
-                    id="partner2"
-                    type="text"
-                    required={twoHostsRequired}
-                    value={partner2}
-                    onChange={(e) => setPartner2(e.target.value)}
-                    placeholder="e.g. James"
-                    className="rounded-xl border border-dearly-border bg-dearly-cream px-3 py-2.5 text-sm text-dearly-text placeholder:text-dearly-text-muted outline-none focus:border-dearly-accent focus:ring-2 focus:ring-dearly-accent/20 transition"
-                  />
+                  <label className="text-xs font-semibold text-dearly-text" htmlFor="partner2">{copy.hostLabel[1] ?? "Second name (optional)"} {twoHostsRequired && <span className="text-dearly-rose">*</span>}</label>
+                  <input id="partner2" type="text" required={twoHostsRequired} value={partner2} onChange={(e) => setPartner2(e.target.value)} placeholder="e.g. James" className={inputClass} />
                 </div>
               </div>
 
-              {/* Event title (non-wedding events) */}
+              {/* Event title */}
               {eventType !== "wedding" && (
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-dearly-text" htmlFor="event-title">
-                    Event title <span className="font-normal text-dearly-text-muted">(optional)</span>
-                  </label>
-                  <input
-                    id="event-title"
-                    type="text"
-                    maxLength={120}
-                    value={eventTitle}
-                    onChange={(e) => setEventTitle(e.target.value)}
-                    placeholder={eventType === "birthday" ? "e.g. Emma's 30th Birthday" : "e.g. Summer Rooftop Party"}
-                    className="rounded-xl border border-dearly-border bg-dearly-cream px-3 py-2.5 text-sm text-dearly-text placeholder:text-dearly-text-muted outline-none focus:border-dearly-accent focus:ring-2 focus:ring-dearly-accent/20 transition"
-                  />
+                  <label className="text-xs font-semibold text-dearly-text" htmlFor="event-title">Event title <span className="font-normal text-dearly-text-muted">(optional)</span></label>
+                  <input id="event-title" type="text" maxLength={120} value={eventTitle} onChange={(e) => setEventTitle(e.target.value)} placeholder={eventType === "birthday" ? "e.g. Emma's 30th Birthday" : "e.g. Summer Rooftop Party"} className={inputClass} />
                 </div>
               )}
 
-              {/* Wedding date */}              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-dearly-text" htmlFor="wedding-date">
-                  {copy.label} date <span className="text-dearly-text-muted font-normal">(optional)</span>
-                </label>
-                <input
-                  id="wedding-date"
-                  type="date"
-                  value={weddingDate}
-                  onChange={(e) => setWeddingDate(e.target.value)}
-                  className="rounded-xl border border-dearly-border bg-dearly-cream px-3 py-2.5 text-sm text-dearly-text outline-none focus:border-dearly-accent focus:ring-2 focus:ring-dearly-accent/20 transition"
-                />
+              {/* Date */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-dearly-text" htmlFor="wedding-date">{copy.label} date <span className="text-dearly-text-muted font-normal">(optional)</span></label>
+                <input id="wedding-date" type="date" value={weddingDate} onChange={(e) => setWeddingDate(e.target.value)} className={inputClass} />
               </div>
 
               {/* URL Slug */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-dearly-text" htmlFor="slug">
-                  Your Site URL <span className="text-dearly-rose">*</span>
-                </label>
+                <label className="text-xs font-semibold text-dearly-text" htmlFor="slug">Your Site URL <span className="text-dearly-rose">*</span></label>
                 <div className="flex items-center overflow-hidden rounded-xl border border-dearly-border bg-dearly-cream focus-within:border-dearly-accent focus-within:ring-2 focus-within:ring-dearly-accent/20 transition">
-                  <span className="shrink-0 border-r border-dearly-border bg-dearly-cream px-3 py-2.5 text-xs text-dearly-text-muted select-none">
-                    dearly.app/
-                  </span>
-                  <input
-                    id="slug"
-                    type="text"
-                    required
-                    value={slug}
-                    onChange={(e) => {
-                      setSlugEdited(true);
-                      setSlug(e.target.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9-]/g, ""));
-                    }}
-                    placeholder="emma-and-james"
-                    className="flex-1 bg-transparent px-3 py-2.5 text-sm text-dearly-text placeholder:text-dearly-text-muted outline-none"
-                  />
+                  <span className="shrink-0 border-r border-dearly-border bg-dearly-cream px-3 py-2.5 text-xs text-dearly-text-muted select-none">dearly.app/</span>
+                  <input id="slug" type="text" required value={slug} onChange={(e) => { setSlugEdited(true); setSlug(e.target.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9-]/g, "")); }} placeholder="emma-and-james" className="flex-1 bg-transparent px-3 py-2.5 text-sm text-dearly-text placeholder:text-dearly-text-muted outline-none" />
                 </div>
                 <p className="text-xs text-dearly-text-muted">Auto-generated from your names — feel free to edit.</p>
               </div>
 
-              {/* Error message */}
+              {/* Error */}
               <AnimatePresence>
                 {submitError && (
-                  <motion.p
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="rounded-xl bg-red-50 px-3 py-2.5 text-sm text-red-600 ring-1 ring-red-200"
-                  >
+                  <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="rounded-xl bg-red-50 px-3 py-2.5 text-sm text-red-600 ring-1 ring-red-200">
                     {submitError}
                   </motion.p>
                 )}
               </AnimatePresence>
 
-              {/* Submit */}
-              <motion.button
-                type="submit"
-                disabled={submitting}
-                whileHover={{ scale: submitting ? 1 : 1.01 }}
-                whileTap={{ scale: submitting ? 1 : 0.98 }}
-                className="w-full rounded-xl bg-dearly-accent py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                {submitting ? "Creating your page…" : `Create ${copy.label} Page`}
-              </motion.button>
+              {/* Actions */}
+              <div className="flex items-center justify-between gap-3">
+                <button type="button" onClick={() => setWizardStep(2)} className="flex items-center gap-1.5 text-sm font-medium text-dearly-text-secondary hover:text-dearly-accent">
+                  <ArrowLeft size={14} /> Back
+                </button>
+                <motion.button
+                  type="submit"
+                  disabled={submitting}
+                  whileHover={{ scale: submitting ? 1 : 1.01 }}
+                  whileTap={{ scale: submitting ? 1 : 0.98 }}
+                  className="rounded-xl bg-dearly-accent px-8 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {submitting ? "Creating your page\u2026" : `Create ${copy.label} Page`}
+                </motion.button>
+              </div>
             </form>
           </motion.div>
         )}

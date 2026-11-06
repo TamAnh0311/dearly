@@ -339,21 +339,29 @@ export default function GuestsPage() {
             const link = inviteUrl(origin, wedding.slug, i.token);
             const wa = `https://wa.me/?text=${encodeURIComponent(`Hi ${i.name}! You're invited: ${link}`)}`;
             return (
-              <li key={i.id} className="flex flex-wrap items-center gap-3 p-3 sm:flex-nowrap">
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium text-dearly-text">
-                    {i.name}
-                    {i.guest_group && <span className="ml-2 rounded-full bg-dearly-cream px-2 py-0.5 text-[10px] font-medium text-dearly-text-secondary">{i.guest_group}</span>}
-                  </p>
-                  <p className="text-xs text-dearly-text-muted">
-                    {i.max_party_size > 1 ? `${i.max_party_size} seats (with ${i.max_party_size - 1} companion${i.max_party_size > 2 ? "s" : ""})` : "1 seat"}
-                    {i.status === "attending" && ` · coming with ${Math.max(i.party_size - 1, 0)} companion${i.party_size - 1 === 1 ? "" : "s"}`}
-                  </p>
+              <li key={i.id} className="space-y-2 p-3 sm:flex sm:flex-nowrap sm:items-center sm:gap-3 sm:space-y-0">
+                {/* Row 1 (mobile) / Left column: name + seats */}
+                <div className="flex items-start justify-between gap-2 sm:min-w-0 sm:flex-1">
+                  <div className="min-w-0">
+                    <p className="font-medium text-dearly-text">
+                      {i.name}
+                      {i.guest_group && <span className="ml-2 rounded-full bg-dearly-cream px-2 py-0.5 text-[10px] font-medium text-dearly-text-secondary">{i.guest_group}</span>}
+                    </p>
+                    <p className="text-xs text-dearly-text-muted">
+                      {i.max_party_size > 1 ? `${i.max_party_size} seats` : "1 seat"}
+                      {i.status === "attending" && ` · ${i.party_size} coming`}
+                    </p>
+                  </div>
+                  <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium sm:hidden ${STATUS_STYLE[i.status]}`}>
+                    {i.status === "attending" ? `Coming · ${i.party_size}` : i.status === "declined" ? "Declined" : "No reply"}
+                  </span>
                 </div>
-                <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${STATUS_STYLE[i.status]}`}>
+                {/* Desktop-only status badge */}
+                <span className={`hidden shrink-0 rounded-full px-2.5 py-1 text-xs font-medium sm:inline-flex ${STATUS_STYLE[i.status]}`}>
                   {i.status === "attending" ? `Coming · ${i.party_size}` : i.status === "declined" ? "Can't make it" : "No reply"}
                 </span>
-                <div className="flex shrink-0 items-center gap-1">
+                {/* Row 2 (mobile) / Right column: actions */}
+                <div className="flex flex-wrap items-center gap-1">
                   <button
                     type="button"
                     onClick={() => toggleInvited(i)}

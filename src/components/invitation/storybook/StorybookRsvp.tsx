@@ -14,8 +14,6 @@ import { useInvitationCopy } from "../sections/HeroParts";
 import { useRsvpForm } from "../use-rsvp-form";
 import type { StorybookVariant } from "../styles";
 
-type Choice = "attending" | "declined";
-
 interface StorybookRsvpProps {
   variant: StorybookVariant;
   weddingId: string;

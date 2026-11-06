@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { checkRateLimit, clientIp } from "@/lib/rate-limit";
+import { sendEmail, rsvpNotificationHtml } from "@/lib/email";
 
 const RsvpSchema = z.object({
   weddingId: z.string().uuid(),
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
   // Service role bypasses RLS, so verify the wedding is published ourselves.
   const { data: wedding } = await supabase
     .from("weddings")
-    .select("id")
+    .select("id, user_id, slug")
     .eq("id", weddingId)
     .eq("is_published", true)
     .maybeSingle();
@@ -116,5 +117,25 @@ export async function POST(request: NextRequest) {
   }
 
   console.info("[INFO] rsvp recorded", { weddingId, attending });
+
+  // Notify the host by email (fire-and-forget — never delays the guest response).
+  if (wedding.user_id) {
+    supabase.auth.admin.getUserById(wedding.user_id).then(({ data: hostAuth }) => {
+      if (hostAuth?.user?.email) {
+        sendEmail({
+          to: hostAuth.user.email,
+          subject: `${guestName} ${attending ? "is coming" : "can't make it"} — ${wedding.slug}`,
+          html: rsvpNotificationHtml({
+            guestName,
+            attending,
+            partySize: seats,
+            message: blessingText ?? undefined,
+            eventSlug: wedding.slug,
+          }),
+        });
+      }
+    });
+  }
+
   return NextResponse.json({ blessing }, { status: 201 });
 }

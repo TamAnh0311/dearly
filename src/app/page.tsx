@@ -623,6 +623,24 @@ export default function LandingPage() {
               </Reveal>
             ))}
           </div>
+          {/* ── Early host stories ── */}
+          <div className="mt-14 grid gap-5 md:grid-cols-2">
+            {[
+              { name: "Thảo & Tâm Anh", event: "Wedding · Hà Nội", quote: "The Vietnamese language support and family sections felt like it was built for our ceremony. Our guests loved the wax-seal opening." },
+              { name: "Mia L.", event: "30th Birthday · Melbourne", quote: "I set it up on my phone during lunch break. The balloon pop opening made everyone at the party smile." },
+            ].map((t) => (
+              <Reveal key={t.name}>
+                <blockquote className="flex h-full flex-col rounded-2xl border border-dearly-border bg-dearly-card p-6 shadow-card">
+                  <p className="flex-1 text-sm italic leading-relaxed text-dearly-text-secondary">&ldquo;{t.quote}&rdquo;</p>
+                  <footer className="mt-4 text-xs">
+                    <span className="font-semibold text-dearly-text">{t.name}</span>
+                    <span className="ml-2 text-dearly-text-muted">{t.event}</span>
+                  </footer>
+                </blockquote>
+              </Reveal>
+            ))}
+          </div>
+
           <Reveal className="mt-8 text-center">
             <Link href="/contact" className="text-sm font-semibold text-dearly-accent hover:underline">
               Tell us what you need →

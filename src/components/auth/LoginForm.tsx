@@ -5,11 +5,14 @@
  * On success, redirects to /dashboard.
  */
 
-import { useState, FormEvent } from "react";
+import { useState, useRef, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import SocialLoginButtons from "./SocialLoginButtons";
+
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_MS = 60_000;
 
 export default function LoginForm() {
   const { signIn } = useAuth();
@@ -20,15 +23,24 @@ export default function LoginForm() {
   const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [lockedUntil, setLockedUntil] = useState(0);
+  const attempts = useRef(0);
 
   /** Handles form submission — signs in and redirects on success. */
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    if (Date.now() < lockedUntil) {
+      setError(`Too many attempts. Please wait ${Math.ceil((lockedUntil - Date.now()) / 1000)} seconds.`);
+      return;
+    }
+
     setError(null);
     setLoading(true);
 
     try {
       await signIn(email, password);
+      attempts.current = 0;
       if (!rememberMe) {
         sessionStorage.setItem("dearly-session-only", "true");
       } else {
@@ -36,7 +48,14 @@ export default function LoginForm() {
       }
       router.push("/dashboard");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Sign-in failed. Please try again.");
+      attempts.current += 1;
+      if (attempts.current >= MAX_ATTEMPTS) {
+        setLockedUntil(Date.now() + LOCKOUT_MS);
+        setError("Too many failed attempts. Please wait 1 minute before trying again.");
+        attempts.current = 0;
+      } else {
+        setError(err instanceof Error ? err.message : "Sign-in failed. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -113,12 +132,17 @@ export default function LoginForm() {
         </button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-dearly-text-muted">
-        No account?{" "}
-        <Link href="/signup" className="font-medium text-dearly-accent hover:underline">
-          Sign up
+      <div className="mt-6 flex flex-col items-center gap-2 text-sm text-dearly-text-muted">
+        <Link href="/forgot-password" className="text-dearly-accent hover:underline">
+          Forgot your password?
         </Link>
-      </p>
+        <p>
+          No account?{" "}
+          <Link href="/signup" className="font-medium text-dearly-accent hover:underline">
+            Sign up
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }

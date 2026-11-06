@@ -70,21 +70,34 @@ export default function GalleryPage() {
       </section>
 
       {/* Moderation queue */}
-      {pendingPhotos.length > 0 && (
-        <section className="space-y-3">
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold text-dearly-text">
             Moderation Queue{" "}
-            <span className="ml-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">
-              {pendingPhotos.length}
-            </span>
+            {pendingPhotos.length > 0 && (
+              <span className="ml-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">
+                {pendingPhotos.length}
+              </span>
+            )}
           </h2>
-          <ModerationQueue
-            pendingPhotos={pendingPhotos}
-            onApprove={approvePhoto}
-            onReject={rejectPhoto}
-          />
-        </section>
-      )}
+          {pendingPhotos.length > 1 && (
+            <button
+              type="button"
+              onClick={async () => {
+                for (const p of pendingPhotos) await approvePhoto(p.id);
+              }}
+              className="rounded-lg bg-green-100 px-3 py-1.5 text-xs font-semibold text-green-700 transition hover:bg-green-200"
+            >
+              Approve all ({pendingPhotos.length})
+            </button>
+          )}
+        </div>
+        <ModerationQueue
+          pendingPhotos={pendingPhotos}
+          onApprove={approvePhoto}
+          onReject={rejectPhoto}
+        />
+      </section>
 
       {/* Approved photos grid */}
       <section className="space-y-3">

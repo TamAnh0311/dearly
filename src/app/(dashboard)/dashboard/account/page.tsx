@@ -7,7 +7,7 @@
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { User, Mail, Lock, Trash2, LogOut, Shield } from "lucide-react";
+import { User, Mail, Lock, Trash2, LogOut, Shield, Download } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { createClient } from "@/lib/supabase/client";
 
@@ -254,6 +254,29 @@ export default function AccountPage() {
         >
           Sign Out
         </button>
+      </motion.div>
+
+      {/* Data Export (GDPR) */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.35 }}
+        className="rounded-2xl border border-dearly-border bg-dearly-card p-6"
+      >
+        <div className="mb-3 flex items-center gap-2">
+          <Download size={18} className="text-dearly-accent" />
+          <h2 className="font-display text-lg font-semibold text-dearly-text">Your data</h2>
+        </div>
+        <p className="mb-4 text-sm text-dearly-text-secondary">
+          Download all your data — events, RSVPs, guest lists, photos and messages — as a JSON file.
+        </p>
+        <a
+          href="/api/user/export"
+          download
+          className="inline-flex items-center gap-2 rounded-lg border border-dearly-border px-4 py-2 text-sm font-semibold text-dearly-text-secondary transition hover:bg-dearly-cream"
+        >
+          <Download size={15} /> Export my data
+        </a>
       </motion.div>
 
       {/* Danger Zone */}

@@ -9,6 +9,7 @@
  */
 
 import { track } from "@vercel/analytics";
+import { createClient } from "@/lib/supabase/client";
 
 /** Events used to measure the host and guest funnel. */
 export type FunnelEvent =
@@ -39,6 +40,19 @@ export function trackEvent(name: FunnelEvent, properties?: FunnelProperties): vo
     track(name, properties);
   } catch {
     /* analytics is best-effort */
+  }
+  // Also persist to Supabase for funnel analysis. Fire-and-forget.
+  try {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      supabase.from("analytics_events").insert({
+        event: name,
+        properties: properties ?? {},
+        user_id: data.user?.id ?? null,
+      }).then(() => {});
+    });
+  } catch {
+    /* best-effort */
   }
 }
 

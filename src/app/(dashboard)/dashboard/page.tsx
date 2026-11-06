@@ -574,8 +574,9 @@ export default function DashboardPage() {
   // ---------------------------------------------------------------------------
 
   const selectedTemplate = templates.find((t) => t.id === selectedTemplateId) ?? null;
-  const forType = templates.filter((t) => (t.event_types ?? ["wedding", "engagement", "anniversary"]).includes(eventType));
-  const shownTemplates = searchTemplates(forType.length > 0 ? forType : templates, templateQuery);
+  const designTemplates = templates.filter((t) => t.slug !== "blank");
+  const forType = designTemplates.filter((t) => (t.event_types ?? ["wedding", "engagement", "anniversary"]).includes(eventType));
+  const shownTemplates = searchTemplates(forType.length > 0 ? forType : designTemplates, templateQuery);
 
   return (
     <div className="mx-auto max-w-5xl pb-12">
@@ -638,6 +639,41 @@ export default function DashboardPage() {
         </div>
         <TemplateSearchInput value={templateQuery} onChange={setTemplateQuery} className="mx-auto mt-6 max-w-md" />
       </motion.div>
+
+      {/* Blank canvas option */}
+      {!templatesLoading && (() => {
+        const blank = templates.find((t) => t.slug === "blank");
+        if (!blank) return null;
+        const isBlankSelected = selectedTemplateId === blank.id;
+        return (
+          <motion.button
+            type="button"
+            onClick={() => {
+              setSelectedTemplateId(blank.id);
+              setSelectedScheme("original");
+            }}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35 }}
+            className={`mb-6 flex w-full items-center gap-4 rounded-2xl border-2 border-dashed px-5 py-4 text-left transition ${
+              isBlankSelected
+                ? "border-dearly-accent bg-dearly-accent-soft/40"
+                : "border-dearly-border bg-dearly-card/50 hover:border-dearly-accent/50 hover:bg-dearly-accent-soft/20"
+            }`}
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-dearly-cream text-dearly-text-secondary">
+              <Palette size={20} />
+            </div>
+            <div className="min-w-0">
+              <p className={`text-sm font-bold ${isBlankSelected ? "text-dearly-accent" : "text-dearly-text"}`}>Start from scratch</p>
+              <p className="text-xs text-dearly-text-secondary">No preset design — pick your own colours, fonts and sections.</p>
+            </div>
+            {isBlankSelected && (
+              <span className="ml-auto shrink-0 rounded-full bg-dearly-accent px-2.5 py-0.5 text-[10px] font-semibold text-white">Selected</span>
+            )}
+          </motion.button>
+        );
+      })()}
 
       {/* Template Grid */}
       {templatesLoading ? (

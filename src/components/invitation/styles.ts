@@ -41,6 +41,8 @@ export type Ornament = "floral" | "deco" | "line" | "leaf" | "star" | "wave" | "
 export type Culture = "chinese" | "japanese" | "korean" | "vietnamese";
 export type Corners = "rounded" | "sharp" | "arch" | "pill";
 export type Texture = "none" | "paper" | "grain";
+/** Countdown display: classic sliding tiles or orbit progress rings. */
+export type CountdownStyle = "tiles" | "rings";
 /** Storybook layout family — shared editorial paper/hero design with per-variant art. */
 export type StorybookVariant = "ivory" | "lakeside" | "peony" | "lantern" | "ivory-veil";
 
@@ -60,6 +62,8 @@ export interface InvitationStyle {
   curtain: "velvet" | "ivy";
   /** Hide the date under a scratch-to-reveal card in the countdown section. */
   scratchReveal: boolean;
+  /** How the countdown is drawn: sliding tiles (default) or orbit progress rings. */
+  countdown: CountdownStyle;
   /** Default generative background music when the couple hasn't picked a track. */
   music: MusicPreset;
   /** Show a month calendar with the date circled (East Asian invitations always do). */
@@ -87,6 +91,7 @@ const BASE: InvitationStyle = {
   flowers: true,
   curtain: "velvet",
   scratchReveal: false,
+  countdown: "tiles",
   music: "piano",
   calendar: false,
 };
@@ -96,7 +101,7 @@ const STYLES: Record<string, Partial<InvitationStyle>> = {
   eternal: { music: "romantic", hero: "arch", ambient: ["gold-dust", "bokeh"], ornament: "deco", corners: "sharp", flowers: false },
   bloom: { music: "romantic", hero: "atelier", art: "watercolour-garden", bodyFont: "Jost", ambient: ["butterflies", "petals", "bokeh"], ornament: "line", eyebrow: "caps", headingCase: "normal", texture: "paper", flowers: false, calendar: true },
   chateau: { music: "orchestral", hero: "chateau", art: "chateau", bodyFont: "Jost", ambient: ["petals", "gold-dust", "bokeh"], ornament: "floral", corners: "arch", texture: "paper", eyebrow: "caps", headingCase: "normal", flowers: false, calendar: true },
-  minimal: { hero: "editorial", ambient: [], ornament: "line", corners: "sharp", eyebrow: "caps", headingCase: "normal", flowers: false },
+  minimal: { hero: "editorial", ambient: [], ornament: "line", corners: "sharp", eyebrow: "caps", headingCase: "normal", flowers: false, countdown: "rings" },
   rustic: { music: "acoustic", hero: "arch", ambient: ["leaves"], ornament: "leaf", texture: "paper", flowers: true },
   deco: { music: "orchestral", hero: "arch", ambient: ["gold-dust"], ornament: "deco", corners: "sharp", eyebrow: "caps", flowers: false },
   sunset: { music: "acoustic", hero: "split", ambient: ["petals", "bokeh"], ornament: "wave", corners: "rounded", flowers: false },
@@ -110,7 +115,7 @@ const STYLES: Record<string, Partial<InvitationStyle>> = {
   cherry: { music: "musicbox", hero: "garden", ambient: ["petals", "butterflies"], ornament: "floral", corners: "rounded" },
   vineyard: { music: "acoustic", hero: "split", ambient: ["leaves"], ornament: "leaf", corners: "arch", texture: "paper", flowers: false },
   nordic: { music: "ambient", hero: "editorial", ambient: ["snow"], ornament: "line", corners: "sharp", eyebrow: "caps", headingCase: "normal", flowers: false },
-  celestial: { music: "ambient", hero: "celestial", ambient: ["stars"], ornament: "star", corners: "pill", flowers: false },
+  celestial: { music: "ambient", hero: "celestial", ambient: ["stars"], ornament: "star", corners: "pill", flowers: false, countdown: "rings" },
   terracotta: { music: "acoustic", hero: "arch", ambient: ["leaves", "bokeh"], ornament: "leaf", corners: "arch", texture: "grain", flowers: true },
   vintage: { music: "romantic", hero: "polaroid", ambient: ["petals"], ornament: "floral", corners: "sharp", texture: "paper", flowers: false },
   whimsical: { music: "musicbox", hero: "garden", ambient: ["butterflies", "confetti", "bokeh"], ornament: "star", corners: "pill", scratchReveal: true },
@@ -128,12 +133,14 @@ const STYLES: Record<string, Partial<InvitationStyle>> = {
   // ── East Asian collection ──
   "double-happiness": { music: "orchestral", hero: "doors", culture: "chinese", ambient: ["lanterns", "gold-dust"], ornament: "cloud", corners: "sharp", eyebrow: "caps", flowers: false, calendar: true },
   "crimson-keepsake": { music: "romantic", hero: "poster", culture: "vietnamese", ambient: ["petals"], ornament: "floral", corners: "rounded", headingCase: "normal", flowers: false, calendar: true },
-  "lantern-night": { music: "ambient", hero: "celestial", culture: "chinese", ambient: ["lanterns"], ornament: "cloud", corners: "pill", headingCase: "normal", flowers: false, calendar: true },
+  "lantern-night": { music: "ambient", hero: "celestial", culture: "chinese", ambient: ["lanterns"], ornament: "cloud", corners: "pill", headingCase: "normal", flowers: false, calendar: true, countdown: "rings" },
   sakura: { music: "musicbox", hero: "shoji", culture: "japanese", ambient: ["petals"], ornament: "floral", corners: "sharp", texture: "paper", eyebrow: "caps", headingCase: "normal", flowers: false, calendar: true },
-  enso: { music: "ambient", hero: "enso", culture: "japanese", ambient: [], ornament: "line", corners: "sharp", texture: "paper", eyebrow: "caps", headingCase: "normal", flowers: false, calendar: true },
+  enso: { music: "ambient", hero: "enso", culture: "japanese", ambient: [], ornament: "line", corners: "sharp", texture: "paper", eyebrow: "caps", headingCase: "normal", flowers: false, calendar: true, countdown: "rings" },
   seigaiha: { music: "piano", hero: "enso", culture: "japanese", ambient: ["gold-dust"], ornament: "wave", corners: "sharp", eyebrow: "caps", headingCase: "normal", flowers: false, calendar: true },
   "seoul-studio": { music: "piano", hero: "poster", culture: "korean", ambient: [], ornament: "line", corners: "sharp", eyebrow: "caps", headingCase: "normal", flowers: false, calendar: true },
   hanbok: { music: "acoustic", hero: "bojagi", culture: "korean", ambient: ["petals", "bokeh"], ornament: "cloud", corners: "rounded", texture: "paper", headingCase: "normal", flowers: false, calendar: true },
+  // ── Blank canvas ──
+  blank: { hero: "arch", ambient: [], ornament: "line", corners: "rounded", eyebrow: "caps", headingCase: "normal", texture: "none", flowers: false, music: "piano" },
   // ── Storybook collection ──
   "atelier-ivory": { music: "romantic", hero: "storybook", storybook: "ivory", art: "watercolour-garden", bodyFont: "Jost", ambient: ["petals", "butterflies", "bokeh"], ornament: "floral", texture: "grain", eyebrow: "caps", headingCase: "upper", flowers: false },
   "ivory-veil": { music: "romantic", hero: "storybook", storybook: "ivory-veil", art: "watercolour-garden", bodyFont: "Jost", ambient: ["petals", "bokeh"], ornament: "floral", texture: "grain", eyebrow: "caps", headingCase: "upper", flowers: false },

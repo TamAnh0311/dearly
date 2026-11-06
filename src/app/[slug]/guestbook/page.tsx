@@ -4,8 +4,10 @@
  * and renders all guestbook entries via GuestbookSection.
  */
 
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createCookieClient } from "@/lib/supabase/server";
+import { EVENT_COPY, eventTypeOf, hostNames } from "@/lib/event-types";
 import { getTemplate } from "@/components/templates/registry";
 import { resolveTheme } from "@/components/templates/types";
 import ScrollProgress from "@/components/ui/ScrollProgress";
@@ -14,6 +16,27 @@ import type { WeddingRow, TemplateRow, GuestbookEntryRow } from "@/types/databas
 
 interface PageProps {
   params: { slug: string };
+}
+
+/** Private guestbook pages are never indexed; the title names the event. */
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const supabase = createCookieClient();
+  const { data } = await supabase
+    .from("weddings")
+    .select("event_title, partner1_name, partner2_name, event_type")
+    .eq("slug", params.slug)
+    .eq("is_published", true)
+    .maybeSingle();
+
+  if (!data) return { title: "Guestbook not found", robots: { index: false, follow: false } };
+
+  const copy = EVENT_COPY[eventTypeOf(data)];
+  const title = `${data.event_title || hostNames(data)} — ${copy.label} guestbook`;
+  return {
+    title,
+    description: `Read and leave messages for ${data.event_title || hostNames(data)}.`,
+    robots: { index: false, follow: false },
+  };
 }
 
 export default async function GuestbookPage({ params }: PageProps) {

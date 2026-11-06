@@ -8,7 +8,7 @@
 
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { absoluteUrl } from "@/lib/seo";
+import { absoluteUrl, SITE_NAME } from "@/lib/seo";
 import { LAYOUT_LABEL, getInvitationStyle } from "@/components/invitation/styles";
 import Link from "next/link";
 import { createPublicClient } from "@/lib/supabase/public";
@@ -360,6 +360,7 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
   return {
     title: { absolute: `${title} | Dearly` },
     description,
+    keywords: [data.name, `${data.name} template`, `${label} invitation`, "event invitation template", "wedding invitation template", "RSVP", "animated invitation"],
     alternates: { canonical: url },
     robots: embedded ? { index: false, follow: false } : { index: true, follow: true },
     openGraph: {
@@ -402,6 +403,39 @@ export default async function TemplatePreviewPage({ params, searchParams }: Page
 
   return (
     <>
+      {!embedded && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "BreadcrumbList",
+                  itemListElement: [
+                    { "@type": "ListItem", position: 1, name: SITE_NAME, item: absoluteUrl("/") },
+                    { "@type": "ListItem", position: 2, name: "Templates", item: absoluteUrl("/templates") },
+                    { "@type": "ListItem", position: 3, name: template.name, item: absoluteUrl(`/templates/${template.slug}`) },
+                  ],
+                },
+                {
+                  "@type": "WebPage",
+                  name: `${template.name} — ${layoutLabel} event invitation template`,
+                  description: template.description,
+                  url: absoluteUrl(`/templates/${template.slug}`),
+                  isPartOf: { "@type": "WebSite", name: SITE_NAME, url: absoluteUrl("/") },
+                  primaryImageOfPage: {
+                    "@type": "ImageObject",
+                    url: absoluteUrl(`/templates/${template.slug}/opengraph-image`),
+                    width: 1200,
+                    height: 630,
+                  },
+                },
+              ],
+            }),
+          }}
+        />
+      )}
       {!bare && <ScrollProgress color={theme.colors.primary} />}
 
       <TemplatePreview

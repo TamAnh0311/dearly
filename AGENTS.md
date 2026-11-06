@@ -125,7 +125,7 @@ Every word in the query must match. Plurals are folded, so "butterflies" finds "
 
 **Guest list and personal invites** (`invitees` table, `src/lib/guest-list.ts`, dashboard "Guest list"):
 - Hosts paste names (`Anna +1`, `Ben, 4`, `Chi (3)`); each row gets a random `token`.
-- Personal link: `/<slug>?i=<token>`. The token is resolved server-side; the hero greets "Dear {name}" and the RSVP is prefilled and capped at `max_party_size`.
+- Personal link: `/<slug>?i=<token>`. The token is resolved server-side; the hero greets "Dear {name}", the browser title becomes "Dear {name} — {event}", and the RSVP is prefilled and capped at `max_party_size`.
 - `/api/rsvp` with `inviteeToken` updates the invitee's status. The dashboard shows results, check-in on the day and CSV export.
 
 **Plans** (`src/lib/plans.ts`): **currently off** (`PLANS_ENABLED = false`, early access to attract users).

@@ -9,7 +9,15 @@ import { absoluteUrl } from "@/lib/seo";
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: [{ userAgent: "*", allow: "/", disallow: ["/dashboard", "/api/", "/preview", "/q/", "/auth/", "/login", "/signup"] }],
+    rules: [
+      {
+        userAgent: "*",
+        allow: "/",
+        // Private app areas, previews, personal cards and ask pages stay out of search.
+        disallow: ["/dashboard", "/api/", "/preview", "/q/", "/c/", "/auth/", "/login", "/signup"],
+      },
+    ],
     sitemap: absoluteUrl("/sitemap.xml"),
+    host: absoluteUrl("/"),
   };
 }

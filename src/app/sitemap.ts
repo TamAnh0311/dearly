@@ -12,23 +12,28 @@ import { createPublicClient } from "@/lib/supabase/public";
 
 export const revalidate = 86400;
 
+/** Last time the marketing copy and guides were reviewed. */
+const CONTENT_UPDATED = new Date("2026-11-04");
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
-    { url: absoluteUrl("/"), changeFrequency: "weekly", priority: 1 },
-    { url: absoluteUrl("/templates"), changeFrequency: "weekly", priority: 0.9 },
-    ...(PLANS_ENABLED ? [{ url: absoluteUrl("/pricing"), changeFrequency: "monthly" as const, priority: 0.7 }] : []),
-    { url: absoluteUrl("/cards"), changeFrequency: "monthly", priority: 0.5 },
-    { url: absoluteUrl("/contact"), changeFrequency: "yearly", priority: 0.3 },
-    { url: absoluteUrl("/privacy"), changeFrequency: "yearly", priority: 0.2 },
-    { url: absoluteUrl("/terms"), changeFrequency: "yearly", priority: 0.2 },
-    { url: absoluteUrl("/help"), changeFrequency: "monthly", priority: 0.7 },
+    { url: absoluteUrl("/"), lastModified: CONTENT_UPDATED, changeFrequency: "weekly", priority: 1 },
+    { url: absoluteUrl("/templates"), lastModified: CONTENT_UPDATED, changeFrequency: "weekly", priority: 0.9 },
+    ...(PLANS_ENABLED ? [{ url: absoluteUrl("/pricing"), lastModified: CONTENT_UPDATED, changeFrequency: "monthly" as const, priority: 0.7 }] : []),
+    { url: absoluteUrl("/cards"), lastModified: CONTENT_UPDATED, changeFrequency: "monthly", priority: 0.5 },
+    { url: absoluteUrl("/contact"), lastModified: CONTENT_UPDATED, changeFrequency: "yearly", priority: 0.3 },
+    { url: absoluteUrl("/privacy"), lastModified: CONTENT_UPDATED, changeFrequency: "yearly", priority: 0.2 },
+    { url: absoluteUrl("/terms"), lastModified: CONTENT_UPDATED, changeFrequency: "yearly", priority: 0.2 },
+    { url: absoluteUrl("/help"), lastModified: CONTENT_UPDATED, changeFrequency: "monthly", priority: 0.7 },
     ...GUIDES.map((guide) => ({
       url: absoluteUrl(`/help/${guide.slug}`),
+      lastModified: CONTENT_UPDATED,
       changeFrequency: "monthly" as const,
       priority: 0.6,
     })),
     ...OCCASIONS.map((o) => ({
       url: absoluteUrl(`/invitations/${o.slug}`),
+      lastModified: CONTENT_UPDATED,
       changeFrequency: "monthly" as const,
       priority: o.slug === "wedding" ? 0.95 : 0.6,
     })),

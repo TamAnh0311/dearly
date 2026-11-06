@@ -1,0 +1,4 @@
+[2026-11-06 11:48:08]
+CONTEXT: Improve Dearly's SEO metadata and show the guest's name in the browser title of personal invitation links.
+RESULT: Added guest-name titles/OG metadata for `?i=<token>` invitations, noindex metadata for gallery/guestbook/dashboard, richer root SEO (keywords, icons, manifest, robots directives, theme colour), larger sitemap metadata, and JSON-LD for template/gallery pages. `npm test`, `npx tsc --noEmit -p .`, `npm run lint` and `npm run build` all pass.
+---

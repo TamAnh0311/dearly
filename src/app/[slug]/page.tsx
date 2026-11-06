@@ -31,6 +31,7 @@ import { getInvitationStyle } from "@/components/invitation/styles";
 import { formatLongDate } from "@/components/invitation/utils";
 import { toMusicPreset } from "@/lib/ambient-music";
 import { EVENT_COPY, eventTypeOf, hostNames } from "@/lib/event-types";
+import { absoluteUrl, SITE_NAME } from "@/lib/seo";
 import type {
   WeddingRow,
   TemplateRow,
@@ -59,26 +60,42 @@ const loadEvent = cache(async (slug: string): Promise<EventWithTemplate | null> 
   return (data as EventWithTemplate | null) ?? null;
 });
 
-/** Share-friendly title/description; event pages stay out of search results. */
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+/**
+ * Share-friendly title/description; event pages stay out of search results.
+ * Personal links (`?i=<token>`) put the guest's name in the browser tab so a
+ * guest with several invitations open can tell them apart at a glance.
+ */
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
   const event = await loadEvent(params.slug);
   if (!event) return { title: "Invitation not found", robots: { index: false, follow: false } };
   const copy = EVENT_COPY[eventTypeOf(event)];
+  const invitee = await loadInvitee(event.id, searchParams?.i);
   const title = event.event_title || `${hostNames(event)} — ${copy.label}`;
   const when = event.wedding_date ? formatLongDate(event.wedding_date) : null;
   const description = [when, event.venue_name].filter(Boolean).join(" · ") || copy.blurb;
-  const shareTitle = `You're invited: ${title}`;
+  const guestName = invitee?.name.trim().slice(0, 60);
+  const guestTitle = guestName ? `Dear ${guestName} — ${title}` : title;
+  const shareTitle = guestName ? `${guestName}, you're invited: ${title}` : `You're invited: ${title}`;
+  const image = event.template?.preview_image
+    ? [{ url: event.template.preview_image, width: 1200, height: 630, alt: title }]
+    : undefined;
+
   return {
-    title,
+    title: guestTitle,
     description,
+    // The clean URL is the canonical one; the personal token stays out of it.
+    alternates: { canonical: absoluteUrl(`/${event.slug}`) },
     robots: { index: false, follow: false },
-    openGraph: { title: shareTitle, description, type: "website" },
-    twitter: { card: "summary_large_image", title: shareTitle, description },
+    openGraph: { title: shareTitle, description, type: "website", siteName: SITE_NAME, images: image },
+    twitter: { card: "summary_large_image", title: shareTitle, description, images: image?.map((i) => i.url) },
   };
 }
 
-/** Resolves a personal invitation token to the invitee's name and seat limit (server-only). */
-async function loadInvitee(weddingId: string, token: string | undefined) {
+/**
+ * Resolves a personal invitation token to the invitee's name and seat limit
+ * (server-only, memoised so metadata and the page share one query).
+ */
+const loadInvitee = cache(async (weddingId: string, token: string | undefined) => {
   if (!token || !/^[a-f0-9]{8,40}$/i.test(token)) return null;
   try {
     const admin = createServiceRoleClient();
@@ -93,7 +110,7 @@ async function loadInvitee(weddingId: string, token: string | undefined) {
     console.warn("[WARNING] invitee lookup failed", { weddingId, reason: err instanceof Error ? err.message : "unknown" });
     return null;
   }
-}
+});
 
 export default async function WeddingPage({ params, searchParams }: PageProps) {
   const supabase = createCookieClient();

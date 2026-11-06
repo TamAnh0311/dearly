@@ -14,10 +14,63 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Heart, Eye, Menu, X } from "lucide-react";
 import { getTemplateImage } from "@/lib/placeholder-images";
 import LayoutThumbnail, { LAYOUT_LABEL } from "@/components/invitation/LayoutThumbnail";
-import { getInvitationStyle } from "@/components/invitation/styles";
+import { getInvitationStyle, type HeroLayout } from "@/components/invitation/styles";
 import TemplateSearchInput from "@/components/invitation/TemplateSearchInput";
 import { searchTemplates } from "@/lib/template-search";
 import type { TemplateRow } from "@/types/database";
+
+/**
+ * Animated overlay that hints at the template's opening animation on hover.
+ * Pure CSS transitions — no JS animation runtime.
+ */
+function OpeningHint({ hero, color }: { hero: HeroLayout; color: string }) {
+  const base = "pointer-events-none absolute inset-0 z-[2] opacity-0 transition-opacity duration-300 group-hover:opacity-100";
+  switch (hero) {
+    case "curtain":
+      return (
+        <div className={base}>
+          <div className="absolute inset-y-0 left-0 w-1/2 origin-left transition-transform duration-700 group-hover:-translate-x-full" style={{ backgroundColor: color }} />
+          <div className="absolute inset-y-0 right-0 w-1/2 origin-right transition-transform duration-700 group-hover:translate-x-full" style={{ backgroundColor: color }} />
+        </div>
+      );
+    case "doors":
+      return (
+        <div className={base}>
+          <div className="absolute inset-y-0 left-0 w-1/2 origin-left transition-transform duration-700 group-hover:[transform:perspective(600px)_rotateY(-70deg)]" style={{ backgroundColor: color }} />
+          <div className="absolute inset-y-0 right-0 w-1/2 origin-right transition-transform duration-700 group-hover:[transform:perspective(600px)_rotateY(70deg)]" style={{ backgroundColor: color }} />
+        </div>
+      );
+    case "seal":
+      return (
+        <div className={base}>
+          <div className="absolute inset-x-0 top-0 h-1/2 origin-top transition-transform duration-700 group-hover:-translate-y-full" style={{ backgroundColor: color }} />
+        </div>
+      );
+    case "garden":
+      return (
+        <div className={base}>
+          <div className="absolute inset-y-0 left-0 w-[calc(50%+1px)] origin-left transition-transform duration-700 group-hover:-translate-x-full" style={{ backgroundColor: color, borderRight: `1px solid ${color}` }} />
+          <div className="absolute inset-y-0 right-0 w-[calc(50%+1px)] origin-right transition-transform duration-700 group-hover:translate-x-full" style={{ backgroundColor: color, borderLeft: `1px solid ${color}` }} />
+        </div>
+      );
+    case "split":
+    case "poster":
+      return (
+        <div className={base}>
+          <div className="absolute inset-0 origin-left transition-transform duration-700 group-hover:translate-x-full" style={{ backgroundColor: color }} />
+        </div>
+      );
+    case "confetti":
+    case "balloons":
+      return (
+        <div className={base}>
+          <div className="absolute inset-0 transition-[clip-path] duration-700 [clip-path:circle(0%_at_50%_50%)] group-hover:[clip-path:circle(75%_at_50%_50%)]" style={{ backgroundColor: color }} />
+        </div>
+      );
+    default:
+      return null;
+  }
+}
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -244,7 +297,8 @@ export default function TemplatesGallery({ initialTemplates }: { initialTemplate
                       <div className="h-full w-full transition-transform duration-500 group-hover:scale-[1.04]">
                         <LayoutThumbnail slug={template.slug} colors={colors} fonts={fonts} photo={getTemplateImage(index)} />
                       </div>
-                      <span className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition group-hover:bg-black/25 group-hover:opacity-100">
+                      <OpeningHint hero={getInvitationStyle(template.slug).hero} color={colors.secondary} />
+                      <span className="absolute inset-0 z-[3] flex items-center justify-center bg-black/0 opacity-0 transition group-hover:bg-black/25 group-hover:opacity-100">
                         <span className="flex items-center gap-1.5 rounded-full bg-white/95 px-4 py-2 text-xs font-semibold text-dearly-text shadow-lg">
                           <Eye size={14} /> Live preview
                         </span>

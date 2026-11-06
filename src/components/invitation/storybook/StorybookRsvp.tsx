@@ -7,11 +7,11 @@
  * paper-letter visual language of the static demos.
  */
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Check, LoaderCircle, Lock } from "lucide-react";
 import type { GiftAccount, GuestbookEntryRow } from "@/types/database";
 import { useInvitationCopy } from "../sections/HeroParts";
-import { readStored, storageKey, submitRsvp } from "../sections/RsvpSection";
+import { useRsvpForm } from "../use-rsvp-form";
 import type { StorybookVariant } from "../styles";
 
 type Choice = "attending" | "declined";
@@ -78,16 +78,20 @@ export default function StorybookRsvp({
           : ui.lang === "vi"
             ? "S\u1ef1 hi\u1ec7n di\u1ec7n c\u1ee7a qu\u00fd kh\u00e1ch l\u00e0 ni\u1ec1m vui l\u1edbn nh\u1ea5t c\u1ee7a ch\u00fang t\u00f4i."
             : "We would love to know if you can join us, and keep a few words from you.";
-  const [choice, setChoice] = useState<Choice>("attending");
-  const [name, setName] = useState(invitee?.name ?? "");
-  const [partySize, setPartySize] = useState(1);
-  const [message, setMessage] = useState("");
-  const [status, setStatus] = useState<"idle" | "sending" | "done">("idle");
-  const [error, setError] = useState<string | null>(null);
   const [petals, setPetals] = useState(0);
 
+  const form = useRsvpForm({
+    weddingId,
+    demo,
+    invitee,
+    ui,
+    onBlessing,
+    onSuccess: () => setPetals((n) => n + 1),
+  });
+  const { choice, setChoice, name, setName, partySize, setPartySize, message, setMessage, status, error, handleSubmit, reset } = form;
+
   const seal = useMemo(() => monogram(coupleNames), [coupleNames]);
-  const attending = choice === "attending";
+  const attending = choice === "attending" || choice === null;
   const english = ui.lang === "en";
   const successTitle = english && !invitee && attending
     ? editorial ? "Thank you" : "Your reply is sealed"
@@ -103,61 +107,6 @@ export default function StorybookRsvp({
   const blessingPlaceholder = english
     ? "Leave a few words for the couple…"
     : attending ? t.attendingPlaceholder : t.declinedPlaceholder;
-
-  useEffect(() => {
-    if (demo) return;
-    const stored = readStored(weddingId);
-    if (!stored) return;
-    setChoice(stored.choice);
-    setName(stored.name);
-    setStatus("done");
-  }, [weddingId, demo]);
-
-  /** Validates, submits and locally remembers the reply. */
-  async function handleSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    const guestName = name.trim();
-    if (!guestName) {
-      setError(t.nameError);
-      return;
-    }
-    setError(null);
-    setStatus("sending");
-    try {
-      const blessing = await submitRsvp(
-        {
-          weddingId,
-          guestName,
-          attending,
-          partySize: attending ? Math.min(partySize, maxParty) : undefined,
-          inviteeToken: invitee?.token,
-          message: message.trim() || undefined,
-        },
-        demo,
-        ui
-      );
-      if (blessing) onBlessing(blessing);
-      if (!demo) {
-        try {
-          window.localStorage.setItem(storageKey(weddingId), JSON.stringify({ choice, name: guestName }));
-        } catch {
-          /* private mode — non-fatal */
-        }
-      }
-      setPetals((n) => n + 1);
-      setStatus("done");
-    } catch (err) {
-      setStatus("idle");
-      setError(err instanceof Error ? err.message : t.genericError);
-    }
-  }
-
-  /** Re-opens the letter so the guest can change plans. */
-  function reset() {
-    setStatus("idle");
-    setMessage("");
-    setError(null);
-  }
 
   return (
     <section className={`sb-section sb-rsvp ${editorial ? "sb-rsvp-editorial" : ""}`} id="rsvp">

@@ -7,11 +7,12 @@
  * blessing is handed to the parent so it appears on the blessing wall.
  */
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, Copy, Heart, HeartHandshake, LoaderCircle, Minus, PartyPopper, Plus, QrCode, Send } from "lucide-react";
 import type { GiftAccount, GuestbookEntryRow } from "@/types/database";
 import { CelebrationBurst } from "../effects/Particles";
+import { useRsvpForm } from "../use-rsvp-form";
 import { Reveal, SectionHeading } from "./Primitives";
 import ArtSpray from "./ArtSpray";
 import { useInvitationCopy } from "./HeroParts";
@@ -232,71 +233,16 @@ export default function RsvpSection({
   const eyebrow = eyebrowProp ?? ui.nav.rsvp;
   const title = titleProp ?? ui.nav.rsvp;
   const maxParty = invitee?.maxPartySize ?? 10;
-  const [choice, setChoice] = useState<Choice | null>(null);
-  const [name, setName] = useState(invitee?.name ?? "");
-  const [partySize, setPartySize] = useState(1);
-  const [message, setMessage] = useState("");
-  const [status, setStatus] = useState<"idle" | "sending" | "done">("idle");
-  const [error, setError] = useState<string | null>(null);
   const [burstKey, setBurstKey] = useState(0);
 
-  // Restore a previous answer from this browser.
-  useEffect(() => {
-    if (demo) return;
-    const stored = readStored(weddingId);
-    if (stored) {
-      setChoice(stored.choice);
-      setName(stored.name);
-      setStatus("done");
-    }
-  }, [weddingId, demo]);
-
-  /** Validates and submits the form. */
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!choice) return;
-    const guestName = name.trim();
-    if (!guestName) {
-      setError(t.nameError);
-      return;
-    }
-    setError(null);
-    setStatus("sending");
-    try {
-      const blessing = await submitRsvp(
-        {
-          weddingId,
-          guestName,
-          attending: choice === "attending",
-          partySize: choice === "attending" ? Math.min(partySize, maxParty) : undefined,
-          inviteeToken: invitee?.token,
-          message: message.trim() || undefined,
-        },
-        demo,
-        ui
-      );
-      if (blessing) onBlessing(blessing);
-      if (!demo) {
-        try {
-          window.localStorage.setItem(storageKey(weddingId), JSON.stringify({ choice, name: guestName }));
-        } catch {
-          /* storage unavailable (private mode) — non-fatal */
-        }
-      }
-      setStatus("done");
-      setBurstKey((k) => k + 1);
-    } catch (err) {
-      setStatus("idle");
-      setError(err instanceof Error ? err.message : t.genericError);
-    }
-  }
-
-  /** Lets the guest answer again (e.g. plans changed). */
-  function reset() {
-    setStatus("idle");
-    setMessage("");
-    setError(null);
-  }
+  const { choice, setChoice, name, setName, partySize, setPartySize, message, setMessage, status, error, handleSubmit, reset } = useRsvpForm({
+    weddingId,
+    demo,
+    invitee,
+    ui,
+    onBlessing,
+    onSuccess: () => setBurstKey((k) => k + 1),
+  });
 
   const attending = choice === "attending";
   const inputStyle = {
@@ -427,7 +373,7 @@ export default function RsvpSection({
                             <button
                               type="button"
                               aria-label={t.fewerGuests}
-                              onClick={() => setPartySize((n) => Math.max(1, n - 1))}
+                              onClick={() => setPartySize(Math.max(1, partySize - 1))}
                               className="rounded-full p-2 transition hover:opacity-70 disabled:opacity-30"
                               disabled={partySize <= 1}
                             >
@@ -439,7 +385,7 @@ export default function RsvpSection({
                             <button
                               type="button"
                               aria-label={t.moreGuests}
-                              onClick={() => setPartySize((n) => Math.min(maxParty, n + 1))}
+                              onClick={() => setPartySize(Math.min(maxParty, partySize + 1))}
                               className="rounded-full p-2 transition hover:opacity-70 disabled:opacity-30"
                               disabled={partySize >= maxParty}
                             >

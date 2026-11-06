@@ -32,7 +32,7 @@ export default function PrivacyPage() {
       </Link>
 
       <h1 className="mt-8 font-display text-3xl font-bold text-dearly-text">Privacy Policy</h1>
-      <p className="mt-2 text-sm text-dearly-text-muted">Last updated: 3 November {year()}</p>
+      <p className="mt-2 text-sm text-dearly-text-muted">Last updated: 6 November {year()}</p>
 
       <div className="mt-8 space-y-8 text-sm leading-relaxed text-dearly-text-secondary">
         <section>
@@ -51,6 +51,7 @@ export default function PrivacyPage() {
             <li><strong>Guest data:</strong> names, RSVP responses, party size, and optional messages submitted by guests through your invitation page.</li>
             <li><strong>Photos:</strong> images uploaded by you or your guests, along with the uploader&apos;s name if provided.</li>
             <li><strong>Technical data:</strong> IP address (for rate limiting only, not stored long-term), browser type, and session cookies required for authentication.</li>
+            <li><strong>Aggregate usage data:</strong> anonymous page views and interaction counts (for example, &quot;an RSVP was submitted&quot;), used to understand which parts of Dearly are working. This data is not linked to you or your guests and never includes names, messages, emails or invitation tokens.</li>
           </ul>
         </section>
 
@@ -62,7 +63,7 @@ export default function PrivacyPage() {
             <li>To authenticate your account and protect against abuse (rate limiting).</li>
             <li>To send transactional emails related to your account (e.g. password reset).</li>
           </ul>
-          <p className="mt-2">We do <strong>not</strong> sell your data to third parties, serve targeted advertisements, or use tracking cookies or analytics.</p>
+          <p className="mt-2">We do <strong>not</strong> sell your data to third parties, serve targeted advertisements, or use advertising or cross-site tracking cookies. We use privacy-friendly, aggregate analytics as described in section 5.</p>
         </section>
 
         <section>
@@ -79,10 +80,10 @@ export default function PrivacyPage() {
           <p className="mb-2">We use the following services to operate Dearly:</p>
           <ul className="list-disc space-y-1 pl-5">
             <li><strong>Supabase</strong> (database and authentication) — your data is stored in Supabase-managed PostgreSQL databases. <a href="https://supabase.com/privacy" target="_blank" rel="noopener noreferrer" className="underline">Supabase Privacy Policy</a>.</li>
-            <li><strong>Vercel</strong> (hosting) — serves the website. <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer" className="underline">Vercel Privacy Policy</a>.</li>
+            <li><strong>Vercel</strong> (hosting and analytics) — serves the website and provides Vercel Web Analytics. It is cookie-free and reports only aggregate page views and the non-identifying interaction events we send (such as &quot;RSVP submitted&quot;). <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer" className="underline">Vercel Privacy Policy</a>.</li>
             <li><strong>Google Fonts</strong> (typography) — fonts are loaded from Google servers, which may receive your IP address. <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="underline">Google Privacy Policy</a>.</li>
           </ul>
-          <p className="mt-2">We do not use analytics, advertising, or social media tracking services.</p>
+          <p className="mt-2">We do not use advertising networks, social media pixels, or cross-site tracking. Analytics URLs are stripped of query strings, so personal invitation links and guest names are never sent.</p>
         </section>
 
         <section>
@@ -113,7 +114,7 @@ export default function PrivacyPage() {
         <section>
           <h2 className="mb-2 font-display text-lg font-semibold text-dearly-text">8. Cookies</h2>
           <p>
-            We only use <strong>essential cookies</strong> for authentication (keeping you logged in). We do not use tracking cookies, advertising cookies, or third-party cookies. No cookie consent banner is required under GDPR for strictly necessary cookies.
+            We only use <strong>essential cookies</strong> for authentication (keeping you logged in). Vercel Web Analytics is cookie-free. We do not use advertising cookies or cross-site tracking cookies. No cookie consent banner is required under GDPR for strictly necessary cookies and cookie-free aggregate measurement.
           </p>
         </section>
 

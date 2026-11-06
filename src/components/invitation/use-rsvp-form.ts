@@ -8,6 +8,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { GuestbookEntryRow } from "@/types/database";
+import { trackEvent } from "@/lib/analytics";
 import type { InvitationCopy } from "./i18n";
 import { readStored, storageKey, submitRsvp } from "./sections/RsvpSection";
 
@@ -82,6 +83,7 @@ export function useRsvpForm({
       }
       setError(null);
       setStatus("sending");
+      const trimmedMessage = message.trim();
       try {
         const blessing = await submitRsvp(
           {
@@ -90,11 +92,20 @@ export function useRsvpForm({
             attending: choice === "attending",
             partySize: choice === "attending" ? Math.min(partySize, maxParty) : undefined,
             inviteeToken: invitee?.token,
-            message: message.trim() || undefined,
+            message: trimmedMessage || undefined,
           },
           demo,
           ui
         );
+        if (!demo) {
+          trackEvent("rsvp_submitted", {
+            attending: choice === "attending",
+            party_size: choice === "attending" ? Math.min(partySize, maxParty) : 0,
+            has_message: Boolean(trimmedMessage),
+            personal: Boolean(invitee),
+          });
+          if (trimmedMessage) trackEvent("blessing_submitted", { source: "rsvp" });
+        }
         if (blessing) onBlessing(blessing);
         if (!demo) {
           try {

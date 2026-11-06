@@ -11,6 +11,7 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import SocialLoginButtons from "./SocialLoginButtons";
 import { capturePendingDesign } from "@/lib/pending-design";
+import { trackEvent } from "@/lib/analytics";
 
 export default function SignupForm() {
   const { signUp } = useAuth();
@@ -33,11 +34,14 @@ export default function SignupForm() {
     e.preventDefault();
     setError(null);
     setLoading(true);
+    trackEvent("signup_started", { method: "password" });
 
     try {
       await signUp(email, password, displayName || undefined);
+      trackEvent("signup_completed", { method: "password" });
       router.push("/dashboard");
     } catch (err) {
+      trackEvent("signup_failed", { method: "password" });
       setError(err instanceof Error ? err.message : "Sign-up failed. Please try again.");
     } finally {
       setLoading(false);

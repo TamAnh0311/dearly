@@ -8,6 +8,7 @@
 import { useCallback, useRef, useState } from "react";
 import { Upload } from "lucide-react";
 import { uploadPhotos } from "@/lib/image-upload";
+import { trackEvent } from "@/lib/analytics";
 
 interface PhotoUploaderProps {
   /** The wedding ID to associate uploads with. */
@@ -44,6 +45,7 @@ export default function PhotoUploader({ weddingId, onUploaded }: PhotoUploaderPr
         files: fileList,
         onProgress: (done, total) => setProgress({ done, total }),
       });
+      trackEvent("photo_uploaded", { count: fileList.length, source: "host" });
       onUploaded();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");

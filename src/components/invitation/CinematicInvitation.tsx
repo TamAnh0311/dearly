@@ -12,8 +12,9 @@
  * customization.sections (see ./sections-config.ts).
  */
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ResolvedTheme } from "@/components/templates/types";
+import { trackEvent } from "@/lib/analytics";
 import type { GuestbookEntryRow, WeddingEventRow, WeddingRow } from "@/types/database";
 import Hero from "./sections/Hero";
 import Countdown from "./sections/Countdown";
@@ -96,6 +97,17 @@ export default function CinematicInvitation({
   }, [basePalette, wedding.customization?.ambientEffects]);
   const [blessings, setBlessings] = useState(initialBlessings);
   const [highlightId, setHighlightId] = useState<string | null>(null);
+
+  // Funnel: a real guest opened a published invitation. Never fires for demos.
+  useEffect(() => {
+    if (demo) return;
+    trackEvent("invitation_viewed", {
+      template: templateSlug ?? "unknown",
+      event_type: wedding.event_type ?? "wedding",
+      personal: Boolean(invitee),
+      past: isPastEvent(wedding.wedding_date),
+    });
+  }, [demo, templateSlug, wedding.event_type, wedding.wedding_date, invitee]);
 
   // The Storybook collection owns its whole page; the classic sections below
   // stay untouched so existing templates keep their exact behaviour.

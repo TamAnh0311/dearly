@@ -42,6 +42,7 @@ import { searchTemplates } from "@/lib/template-search";
 import { EVENT_COPY, EVENT_TYPE_ORDER } from "@/lib/event-types";
 import { isReservedSlug } from "@/lib/reserved-slugs";
 import { PLANS_ENABLED } from "@/lib/plans";
+import { trackEvent } from "@/lib/analytics";
 import type { EventType, TemplateRow, WeddingCustomization } from "@/types/database";
 
 // ---------------------------------------------------------------------------
@@ -271,6 +272,18 @@ export default function DashboardPage() {
 
   const [previewTemplate, setPreviewTemplate] = useState<TemplateRow | null>(null);
   const closePreview = useCallback(() => setPreviewTemplate(null), []);
+  const onboardingTracked = useRef(false);
+
+  // Funnel: first time the wizard is shown, and each step reached.
+  useEffect(() => {
+    if (weddingLoading) return;
+    if (!creatingNew && allWeddings.length > 0) return;
+    if (!onboardingTracked.current) {
+      onboardingTracked.current = true;
+      trackEvent("onboarding_started", { has_existing_event: allWeddings.length > 0 });
+    }
+    trackEvent("onboarding_step_viewed", { step: wizardStep });
+  }, [weddingLoading, creatingNew, allWeddings.length, wizardStep]);
 
   // Onboarding form state
   const [partner1, setPartner1] = useState("");
@@ -386,6 +399,12 @@ export default function DashboardPage() {
         event_type: eventType,
         event_title: eventTitle.trim() || null,
         ...(customization ? { customization } : {}),
+      });
+      trackEvent("event_created", {
+        event_type: eventType,
+        template: templates.find((t) => t.id === selectedTemplateId)?.slug ?? "unknown",
+        has_date: Boolean(weddingDate),
+        scheme: selectedScheme,
       });
       clearPendingDesign();
       setCreatingNew(false);
@@ -638,7 +657,7 @@ export default function DashboardPage() {
                   type="button"
                   role="radio"
                   aria-checked={eventType === t}
-                  onClick={() => { setEventType(t); setSelectedTemplateId(null); }}
+                  onClick={() => { setEventType(t); setSelectedTemplateId(null); trackEvent("onboarding_occasion_selected", { event_type: t }); }}
                   className={`rounded-xl px-5 py-3 text-sm font-semibold transition ${
                     eventType === t
                       ? "bg-dearly-accent text-white shadow-soft"
@@ -676,7 +695,7 @@ export default function DashboardPage() {
               return (
                 <button
                   type="button"
-                  onClick={() => { setSelectedTemplateId(blank.id); setSelectedScheme("original"); }}
+                  onClick={() => { setSelectedTemplateId(blank.id); setSelectedScheme("original"); trackEvent("onboarding_template_selected", { template: blank.slug, event_type: eventType }); }}
                   className={`mb-6 flex w-full items-center gap-4 rounded-2xl border-2 border-dashed px-5 py-4 text-left transition ${
                     isBlankSelected
                       ? "border-dearly-accent bg-dearly-accent-soft/40"
@@ -730,7 +749,7 @@ export default function DashboardPage() {
                           </motion.div>
                         )}
                       </AnimatePresence>
-                      <button type="button" onClick={() => { setSelectedTemplateId(template.id); setSelectedScheme("original"); }} aria-pressed={isSelected} aria-label={`Select ${template.name}`} className="block h-36 w-full overflow-hidden text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-dearly-accent">
+                      <button type="button" onClick={() => { setSelectedTemplateId(template.id); setSelectedScheme("original"); trackEvent("onboarding_template_selected", { template: template.slug, event_type: eventType }); }} aria-pressed={isSelected} aria-label={`Select ${template.name}`} className="block h-36 w-full overflow-hidden text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-dearly-accent">
                         <LayoutThumbnail slug={template.slug} colors={colors} fonts={fonts} photo={getTemplateImage(index)} />
                       </button>
                       <div className="flex flex-1 flex-col gap-1 p-3">
@@ -746,7 +765,7 @@ export default function DashboardPage() {
                           <button type="button" onClick={() => setPreviewTemplate(template)} className="flex h-8 items-center justify-center gap-1 rounded-lg border border-dearly-border text-xs font-semibold text-dearly-text-secondary transition hover:border-dearly-accent/50 hover:text-dearly-accent">
                             <Eye size={12} /> Preview
                           </button>
-                          <button type="button" onClick={() => { setSelectedTemplateId(template.id); setSelectedScheme("original"); }} className={`flex h-8 items-center justify-center rounded-lg text-xs font-semibold transition ${isSelected ? "bg-dearly-accent text-white" : "bg-dearly-accent-soft text-dearly-accent hover:bg-dearly-accent hover:text-white"}`}>
+                          <button type="button" onClick={() => { setSelectedTemplateId(template.id); setSelectedScheme("original"); trackEvent("onboarding_template_selected", { template: template.slug, event_type: eventType }); }} className={`flex h-8 items-center justify-center rounded-lg text-xs font-semibold transition ${isSelected ? "bg-dearly-accent text-white" : "bg-dearly-accent-soft text-dearly-accent hover:bg-dearly-accent hover:text-white"}`}>
                             {isSelected ? "Selected" : "Select"}
                           </button>
                         </div>
@@ -875,6 +894,7 @@ export default function DashboardPage() {
               setSelectedTemplateId(previewTemplate.id);
               setSelectedScheme(schemeId);
               setSelectedSections(sections);
+              trackEvent("onboarding_template_selected", { template: previewTemplate.slug, event_type: eventType });
               setPreviewTemplate(null);
             }}
           />

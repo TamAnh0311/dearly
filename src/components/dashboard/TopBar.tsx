@@ -9,6 +9,7 @@ import { ExternalLink, LogOut, Menu } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useMyWedding } from "@/hooks/useWedding";
 import { hostNames } from "@/lib/event-types";
+import { trackEvent } from "@/lib/analytics";
 import { useSidebarDrawer } from "./Sidebar";
 
 export default function TopBar() {
@@ -20,7 +21,9 @@ export default function TopBar() {
   /** Toggles the published state of the wedding. */
   async function togglePublish() {
     if (!wedding) return;
-    await saveWedding({ is_published: !wedding.is_published });
+    const publishing = !wedding.is_published;
+    await saveWedding({ is_published: publishing });
+    trackEvent(publishing ? "event_published" : "event_unpublished", { event_type: wedding.event_type });
   }
 
   return (

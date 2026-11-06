@@ -7,6 +7,7 @@
 import { useState, useRef, FormEvent } from "react";
 import { Upload, Check, Loader2 } from "lucide-react";
 import { uploadPhotos } from "@/lib/image-upload";
+import { trackEvent } from "@/lib/analytics";
 import type { ResolvedTheme } from "@/components/templates/types";
 
 interface GuestUploadFormProps {
@@ -40,6 +41,7 @@ export default function GuestUploadForm({ weddingId, theme }: GuestUploadFormPro
         onProgress: (done, total) => setProgress({ done, total }),
       });
 
+      trackEvent("photo_uploaded", { count: files.length, source: "guest" });
       setSuccess(true);
       setFiles([]);
       setGuestName("");

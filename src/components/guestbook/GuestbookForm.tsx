@@ -7,6 +7,7 @@
 
 import { useState, FormEvent } from "react";
 import { Send, Check } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
 import type { ResolvedTheme } from "@/components/templates/types";
 
 interface GuestbookFormProps {
@@ -38,6 +39,7 @@ export default function GuestbookForm({ weddingId, theme }: GuestbookFormProps) 
         const body = await res.json().catch(() => ({}));
         throw new Error(body.error ?? "Failed to submit message");
       }
+      trackEvent("blessing_submitted", { source: "guestbook" });
       setSuccess(true);
       setName("");
       setMessage("");

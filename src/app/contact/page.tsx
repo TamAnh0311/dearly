@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Clock, Mail, ShieldCheck } from "lucide-react";
 import { absoluteUrl } from "@/lib/seo";
+import ContactForm from "@/components/ContactForm";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -74,6 +75,10 @@ export default function ContactPage() {
           </Link>
           .
         </p>
+      </div>
+
+      <div className="mt-10">
+        <ContactForm />
       </div>
 
       <footer className="mt-16 border-t border-dearly-border pt-6 text-sm text-dearly-text-muted">

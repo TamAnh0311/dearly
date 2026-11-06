@@ -162,6 +162,30 @@ export default function SettingsPage() {
           </button>
         </div>
 
+        {/* Share preview link */}
+        {!isPublished && (
+          <div className="rounded-xl border border-dashed border-dearly-border bg-dearly-cream/50 p-4">
+            <p className="text-sm font-medium text-dearly-text">Share a preview</p>
+            <p className="mt-1 text-xs text-dearly-text-secondary">
+              Your invitation isn&apos;t published yet. Share this link with your partner to review the draft:
+            </p>
+            <div className="mt-2 flex items-center gap-2">
+              <code className="flex-1 truncate rounded-lg bg-dearly-card px-3 py-2 text-xs text-dearly-text-secondary">
+                {typeof window !== "undefined" ? `${window.location.origin}/${wedding.slug}?preview=${wedding.id}` : `/${wedding.slug}?preview=...`}
+              </code>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(`${window.location.origin}/${wedding.slug}?preview=${wedding.id}`);
+                }}
+                className="shrink-0 rounded-lg border border-dearly-border px-3 py-2 text-xs font-medium text-dearly-text-secondary hover:bg-dearly-card"
+              >
+                Copy
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Guest uploads toggle */}
         <div className="flex items-center justify-between">
           <div>

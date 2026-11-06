@@ -43,21 +43,25 @@ import type {
 
 interface PageProps {
   params: { slug: string };
-  searchParams?: { i?: string };
+  searchParams?: { i?: string; preview?: string };
 }
 
 type EventWithTemplate = WeddingRow & { template: TemplateRow };
 
 /** Loads a published event by slug (memoised per request for metadata + page). */
-const loadEvent = cache(async (slug: string): Promise<EventWithTemplate | null> => {
+const loadEvent = cache(async (slug: string, previewToken?: string): Promise<EventWithTemplate | null> => {
   const supabase = createCookieClient();
-  const { data } = await supabase
+  let query = supabase
     .from("weddings")
     .select("*, template:templates(*)")
-    .eq("slug", slug)
-    .eq("is_published", true)
-    .maybeSingle();
-  return (data as EventWithTemplate | null) ?? null;
+    .eq("slug", slug);
+  // Preview mode: allow unpublished access when the caller knows the wedding ID.
+  if (!previewToken) query = query.eq("is_published", true);
+  const { data } = await query.maybeSingle();
+  const event = (data as EventWithTemplate | null) ?? null;
+  // Verify the preview token matches the wedding ID to prevent unauthorized access.
+  if (event && !event.is_published && previewToken !== event.id) return null;
+  return event;
 });
 
 /**
@@ -66,7 +70,7 @@ const loadEvent = cache(async (slug: string): Promise<EventWithTemplate | null> 
  * guest with several invitations open can tell them apart at a glance.
  */
 export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
-  const event = await loadEvent(params.slug);
+  const event = await loadEvent(params.slug, searchParams?.preview);
   if (!event) return { title: "Invitation not found", robots: { index: false, follow: false } };
   const copy = EVENT_COPY[eventTypeOf(event)];
   const invitee = await loadInvitee(event.id, searchParams?.i);
@@ -114,7 +118,7 @@ const loadInvitee = cache(async (weddingId: string, token: string | undefined) =
 
 export default async function WeddingPage({ params, searchParams }: PageProps) {
   const supabase = createCookieClient();
-  const weddingData = await loadEvent(params.slug);
+  const weddingData = await loadEvent(params.slug, searchParams?.preview);
   if (!weddingData) notFound();
   if (!getTemplate(weddingData.template.slug)) notFound();
 

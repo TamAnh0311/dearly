@@ -18,10 +18,14 @@ export default function TopBar() {
   const router = useRouter();
   const { toggle } = useSidebarDrawer();
 
-  /** Toggles the published state of the wedding. */
+  /** Toggles the published state with a confirmation dialog. */
   async function togglePublish() {
     if (!wedding) return;
     const publishing = !wedding.is_published;
+    const msg = publishing
+      ? "Publish this invitation? Your guests will be able to view it and RSVP."
+      : "Unpublish this invitation? All guest links will stop working until you publish again.";
+    if (!window.confirm(msg)) return;
     await saveWedding({ is_published: publishing });
     trackEvent(publishing ? "event_published" : "event_unpublished", { event_type: wedding.event_type });
   }

@@ -11,7 +11,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Check, Copy, Download, Mail, MessageCircle, Search, Trash2, UserCheck, UserPlus, Users } from "lucide-react";
+import { Check, Copy, Download, Mail, MessageCircle, QrCode, Search, Trash2, Upload, UserCheck, UserPlus, Users } from "lucide-react";
+import { QRCodeCanvas } from "qrcode.react";
 import { createClient } from "@/lib/supabase/client";
 import { useMyWedding } from "@/hooks/useWedding";
 import { guestListCsv, inviteUrl, parseGuestList, summarizeGuestList } from "@/lib/guest-list";
@@ -110,6 +111,42 @@ export default function GuestsPage() {
     } catch {
       setError("Couldn't copy — your browser blocked clipboard access.");
     }
+  }
+
+  /** Downloads a QR code PNG for the guest's personal invitation link. */
+  function downloadQr(i: InviteeRow) {
+    if (!wedding) return;
+    const canvas = document.getElementById(`qr-${i.id}`) as HTMLCanvasElement | null;
+    if (!canvas) return;
+    const url = canvas.toDataURL("image/png");
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${i.name.replace(/\s+/g, "-").toLowerCase()}-qr.png`;
+    a.click();
+  }
+
+  /** Opens the user's email client with a pre-filled invitation email. */
+  function emailLink(i: InviteeRow) {
+    if (!wedding) return;
+    const link = inviteUrl(origin, wedding.slug, i.token);
+    const subject = encodeURIComponent(`You're invited — ${wedding.partner1_name}${wedding.partner2_name ? ` & ${wedding.partner2_name}` : ""}`);
+    const body = encodeURIComponent(`Hi ${i.name},\n\nYou're invited! Open your personal invitation here:\n${link}\n\nWe hope to see you there.`);
+    window.open(`mailto:?subject=${subject}&body=${body}`, "_self");
+  }
+
+  /** Parses a CSV file into guest entries. */
+  async function handleCsvImport(file: File) {
+    const text = await file.text();
+    const lines = text.split(/\r?\n/).filter((l) => l.trim());
+    // Skip header if first line looks like column names.
+    const start = /^name/i.test(lines[0]) ? 1 : 0;
+    const names: string[] = [];
+    for (let idx = start; idx < lines.length; idx++) {
+      const cols = lines[idx].split(",");
+      const name = cols[0]?.trim();
+      if (name) names.push(cols.length > 1 ? `${name}, ${cols[1].trim()}` : name);
+    }
+    if (names.length > 0) setPaste(names.join("\n"));
   }
 
   /** Marks or unmarks an invitation as sent. */
@@ -262,10 +299,16 @@ export default function GuestsPage() {
           </label>
         </div>
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs text-dearly-text-secondary">
-            Tip: <code>+1</code> adds a companion, <code>, 4</code> reserves 4 seats.
-            {parsed.length > 0 && <span className="ml-2 font-semibold text-dearly-accent">{parsed.length} guest{parsed.length > 1 ? "s" : ""} ready</span>}
-          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <p className="text-xs text-dearly-text-secondary">
+              Tip: <code>+1</code> adds a companion, <code>, 4</code> reserves 4 seats.
+              {parsed.length > 0 && <span className="ml-2 font-semibold text-dearly-accent">{parsed.length} guest{parsed.length > 1 ? "s" : ""} ready</span>}
+            </p>
+            <label className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-dearly-border px-2.5 py-1.5 text-xs font-medium text-dearly-text-secondary hover:bg-dearly-cream">
+              <Upload size={13} /> Import CSV
+              <input type="file" accept=".csv,.txt" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCsvImport(f); e.target.value = ""; }} />
+            </label>
+          </div>
           <button
             type="button"
             onClick={addGuests}
@@ -397,6 +440,14 @@ export default function GuestsPage() {
                   <a href={wa} target="_blank" rel="noopener noreferrer" title="Send on WhatsApp" className="rounded-lg p-2 text-dearly-text-secondary hover:bg-dearly-cream">
                     <MessageCircle size={15} />
                   </a>
+                  <button type="button" onClick={() => emailLink(i)} title="Send via email" className="rounded-lg p-2 text-dearly-text-secondary hover:bg-dearly-cream">
+                    <Mail size={15} />
+                  </button>
+                  <button type="button" onClick={() => downloadQr(i)} title="Download QR code" className="rounded-lg p-2 text-dearly-text-secondary hover:bg-dearly-cream">
+                    <QrCode size={15} />
+                  </button>
+                  {/* Hidden QR canvas for download */}
+                  <QRCodeCanvas id={`qr-${i.id}`} value={link} size={512} className="hidden" />
                   <button type="button" onClick={() => remove(i)} title="Remove guest" className="rounded-lg p-2 text-dearly-text-muted hover:bg-red-50 hover:text-red-600">
                     <Trash2 size={15} />
                   </button>

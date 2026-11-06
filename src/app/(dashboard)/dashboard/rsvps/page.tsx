@@ -22,8 +22,10 @@ function useRsvps(weddingId: string | undefined) {
   useEffect(() => {
     if (!weddingId) return;
     let cancelled = false;
+    const supabase = createClient();
+
     async function load() {
-      const { data, error: queryError } = await createClient()
+      const { data, error: queryError } = await supabase
         .from("rsvps")
         .select("*")
         .eq("wedding_id", weddingId)
@@ -34,8 +36,18 @@ function useRsvps(weddingId: string | undefined) {
       setLoading(false);
     }
     load();
+
+    // Real-time: new RSVPs appear instantly without page refresh.
+    const channel = supabase
+      .channel(`rsvps-${weddingId}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "rsvps", filter: `wedding_id=eq.${weddingId}` }, (payload) => {
+        setRsvps((prev) => [payload.new as RsvpRow, ...prev]);
+      })
+      .subscribe();
+
     return () => {
       cancelled = true;
+      supabase.removeChannel(channel);
     };
   }, [weddingId]);
 

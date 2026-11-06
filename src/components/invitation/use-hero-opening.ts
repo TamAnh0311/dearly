@@ -4,8 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 
 /**
  * Remembers an interactive hero opening for the current tab and lets personal
- * invitation links skip it. Returns whether the hero is revealed and the
- * callback that opens and records it.
+ * invitation links skip it. Returns whether the hero is revealed, a callback
+ * that opens and records it, and a replay callback that resets the state.
  */
 export function useHeroOpening(key: string, skip = false) {
   const [opened, setOpened] = useState(false);
@@ -24,5 +24,12 @@ export function useHeroOpening(key: string, skip = false) {
     } catch {}
   }, [key]);
 
-  return { revealed: skip || opened, open };
+  const replay = useCallback(() => {
+    setOpened(false);
+    try {
+      window.sessionStorage.removeItem(key);
+    } catch {}
+  }, [key]);
+
+  return { revealed: skip || opened, open, replay };
 }

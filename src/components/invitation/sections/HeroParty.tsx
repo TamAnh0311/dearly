@@ -14,7 +14,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { hostNames } from "@/lib/event-types";
 import AmbientLayer from "../effects/Ambient";
 import { EASE_OUT, alpha, formatLongDate, mix, seeded } from "../utils";
-import { DateLine, Eyebrow, useEventCopy, useEyebrow, useInvitationCopy } from "./HeroParts";
+import { DateLine, Eyebrow, ReplayButton, useEventCopy, useEyebrow, useInvitationCopy } from "./HeroParts";
 import { useHeroOpening } from "../use-hero-opening";
 import type { LayoutProps } from "./Hero";
 
@@ -180,6 +180,7 @@ function BalloonReveal({
   popped,
   onPop,
   onSkip,
+  ui,
 }: {
   palette: LayoutProps["palette"];
   title: string;
@@ -187,6 +188,7 @@ function BalloonReveal({
   popped: number[];
   onPop: (index: number) => void;
   onSkip: () => void;
+  ui: { skipOpening: string; popToOpen: string; invitationWaiting: string };
 }) {
   const colors = [palette.primary, palette.accent, ...palette.petals];
   const total = POP_BALLOONS.length;
@@ -210,7 +212,7 @@ function BalloonReveal({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: EASE_OUT }}
         >
-          Your invitation is waiting
+          {ui.invitationWaiting}
         </motion.p>
         <motion.h2
           className="mx-auto mt-3 max-w-[20ch] text-3xl font-medium text-balance sm:text-5xl"
@@ -227,7 +229,7 @@ function BalloonReveal({
           </p>
         )}
         <p className="mt-3 text-xs uppercase tracking-[0.24em]" style={{ color: palette.ink }}>
-          Pop the balloons to open
+          {ui.popToOpen}
         </p>
         <p className="mt-2 text-xs" style={{ color: palette.inkMuted }} aria-live="polite">
           {popped.length} of {total} popped
@@ -254,7 +256,7 @@ function BalloonReveal({
         className="absolute bottom-7 left-1/2 z-20 -translate-x-1/2 border-b px-1 py-1 text-[10px] uppercase tracking-[0.32em] transition-opacity hover:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4"
         style={{ borderColor: alpha(palette.ink, 0.35), color: palette.inkMuted, outlineColor: palette.ink }}
       >
-        Skip opening
+        {ui.skipOpening}
       </button>
     </motion.div>
   );
@@ -278,7 +280,7 @@ export function BalloonHero({ wedding, palette, personalInvite = false, contentY
   const date = wedding.wedding_date ? formatLongDate(wedding.wedding_date, null, ui.dateLocale) : null;
   const balloonColors = [palette.primary, palette.accent, ...palette.petals];
   const [popped, setPopped] = useState<number[]>([]);
-  const { revealed: openingRevealed, open } = useHeroOpening(`dearly-open-balloons-${wedding.id}`, personalInvite);
+  const { revealed: openingRevealed, open, replay } = useHeroOpening(`dearly-open-balloons-${wedding.id}`, personalInvite);
   const revealed = reduce === true || openingRevealed;
 
   useEffect(() => {
@@ -387,9 +389,11 @@ export function BalloonHero({ wedding, palette, personalInvite = false, contentY
             popped={popped}
             onPop={(index) => setPopped((prev) => (prev.includes(index) ? prev : [...prev, index]))}
             onSkip={() => setPopped(POP_BALLOONS.map((_, index) => index))}
+            ui={ui}
           />
         )}
       </AnimatePresence>
+      {revealed && !personalInvite && <ReplayButton onClick={() => { setPopped([]); replay(); }} color={palette.inkMuted} />}
     </>
   );
 }
@@ -463,12 +467,14 @@ function ConfettiReveal({
   date,
   onOpen,
   onSkip,
+  ui,
 }: {
   palette: LayoutProps["palette"];
   title: string;
   date: string | null;
   onOpen: () => void;
   onSkip: () => void;
+  ui: { skipOpening: string; invitationWaiting: string };
 }) {
   return (
     <motion.div
@@ -499,7 +505,7 @@ function ConfettiReveal({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: EASE_OUT }}
         >
-          A celebration is waiting
+          {ui.invitationWaiting}
         </motion.p>
         <motion.h2
           className="mx-auto mt-3 max-w-[20ch] text-3xl uppercase text-balance sm:text-5xl"
@@ -544,7 +550,7 @@ function ConfettiReveal({
         className="absolute bottom-7 left-1/2 z-20 -translate-x-1/2 border-b px-1 py-1 text-[10px] uppercase tracking-[0.32em] transition-opacity hover:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4"
         style={{ borderColor: alpha(palette.ink, 0.35), color: palette.inkMuted, outlineColor: palette.ink }}
       >
-        Skip opening
+        {ui.skipOpening}
       </button>
     </motion.div>
   );
@@ -558,7 +564,7 @@ export function ConfettiHero({ wedding, palette, personalInvite = false, content
   const title = titleOf(wedding);
   const date = wedding.wedding_date ? formatLongDate(wedding.wedding_date, null, ui.dateLocale) : null;
   const confetti = [palette.primary, palette.accent, ...palette.petals];
-  const { revealed: openingRevealed, open } = useHeroOpening(`dearly-open-confetti-${wedding.id}`, personalInvite);
+  const { revealed: openingRevealed, open, replay } = useHeroOpening(`dearly-open-confetti-${wedding.id}`, personalInvite);
   const revealed = reduce === true || openingRevealed;
 
   return (
@@ -614,7 +620,7 @@ export function ConfettiHero({ wedding, palette, personalInvite = false, content
             animate={{ opacity: 1, scale: 1, rotate: 8 }}
             transition={{ type: "spring", stiffness: 180, damping: 11, delay: 1.5 }}
           >
-            pop!
+            {ui.lang === "vi" ? "bùm!" : "pop!"}
           </motion.span>
 
           <Eyebrow text={eyebrow} color={palette.inkMuted} delay={0.8} />
@@ -666,9 +672,10 @@ export function ConfettiHero({ wedding, palette, personalInvite = false, content
 
       <AnimatePresence>
         {!revealed && (
-          <ConfettiReveal palette={palette} title={title} date={date} onOpen={open} onSkip={open} />
+          <ConfettiReveal palette={palette} title={title} date={date} onOpen={open} onSkip={open} ui={ui} />
         )}
       </AnimatePresence>
+      {revealed && !personalInvite && <ReplayButton onClick={replay} color={palette.inkMuted} />}
     </>
   );
 }

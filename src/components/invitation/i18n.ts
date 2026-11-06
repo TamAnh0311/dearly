@@ -102,6 +102,9 @@ export interface InvitationCopy {
   requestPleasure: string;
   theWedding: string;
   dragPhotos: string;
+  skipOpening: string;
+  popToOpen: string;
+  invitationWaiting: string;
   photoCaptions: string[];
   invitationLabel: (label: string) => string;
   nav: {
@@ -166,6 +169,9 @@ const EN: InvitationCopy = {
   requestPleasure: "Request the pleasure of your company",
   theWedding: "The Wedding",
   dragPhotos: "psst — you can drag the photos",
+  skipOpening: "Skip opening",
+  popToOpen: "Pop the balloons to open",
+  invitationWaiting: "Your invitation is waiting",
   photoCaptions: ["first date", "the proposal", "us", "adventures", "forever"],
   invitationLabel: (label) => `${label} Invitation`,
   nav: {
@@ -273,6 +279,9 @@ const VI: InvitationCopy = {
   requestPleasure: "Trân trọng kính mời quý khách đến chung vui",
   theWedding: "Đám cưới",
   dragPhotos: "kéo ảnh để xem",
+  skipOpening: "Bỏ qua",
+  popToOpen: "Chạm bóng bay để mở",
+  invitationWaiting: "Thiệp mời đang chờ bạn",
   photoCaptions: ["lần hẹn đầu", "lời cầu hôn", "chúng tôi", "những chuyến đi", "mãi mãi"],
   invitationLabel: (label) => `Thiệp mời ${label}`,
   nav: {

@@ -153,9 +153,16 @@ export default function CinematicInvitation({
         className="relative min-h-screen overflow-x-hidden antialiased"
         style={{ backgroundColor: palette.background, color: palette.ink, fontFamily: palette.bodyFont }}
       >
-        {/* Theme fonts (template fonts + script accent) */}
+        {/* Theme fonts — preload to reduce FOUT during hero animation */}
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link rel="stylesheet" href={googleFontsUrl(theme.fonts, [palette.style.bodyFont])} />
+        <link rel="preload" as="style" href={googleFontsUrl(theme.fonts, [palette.style.bodyFont])} />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        <link
+          rel="stylesheet"
+          href={googleFontsUrl(theme.fonts, [palette.style.bodyFont])}
+          media="print"
+          onLoad={(e) => { e.currentTarget.media = "all"; }}
+        />
 
         {palette.style.texture !== "none" && <TextureOverlay kind={palette.style.texture} />}
         <TopNav names={names} links={links} palette={palette} topOffset={topOffset} showRsvp={showRsvp} />

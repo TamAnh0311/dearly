@@ -171,6 +171,21 @@ export function Eyebrow({ text, color, delay = 0.2 }: { text: string; color: str
 }
 
 
+/** Subtle button to replay the hero opening animation. */
+export function ReplayButton({ onClick, color }: { onClick: () => void; color: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="absolute bottom-4 right-4 z-20 rounded-full px-2.5 py-1 text-[10px] uppercase tracking-[0.2em] opacity-40 transition hover:opacity-80 focus-visible:outline focus-visible:outline-2"
+      style={{ color, borderColor: color, outlineColor: color }}
+      aria-label="Replay opening animation"
+    >
+      ↻ Replay
+    </button>
+  );
+}
+
 /** Centred names block reused by several signature layouts. */
 export function CenterNames({
   palette,

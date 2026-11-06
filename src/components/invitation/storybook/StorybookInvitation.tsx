@@ -1176,7 +1176,13 @@ export default function StorybookInvitation({
   return (
     <EventContext.Provider value={{ eventType, copy, twoNames, inviteeName: invitee?.name ?? null, lang: ui.lang }}>
       <div className={`sb-root sb-variant-${variant} ${palette.isDark ? "sb-dark" : ""}`} style={vars}>
-        <link rel="stylesheet" href={googleFontsUrl(theme.fonts, [palette.style.bodyFont], [palette.style.scriptFont])} />
+        <link rel="preload" as="style" href={googleFontsUrl(theme.fonts, [palette.style.bodyFont], [palette.style.scriptFont])} />
+        <link
+          rel="stylesheet"
+          href={googleFontsUrl(theme.fonts, [palette.style.bodyFont], [palette.style.scriptFont])}
+          media="print"
+          onLoad={(e) => { e.currentTarget.media = "all"; }}
+        />
         <div className="sb-grain" aria-hidden="true" />
         <div className="sb-page">
           {variant === "peony" || variant === "lantern" ? <ScrollVine /> : null}

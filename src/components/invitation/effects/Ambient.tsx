@@ -3,13 +3,29 @@
 /**
  * AmbientLayer — renders the template's ambient effects (butterflies, petals,
  * leaves, confetti, snow, gold dust, stars, bokeh) inside a relative parent.
+ *
+ * Particles are deferred by a short delay so they don't compete with the hero
+ * opening animation for GPU time on lower-end devices.
  */
 
+import { useEffect, useState } from "react";
 import { Balloons, BokehLights, Butterflies, FallingPetals, GoldDust, Lanterns, TwinklingStars } from "./Particles";
 import { alpha, mix, type InvitationPalette } from "../utils";
 
+/** Milliseconds to wait before mounting particle effects. */
+const DEFER_MS = 2_500;
+
 /** Draws each ambient effect listed in the palette's style, with density scaled by `intensity`. */
 export default function AmbientLayer({ palette, intensity = 1 }: { palette: InvitationPalette; intensity?: number }) {
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const id = setTimeout(() => setReady(true), DEFER_MS);
+    return () => clearTimeout(id);
+  }, []);
+
+  if (!ready) return null;
+
   const n = (base: number) => Math.max(1, Math.round(base * intensity));
   const leafColors = [palette.leaf, mix(palette.leaf, palette.accent, 0.4), mix(palette.accent, "#c98b4a", 0.3)];
   const confetti = [palette.primary, palette.accent, ...palette.petals];

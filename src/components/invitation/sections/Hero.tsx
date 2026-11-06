@@ -25,7 +25,7 @@ import type { WeddingRow } from "@/types/database";
 import { GrowingBud, GrowingFlower } from "../effects/Botanicals";
 import AmbientLayer from "../effects/Ambient";
 import { EASE_OUT, alpha, formatDotDate, formatLongDate, mix, seeded, type InvitationPalette } from "../utils";
-import { Ampersand, DateLine, Eyebrow, RisingText, ScrollCue, useEventCopy, useEyebrow, useInvitationCopy } from "./HeroParts";
+import { Ampersand, DateLine, Eyebrow, ReplayButton, RisingText, ScrollCue, useEventCopy, useEyebrow, useInvitationCopy } from "./HeroParts";
 import { DayNightHero, SealHero, StainedHero } from "./HeroSignature";
 import { CurtainHero } from "./HeroCurtain";
 import { BojagiHero, DoorsHero, EnsoHero, PosterHero, ShojiHero } from "./HeroAsian";
@@ -104,11 +104,13 @@ function GardenCover({
   title,
   date,
   onOpen,
+  ui,
 }: {
   palette: InvitationPalette;
   title: string;
   date: string | null;
   onOpen: () => void;
+  ui: { skipOpening: string; invitationWaiting: string };
 }) {
   const paper = `repeating-linear-gradient(115deg, ${alpha(palette.primary, palette.isDark ? 0.05 : 0.035)} 0px, ${alpha(palette.primary, palette.isDark ? 0.05 : 0.035)} 1px, transparent 1px, transparent 11px)`;
   const panel = {
@@ -142,7 +144,7 @@ function GardenCover({
         exit={{ opacity: 0, scale: 1.14, transition: { duration: 0.55, ease: EASE_OUT } }}
       >
         <p className="text-[10px] uppercase tracking-[0.42em]" style={{ color: palette.inkMuted }}>
-          The garden is ready
+          {ui.invitationWaiting}
         </p>
         <h2 className="mt-3 max-w-[20ch] text-3xl font-light leading-tight sm:text-4xl" style={{ fontFamily: palette.displayFont, color: palette.ink }}>
           {title}
@@ -180,7 +182,7 @@ function GardenCover({
           className="absolute bottom-7 left-1/2 -translate-x-1/2 border-b px-1 py-1 text-[10px] uppercase tracking-[0.32em] transition-opacity hover:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4"
           style={{ borderColor: alpha(palette.ink, 0.35), color: palette.inkMuted, outlineColor: palette.ink }}
         >
-          Skip opening
+          {ui.skipOpening}
         </button>
       </motion.div>
     </motion.div>
@@ -192,7 +194,7 @@ function GardenHero({ wedding, palette, personalInvite = false, contentY, conten
   const { copy, twoNames } = useEventCopy();
   const ui = useInvitationCopy();
   const reduce = useReducedMotion();
-  const { revealed: openingRevealed, open } = useHeroOpening(`dearly-open-garden-${wedding.id}`, personalInvite);
+  const { revealed: openingRevealed, open, replay } = useHeroOpening(`dearly-open-garden-${wedding.id}`, personalInvite);
   const revealed = reduce === true || openingRevealed;
   const title = wedding.event_title || hostNames(wedding);
   const date = wedding.wedding_date ? formatLongDate(wedding.wedding_date, null, ui.dateLocale) : null;
@@ -321,8 +323,9 @@ function GardenHero({ wedding, palette, personalInvite = false, contentY, conten
       </div>
 
       <AnimatePresence>
-        {!revealed && <GardenCover palette={palette} title={title} date={date} onOpen={open} />}
+        {!revealed && <GardenCover palette={palette} title={title} date={date} onOpen={open} ui={ui} />}
       </AnimatePresence>
+      {revealed && !personalInvite && <ReplayButton onClick={replay} color={palette.inkMuted} />}
     </>
   );
 }

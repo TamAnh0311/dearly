@@ -14,6 +14,8 @@ export interface TemplateRow {
   event_types?: EventType[];
   /** Requires a paid plan (scaffold — see src/lib/plans.ts). */
   is_premium?: boolean;
+  /** Hidden from the gallery but still renders for existing invitations. */
+  hidden?: boolean;
   created_at: string;
 }
 
@@ -124,6 +126,8 @@ export interface WeddingCustomization {
   dateNote?: string;
   /** Custom RSVP deadline (ISO date). Falls back to 42 days before the event. */
   rsvpDeadline?: string;
+  /** Whether to show ambient particle effects (petals, bokeh, butterflies etc.). Defaults to true. */
+  ambientEffects?: boolean;
 }
 
 /** One suggested dress-code colour. */

@@ -292,6 +292,7 @@ export default function DashboardPage() {
       const { data, error } = await supabase
         .from("templates")
         .select("*")
+        .neq("hidden", true)
         .order("name", { ascending: true });
       if (!error && data) {
         const list = data as TemplateRow[];

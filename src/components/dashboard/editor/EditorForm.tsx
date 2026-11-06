@@ -358,6 +358,8 @@ export default function EditorForm() {
             onChange={(sections) => updateCustomization({ sections })}
             blessingStyle={customization.blessingStyle}
             onBlessingStyle={(blessingStyle) => updateCustomization({ blessingStyle })}
+            ambientEffects={customization.ambientEffects}
+            onAmbientEffects={(on) => updateCustomization({ ambientEffects: on })}
           />
         </section>
         {/* ── Gallery Layout ── */}

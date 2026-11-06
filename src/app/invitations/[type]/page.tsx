@@ -46,7 +46,7 @@ async function templatesFor(types: string[]): Promise<TemplateRow[]> {
   if (types.length === 0) return [];
   const supabase = createPublicClient();
   if (!supabase) return [];
-  const { data } = await supabase.from("templates").select("*").overlaps("event_types", types).order("name").limit(12);
+  const { data } = await supabase.from("templates").select("*").overlaps("event_types", types).neq("hidden", true).order("name").limit(12);
   return (data ?? []) as TemplateRow[];
 }
 

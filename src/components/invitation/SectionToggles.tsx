@@ -18,6 +18,9 @@ interface SectionTogglesProps {
   /** How blessings appear on page load; the picker shows when both props are given. */
   blessingStyle?: BlessingStyle | null;
   onBlessingStyle?: (style: BlessingStyle) => void;
+  /** Whether ambient particle effects (petals, bokeh, etc.) are enabled. */
+  ambientEffects?: boolean;
+  onAmbientEffects?: (on: boolean) => void;
 }
 
 /** Accessible on/off switch. */
@@ -35,7 +38,7 @@ function Switch({ on, label, dark }: { on: boolean; label: string; dark: boolean
   );
 }
 
-export default function SectionToggles({ sections, onChange, variant = "light", blessingStyle, onBlessingStyle }: SectionTogglesProps) {
+export default function SectionToggles({ sections, onChange, variant = "light", blessingStyle, onBlessingStyle, ambientEffects, onAmbientEffects }: SectionTogglesProps) {
   const style = resolveBlessingStyle(blessingStyle);
   const dark = variant === "dark";
   const current = resolveSections(sections);
@@ -90,6 +93,23 @@ export default function SectionToggles({ sections, onChange, variant = "light", 
           )}
         </li>
       ))}
+      {onAmbientEffects && (
+        <li>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={ambientEffects !== false}
+            onClick={() => onAmbientEffects(ambientEffects === false)}
+            className={`flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition ${dark ? "hover:bg-white/10" : "hover:bg-dearly-accent-soft/60"}`}
+          >
+            <Switch on={ambientEffects !== false} label="Ambient effects" dark={dark} />
+            <span className="min-w-0">
+              <span className={`block text-sm font-medium ${dark ? "text-white" : "text-dearly-text"}`}>Ambient effects</span>
+              <span className={`block truncate text-[11px] ${dark ? "text-white/60" : "text-dearly-text-secondary"}`}>Floating petals, bokeh, butterflies and particles</span>
+            </span>
+          </button>
+        </li>
+      )}
     </ul>
   );
 }

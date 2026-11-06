@@ -9,6 +9,33 @@ import { getInvitationStyle, radii, type InvitationStyle } from "./styles";
 /** Shared easing curve (easeOutExpo-like) used across the invitation. */
 export const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 
+/**
+ * Animation timing presets for hero opening sequences.
+ * Use these instead of magic numbers so hero pacing stays consistent.
+ */
+export const HERO_TIMING = {
+  /** Delay before the first visual element appears. */
+  entryDelay: 0.3,
+  /** Duration of the cover exit / reveal animation. */
+  revealDuration: 1.05,
+  /** Delay before the eyebrow or kicker text appears. */
+  eyebrowDelay: 0.8,
+  /** Delay before the main name(s) start rising. */
+  namesDelay: 1.3,
+  /** Duration of a single name line rising into place. */
+  namesRise: 1.2,
+  /** Stagger between the first and second name. */
+  namesStagger: 0.3,
+  /** Delay before the ampersand / conjunction springs in. */
+  ampersandDelay: 1.7,
+  /** Delay before the date line fades in. */
+  dateDelay: 2.3,
+  /** Delay before the scroll cue appears. */
+  scrollCueDelay: 3.5,
+  /** Standard spring config for playful pops (ampersand, seal, hanko). */
+  popSpring: { type: "spring" as const, stiffness: 180, damping: 12 },
+} as const;
+
 /** Script font used for flourishes (ampersand, eyebrows). Loaded alongside theme fonts. */
 export const SCRIPT_FONT = "Great Vibes";
 /** Vietnamese-compatible cursive fallback (Great Vibes lacks Vietnamese glyphs). */

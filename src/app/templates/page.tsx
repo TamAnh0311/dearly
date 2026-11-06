@@ -13,7 +13,7 @@ export const revalidate = 3600;
 export default async function TemplatesPage() {
   const supabase = createPublicClient();
   const { data } = supabase
-    ? await supabase.from("templates").select("*").order("name", { ascending: true })
+    ? await supabase.from("templates").select("*").neq("hidden", true).order("name", { ascending: true })
     : { data: null };
 
   return <TemplatesGallery initialTemplates={(data ?? []) as TemplateRow[]} />;

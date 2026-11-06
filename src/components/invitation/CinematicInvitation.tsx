@@ -86,7 +86,14 @@ export default function CinematicInvitation({
   guestUploads = false,
   invitee = null,
 }: CinematicInvitationProps) {
-  const palette = useMemo(() => buildPalette(theme, templateSlug), [theme, templateSlug]);
+  const basePalette = useMemo(() => buildPalette(theme, templateSlug), [theme, templateSlug]);
+  // Allow hosts to disable ambient particles via customization.
+  const palette = useMemo(() => {
+    if (wedding.customization?.ambientEffects === false) {
+      return { ...basePalette, style: { ...basePalette.style, ambient: [] as typeof basePalette.style.ambient } };
+    }
+    return basePalette;
+  }, [basePalette, wedding.customization?.ambientEffects]);
   const [blessings, setBlessings] = useState(initialBlessings);
   const [highlightId, setHighlightId] = useState<string | null>(null);
 

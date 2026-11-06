@@ -11,7 +11,7 @@ import { EVENT_COPY, type EventCopy } from "@/lib/event-types";
 import type { EventType } from "@/types/database";
 import { getInvitationCopy, type InvitationCopy, type InvitationLang } from "../i18n";
 import { ChevronDown } from "lucide-react";
-import { EASE_OUT, formatDotDate, type InvitationPalette } from "../utils";
+import { EASE_OUT, HERO_TIMING, formatDotDate, type InvitationPalette } from "../utils";
 import type { LayoutProps } from "./Hero";
 
 /** Returns shared UI strings for the active language. */
@@ -128,7 +128,7 @@ export function ScrollCue({ color }: { color: string }) {
       style={{ color }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ delay: 3.2 }}
+      transition={{ delay: HERO_TIMING.scrollCueDelay }}
     >
       {ui.scroll}
       <motion.span animate={{ y: [0, 6, 0] }} transition={{ duration: 1.8, repeat: Infinity }}>

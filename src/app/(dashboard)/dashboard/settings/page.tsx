@@ -9,6 +9,7 @@
 import { useEffect, useState } from "react";
 import { useMyWedding } from "@/hooks/useWedding";
 import MusicPicker from "@/components/dashboard/editor/MusicPicker";
+import EmailSettings from "@/components/dashboard/settings/EmailSettings";
 import HelpTip from "@/components/dashboard/HelpTip";
 import { isReservedSlug } from "@/lib/reserved-slugs";
 
@@ -31,6 +32,8 @@ export default function SettingsPage() {
   const [timezone, setTimezone] = useState("");
   const [musicTrackId, setMusicTrackId] = useState<string | null>(null);
   const [musicUrl, setMusicUrl] = useState("");
+  const [reminderDays, setReminderDays] = useState<number[]>([7]);
+  const [weeklyDigestEnabled, setWeeklyDigestEnabled] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -44,6 +47,8 @@ export default function SettingsPage() {
     setTimezone(wedding.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone);
     setMusicTrackId(wedding.music_track_id ?? null);
     setMusicUrl(wedding.music_url ?? "");
+    setReminderDays(wedding.reminder_days ?? [7]);
+    setWeeklyDigestEnabled(wedding.weekly_digest_enabled ?? true);
   }, [wedding]);
 
   if (loading) {
@@ -81,6 +86,8 @@ export default function SettingsPage() {
         timezone: timezone || null,
         music_track_id: musicTrackId,
         music_url: musicTrackId ? null : (musicUrl.trim() || null),
+        reminder_days: reminderDays,
+        weekly_digest_enabled: weeklyDigestEnabled,
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
@@ -266,6 +273,32 @@ export default function SettingsPage() {
 
         {/* Save button */}
         <div className="flex items-center justify-end gap-3">
+          {saved && (
+            <p className="text-xs text-green-600">Settings saved.</p>
+          )}
+          <button
+            onClick={handleSave}
+            disabled={saving || !slugValid}
+            className="rounded-lg bg-dearly-accent px-5 py-2 text-sm font-medium text-white transition hover:bg-dearly-accent/90 disabled:opacity-50"
+          >
+            {saving ? "Saving…" : "Save Settings"}
+          </button>
+        </div>
+      </div>
+
+      {/* Email Automation */}
+      <div>
+        <h2 className="mb-1 text-lg font-semibold text-dearly-text">Email Automation</h2>
+        <p className="mb-4 text-sm text-dearly-text-secondary">
+          Control when automated emails are sent to your guests and to you.
+        </p>
+        <EmailSettings
+          reminderDays={reminderDays}
+          weeklyDigestEnabled={weeklyDigestEnabled}
+          onUpdateReminders={setReminderDays}
+          onUpdateDigest={setWeeklyDigestEnabled}
+        />
+        <div className="mt-4 flex items-center justify-end gap-3">
           {saved && (
             <p className="text-xs text-green-600">Settings saved.</p>
           )}

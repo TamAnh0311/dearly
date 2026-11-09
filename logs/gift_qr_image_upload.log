@@ -1,0 +1,4 @@
+[2026-11-09 00:00:00]
+CONTEXT: Add an image upload button to the gift QR section in EditorForm, alongside the existing QR URL text field, uploading to Supabase storage bucket "gift-qr-images".
+RESULT: Replaced the single <Field> for QR URL on line 326 of src/components/dashboard/editor/EditorForm.tsx with a flex row containing the URL field and an Upload label/input that validates 2MB limit, uploads to gift-qr-images/{wedding.id}/{i}.png with upsert, and sets the public URL as qrUrl.
+---

@@ -1,128 +1,152 @@
 "use client";
 
 /**
- * Admin dashboard — overview of all events, users and platform health.
+ * Admin dashboard — tabbed interface for platform management.
  * Restricted to users with app_metadata.role === "admin".
  */
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { Shield, Users, Calendar, Image, MessageSquare, BarChart3 } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  Calendar,
+  Image,
+  Shield,
+  ScrollText,
+} from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { createClient } from "@/lib/supabase/client";
+import UsersTab from "@/components/dashboard/admin/UsersTab";
+import EventsTab from "@/components/dashboard/admin/EventsTab";
+import ContentTab from "@/components/dashboard/admin/ContentTab";
+import SpamTab from "@/components/dashboard/admin/SpamTab";
+import AuditTab from "@/components/dashboard/admin/AuditTab";
 
 interface AdminStats {
+  totalUsers: number;
   totalEvents: number;
   publishedEvents: number;
   totalRsvps: number;
   totalPhotos: number;
   totalBlessings: number;
-  recentEvents: { id: string; slug: string; partner1_name: string; partner2_name: string; is_published: boolean; created_at: string; event_type: string }[];
+  activeUsers7d: number;
+  activeUsers30d: number;
 }
 
-export default function AdminPage() {
-  const { user } = useAuth();
-  const isAdmin = user?.app_metadata?.role === "admin";
+type TabId = "overview" | "users" | "events" | "content" | "spam" | "audit";
+
+const TABS: { id: TabId; label: string; Icon: React.ElementType }[] = [
+  { id: "overview", label: "Overview", Icon: LayoutDashboard },
+  { id: "users", label: "Users", Icon: Users },
+  { id: "events", label: "Events", Icon: Calendar },
+  { id: "content", label: "Content", Icon: Image },
+  { id: "spam", label: "Spam Controls", Icon: Shield },
+  { id: "audit", label: "Audit Log", Icon: ScrollText },
+];
+
+/** Inline overview panel — fetches platform stats and renders stat cards. */
+function OverviewTab() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isAdmin) { setLoading(false); return; }
     async function load() {
-      const supabase = createClient();
-      const [events, rsvps, photos, blessings] = await Promise.all([
-        supabase.from("weddings").select("id, slug, partner1_name, partner2_name, is_published, created_at, event_type").order("created_at", { ascending: false }).limit(50),
-        supabase.from("rsvps").select("id", { count: "exact", head: true }),
-        supabase.from("gallery_photos").select("id", { count: "exact", head: true }),
-        supabase.from("guestbook_entries").select("id", { count: "exact", head: true }),
-      ]);
-      const allEvents = (events.data ?? []) as AdminStats["recentEvents"];
-      setStats({
-        totalEvents: allEvents.length,
-        publishedEvents: allEvents.filter((e) => e.is_published).length,
-        totalRsvps: rsvps.count ?? 0,
-        totalPhotos: photos.count ?? 0,
-        totalBlessings: blessings.count ?? 0,
-        recentEvents: allEvents.slice(0, 20),
-      });
-      setLoading(false);
+      try {
+        const res = await fetch("/api/admin/stats");
+        if (!res.ok) throw new Error("Failed to load stats.");
+        const json = await res.json() as AdminStats;
+        setStats(json);
+      } catch {
+        setError("Failed to load admin stats.");
+      } finally {
+        setLoading(false);
+      }
     }
     load();
-  }, [isAdmin]);
+  }, []);
 
-  if (!isAdmin) {
+  if (loading) return <p className="text-sm text-dearly-text-secondary">Loading stats…</p>;
+  if (error) return <p className="text-sm text-red-600">{error}</p>;
+  if (!stats) return null;
+
+  const statCards = [
+    { label: "Total Users", value: stats.totalUsers },
+    { label: "Total Events", value: stats.totalEvents },
+    { label: "Published Events", value: stats.publishedEvents },
+    { label: "Total RSVPs", value: stats.totalRsvps },
+    { label: "Total Photos", value: stats.totalPhotos },
+    { label: "Total Blessings", value: stats.totalBlessings },
+    { label: "Active Users (7d)", value: stats.activeUsers7d },
+    { label: "Active Users (30d)", value: stats.activeUsers30d },
+  ];
+
+  return (
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+      {statCards.map((card) => (
+        <div
+          key={card.label}
+          className="rounded-xl border border-dearly-border bg-dearly-card p-4"
+        >
+          <p className="text-2xl font-bold text-dearly-text">{card.value}</p>
+          <p className="mt-1 text-xs text-dearly-text-secondary">{card.label}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** Root admin page with tab navigation. */
+export default function AdminPage() {
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState<TabId>("overview");
+
+  if (user?.app_metadata?.role !== "admin") {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="text-center">
           <Shield size={32} className="mx-auto text-dearly-text-muted" />
-          <p className="mt-3 text-sm text-dearly-text-secondary">Admin access only.</p>
+          <p className="mt-3 text-sm text-dearly-text-secondary">Access denied.</p>
         </div>
       </div>
     );
   }
 
-  if (loading) return <p className="text-sm text-dearly-text-secondary">Loading admin data…</p>;
-  if (!stats) return <p className="text-sm text-dearly-text-secondary">Failed to load admin data.</p>;
-
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="mx-auto max-w-6xl space-y-6">
+      {/* Page heading */}
       <div className="flex items-center gap-2">
         <Shield size={20} className="text-dearly-accent" />
         <h1 className="text-2xl font-bold text-dearly-text">Admin Dashboard</h1>
       </div>
 
-      {/* Stats grid */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-        {[
-          { label: "Total Events", value: stats.totalEvents, Icon: Calendar },
-          { label: "Published", value: stats.publishedEvents, Icon: Calendar },
-          { label: "RSVPs", value: stats.totalRsvps, Icon: Users },
-          { label: "Photos", value: stats.totalPhotos, Icon: Image },
-          { label: "Blessings", value: stats.totalBlessings, Icon: MessageSquare },
-        ].map((s) => (
-          <div key={s.label} className="rounded-xl border border-dearly-border bg-dearly-card p-4">
-            <s.Icon size={16} className="text-dearly-accent" />
-            <p className="mt-2 text-2xl font-bold text-dearly-text">{s.value}</p>
-            <p className="text-xs text-dearly-text-secondary">{s.label}</p>
-          </div>
-        ))}
+      {/* Tab bar */}
+      <div className="rounded-xl border border-dearly-border bg-dearly-cream p-1">
+        <nav className="flex flex-wrap gap-1">
+          {TABS.map(({ id, label, Icon }) => (
+            <button
+              key={id}
+              onClick={() => setActiveTab(id)}
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                activeTab === id
+                  ? "bg-white text-dearly-accent shadow-sm"
+                  : "text-dearly-text-secondary hover:text-dearly-text"
+              }`}
+            >
+              <Icon size={15} />
+              {label}
+            </button>
+          ))}
+        </nav>
       </div>
 
-      {/* Recent events table */}
+      {/* Tab content */}
       <div>
-        <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-dearly-text">
-          <BarChart3 size={16} /> Recent Events
-        </h2>
-        <div className="overflow-x-auto rounded-xl border border-dearly-border">
-          <table className="w-full text-sm">
-            <thead className="border-b border-dearly-border bg-dearly-cream text-xs text-dearly-text-secondary">
-              <tr>
-                <th className="px-4 py-2 text-left">Event</th>
-                <th className="px-4 py-2 text-left">Type</th>
-                <th className="px-4 py-2 text-left">Slug</th>
-                <th className="px-4 py-2 text-left">Status</th>
-                <th className="px-4 py-2 text-left">Created</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-dearly-border bg-dearly-card">
-              {stats.recentEvents.map((e) => (
-                <tr key={e.id} className="hover:bg-dearly-cream/50">
-                  <td className="px-4 py-2 font-medium text-dearly-text">{e.partner1_name}{e.partner2_name ? ` & ${e.partner2_name}` : ""}</td>
-                  <td className="px-4 py-2 text-dearly-text-secondary capitalize">{e.event_type ?? "wedding"}</td>
-                  <td className="px-4 py-2">
-                    <Link href={`/${e.slug}`} target="_blank" className="font-mono text-xs text-dearly-accent hover:underline">/{e.slug}</Link>
-                  </td>
-                  <td className="px-4 py-2">
-                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${e.is_published ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700"}`}>
-                      {e.is_published ? "Live" : "Draft"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-2 text-xs text-dearly-text-muted">{new Date(e.created_at).toLocaleDateString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        {activeTab === "overview" && <OverviewTab />}
+        {activeTab === "users" && <UsersTab />}
+        {activeTab === "events" && <EventsTab />}
+        {activeTab === "content" && <ContentTab />}
+        {activeTab === "spam" && <SpamTab />}
+        {activeTab === "audit" && <AuditTab />}
       </div>
     </div>
   );

@@ -1,0 +1,4 @@
+[2026-11-09 00:00:00]
+CONTEXT: Implement Task 7 — Video Support UI: create VideoAddModal and VideoEmbed components, update MasonryGrid to conditionally render videos, and add an "Add video" button to the dashboard gallery page.
+RESULT: Created src/components/dashboard/gallery/VideoAddModal.tsx (URL input, live iframe preview, onAdd callback) and src/components/invitation/sections/VideoEmbed.tsx (thumbnail + play overlay, lazy iframe, reduced-motion support). Updated src/components/gallery/MasonryGrid.tsx to render VideoEmbed when media_type==="video". Updated src/app/(dashboard)/dashboard/gallery/page.tsx with "Add video" button, VideoAddModal wiring, and handleAddVideo that inserts a gallery_photos row via Supabase.
+---

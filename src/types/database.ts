@@ -55,6 +55,9 @@ export interface WeddingRow {
   timezone?: string | null;
   plan?: PlanId;
   plan_expires_at?: string | null;
+  reminder_days?: number[];
+  weekly_digest_enabled?: boolean;
+  thank_you_sent?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -72,6 +75,9 @@ export interface InviteeRow {
   arrived_count: number;
   guest_group: string | null;
   invited_at: string | null;
+  dietary_restrictions: string | null;
+  song_request: string | null;
+  last_reminder_sent: string | null;
   created_at: string;
 }
 
@@ -106,6 +112,8 @@ export interface WeddingCustomization {
     families?: boolean;
     gift?: boolean;
     invitationCard?: boolean;
+    dietary?: boolean;
+    songRequest?: boolean;
   };
   /** Display language for invitation text (East Asian templates). Defaults to "en". */
   language?: "en" | "vi";
@@ -147,6 +155,8 @@ export interface GiftAccount {
   number?: string;
   /** https URL of a payment QR image. */
   qrUrl?: string;
+  /** Supabase storage path for an uploaded QR image (alternative to qrUrl). */
+  qrImagePath?: string;
 }
 
 export interface WeddingEventRow {
@@ -173,6 +183,8 @@ export interface GalleryPhotoRow {
   uploaded_by: "couple" | "guest";
   guest_name: string | null;
   status: "pending" | "approved" | "rejected";
+  media_type: "image" | "video";
+  video_url: string | null;
   created_at: string;
 }
 
@@ -220,6 +232,25 @@ export interface CuteQuestionRow {
   accent_color: string;
   answered: boolean;
   answered_at: string | null;
+  created_at: string;
+}
+
+export interface AuditLogRow {
+  id: string;
+  actor_id: string | null;
+  action: string;
+  target_type: string;
+  target_id: string;
+  metadata: Record<string, unknown>;
+  ip_address: string | null;
+  created_at: string;
+}
+
+export interface SpamRuleRow {
+  id: string;
+  rule_type: "ip" | "domain";
+  value: string;
+  created_by: string | null;
   created_at: string;
 }
 

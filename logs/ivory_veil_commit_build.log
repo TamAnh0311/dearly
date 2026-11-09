@@ -1,0 +1,9 @@
+[2026-10-30 00:00:00]
+CONTEXT: User requested commit, push, and build of staged ivory-veil invitation template changes.
+RESULT: Two commits pushed to origin/master — feat commit (2b3ba3e) and build fix (c004a41) adding ivory-veil demo data to STORYBOOK_DEMO. Next.js build passed successfully.
+---
+
+[2026-11-09 00:00:00]
+CONTEXT: Implement Task 15 — create three cron API endpoints (reminders, weekly digest, post-event thank-you) and vercel.json cron schedule config.
+RESULT: Created src/app/api/cron/reminders/route.ts, src/app/api/cron/digest/route.ts, src/app/api/cron/thank-you/route.ts, and vercel.json. All files pass TypeScript type-check with zero errors.
+---

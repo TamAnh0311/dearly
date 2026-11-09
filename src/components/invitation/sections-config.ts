@@ -13,6 +13,8 @@ export type SectionKey =
   | "venue"
   | "gallery"
   | "rsvp"
+  | "dietary"
+  | "songRequest"
   | "blessings"
   | "reactions"
   | "blessingShower"
@@ -39,6 +41,8 @@ export const SECTION_TOGGLES: SectionToggle[] = [
   { key: "invitationCard", label: "Invitation card", description: "Formal card with names, families & QR (East Asian templates)" },
   { key: "gift", label: "Gift details", description: "Bank account / QR for gifts (red envelope)" },
   { key: "rsvp", label: "RSVP", description: "\u201cI'll be there\u201d / \u201cCan't make it\u201d" },
+  { key: "dietary", label: "Dietary restrictions", description: "Ask guests about food requirements" },
+  { key: "songRequest", label: "Song requests", description: "Let guests suggest a song" },
   { key: "blessings", label: "Blessing wall", description: "All guest wishes on the page" },
   { key: "reactions", label: "Reactions", description: "Tap-to-send hearts, blooms, cheers" },
   { key: "blessingShower", label: "Blessings on page load", description: "Running text or floating wishes as the page opens" },
@@ -63,7 +67,7 @@ export function resolveBlessingStyle(value: unknown): BlessingStyle {
 }
 
 /** Keys that default to hidden (opt-in) rather than visible. */
-const OPT_IN_KEYS: Set<SectionKey> = new Set<SectionKey>(["invitationCard"]);
+const OPT_IN_KEYS: Set<SectionKey> = new Set<SectionKey>(["invitationCard", "dietary", "songRequest"]);
 
 /** Resolves stored (possibly partial) section flags; anything unset is visible (except opt-in keys). */
 export function resolveSections(sections?: Partial<WeddingCustomization["sections"]> | null): SectionVisibility {

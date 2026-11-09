@@ -40,6 +40,8 @@ interface RsvpSectionProps {
   onBlessing: (entry: GuestbookEntryRow) => void;
   /** Optional gift accounts (QR code / payment link) shown after submission. */
   giftAccounts?: GiftAccount[];
+  /** Resolved section visibility for conditional fields. */
+  sections?: Partial<Record<string, boolean>>;
 }
 
 /** localStorage key remembering this browser's RSVP for a wedding. */
@@ -59,7 +61,16 @@ export function readStored(weddingId: string): StoredRsvp | null {
 
 /** Sends the RSVP to the API (or simulates it in demo mode). */
 export async function submitRsvp(
-  payload: { weddingId: string; guestName: string; attending: boolean; partySize?: number; message?: string; inviteeToken?: string },
+  payload: {
+    weddingId: string;
+    guestName: string;
+    attending: boolean;
+    partySize?: number;
+    message?: string;
+    inviteeToken?: string;
+    dietaryRestrictions?: string;
+    songRequest?: string;
+  },
   demo: boolean,
   ui: InvitationCopy
 ): Promise<GuestbookEntryRow | null> {
@@ -227,6 +238,7 @@ export default function RsvpSection({
   title: titleProp,
   invitee = null,
   giftAccounts = [],
+  sections,
 }: RsvpSectionProps) {
   const ui = useInvitationCopy();
   const t = ui.rsvp;
@@ -234,6 +246,9 @@ export default function RsvpSection({
   const title = titleProp ?? ui.nav.rsvp;
   const maxParty = invitee?.maxPartySize ?? 10;
   const [burstKey, setBurstKey] = useState(0);
+  const [dietary, setDietary] = useState("");
+  const [dietaryOther, setDietaryOther] = useState("");
+  const [songReq, setSongReq] = useState("");
 
   const { choice, setChoice, name, setName, partySize, setPartySize, message, setMessage, status, error, handleSubmit, reset } = useRsvpForm({
     weddingId,
@@ -242,6 +257,8 @@ export default function RsvpSection({
     ui,
     onBlessing,
     onSuccess: () => setBurstKey((k) => k + 1),
+    dietaryRestrictions: dietary === "other" ? dietaryOther : dietary || undefined,
+    songRequest: songReq || undefined,
   });
 
   const attending = choice === "attending";
@@ -393,6 +410,54 @@ export default function RsvpSection({
                             </button>
                           </div>
                         </div>
+                      )}
+
+                      {attending && sections?.dietary && (
+                        <label className="block">
+                          <span className="mb-2 block text-xs uppercase tracking-[0.25em]" style={{ color: palette.inkMuted }}>
+                            {ui.lang === "vi" ? "Chế độ ăn" : "Dietary restrictions"}
+                          </span>
+                          <select
+                            value={dietary}
+                            onChange={(e) => setDietary(e.target.value)}
+                            className="w-full border px-5 py-4 text-base outline-none transition focus:ring-2"
+                            style={inputStyle}
+                          >
+                            <option value="">{ui.lang === "vi" ? "Không" : "None"}</option>
+                            <option value="vegetarian">{ui.lang === "vi" ? "Chay" : "Vegetarian"}</option>
+                            <option value="vegan">Vegan</option>
+                            <option value="halal">Halal</option>
+                            <option value="kosher">Kosher</option>
+                            <option value="gluten-free">Gluten-free</option>
+                            <option value="other">{ui.lang === "vi" ? "Khác" : "Other"}</option>
+                          </select>
+                          {dietary === "other" && (
+                            <input
+                              value={dietaryOther}
+                              onChange={(e) => setDietaryOther(e.target.value)}
+                              maxLength={200}
+                              placeholder={ui.lang === "vi" ? "Xin ghi rõ..." : "Please specify..."}
+                              className="mt-2 w-full border px-5 py-4 text-base outline-none transition focus:ring-2"
+                              style={inputStyle}
+                            />
+                          )}
+                        </label>
+                      )}
+
+                      {attending && sections?.songRequest && (
+                        <label className="block">
+                          <span className="mb-2 block text-xs uppercase tracking-[0.25em]" style={{ color: palette.inkMuted }}>
+                            {ui.lang === "vi" ? "Gợi ý bài hát" : "Song request"}
+                          </span>
+                          <input
+                            value={songReq}
+                            onChange={(e) => setSongReq(e.target.value)}
+                            maxLength={200}
+                            placeholder={ui.lang === "vi" ? "Bài hát bạn muốn nghe?" : "Any song you'd like to hear?"}
+                            className="w-full border px-5 py-4 text-base outline-none transition focus:ring-2"
+                            style={inputStyle}
+                          />
+                        </label>
                       )}
 
                       <label className="block">

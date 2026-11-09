@@ -16,6 +16,8 @@ import { useEffect, useMemo, useState } from "react";
 import type { ResolvedTheme } from "@/components/templates/types";
 import { trackEvent } from "@/lib/analytics";
 import type { GuestbookEntryRow, WeddingEventRow, WeddingRow } from "@/types/database";
+import CalendarButton from "./sections/CalendarButton";
+import type { CalendarEvent } from "@/lib/calendar";
 import Hero from "./sections/Hero";
 import Countdown from "./sections/Countdown";
 import Story from "./sections/Story";
@@ -57,6 +59,31 @@ export interface CinematicInvitationProps {
   guestUploads?: boolean;
   /** Personal invitation from the guest list (?i=token): prefilled name + seat limit. */
   invitee?: { token: string; name: string; maxPartySize: number } | null;
+}
+
+/**
+ * Fires a wedding-scoped analytics event to the ingestion API (fire-and-forget).
+ * Errors are silently swallowed — analytics must never disrupt the guest journey.
+ */
+function trackInvitationEvent(weddingId: string, eventType: string, guestToken?: string): void {
+  fetch("/api/analytics/track", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ weddingId, eventType, guestToken }),
+  }).catch(() => {});
+}
+
+/**
+ * Mounts invisibly alongside RsvpSection and records a single rsvp_opened event.
+ * Extracted into its own component so the useEffect fires exactly when the RSVP
+ * section enters the DOM, without modifying RsvpSection itself.
+ */
+function RsvpTracker({ weddingId, guestToken }: { weddingId: string; guestToken?: string }) {
+  useEffect(() => {
+    trackInvitationEvent(weddingId, "rsvp_opened", guestToken);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return null;
 }
 
 /** Fixed, non-interactive paper / film-grain overlay for tactile templates. */
@@ -101,13 +128,16 @@ export default function CinematicInvitation({
   // Funnel: a real guest opened a published invitation. Never fires for demos.
   useEffect(() => {
     if (demo) return;
+    // Vercel funnel analytics (aggregated, no PII).
     trackEvent("invitation_viewed", {
       template: templateSlug ?? "unknown",
       event_type: wedding.event_type ?? "wedding",
       personal: Boolean(invitee),
       past: isPastEvent(wedding.wedding_date),
     });
-  }, [demo, templateSlug, wedding.event_type, wedding.wedding_date, invitee]);
+    // Per-wedding page_view recorded via the ingestion API (wedding-scoped, deduped).
+    trackInvitationEvent(wedding.id, "page_view", invitee?.token ?? undefined);
+  }, [demo, templateSlug, wedding.id, wedding.event_type, wedding.wedding_date, invitee]);
 
   // The Storybook collection owns its whole page; the classic sections below
   // stay untouched so existing templates keep their exact behaviour.
@@ -191,15 +221,29 @@ export default function CinematicInvitation({
         {palette.style.culture && show.invitationCard && (
           <InvitationCard wedding={wedding} families={families} palette={palette} giftAccounts={gift?.accounts} events={events} lang={lang} />
         )}
-        {wedding.wedding_date && show.countdown && (
-          <Countdown
-            date={wedding.wedding_date}
-            title={copy.calendarTitle(hostNames(wedding))}
-            venue={[wedding.venue_name, wedding.venue_address].filter(Boolean).join(", ") || null}
-            palette={palette}
-            styleOverride={wedding.customization?.countdownStyle}
-          />
-        )}
+        {wedding.wedding_date && show.countdown && (() => {
+          const calEvent: CalendarEvent = {
+            title: [wedding.partner1_name, wedding.partner2_name].filter(Boolean).join(" & "),
+            date: wedding.wedding_date,
+            timezone: wedding.timezone ?? undefined,
+            venue: wedding.venue_name ?? undefined,
+            address: wedding.venue_address ?? undefined,
+          };
+          return (
+            <>
+              <Countdown
+                date={wedding.wedding_date}
+                title={copy.calendarTitle(hostNames(wedding))}
+                venue={[wedding.venue_name, wedding.venue_address].filter(Boolean).join(", ") || null}
+                palette={palette}
+                styleOverride={wedding.customization?.countdownStyle}
+              />
+              <div className="flex justify-center py-4">
+                <CalendarButton event={calEvent} palette={palette} />
+              </div>
+            </>
+          );
+        })()}
         {showStory && <Story text={wedding.story_text!} palette={palette} title={copy.storyTitle} />}
         {showSchedule && <Schedule events={events} palette={palette} timeZone={wedding.timezone} />}
         {showVenue && <Venue name={wedding.venue_name!} address={wedding.venue_address} palette={palette} />}
@@ -214,17 +258,22 @@ export default function CinematicInvitation({
         )}
         {gift && <GiftSection gift={gift} palette={palette} lang={lang} />}
         {showRsvp && (
-          <RsvpSection
-            weddingId={wedding.id}
-            coupleNames={names}
-            palette={palette}
-            demo={demo}
-            onBlessing={handleBlessing}
-            eyebrow={copy.rsvpEyebrow}
-            title={copy.rsvpTitle}
-            invitee={invitee}
-            giftAccounts={gift?.accounts}
-          />
+          <>
+            {!demo && (
+              <RsvpTracker weddingId={wedding.id} guestToken={invitee?.token ?? undefined} />
+            )}
+            <RsvpSection
+              weddingId={wedding.id}
+              coupleNames={names}
+              palette={palette}
+              demo={demo}
+              onBlessing={handleBlessing}
+              eyebrow={copy.rsvpEyebrow}
+              title={copy.rsvpTitle}
+              invitee={invitee}
+              giftAccounts={gift?.accounts}
+            />
+          </>
         )}
         {showWall && (
           <Blessings

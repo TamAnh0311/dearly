@@ -1,0 +1,4 @@
+[2026-11-09 00:00:00]
+CONTEXT: Add new interfaces (AuditLogRow, SpamRuleRow) and extend existing interfaces (WeddingRow, InviteeRow, GalleryPhotoRow, WeddingCustomization.sections, GiftAccount) in src/types/database.ts.
+RESULT: All 6 changes applied to D:/pet/dearly/src/types/database.ts — new AuditLogRow and SpamRuleRow interfaces added after CuteQuestionRow; WeddingRow gained reminder_days, weekly_digest_enabled, thank_you_sent; InviteeRow gained dietary_restrictions, song_request, last_reminder_sent; GalleryPhotoRow gained media_type and video_url; sections gained dietary and songRequest; GiftAccount gained qrImagePath.
+---

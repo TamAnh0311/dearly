@@ -22,6 +22,10 @@ interface UseRsvpFormOptions {
   onBlessing: (entry: GuestbookEntryRow) => void;
   /** Called after a successful submission (e.g. trigger burst animation). */
   onSuccess?: () => void;
+  /** Guest's dietary restriction choice (resolved from dropdown). */
+  dietaryRestrictions?: string;
+  /** Guest's song request. */
+  songRequest?: string;
 }
 
 interface RsvpFormState {
@@ -50,6 +54,8 @@ export function useRsvpForm({
   ui,
   onBlessing,
   onSuccess,
+  dietaryRestrictions,
+  songRequest,
 }: UseRsvpFormOptions): RsvpFormState & RsvpFormActions {
   const maxParty = invitee?.maxPartySize ?? 10;
   const t = ui.rsvp;
@@ -93,6 +99,8 @@ export function useRsvpForm({
             partySize: choice === "attending" ? Math.min(partySize, maxParty) : undefined,
             inviteeToken: invitee?.token,
             message: trimmedMessage || undefined,
+            dietaryRestrictions: choice === "attending" ? dietaryRestrictions : undefined,
+            songRequest: choice === "attending" ? songRequest : undefined,
           },
           demo,
           ui
@@ -121,7 +129,7 @@ export function useRsvpForm({
         setError(err instanceof Error ? err.message : t.genericError);
       }
     },
-    [choice, name, partySize, message, weddingId, demo, invitee, maxParty, ui, t, onBlessing, onSuccess]
+    [choice, name, partySize, message, weddingId, demo, invitee, maxParty, ui, t, onBlessing, onSuccess, dietaryRestrictions, songRequest]
   );
 
   /** Lets the guest answer again. */

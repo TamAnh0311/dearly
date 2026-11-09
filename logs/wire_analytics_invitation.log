@@ -1,0 +1,4 @@
+[2026-11-09 00:00:00]
+CONTEXT: Task 19 — Wire analytics tracking and CalendarButton into the guest-facing CinematicInvitation page.
+RESULT: Added `trackInvitationEvent` helper (fetch to /api/analytics/track), `RsvpTracker` component, `page_view` call on mount (non-demo only), `rsvp_opened` call when RsvpSection renders, and `CalendarButton` with correct CalendarEvent shape rendered below the Countdown section. Only one file changed: src/components/invitation/CinematicInvitation.tsx. TypeScript compilation is clean.
+---

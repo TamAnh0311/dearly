@@ -1,0 +1,4 @@
+[2026-11-09 00:00:00]
+CONTEXT: Create 6 admin API route files under src/app/api/admin/ with shared requireAdmin auth guard and audit_log writes for all mutations.
+RESULT: Created all 6 routes — users, events, content, spam, audit, stats. Zero TypeScript errors after fixing Set spread iterator compatibility issue in audit/route.ts.
+---

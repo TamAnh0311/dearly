@@ -1,0 +1,4 @@
+[2026-11-09 12:33:10]
+CONTEXT: Task 4 — add dietary and songRequest section toggles to sections-config.ts and extend the RSVP API to accept and persist those fields to the invitees table.
+RESULT: Added "dietary" and "songRequest" to SectionKey union, SECTION_TOGGLES, and OPT_IN_KEYS in sections-config.ts; added Zod fields and invitee update block in src/app/api/rsvp/route.ts; all 8 existing tests in routes.test.ts pass.
+---

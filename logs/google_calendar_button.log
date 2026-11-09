@@ -1,0 +1,4 @@
+[2026-11-09 12:42:30]
+CONTEXT: Implement Task 8 — Google Calendar Button: calendar utility library with tests and an "Add to Calendar" dropdown component for invitation pages.
+RESULT: Created src/lib/calendar.ts (CalendarEvent interface, buildGoogleCalendarUrl, buildIcsContent), src/lib/calendar.test.ts (4 tests, all passing), and src/components/invitation/sections/CalendarButton.tsx (dropdown with Google Calendar link + .ics download, palette-styled, closes on outside click). TypeScript compiles with zero errors.
+---

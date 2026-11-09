@@ -1,0 +1,4 @@
+[2026-11-09 00:00:00]
+CONTEXT: Task 5 — Add dietary restrictions dropdown and song request text field to the RSVP form, gated by a new `sections` prop on RsvpSection.
+RESULT: Updated `RsvpSectionProps` with optional `sections` prop; added `dietary`, `dietaryOther`, `songReq` state hooks; inserted dietary dropdown (with "other" free-text fallback) and song request input after party size block; extended `UseRsvpFormOptions` and `submitRsvp` payload type with `dietaryRestrictions`/`songRequest`; fields forwarded through `useRsvpForm` to the POST body. TypeScript compiles clean.
+---

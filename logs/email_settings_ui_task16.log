@@ -1,0 +1,4 @@
+[2026-11-09 00:00:00]
+CONTEXT: Implement Task 16 — Email Settings UI: create EmailSettings component for configuring RSVP reminder days and weekly digest toggle, then wire it into the dashboard settings page.
+RESULT: Created src/components/dashboard/settings/EmailSettings.tsx with preset day buttons, removable pills, custom day input (1-90), and weekly digest checkbox. Updated src/app/(dashboard)/dashboard/settings/page.tsx to import the component, add reminderDays/weeklyDigestEnabled state, hydrate from wedding object, include both fields in saveWedding call, and render the Email Automation section. TypeScript check passed with zero errors.
+---

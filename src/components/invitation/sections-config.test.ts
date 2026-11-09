@@ -15,8 +15,13 @@ describe("resolveSections", () => {
 
   it("handles null/undefined", () => {
     const s = resolveSections(null);
+    // opt-in keys default to false when sections is null
     expect(s.invitationCard).toBe(false);
-    expect(Object.entries(s).every(([key, value]) => (key === "invitationCard" ? value === false : value))).toBe(true);
+    expect(s.dietary).toBe(false);
+    expect(s.songRequest).toBe(false);
+    // all other keys default to true (visible)
+    const optInKeys = new Set(["invitationCard", "dietary", "songRequest"]);
+    expect(Object.entries(s).every(([key, value]) => (optInKeys.has(key) ? value === false : value === true))).toBe(true);
   });
 
   it("covers every toggle key", () => {

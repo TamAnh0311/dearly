@@ -323,7 +323,32 @@ export default function EditorForm() {
                     <Field label="Account holder" value={a.holder ?? ""} onChange={(v) => set("holder", v)} />
                   </div>
                   <Field label="Account number" value={a.number ?? ""} onChange={(v) => set("number", v)} />
-                  <Field label="QR image link (https)" value={a.qrUrl ?? ""} onChange={(v) => set("qrUrl", v)} placeholder="https://…/qr.png" />
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1">
+                      <Field label="QR image link (https)" value={a.qrUrl ?? ""} onChange={(v) => set("qrUrl", v)} placeholder="https://…/qr.png" />
+                    </div>
+                    <div className="pt-5">
+                      <label className="cursor-pointer rounded-lg bg-dearly-cream px-3 py-2 text-xs font-medium text-dearly-text-secondary hover:bg-dearly-border">
+                        Upload
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file || !wedding.id) return;
+                            if (file.size > 2 * 1024 * 1024) { alert("Max 2MB"); return; }
+                            const supabase = (await import("@/lib/supabase/client")).createClient();
+                            const path = `${wedding.id}/${i}.png`;
+                            const { error: uploadErr } = await supabase.storage.from("gift-qr-images").upload(path, file, { upsert: true });
+                            if (uploadErr) { alert("Upload failed: " + uploadErr.message); return; }
+                            const { data: urlData } = supabase.storage.from("gift-qr-images").getPublicUrl(path);
+                            set("qrUrl", urlData.publicUrl);
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </div>
                 </div>
               );
             })}

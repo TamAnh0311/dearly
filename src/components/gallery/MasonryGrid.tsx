@@ -2,12 +2,14 @@
 
 /**
  * Masonry grid gallery — Pinterest-style staggered layout with lightbox.
+ * Videos render as a lazy-loaded embed; images open in a lightbox.
  */
 
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Lightbox from "./Lightbox";
+import VideoEmbed from "@/components/invitation/sections/VideoEmbed";
 import type { GalleryPhotoRow } from "@/types/database";
 import type { ResolvedTheme } from "@/components/templates/types";
 
@@ -34,24 +36,36 @@ export default function MasonryGrid({ photos, theme }: MasonryGridProps) {
         {photos.map((photo, i) => (
           <motion.div
             key={photo.id}
-            className="mb-4 cursor-pointer overflow-hidden rounded-lg break-inside-avoid"
+            className="mb-4 break-inside-avoid overflow-hidden rounded-lg"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: i * 0.05 }}
-            onClick={() => setLightboxIndex(i)}
           >
-            <Image
-              src={photo.thumbnail_url ?? photo.url}
-              alt={photo.caption ?? "Wedding photo"}
-              width={600}
-              height={400}
-              className="w-full object-cover transition-transform duration-300 hover:scale-105"
-            />
-            {photo.caption && (
-              <p className="px-3 py-2 text-xs" style={{ color: theme.colors.accent }}>
-                {photo.caption}
-              </p>
+            {photo.media_type === "video" && photo.video_url ? (
+              <VideoEmbed
+                videoUrl={photo.video_url}
+                thumbnail={photo.thumbnail_url}
+                caption={photo.caption}
+              />
+            ) : (
+              <div
+                className="cursor-pointer"
+                onClick={() => setLightboxIndex(i)}
+              >
+                <Image
+                  src={photo.thumbnail_url ?? photo.url}
+                  alt={photo.caption ?? "Wedding photo"}
+                  width={600}
+                  height={400}
+                  className="w-full object-cover transition-transform duration-300 hover:scale-105"
+                />
+                {photo.caption && (
+                  <p className="px-3 py-2 text-xs" style={{ color: theme.colors.accent }}>
+                    {photo.caption}
+                  </p>
+                )}
+              </div>
             )}
           </motion.div>
         ))}

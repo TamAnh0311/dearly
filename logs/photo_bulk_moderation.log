@@ -1,0 +1,4 @@
+[2026-11-09 00:00:00]
+CONTEXT: Implement bulk photo moderation for the gallery dashboard — a BulkModeration toolbar component and multi-select checkbox overlays on pending photo rows.
+RESULT: Created src/components/dashboard/gallery/BulkModeration.tsx and updated src/app/(dashboard)/dashboard/gallery/page.tsx with selectedIds state, handleToggleAll/handleTogglePhoto/handleBulkApprove/handleBulkReject handlers, BulkModeration toolbar, and per-row checkbox overlays; TypeScript passes with no errors.
+---

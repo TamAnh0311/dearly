@@ -1,0 +1,9 @@
+[2026-11-09 00:00:00]
+CONTEXT: Create Supabase migration 00034_missing_features.sql covering audit_logs, spam_rules, analytics_events engagement columns, invitees extra fields, weddings reminder settings, gallery_photos video support, and gift-qr-images storage bucket.
+RESULT: Created D:/pet/dearly/supabase/migrations/00034_missing_features.sql with all 7 schema sections; RLS policies applied to both new tables and new analytics SELECT policy; storage bucket and three object policies match project conventions.
+---
+
+[2026-11-09 00:00:00]
+CONTEXT: Review migration 00034_missing_features.sql against its 7-item spec covering new tables, column extensions, and a storage bucket.
+RESULT: All 7 requirements are implemented correctly. Minor non-breaking additions: target_type has an extra CHECK constraint (not in spec but harmless), and NOT NULL is added to reminder_days/weekly_digest_enabled/thank_you_sent/media_type columns (stricter than spec, not harmful). RLS on analytics_events is already enabled by migration 00033 — no issue. File: supabase/migrations/00034_missing_features.sql.
+---

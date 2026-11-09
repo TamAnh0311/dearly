@@ -20,6 +20,8 @@ const RsvpSchema = z.object({
   /** Personal invitation token from the guest list (?i=...). */
   inviteeToken: z.string().regex(/^[a-f0-9]{8,40}$/i).optional(),
   message: z.string().trim().max(1000, "Message is too long (max 1000 characters)").optional(),
+  dietaryRestrictions: z.string().trim().max(200, "Dietary info too long (max 200 characters)").optional(),
+  songRequest: z.string().trim().max(200, "Song request too long (max 200 characters)").optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -94,6 +96,13 @@ export async function POST(request: NextRequest) {
       .update({ status: attending ? "attending" : "declined", party_size: seats, responded_at: new Date().toISOString() })
       .eq("id", invitee.id);
     if (invErr) console.warn("[WARNING] invitee status update failed", { weddingId, code: invErr.code });
+  }
+
+  if (invitee && (parsed.data.dietaryRestrictions || parsed.data.songRequest)) {
+    const inviteeUpdate: Record<string, string> = {};
+    if (parsed.data.dietaryRestrictions) inviteeUpdate.dietary_restrictions = parsed.data.dietaryRestrictions;
+    if (parsed.data.songRequest) inviteeUpdate.song_request = parsed.data.songRequest;
+    await supabase.from("invitees").update(inviteeUpdate).eq("id", invitee.id);
   }
 
   let blessing = null;

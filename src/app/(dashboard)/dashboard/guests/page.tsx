@@ -390,10 +390,23 @@ export default function GuestsPage() {
                       {i.name}
                       {i.guest_group && <span className="ml-2 rounded-full bg-dearly-cream px-2 py-0.5 text-[10px] font-medium text-dearly-text-secondary">{i.guest_group}</span>}
                     </p>
-                    <p className="text-xs text-dearly-text-muted">
-                      {i.max_party_size > 1 ? `${i.max_party_size} seats` : "1 seat"}
-                      {i.status === "attending" && ` · ${i.party_size} coming`}
-                    </p>
+                    <div className="flex items-center gap-1.5 text-xs text-dearly-text-muted">
+                      <input
+                        type="number"
+                        min={1}
+                        max={20}
+                        value={i.max_party_size}
+                        onChange={async (e) => {
+                          const v = Math.min(Math.max(Number(e.target.value) || 1, 1), 20);
+                          setInvitees((prev) => prev.map((x) => (x.id === i.id ? { ...x, max_party_size: v } : x)));
+                          await createClient().from("invitees").update({ max_party_size: v }).eq("id", i.id);
+                        }}
+                        className="w-12 rounded border border-dearly-border bg-dearly-cream px-1.5 py-0.5 text-center text-xs text-dearly-text tabular-nums focus:outline-none focus:ring-1 focus:ring-dearly-accent"
+                        title="Max party size"
+                      />
+                      <span>seats</span>
+                      {i.status === "attending" && <span>· {i.party_size} coming</span>}
+                    </div>
                   </div>
                   <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium sm:hidden ${STATUS_STYLE[i.status]}`}>
                     {i.status === "attending" ? `Coming · ${i.party_size}` : i.status === "declined" ? "Declined" : "No reply"}

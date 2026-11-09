@@ -8,7 +8,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { Palette, Image, MessageSquare, Clock, Settings, User, Send, Heart, MailCheck, X, Users, Crown, HelpCircle, LayoutDashboard, BarChart3 } from "lucide-react";
+import { Palette, Image, MessageSquare, Clock, Settings, User, Send, Heart, MailCheck, X, Users, Crown, HelpCircle, LayoutDashboard, BarChart3, LayoutGrid } from "lucide-react";
 import { createContext, useContext, useState, useCallback } from "react";
 import { PLANS_ENABLED } from "@/lib/plans";
 
@@ -16,6 +16,7 @@ const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/editor", label: "Editor", icon: Palette },
   { href: "/dashboard/guests", label: "Guest list", icon: Users },
+  { href: "/dashboard/seating", label: "Seating", icon: LayoutGrid },
   { href: "/dashboard/rsvps", label: "RSVPs", icon: MailCheck },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/dashboard/gallery", label: "Memories & Photos", icon: Image },

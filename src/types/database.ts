@@ -78,6 +78,7 @@ export interface InviteeRow {
   dietary_restrictions: string | null;
   song_request: string | null;
   last_reminder_sent: string | null;
+  table_number: number | null;
   created_at: string;
 }
 

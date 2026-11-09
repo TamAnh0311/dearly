@@ -202,7 +202,7 @@ export default function SeatingPage() {
           <div className="rounded-xl border border-dashed border-dearly-border p-12 text-center">
             <Users className="mx-auto mb-3 text-dearly-text-muted" size={28} />
             <p className="text-sm text-dearly-text-secondary">
-              No attending guests yet. Once guests RSVP as attending they'll appear here.
+              No attending guests yet. Once guests RSVP as attending they will appear here.
             </p>
           </div>
         ) : (

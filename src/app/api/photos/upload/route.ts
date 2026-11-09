@@ -4,9 +4,14 @@
  *
  * Enforces: file type/size, event ownership for couple uploads, guest-upload
  * permission, and the plan's photo limit (src/lib/plans.ts).
+ *
+ * Images are compressed server-side via sharp:
+ *   - Full: max 2048px longest side, WebP quality 80
+ *   - Thumbnail: max 400px longest side, WebP quality 70
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import sharp from "sharp";
 import { createCookieClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { checkRateLimit, clientIp } from "@/lib/rate-limit";
 import { PLANS_ENABLED, planOf } from "@/lib/plans";
@@ -82,20 +87,46 @@ export async function POST(request: NextRequest) {
 
   const uploadedPhotos: { url: string }[] = [];
   for (const photo of photos) {
-    const ext = (photo.name.split(".").pop() ?? "jpg").replace(/[^a-z0-9]/gi, "").slice(0, 5) || "jpg";
-    const fileName = `${weddingId}/gallery/${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext}`;
-    const buffer = Buffer.from(await photo.arrayBuffer());
+    const timestamp = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    const fullFileName = `${weddingId}/gallery/${timestamp}.webp`;
+    const thumbFileName = `${weddingId}/gallery/${timestamp}-thumb.webp`;
+    const rawBuffer = Buffer.from(await photo.arrayBuffer());
 
-    const { error: uploadError } = await supabase.storage.from("wedding-photos").upload(fileName, buffer, { contentType: photo.type, upsert: false });
+    // Compress to WebP — sharp handles JPEG, PNG, WebP and HEIC input.
+    let compressedBuffer: Buffer;
+    let thumbnailBuffer: Buffer;
+    try {
+      compressedBuffer = await sharp(rawBuffer)
+        .resize(2048, 2048, { fit: "inside", withoutEnlargement: true })
+        .webp({ quality: 80 })
+        .toBuffer();
+      thumbnailBuffer = await sharp(rawBuffer)
+        .resize(400, 400, { fit: "inside", withoutEnlargement: true })
+        .webp({ quality: 70 })
+        .toBuffer();
+    } catch (_sharpErr) {
+      console.error("[ERROR] image compression failed", { weddingId, name: photo.name });
+      return NextResponse.json({ error: "Couldn't process that image. Please try a JPEG, PNG, WebP or HEIC file." }, { status: 422 });
+    }
+
+    const { error: uploadError } = await supabase.storage.from("wedding-photos").upload(fullFileName, compressedBuffer, { contentType: "image/webp", upsert: false });
     if (uploadError) {
       console.error("[ERROR] photo storage upload failed", { weddingId });
       return NextResponse.json({ error: "Upload failed. Please try again." }, { status: 500 });
     }
 
-    const { data: urlData } = supabase.storage.from("wedding-photos").getPublicUrl(fileName);
+    const { error: thumbError } = await supabase.storage.from("wedding-photos").upload(thumbFileName, thumbnailBuffer, { contentType: "image/webp", upsert: false });
+    if (thumbError) {
+      console.error("[ERROR] thumbnail storage upload failed", { weddingId });
+      // Thumbnail failure is non-fatal — the full image was already stored.
+    }
+
+    const { data: urlData } = supabase.storage.from("wedding-photos").getPublicUrl(fullFileName);
+    const { data: thumbUrlData } = supabase.storage.from("wedding-photos").getPublicUrl(thumbFileName);
     const { error: insertError } = await supabase.from("gallery_photos").insert({
       wedding_id: weddingId,
       url: urlData.publicUrl,
+      thumbnail_url: thumbError ? null : thumbUrlData.publicUrl,
       uploaded_by: isGuestUpload ? "guest" : "couple",
       guest_name: guestName,
       status: isGuestUpload ? "pending" : "approved",

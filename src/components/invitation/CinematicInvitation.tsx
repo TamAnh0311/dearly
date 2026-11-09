@@ -12,7 +12,7 @@
  * customization.sections (see ./sections-config.ts).
  */
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { ResolvedTheme } from "@/components/templates/types";
 import { trackEvent } from "@/lib/analytics";
 import type { GuestbookEntryRow, WeddingEventRow, WeddingRow } from "@/types/database";
@@ -37,6 +37,7 @@ import BlessingShower from "./effects/BlessingShower";
 import MusicPlayer from "@/components/ui/MusicPlayer";
 import StorybookInvitation from "./storybook/StorybookInvitation";
 import type { MusicPreset } from "@/lib/ambient-music";
+import { useRealtimeBlessings } from "@/hooks/useRealtimeBlessings";
 
 export interface CinematicInvitationProps {
   wedding: WeddingRow;
@@ -124,6 +125,24 @@ export default function CinematicInvitation({
   }, [basePalette, wedding.customization?.ambientEffects]);
   const [blessings, setBlessings] = useState(initialBlessings);
   const [highlightId, setHighlightId] = useState<string | null>(null);
+
+  // Live blessings via Supabase Realtime — disabled in demo/preview mode.
+  const realtimeBlessings = useRealtimeBlessings(wedding.id, !demo);
+  // Track which realtime blessings have already been merged to avoid duplicates.
+  const mergedIds = useRef(new Set(initialBlessings.map((b) => b.id)));
+  useEffect(() => {
+    if (realtimeBlessings.length === 0) return;
+    const incoming = realtimeBlessings.filter((b) => !mergedIds.current.has(b.id));
+    if (incoming.length === 0) return;
+    incoming.forEach((b) => mergedIds.current.add(b.id));
+    // Prepend newest first; skip entries that may have come through onBlessing.
+    setBlessings((prev) => {
+      const existingIds = new Set(prev.map((b) => b.id));
+      const novel = incoming.filter((b) => !existingIds.has(b.id));
+      return novel.length > 0 ? [...novel, ...prev] : prev;
+    });
+    setHighlightId(incoming[incoming.length - 1].id);
+  }, [realtimeBlessings]);
 
   // Funnel: a real guest opened a published invitation. Never fires for demos.
   useEffect(() => {

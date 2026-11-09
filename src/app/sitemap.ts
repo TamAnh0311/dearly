@@ -7,13 +7,14 @@ import type { MetadataRoute } from "next";
 import { OCCASIONS } from "@/lib/occasions";
 import { absoluteUrl } from "@/lib/seo";
 import { GUIDES } from "@/lib/guides";
+import { VI_GUIDES } from "@/lib/guides-vi";
 import { PLANS_ENABLED } from "@/lib/plans";
 import { createPublicClient } from "@/lib/supabase/public";
 
 export const revalidate = 86400;
 
 /** Last time the marketing copy and guides were reviewed. */
-const CONTENT_UPDATED = new Date("2026-11-04");
+const CONTENT_UPDATED = new Date("2026-11-09");
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
@@ -37,6 +38,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: CONTENT_UPDATED,
       changeFrequency: "monthly" as const,
       priority: o.slug === "wedding" ? 0.95 : 0.6,
+    })),
+    // Vietnamese pages
+    { url: absoluteUrl("/vi"), lastModified: CONTENT_UPDATED, changeFrequency: "weekly" as const, priority: 0.9 },
+    { url: absoluteUrl("/vi/invitations/wedding"), lastModified: CONTENT_UPDATED, changeFrequency: "monthly" as const, priority: 0.95 },
+    { url: absoluteUrl("/vi/invitations/birthday"), lastModified: CONTENT_UPDATED, changeFrequency: "monthly" as const, priority: 0.6 },
+    { url: absoluteUrl("/vi/invitations/party"), lastModified: CONTENT_UPDATED, changeFrequency: "monthly" as const, priority: 0.6 },
+    { url: absoluteUrl("/vi/cach-su-dung"), lastModified: CONTENT_UPDATED, changeFrequency: "monthly" as const, priority: 0.7 },
+    { url: absoluteUrl("/vi/mau-thiet-ke"), lastModified: CONTENT_UPDATED, changeFrequency: "weekly" as const, priority: 0.8 },
+    { url: absoluteUrl("/vi/huong-dan"), lastModified: CONTENT_UPDATED, changeFrequency: "monthly" as const, priority: 0.6 },
+    // Vietnamese guide pages
+    ...VI_GUIDES.map((g) => ({
+      url: absoluteUrl(`/vi/huong-dan/${g.slug}`),
+      lastModified: CONTENT_UPDATED,
+      changeFrequency: "monthly" as const,
+      priority: 0.5,
     })),
   ];
 

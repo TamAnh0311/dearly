@@ -8,7 +8,7 @@ export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://dearly-sel
 export const SITE_NAME = "Dearly";
 export const SITE_TAGLINE = "Invitations, RSVPs and guest management for every celebration";
 export const SITE_DESCRIPTION =
-  "Create cinematic invitations for weddings, birthdays, dinners and parties — with RSVP, personal guest links, a schedule, blessings and a shared photo album. Free during early access.";
+  "Free digital wedding invitations with RSVP, guest management, photo album & blessings wall. 20+ cinematic templates. Create yours in minutes — no app needed.";
 
 export const SITE_KEYWORDS = [
   "digital wedding invitation",

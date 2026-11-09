@@ -735,6 +735,14 @@ export default function LandingPage() {
           </div>
           <p className="text-sm text-dearly-text-muted">&copy; {new Date().getFullYear()} Dearly. Made with love.</p>
         </div>
+        <div className="mx-auto mt-4 flex max-w-6xl flex-wrap justify-center gap-x-4 gap-y-1 text-xs">
+          <span className="text-gray-500">Tiếng Việt:</span>
+          <Link href="/vi/invitations/wedding" className="text-gray-400 hover:text-gray-200 transition">Thiệp cưới</Link>
+          <Link href="/vi/invitations/birthday" className="text-gray-400 hover:text-gray-200 transition">Thiệp sinh nhật</Link>
+          <Link href="/vi/invitations/party" className="text-gray-400 hover:text-gray-200 transition">Thiệp mời tiệc</Link>
+          <Link href="/vi/mau-thiet-ke" className="text-gray-400 hover:text-gray-200 transition">Mẫu thiết kế</Link>
+          <Link href="/vi/huong-dan" className="text-gray-400 hover:text-gray-200 transition">Hướng dẫn</Link>
+        </div>
       </footer>
     </div>
   );

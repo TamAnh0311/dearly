@@ -9,7 +9,7 @@ import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Lato } from "next/font/google";
 import "./globals.css";
 import Analytics from "@/components/Analytics";
-import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/seo";
+import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME, SITE_TAGLINE, SITE_URL, absoluteUrl } from "@/lib/seo";
 
 const playfair = Playfair_Display({
   subsets: ["latin", "latin-ext", "vietnamese"],
@@ -43,7 +43,10 @@ export const metadata: Metadata = {
   creator: SITE_NAME,
   publisher: SITE_NAME,
   category: "events",
-  alternates: { canonical: "/" },
+  alternates: {
+    canonical: absoluteUrl("/"),
+    languages: { vi: absoluteUrl("/vi"), "x-default": absoluteUrl("/") },
+  },
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [{ url: "/favicon.ico", sizes: "any" }],

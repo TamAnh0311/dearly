@@ -12,7 +12,10 @@ const DESCRIPTION =
 export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
-  alternates: { canonical: absoluteUrl("/templates") },
+  alternates: {
+    canonical: absoluteUrl("/templates"),
+    languages: { vi: absoluteUrl("/vi/mau-thiet-ke"), "x-default": absoluteUrl("/templates") },
+  },
   openGraph: {
     title: TITLE,
     description: DESCRIPTION,

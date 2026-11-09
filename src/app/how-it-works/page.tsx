@@ -6,12 +6,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { absoluteUrl, SITE_NAME } from "@/lib/seo";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
 
 export const metadata: Metadata = {
   title: "How It Works — Create Your Event Invitation in Minutes",
   description:
     "Three steps: pick a design, add your details, and share one link. Your guests RSVP inside the invitation, leave messages, and upload photos. Free during early access.",
-  alternates: { canonical: absoluteUrl("/how-it-works") },
+  alternates: {
+    canonical: absoluteUrl("/how-it-works"),
+    languages: { vi: absoluteUrl("/vi/cach-su-dung"), "x-default": absoluteUrl("/how-it-works") },
+  },
 };
 
 const STEPS = [
@@ -62,7 +66,9 @@ export default function HowItWorksPage() {
           {SITE_NAME}
         </Link>
 
-        <h1 className="mt-10 font-display text-4xl font-bold text-dearly-text md:text-5xl">
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "How It Works" }]} />
+
+        <h1 className="mt-6 font-display text-4xl font-bold text-dearly-text md:text-5xl">
           How it works
         </h1>
         <p className="mt-4 text-lg text-dearly-text-secondary">

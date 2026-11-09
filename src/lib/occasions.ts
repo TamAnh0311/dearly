@@ -18,6 +18,9 @@ export interface OccasionPage {
   features: { title: string; body: string }[];
   faq: { q: string; a: string }[];
   cta: { label: string; href: string };
+  howTo?: { title: string; description: string }[];
+  comparison?: { dearly: string; traditional: string }[];
+  relatedGuides?: string[];
 }
 
 export const OCCASIONS: OccasionPage[] = [
@@ -42,8 +45,26 @@ export const OCCASIONS: OccasionPage[] = [
       { q: "Can I send personalised invitations to each guest?", a: "Yes. Paste your guest list (one name per line, “+1” for companions) and Dearly creates a personal link for each guest that greets them by name and reserves their seats." },
       { q: "Do guests need to download an app?", a: "No. Your invitation is a mobile-first web page — guests open the link from WhatsApp, email or text." },
       { q: "What happens after the wedding?", a: "Your invitation turns into a memory book: RSVP closes and guests can keep adding photos and blessings." },
+      { q: "How much does a digital wedding invitation cost?", a: "Dearly is completely free during early access. Every design, the RSVP system, guest list, blessings wall and photo album are included at no cost — no card required." },
+      { q: "Can I customise the design and colours?", a: "Yes. Each template offers 10 curated colour schemes, or you can set your own colours and fonts. You can also toggle individual sections on or off — countdown, story, schedule, venue map, blessings and more." },
+      { q: "How do I share my wedding invitation?", a: "Copy the link and paste it into WhatsApp, iMessage, email or any other app. You can also download a QR code for printed place cards or save-the-dates." },
+      { q: "Can I update the invitation after sending it?", a: "Yes. The page lives online, so any change you make — a venue update, corrected date, new schedule item — is instantly visible to everyone who has the link." },
+      { q: "Is there a limit on how many guests I can invite?", a: "No. You can add as many guests as you like. Dearly generates a unique personal link for each one and tracks their RSVP separately." },
     ],
     cta: { label: "Create my wedding invitation", href: "/signup?event=wedding" },
+    howTo: [
+      { title: "Choose a template", description: "Browse 20+ designs. Preview each template live to find the one that matches your style." },
+      { title: "Add your details", description: "Enter your names, date, venue, story, schedule, and gift details. Everything can be edited later." },
+      { title: "Share one link", description: "Publish your invitation and share the link via WhatsApp, SMS, email, or QR code. Each guest gets a personal link." },
+    ],
+    comparison: [
+      { dearly: "Free, create in 5 minutes", traditional: "Print costs $200-500, wait 1-2 weeks" },
+      { dearly: "Real-time RSVP tracking", traditional: "Call or text each guest" },
+      { dearly: "Update anytime", traditional: "Reprint if anything changes" },
+      { dearly: "Photo album & blessings", traditional: "Not included" },
+      { dearly: "Eco-friendly", traditional: "Paper & ink waste" },
+    ],
+    relatedGuides: ["create-your-invitation", "guest-list", "customise-your-design", "publish-and-share"],
   },
   {
     slug: "birthday",

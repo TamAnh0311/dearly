@@ -6,9 +6,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, Clock, Lightbulb } from "lucide-react";
+import { ArrowRight, Clock, Lightbulb } from "lucide-react";
 import { GUIDES, GUIDE_CATEGORIES, getGuide, relatedGuides } from "@/lib/guides";
+import { VI_GUIDES } from "@/lib/guides-vi";
 import { absoluteUrl } from "@/lib/seo";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
 
 interface GuidePageProps {
   params: { slug: string };
@@ -23,10 +25,16 @@ export function generateStaticParams() {
 export function generateMetadata({ params }: GuidePageProps): Metadata {
   const guide = getGuide(params.slug);
   if (!guide) return { title: "Guide not found", robots: { index: false, follow: false } };
+  const viGuide = VI_GUIDES.find((g) => g.enSlug === params.slug);
   return {
     title: `${guide.title} — Help`,
     description: guide.summary,
-    alternates: { canonical: absoluteUrl(`/help/${guide.slug}`) },
+    alternates: {
+      canonical: absoluteUrl(`/help/${guide.slug}`),
+      ...(viGuide
+        ? { languages: { vi: absoluteUrl(`/vi/huong-dan/${viGuide.slug}`), "x-default": absoluteUrl(`/help/${guide.slug}`) } }
+        : {}),
+    },
     openGraph: {
       title: guide.title,
       description: guide.summary,
@@ -92,13 +100,9 @@ export default function GuidePage({ params }: GuidePageProps) {
     <article className="px-5 pb-20 pt-10 md:px-8 md:pt-14">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <nav aria-label="Breadcrumb" className="mx-auto max-w-4xl text-xs text-dearly-text-muted">
-        <Link href="/help" className="inline-flex items-center gap-1.5 hover:text-dearly-accent">
-          <ArrowLeft size={13} aria-hidden /> All guides
-        </Link>
-        <span className="mx-2" aria-hidden>/</span>
-        <span>{category?.label}</span>
-      </nav>
+      <div className="mx-auto max-w-4xl">
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Help", href: "/help" }, { label: guide.title }]} />
+      </div>
 
       <header className="mx-auto mt-6 max-w-4xl">
         <span className="rounded-full bg-dearly-accent-soft px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-dearly-accent">

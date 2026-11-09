@@ -15,6 +15,7 @@ import { createPublicClient } from "@/lib/supabase/public";
 import { getTemplate } from "@/components/templates/registry";
 import { resolveTheme } from "@/components/templates/types";
 import ScrollProgress from "@/components/ui/ScrollProgress";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import TemplatePreview from "@/components/invitation/TemplatePreview";
 import { PLACEHOLDER_IMAGES } from "@/lib/placeholder-images";
 import type { TemplateRow, WeddingRow, WeddingEventRow, GuestbookEntryRow } from "@/types/database";
@@ -437,6 +438,11 @@ export default async function TemplatePreviewPage({ params, searchParams }: Page
         />
       )}
       {!bare && <ScrollProgress color={theme.colors.primary} />}
+      {!embedded && (
+        <div className="mx-auto max-w-6xl px-6 pt-6">
+          <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Templates", href: "/templates" }, { label: template.name }]} />
+        </div>
+      )}
 
       <TemplatePreview
         templateName={template.name}

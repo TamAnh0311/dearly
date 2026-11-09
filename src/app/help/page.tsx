@@ -9,12 +9,16 @@ import { BookOpen, Heart, Sparkles } from "lucide-react";
 import HelpCenter from "@/components/help/HelpCenter";
 import { GUIDES } from "@/lib/guides";
 import { absoluteUrl } from "@/lib/seo";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
 
 export const metadata: Metadata = {
   title: "Help & Guides",
   description:
     "Step-by-step Dearly guides: create an invitation, choose a design, build a guest list, collect RSVPs and photos, add music, publish and share.",
-  alternates: { canonical: absoluteUrl("/help") },
+  alternates: {
+    canonical: absoluteUrl("/help"),
+    languages: { vi: absoluteUrl("/vi/huong-dan"), "x-default": absoluteUrl("/help") },
+  },
   openGraph: {
     title: "Dearly Help & Guides",
     description: "Everything you need to build, share and keep your Dearly invitation.",
@@ -34,7 +38,10 @@ export default function HelpPage() {
 
   return (
     <>
-      <section className="relative overflow-hidden px-5 pb-16 pt-20 text-center md:px-8 md:pt-24">
+      <div className="mx-auto max-w-6xl px-5 pt-6 md:px-8">
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Help & Guides" }]} />
+      </div>
+      <section className="relative overflow-hidden px-5 pb-16 pt-6 text-center md:px-8 md:pt-10">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_55%_55%_at_50%_0%,rgb(var(--dearly-rose-soft))_0%,transparent_70%),radial-gradient(ellipse_40%_40%_at_85%_30%,rgb(var(--dearly-gold-soft))_0%,transparent_70%)]"

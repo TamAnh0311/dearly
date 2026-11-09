@@ -338,14 +338,15 @@ export default function BlessingShower({
         aria-pressed={enabled}
         aria-label={enabled ? ui.blessingShower.hide : ui.blessingShower.show}
         title={enabled ? ui.blessingShower.hide : ui.blessingShower.show}
-        className="fixed bottom-6 left-6 z-40 flex items-center gap-2 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] shadow-lg backdrop-blur-md"
+        className="fixed bottom-6 right-6 z-20 flex items-center gap-2 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] shadow-lg backdrop-blur-md"
         style={{ borderColor: alpha(palette.primary, 0.3), background: alpha(palette.background, 0.85), color: noteAccent(palette) }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: FIRST_WAVE_DELAY / 1000 }}
       >
         <Heart size={14} fill={enabled ? "currentColor" : "none"} />
-        {ui.blessingShower.count(blessings.length)}
+        <span className="hidden sm:inline">{ui.blessingShower.count(blessings.length)}</span>
+        <span className="sm:hidden">{blessings.length}</span>
       </motion.button>
     </>
   );

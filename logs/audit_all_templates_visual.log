@@ -1,0 +1,4 @@
+[2026-11-09 14:11:00]
+CONTEXT: User asked for a visual design audit of every invitation template.
+RESULT: Captured 172 screenshots (43 templates: 390x844 hero/RSVP/blessings + 1440x900 hero) and 15 contact sheets in .shots/audit2/. Key findings: Storybook previews hide blessings/reactions/story/gallery/gift (page.tsx:269); shared blessings section is visually identical across templates; many arch heroes cap at 420px and leave desktop empty; low-contrast micro-copy on light schemes. Name "clipping" in first parallel pass was a capture-timing artifact, confirmed by sequential re-shoots.
+---

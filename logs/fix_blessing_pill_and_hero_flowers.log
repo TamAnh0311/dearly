@@ -1,0 +1,4 @@
+[2026-11-09 15:25:38]
+CONTEXT: User reported flowers appearing "out of nowhere" and a broken UI element after the 43-template visual audit.
+RESULT: Fixed BlessingShower pill (bottom-right, z-20, compact heart+count on mobile) so opening covers paint over it and it clears centered scroll cues; anchored ArchHero flower clusters to the arch base (bottom, max 560px) instead of the viewport corners; cleared corrupted .next build. tsc EXIT 0. Evidence in .shots/audit2/fixcheck/.
+---

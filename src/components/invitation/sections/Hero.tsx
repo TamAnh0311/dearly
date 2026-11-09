@@ -398,7 +398,7 @@ function ArchHero({ wedding, palette, contentY, contentOpacity }: LayoutProps) {
       />
       <AmbientLayer palette={palette} />
       {palette.style.flowers && (
-        <div className="pointer-events-none absolute inset-0 opacity-90">
+        <div className="pointer-events-none absolute bottom-0 left-1/2 w-[min(100vw,560px)] -translate-x-1/2 opacity-90">
           <FlowerCluster palette={palette} side="left" scale={0.8} />
           <FlowerCluster palette={palette} side="right" scale={0.8} />
         </div>

@@ -9,7 +9,7 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, Copy, Heart, HeartHandshake, LoaderCircle, Minus, PartyPopper, Plus, QrCode, Send } from "lucide-react";
+import { Check, Copy, Heart, HeartHandshake, LoaderCircle, PartyPopper, QrCode, Send } from "lucide-react";
 import type { GiftAccount, GuestbookEntryRow } from "@/types/database";
 import { CelebrationBurst } from "../effects/Particles";
 import { useRsvpForm } from "../use-rsvp-form";
@@ -382,34 +382,24 @@ export default function RsvpSection({
                       </label>
 
                       {attending && (
-                        <div>
+                        <label className="block">
                           <span className="mb-2 block text-xs uppercase tracking-[0.25em]" style={{ color: palette.inkMuted }}>
                             {t.guests}
                           </span>
-                          <div className="inline-flex items-center gap-4 border px-3 py-2" style={inputStyle}>
-                            <button
-                              type="button"
-                              aria-label={t.fewerGuests}
-                              onClick={() => setPartySize(Math.max(1, partySize - 1))}
-                              className="rounded-full p-2 transition hover:opacity-70 disabled:opacity-30"
-                              disabled={partySize <= 1}
-                            >
-                              <Minus size={16} />
-                            </button>
-                            <span className="w-8 text-center text-xl tabular-nums" style={{ fontFamily: palette.displayFont }} aria-live="polite">
-                              {partySize}
-                            </span>
-                            <button
-                              type="button"
-                              aria-label={t.moreGuests}
-                              onClick={() => setPartySize(Math.min(maxParty, partySize + 1))}
-                              className="rounded-full p-2 transition hover:opacity-70 disabled:opacity-30"
-                              disabled={partySize >= maxParty}
-                            >
-                              <Plus size={16} />
-                            </button>
-                          </div>
-                        </div>
+                          <select
+                            value={partySize}
+                            onChange={(e) => setPartySize(Number(e.target.value))}
+                            className="w-full appearance-none border bg-transparent px-5 py-4 text-base outline-none transition focus:ring-2"
+                            style={inputStyle}
+                            aria-live="polite"
+                          >
+                            {Array.from({ length: maxParty }, (_, i) => i + 1).map((n) => (
+                              <option key={n} value={n}>
+                                {n} {n === 1 ? (ui.lang === "vi" ? "người" : "guest") : (ui.lang === "vi" ? "người" : "guests")}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
                       )}
 
                       {attending && sections?.dietary && (
